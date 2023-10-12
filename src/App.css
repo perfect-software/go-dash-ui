@@ -1,0 +1,11 @@
+
+  .parentContainer {
+    @apply flex ;
+   
+  }
+  .childContainer{
+    @apply flex-grow
+  }
+  
+
+  

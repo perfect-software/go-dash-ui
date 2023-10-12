@@ -1,0 +1,95 @@
+.headerContainer {
+  @apply w-full;
+ 
+}
+.leftDiv{
+  @apply flex gap-1 items-center;
+}
+.topHeader {
+  @apply h-[4rem] flex border border-solid border-opacity-10 rounded-[2px] bg-[#FFF] items-center justify-between p-2
+  sm:p-0 sm:h-[3.5rem];
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.logoImg {
+  @apply h-[5.75rem] w-[6.4375rem]
+  sm:h-[4rem] sm:w-[4.5rem];
+  transition: transform 1s ease-in;
+}
+.logoImg:hover{
+  @apply cursor-pointer;
+  transform : scale(0.96);
+  
+}
+
+.menuIcons {
+  @apply h-[1.6rem] w-[1.6rem] cursor-pointer select-none ml-1;
+  transition: transform 0.3s ease-out;
+}
+.menuIcons:hover {
+  animation: shake 0.5s ease-in-out;
+}
+.rightDiv {
+  @apply flex items-center gap-6 sm:gap-3 mr-4;
+} 
+.rightPinDiv{
+  @apply flex cursor-pointer text-white text-[1.125rem] sm:p-3 font-[700] leading-4 items-center gap-2 border border-solid rounded-[0.3125rem] p-3 bg-[#FF5722];
+}
+.rightPinDiv2{
+  @apply flex cursor-pointer text-white text-[1.125rem] sm:p-3 font-[700] leading-4 items-center gap-2 border border-solid rounded-[0.3125rem] p-3 bg-[#ACB1B5];
+}
+.navRightImage {
+  @apply h-[40px] w-[40px] cursor-pointer sm:h-[30px] sm:w-[30px];
+  transition: transform 0.3s ease-out;
+}
+.navRightImage:hover {
+  animation: shake 0.5s ease-in-out;
+}
+.togglePin {
+  @apply sm:hidden;
+}
+.rightUserDiv {
+  @apply flex items-center gap-1;
+}
+.userSpanOne{
+  @apply sm:text-[0.8rem]
+}.userSpanTwo{
+  @apply sm:text-[0.8rem]
+}
+.userSpanTop{
+  @apply font-bold;
+  transition: transform 0.3s ease-out;
+}
+.userSpanTop:hover{
+  animation: shake 0.5s ease-in-out;
+}
+.userSpanTwo {
+  @apply font-bold;
+}
+
+.bottomlogoHome {
+  @apply h-[2.5rem] w-[2.5rem] ml-7 cursor-pointer
+  sm:h-[2rem] sm:w-[2rem] sm:ml-[0.8rem];
+  transition: transform 0.3s ease-out;
+}
+.bottomlogoHome:hover {
+  animation: shake 0.5s ease-in-out;
+}
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(2px);
+  }
+}
+

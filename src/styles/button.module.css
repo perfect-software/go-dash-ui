@@ -1,0 +1,104 @@
+.buttonpushable {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    @apply mt-1;
+    cursor: pointer;
+    outline-offset: 4px;
+    transition: filter 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  .buttonshadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.4rem;
+    background: hsl(0deg 0% 0% / 0.25);
+    will-change: transform;
+    transform: translateY(2px);
+    transition:
+      transform
+      600ms
+      cubic-bezier(.3, .7, .4, 1);
+  }
+  
+  .buttonedge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(
+      to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%
+    );
+  }
+  
+  .buttonfront {
+    display: block;
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 12px;
+    @apply font-bold;
+    font-size: 1.1rem;
+    color: white;
+    background: hsl(345deg 100% 47%);
+    will-change: transform;
+    transform: translateY(-4px);
+    transition:
+      transform
+      600ms
+      cubic-bezier(.3, .7, .4, 1);
+  }
+  
+  @media (max-width: 100px) {
+    .buttonfront {
+      font-size: 1.25rem;
+      padding: 6px 12px;
+    }
+  }
+  
+  .buttonpushable:hover {
+    filter: brightness(110%);
+    -webkit-filter: brightness(110%);
+  }
+  
+  .buttonpushable:hover .buttonfront {
+    transform: translateY(-6px);
+    transition:
+      transform
+      250ms
+      cubic-bezier(.3, .7, .4, 1.5);
+  }
+  
+  .buttonpushable:active .buttonfront {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+  }
+  
+  .buttonpushable:hover .buttonshadow {
+    transform: translateY(4px);
+    transition:
+      transform
+      250ms
+      cubic-bezier(.3, .7, .4, 1.5);
+  }
+  
+  .buttonpushable:active .buttonshadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+  }
+  
+  .buttonpushable:focus:not(:focus-visible) {
+    outline: none;
+  }
