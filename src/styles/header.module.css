@@ -1,8 +1,7 @@
 .headerContainer {
   @apply w-full;
- 
 }
-.leftDiv{
+.leftDiv {
   @apply flex gap-1 items-center;
 }
 .topHeader {
@@ -13,13 +12,12 @@
 
 .logoImg {
   @apply h-[5.75rem] w-[6.4375rem]
-  sm:h-[4rem] sm:w-[4.5rem];
+  sm:h-[3rem] sm:w-[3.5rem];
   transition: transform 1s ease-in;
 }
-.logoImg:hover{
+.logoImg:hover {
   @apply cursor-pointer;
-  transform : scale(0.96);
-  
+  transform: scale(0.96);
 }
 
 .menuIcons {
@@ -31,15 +29,18 @@
 }
 .rightDiv {
   @apply flex items-center gap-6 sm:gap-3 mr-4;
-} 
-.rightPinDiv{
+}
+.rightPinDiv {
   @apply flex cursor-pointer text-white text-[1.125rem] sm:p-3 font-[700] leading-4 items-center gap-2 border border-solid rounded-[0.3125rem] p-3 bg-[#FF5722];
 }
-.rightPinDiv2{
+.inlinelogo {
+  @apply flex items-center;
+}
+.rightPinDiv2 {
   @apply flex cursor-pointer text-white text-[1.125rem] sm:p-3 font-[700] leading-4 items-center gap-2 border border-solid rounded-[0.3125rem] p-3 bg-[#ACB1B5];
 }
 .navRightImage {
-  @apply h-[40px] w-[40px] cursor-pointer sm:h-[30px] sm:w-[30px];
+  @apply h-[40px] w-[40px] cursor-pointer sm:h-[24px] sm:w-[24px];
   transition: transform 0.3s ease-out;
 }
 .navRightImage:hover {
@@ -51,16 +52,20 @@
 .rightUserDiv {
   @apply flex items-center gap-1;
 }
-.userSpanOne{
-  @apply sm:text-[0.8rem]
-}.userSpanTwo{
-  @apply sm:text-[0.8rem]
+.UserInfo{
+  @apply flex flex-col gap-0;
 }
-.userSpanTop{
+.userSpanOne {
+  @apply smp:text-[0.6rem];
+}
+.userSpanTwo {
+  @apply smp:text-[0.6rem];
+}
+.userSpanTop {
   @apply font-bold;
   transition: transform 0.3s ease-out;
 }
-.userSpanTop:hover{
+.userSpanTop:hover {
   animation: shake 0.5s ease-in-out;
 }
 .userSpanTwo {
@@ -92,4 +97,3 @@
     transform: translateX(2px);
   }
 }
-

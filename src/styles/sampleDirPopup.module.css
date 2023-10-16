@@ -14,7 +14,7 @@
     @apply col-span-1 flex flex-row items-center gap-1;
   }
   .sampleDirPopupContainer {
-    @apply bg-[#ffffff] flex w-[49vw] smp:w-[75vw] sm:w-[60vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
+    @apply bg-[#ffffff] flex w-[49vw] smp:w-[75vw] sm:w-[60vw] flex-col p-3 items-center rounded-[0.625rem] text-center;
   }
   
   .topsampleDirPopupContainer {
