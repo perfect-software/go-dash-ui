@@ -5,6 +5,7 @@ import EyeClosedIcon from "../assets/closeEye.svg";
 import EyeOpenIcon from "../assets/openEye.svg";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+
 const LoginRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setisLogin] = useState(true);
@@ -13,9 +14,9 @@ const LoginRegister = () => {
     setShowPassword(!showPassword);
   };
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
   });
 
@@ -27,34 +28,35 @@ const LoginRegister = () => {
 
   const validatePhoneNumber = (number) => /^\d{10}$/.test(number);
 
-  const validatePassword = (password) => {
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return regex.test(password);
-  };
+  // const validatePassword = (password) => {
+  //   const regex =
+  //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  //   return regex.test(password);
+  // };
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!validateEmail(formData.email)) {
       toast.error("Check Your email");
       return;
-    } else if (!validatePhoneNumber(formData.phoneNumber)) {
+    } else if (!validatePhoneNumber(formData.phone)) {
       toast.error("Must Have 10 Digits");
       return;
-    } else if (!validatePassword(formData.password)) {
-      toast.error("Check Your Password");
-      return;
+    // } else if (!validatePassword(formData.password)) {
+    //   toast.error("Check Your Password");
+      // return;
     }
 
     setSubmittedData((prevData) => [...prevData, formData]);
     setFormData({
-      name: "",
+      username: "",
       email: "",
-      phoneNumber: "",
+      phone: "",
       password: "",
     });
     toast.success("Registered Successfully");
     console.log(formData);
+    sendRequest(formData);
     setisLogin(true);
   };
 
@@ -143,10 +145,10 @@ const LoginRegister = () => {
                 className={styles.input}
                 type="text"
                 placeholder="Name"
-                value={formData.name}
+                value={formData.username}
                 required
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, username: e.target.value })
                 }
               />
               <input
@@ -163,10 +165,10 @@ const LoginRegister = () => {
                 className={styles.input}
                 type="text"
                 placeholder="Phone Number"
-                value={formData.phoneNumber}
+                value={formData.phone}
                 required
                 onChange={(e) =>
-                  setFormData({ ...formData, phoneNumber: e.target.value })
+                  setFormData({ ...formData, phone: e.target.value })
                 }
               />
               <div className={styles.passwordContainer}>
@@ -196,9 +198,9 @@ const LoginRegister = () => {
                 onClick={handleSubmit}
                 disabled={
                   !formData.email ||
-                  !formData.name ||
+                  !formData.username ||
                   !formData.password ||
-                  !formData.phoneNumber
+                  !formData.phone
                 }
                 className={styles.button}
               >
@@ -231,3 +233,35 @@ const LoginRegister = () => {
 };
 
 export default LoginRegister;
+
+function sendRequest(formData){
+  console.log("inside send request")
+  var url="http://localhost:8081/api/user/register/"
+  try{
+  const response = fetch(url, {
+    method: 'POST',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+  // .then(response => response.status())
+  // .then(data => {
+  //   toast.error(data);
+  // })
+  // .catch(error => {
+  //   toast.error(error);
+  // });
+  
+  const data = response.json();
+
+  if (response.status === 400) {
+    toast.error(data.message);
+  } else {
+    // Handle successful response
+  }}
+  catch (error) {
+  toast.error(error);
+}
+}
