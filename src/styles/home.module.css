@@ -1,0 +1,46 @@
+.homeParentContainer {
+
+    @apply relative  px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
+  height: calc(100vh - 4rem);
+}
+
+.homeParentContainer h1 {
+  @apply text-[1.875rem] mt-[2.19rem] sm:text-[1.4rem] text-[#FF5722] leading-4 font-[400];
+}
+.homeParentContainer h2 {
+  @apply text-[1.375rem] mt-[2.38rem] sm:text-[1.2rem]  ml-2 text-[#5B5B5B] leading-4 font-[600];
+}
+
+.topButtonContainer {
+  @apply mt-[2.87rem] gap-[4rem] sm:w-[90vw] w-full sm:justify-center flex-wrap flex items-center;
+}
+.topTwoButtonContainer {
+  @apply mt-[2rem] gap-[4rem] sm:w-[90vw] sm:mt-[4rem] sm:justify-center  flex flex-wrap items-center;
+}
+.navButton {
+  @apply w-fit relative sm:rounded-[0.4375rem] sm:bg-[#d9d9d9] flex items-center p-5 h-[2.62rem];
+  transition: background-color 1s ease-in-out;
+}
+.span {
+  @apply text-[1.125rem] sm:text-[0.9rem]   leading-4 whitespace-nowrap font-[400];
+  color: rgba(48, 56, 65, 1);
+}
+.buttonIcon {
+  @apply m-0 p-0 ml-2 sm:h-[0.8rem] sm:w-[0.8rem];
+}
+.navButton:hover {
+  background-color: rgba(217, 217, 217, 0.5);
+  @apply rounded-[0.4375rem];
+}
+.border {
+  @apply w-[21.87819rem] h-[0.0625rem] sm:w-[14rem]  mt-[3.38rem];
+  background: rgba(58, 71, 80, 0.2);
+}
+
+.bottomButtonContainer {
+  @apply flex flex-col mt-[3rem] gap-[3rem] sm:w-[90vw] sm:items-center;
+}
+
+.homeParentContainer h3 {
+  @apply text-[1.375rem] mt-[3.38rem] ml-2 sm:text-[1.2rem] text-[#5B5B5B] leading-4 font-[600];
+}

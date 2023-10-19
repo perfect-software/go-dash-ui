@@ -1,0 +1,7 @@
+version: "3"
+services: 
+    web:
+      container_name: shoe_Container
+      image: shoeerp/go-dash-ui-web:latest
+      ports:
+        - 8082:80

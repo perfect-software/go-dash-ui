@@ -1,0 +1,132 @@
+.mainLoginContainer {
+  height: 100vh;
+  @apply p-[1.8rem] sml:p-0 w-screen justify-between flex overflow-auto;
+}
+
+.leftDiv {
+  @apply flex justify-center h-[100%] w-[45%] self-center sml:w-[100%] rounded-[0.75rem] items-center;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+}
+.leftDiv:hover{
+  box-shadow: rgba(0, 0, 0, 0.78) 0px 22px 70px 4px;
+}
+
+@media (max-width: 1000px) {
+  .leftDiv {
+    @apply bg-center rounded-none;
+    background-image: url("../assets/loginback.jpg");
+    background-size: cover;
+    box-shadow: none;
+  }
+ 
+ 
+  .loginBoxContainer {
+    background-color: rgba(248, 249, 249, 0.8);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
+      rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+      rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  }
+
+  .registerBoxContainer {
+    background-color: rgba(248, 249, 249, 0.8);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
+      rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+      rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  }
+}
+
+.eyeIcon{
+  @apply h-[1.3rem] w-[1.3rem];
+}
+.passInput{
+  padding-right: 40px;
+  @apply w-full h-full p-2 pr-9 outline-none;
+}
+.passwordContainer{
+  @apply relative border w-full rounded-[0.3125rem];
+  height: 3rem;
+}
+
+.eyeButton {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.loginBoxContainer {
+  @apply flex flex-col sml:p-8 rounded-[0.75rem] p-7;
+ 
+}
+.button:disabled{
+  @apply cursor-not-allowed;
+}
+
+.loginBoxContainer h1 {
+  @apply text-[3rem] font-[600] sml:text-[2rem] leading-[3rem];
+}
+.registerBoxContainer {
+  @apply flex flex-col sml:p-8 rounded-[0.75rem] p-7;
+ 
+}
+
+.registerBoxContainer h1 {
+  @apply text-[3rem] font-[600] sml:text-[2rem] leading-[3rem];
+}
+
+.loginFormContainer {
+  @apply flex mt-[3rem] flex-col gap-[2rem];
+}
+.validationPara{
+ @apply flex flex-wrap mt-3;
+}
+.registerFormContainer {
+  @apply flex mt-[3rem] flex-col gap-[2rem];
+}
+
+.input {
+  @apply border p-2 w-full rounded-[0.3125rem];
+  height: 3rem;
+}
+.input:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+
+.passInput:focus {
+  @apply rounded-[0.3125rem];
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.footerContainer {
+  @apply flex mt-[1rem] smp:flex-col gap-4;
+}
+
+.button {
+  @apply p-[1rem] text-white rounded-[0.3125rem];
+  background: var(--Color-3, #3a4750);
+}
+.link {
+  color: #4b5563;
+  @apply text-[0.875rem] cursor-pointer sml:text-black font-[400] leading-[0.875rem];
+}
+
+.valid {
+  color: #4b5563;
+  @apply text-[0.67rem] sml:text-black font-[400] leading-[0.875rem];
+}
+.rightDiv {
+  @apply  flex justify-end items-end sml:hidden bg-cover bg-center rounded-[0.75rem] w-[55%];
+  height: calc(100vh-3.6rem);
+  background-image: url("../assets/loginback.jpg");
+}
+.perfect{
+  @apply flex cursor-help justify-center  text-[1rem] rounded-l-[0.4375rem] rounded-br-[0.75rem] font-bold text-white w-[16rem] h-[2.5rem] items-center bg-[#FF5722];
+}
+.perfect::after{
+   content:">";
+   @apply ml-2;
+}
