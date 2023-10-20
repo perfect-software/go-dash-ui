@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "../styles/supplier.module.css";
+import SupplierProvidedDetails from "./SupplierProvidedDetails";
 
 const Supplier = () => {
   const [activeButton, setActiveButton] = useState('details');
@@ -30,7 +31,7 @@ const Supplier = () => {
       </div>
   
 
-       {activeButton === "details" ? (<div>1</div>):(<div>2</div>)}
+       {activeButton === "details" ? (<div>1</div>):(<SupplierProvidedDetails/>)}
 
 
     </div>

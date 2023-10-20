@@ -1,11 +1,10 @@
 .sampleRequestMainContainer {
   height: calc(100vh - 4rem);
-
   @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
 }
 
 .subHeadContainer {
-  @apply flex justify-between items-center mt-1 sml:flex-col sml:gap-4;
+  @apply flex justify-between  items-center mt-1 sml:flex-col sml:gap-4;
 }
 .subHeadContainerTwo h2 {
   @apply text-[0.875rem];
@@ -134,7 +133,7 @@
   right: 0;
 }
 .topContainer {
-  @apply flex items-center justify-between relative;
+  @apply flex flex-col;
 }
 .fileinputcontainer {
   @apply flex items-center gap-4 h-[2.5rem];

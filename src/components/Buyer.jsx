@@ -18,23 +18,9 @@ const Buyer = () => {
     setIsPopupVisible(!isPopupVisible);
   };
   const [isGridVisible, setIsGridVisible] = useState({
-    basic: true,
-    internal: true,
-    delivery: true,
+    bank: true,
+    financials: true,
   });
-
-  const [imagePreview, setImagePreview] = useState(null);
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
@@ -45,13 +31,12 @@ const Buyer = () => {
   const today = new Date();
 
   const formattedDate = today.toISOString().split("T")[0];
-  
+
   return (
-    <div className={styles.sampleRequestMainContainer}>
+    <div className={styles.buyerMainContainer}>
       <div className={styles.headContiner}>
         <div className={styles.subHeadContainer}>
           <h1 className={styles.headText}>Buyer Directory</h1>
-        
         </div>
 
         <div className={styles.subHeadContainerTwo}>
@@ -71,7 +56,7 @@ const Buyer = () => {
               }`}
               onClick={() => setActiveButton("view")}
             >
-             View all buyers
+              View all buyers
             </button>
           </div>
           <div className={styles.headBorder}></div>
@@ -90,18 +75,16 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Name"
-                  
                 />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
-                Abbreviation
+                  Abbreviation
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter here "
-                 
                 />
               </div>
 
@@ -124,7 +107,23 @@ const Buyer = () => {
 
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">
-                  Type of Sample
+                  City
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select className={styles.basicInput} name="city">
+                    <option value="" selected disabled hidden>
+                      Select City
+                    </option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Agra">Agra</option>
+                    <option value="Kanpur">Kanpur</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="city">
+                  Buyer Type
                 </label>
                 <div className={styles.selectWrapper}>
                   <select className={styles.basicInput} name="city">
@@ -138,46 +137,105 @@ const Buyer = () => {
                   </select>
                 </div>
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Buyer
-                </label>
 
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    readOnly
-                  />
-                  <button
-                    onClick={() => {
-                      setIsBuyerPopup(true);
-                    }}
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Pincode
+                </label>
+                <input
+                  type="number"
+                  className={styles.basicInput}
+                  placeholder="Pincode"
+                />
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Billing Address
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Address"
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Contact Person
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Address"
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Mobile Number
+                </label>
+                <input
+                  type="number"
+                  className={styles.basicInput}
+                  placeholder="Mobile Number"
+                />
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Delivery Address
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Address"
+                />
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Sample Ref.
+                <label className={styles.sampleLabel} htmlFor="currency">
+                  Currency
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    readOnly
-                  />
-                  <button
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
+                <div className={styles.selectWrapper}>
+                  <select className={styles.basicInput} name="currency">
+                    <option value="" selected disabled hidden>
+                      Select Currency
+                    </option>
+                    <option value="INR">INR</option>
+                    <option value="USD">USD</option>
+                    <option value="EURO">EURO</option>
+                  </select>
                 </div>
               </div>
-             
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="phone">
+                  Phone Number
+                </label>
+                <input
+                  type="number"
+                  className={styles.basicInput}
+                  placeholder="Phone Number"
+                />
+              </div>
+
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="email">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  className={styles.basicInput}
+                  placeholder="Email"
+                />
+              </div>
+
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="merchandiser">
+                  Merchandiser
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Merchandiser"
+                />
+              </div>
             </div>
           </div>
 
@@ -186,373 +244,195 @@ const Buyer = () => {
           <div className={styles.middleContainer}>
             <div
               className={styles.middleContainerTop}
-              onClick={() => toggleGridVisibility("basic")}
+              onClick={() => toggleGridVisibility("bank")}
             >
-              <span>Basic Details</span>
+              <span>Bank Details</span>
               <img
                 src={UpIcon}
                 alt="Toggle Icon"
                 className={`${styles.chervIcon} ${
-                  isGridVisible.basic ? "" : `${styles.chervRotate}`
+                  isGridVisible.bank ? "" : `${styles.chervRotate}`
                 }`}
               />
             </div>
             <div
               className={`${styles.middleGrid} ${
-                isGridVisible.basic ? "" : styles.hide
+                isGridVisible.bank ? "" : styles.hide
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
-                  Buyer Ref.
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Bank Name
                 </label>
                 <input
                   type="text"
+                  placeholder="Bank Name"
                   className={styles.basicInput}
-                  placeholder="Input Here"
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input3">
-                  Buyer Article No.
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Bank Branch
                 </label>
                 <input
                   type="text"
-                  id="input3"
+                  placeholder="Bank Branch"
                   className={styles.basicInput}
-                  placeholder="Input 3"
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input2">
-                  Article Id and Name
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Bank Address
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    readOnly
-                  />
-                  <button
-                    onClick={() => {
-                      setIsArticlePopup(true);
-                    }}
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                </div>
+                <input
+                  type="text"
+                  placeholder="Bank Address"
+                  className={styles.basicInput}
+                />
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Size
+                <label className={styles.sampleLabel} htmlFor="city">
+                  City
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.basicInput} name="city">
                     <option value="" selected disabled hidden>
-                      Select Size
+                      Select City
                     </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Quantity
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="quantity">
-                    <option value="" selected disabled hidden>
-                      Select Quantity
-                    </option>
-                    <option value="5">5</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Pair
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="pair">
-                    <option value="" selected disabled hidden>
-                      Select Pair
-                    </option>
-                    <option value="Right">Right</option>
-                    <option value="Left">Left</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Colour
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Colour">
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Agra">Agra</option>
+                    <option value="Kanpur">Kanpur</option>
                   </select>
                 </div>
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Upper Colour
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="upperColour">
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Lining Colour
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="liningColour">
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Last
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Last">
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Insole
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Insole">
-                    <option value="" selected disabled hidden>
-                      Select Insole
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Sole Label & Colour
+                  Swift Code
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
-                  placeholder="Input Here"
+                  placeholder="Swift"
                 />
               </div>
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Socks
+                  A/C no
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   className={styles.basicInput}
-                  placeholder="Input Here"
+                  placeholder="Account Number"
                 />
               </div>
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Heel
+                  Confirm <br /> A/C no
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   className={styles.basicInput}
-                  placeholder="Input Here"
+                  placeholder="Confirm Account Number"
                 />
               </div>
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Pattern
+                  IFSC Code
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
-                  placeholder="Input Here"
+                  placeholder="IFSC Code"
                 />
               </div>
             </div>
           </div>
 
-          <div className={styles.headSmallBorder}></div>
-
-          <div className={styles.middleContainer}>
-            <div
-              className={styles.middleContainerBottom}
-              onClick={() => toggleGridVisibility("internal")}
-            >
-              <span>Internal Info Own</span>
-              <img
-                src={UpIcon} // Replace with the actual path to your icon
-                alt="Toggle Icon"
-                className={`${styles.chervIcon} ${
-                  isGridVisible.internal ? "" : `${styles.chervRotate}`
-                }`}
-              />
-            </div>
-            <div
-              id="detailsGrid"
-              className={`${styles.secondMiddleGrid} ${
-                isGridVisible.internal ? "" : styles.hide
-              }`}
-            >
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Upper Leather
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Lining
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Socks
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Qunatity
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-            </div>
-          </div>
           <div className={styles.headSmallBorder}></div>
 
           <div className={styles.bottomContainer}>
             <div
               className={styles.insideBottomContainer}
-              onClick={() => toggleGridVisibility("delivery")}
+              onClick={() => toggleGridVisibility("financials")}
             >
-              <span>Delivey Details</span>
+              <span>Financials</span>
               <img
                 src={UpIcon}
                 alt="Toggle Icon"
                 className={`${styles.chervIcon} ${
-                  isGridVisible.delivery ? "" : `${styles.chervRotate}`
+                  isGridVisible.financials ? "" : `${styles.chervRotate}`
                 }`}
               />
             </div>
             <div
               id="detailsGrid"
               className={`${styles.bottomGrid} ${
-                isGridVisible.delivery ? "" : styles.hide
+                isGridVisible.financials ? "" : styles.hide
               }`}
             >
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
-                  Delivery Date
-                </label>
-                <input type="date" className={styles.basicInput} />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Prod-Ex Date
-                </label>
-                <input type="date" className={styles.basicInput} />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Delivery Address
-                </label>
-                <input type="text" className={styles.basicInput} />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Comment (Leather)
+                  Discount %
                 </label>
                 <input
                   type="text"
+                  placeholder="Discount"
                   className={styles.basicInput}
-                  placeholder="Enter.."
                 />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
-                  Comment (Sole)
+                  SP. Discount
                 </label>
                 <input
                   type="text"
+                  placeholder=" SP. Discount"
                   className={styles.basicInput}
-                  placeholder="Enter.."
                 />
               </div>
-              <div className={styles.buttonColSpan}>
-                <div className={styles.buttonContainer2}>
-                  <button className={styles.resetButton}>Reset</button>
-                  <button onClick={togglePopup} className={styles.submitButton}>
-                    Submit
-                  </button>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="type">
+                  Payment Terms
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select className={styles.basicInput} name="type">
+                    <option value="" selected disabled hidden>
+                      Select Type
+                    </option>
+                    <option value="Type 1">Type 1</option>
+                    <option value="Type 2">Type 2</option>
+                    <option value="Type 3">Type 3</option>
+                    <option value="Type 4">Type 4</option>
+                  </select>
                 </div>
               </div>
-            </div>
-            {isGridVisible.delivery ? (
-              ""
-            ) : (
-              <div className={styles.buttonContainer}>
-                <button className={styles.resetButton}>Reset</button>
-                <button onClick={togglePopup} className={styles.submitButton}>
-                  Submit
-                </button>
+              <div className={styles.colSpan3}>
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Comment
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter.."
+                />
               </div>
-            )}
+            </div>
+          </div>
+
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton}>Reset</button>
+            <button onClick={togglePopup} className={styles.submitButton}>
+              Submit
+            </button>
           </div>
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
                 <h2>
-                  Sample Request <br /> Successfully Submitted
+                  Buyer Details <br /> Successfully Submitted
                 </h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
