@@ -3,7 +3,7 @@ import styles from "../styles/login_register.module.css";
 import { NavLink } from "react-router-dom";
 import EyeClosedIcon from "../assets/closeEye.svg";
 import EyeOpenIcon from "../assets/openEye.svg";
-import axios from 'axios';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -49,15 +49,15 @@ const LoginRegister = () => {
     }
 
     setSubmittedData((prevData) => [...prevData, formData]);
-    setFormData({
-      username: "",
-      email: "",
-      phone: "",
-      password: "",
-    });
+    // setFormData({
+    //   username: "",
+    //   email: "",
+    //   phone: "",
+    //   password: "",
+    // });
     console.log(formData);
     sendRequest(formData);
-    setisLogin(true);
+    // setisLogin(true);
   };
 
   const handleLoginSubmit = (e) => {
@@ -236,7 +236,7 @@ export default LoginRegister;
 
 async function sendRequest(formData) {
   console.log("inside send request");
-  const url = "/api/user/register/";
+  const url = "http://localhost:8081/api/user/register";
 
   try {
     const response = await axios.post(url, formData, {
@@ -246,14 +246,17 @@ async function sendRequest(formData) {
       },
     });
 
-    if (response.status >= 400 && response.status < 500) {
-      toast.error(response.data.message);
-    } else if (response.status >= 500 && response.status < 600) {
-      toast.error("Server error: " + response.status);
-    } else {
-      console.log("Success:", response.data);
-    }
+    console.log("Success:", response.data);
+    toast.success(response.data.message);
   } catch (error) {
-    toast.error(error.message);
+    if (error.response) {
+      toast.error(
+        error.response.data.message || `Server error: ${error.response.status}`
+      );
+    } else if (error.request) {
+      toast.error("No response received from the server.");
+    } else {
+      toast.error(error.message);
+    }
   }
 }
