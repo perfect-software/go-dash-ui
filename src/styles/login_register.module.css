@@ -4,16 +4,24 @@
 }
 
 .leftDiv {
-  @apply flex justify-center h-[100%] w-[45%] self-center sml:w-[100%] rounded-[0.75rem] items-center;
+  @apply flex justify-center box-border h-[100%] w-[45%] self-center sml:w-[100%]  rounded-[0.75rem] items-center overflow-y-auto;
+ 
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
 }
 .leftDiv:hover{
   box-shadow: rgba(0, 0, 0, 0.78) 0px 22px 70px 4px;
 }
 
+@media (max-height: 643px) {
+  .leftDiv {
+    @apply items-start;
+  }
+}
+
+
 @media (max-width: 1000px) {
   .leftDiv {
-    @apply bg-center rounded-none;
+    @apply bg-center rounded-none ;
     background-image: url("../assets/loginback.jpg");
     background-size: cover;
     box-shadow: none;
@@ -58,8 +66,25 @@
 }
 
 .loginBoxContainer {
-  @apply flex flex-col sml:p-8 rounded-[0.75rem] p-7;
+  @apply flex flex-col sml:p-8 rounded-[0.75rem] p-7 ;
  
+}
+
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto; /* Center the loader horizontally */
+  margin-bottom: 10px; /* Add some space between the loader and the button */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 .button:disabled{
   @apply cursor-not-allowed;

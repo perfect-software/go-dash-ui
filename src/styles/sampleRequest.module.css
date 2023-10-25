@@ -19,7 +19,7 @@
 }
 
 .inputLabel {
-  @apply text-[0.875rem] leading-4 font-[400];
+  @apply text-[0.875rem] text-[#5b5b5b] leading-4 font-[400];
 }
 
 .headBorder {
@@ -61,7 +61,7 @@
   @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
 }
 .topGrid {
-  @apply grid sm:grid-cols-2 smp:grid-cols-1 sml:grid-cols-3 grid-cols-4 gap-2 mt-2;
+  @apply grid sm:grid-cols-2 smp:grid-cols-1 sml:grid-cols-3 grid-cols-3 gap-2 mt-2;
 }
 
 .colSpan {
@@ -74,7 +74,7 @@
   @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
 }
 .imgColSpan {
-  @apply col-span-2 sm:col-span-2 smp:col-span-1 sml:col-span-3 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
+  @apply col-span-1 sm:col-span-2 smp:col-span-1 sml:col-span-3 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
 }
 .colSpan3 {
   @apply col-span-3 sm:col-span-1 sml:col-span-1 flex flex-row items-center gap-1;
@@ -97,7 +97,11 @@
   @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
   padding: 4px 50px 9px 9px;
 }
-
+.selectInput{
+  @apply border p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+  color:rgba(0, 0, 0, 0.66);
+}
 .searchBtn {
   @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
   background-image: url("../assets/search.svg");
@@ -116,6 +120,10 @@
   outline: none;
   border: 1px solid #00a5ad;
 }
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
 .basicInput2:focus {
   outline: none;
 
@@ -123,9 +131,19 @@
 }
 
 .sampleLabel {
-  @apply relative flex items-center text-[0.84rem] h-[3rem] w-[5.75rem];
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[8rem];
 }
-.sampleLabel::after {
+.articlesampleLabel {
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[6.6rem];
+}
+.commentsampleLabel {
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[6.3rem];
+}
+
+.impsampleLabel {
+  @apply relative text-[#5b5b5b] flex items-center text-[0.84rem] h-[2.5rem] w-[8rem];
+}
+.impsampleLabel::after {
   content: "*";
   color: #ff0000;
   position: absolute;
@@ -193,6 +211,9 @@ select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+
+  
+
 }
 
 .selectWrapper {
@@ -224,7 +245,7 @@ select {
 }
 
 .resetButton {
-  @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+  @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
   leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
   sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }
@@ -235,11 +256,9 @@ select {
 }
 
 .buttonContainer {
-  @apply absolute sm:relative flex items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
+  @apply flex mt-4 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
 }
-.buttonContainer2 {
-  @apply sm:relative flex items-center gap-1 right-0 sm:justify-center;
-}
+
 .popupOverlay {
   position: fixed;
   top: 0;
