@@ -204,6 +204,7 @@ const SampleRequest = () => {
                   <label htmlFor="file" className={styles.filelabel}>
                     Insert Image
                     <input
+                  
                       type="file"
                       id="file"
                       accept="image/*"

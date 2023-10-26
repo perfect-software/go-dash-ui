@@ -158,7 +158,7 @@
 }
 
 .filelabel {
-  @apply inline-block px-4 py-2 cursor-pointer bg-blue-700 text-white rounded-[5px];
+  @apply inline-block px-4 py-2 cursor-pointer bg-[#00A5AD] text-white rounded-[5px];
 }
 
 .filelabel input {
@@ -166,7 +166,8 @@
 }
 
 .imagepreview img {
-  @apply w-[3.7rem] h-[3.7rem] cursor-pointer rounded-full block border border-green-600 shadow-lg;
+  @apply h-[40px] w-[83px] cursor-pointer rounded-[0.4rem];
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 .middleContainer {
   @apply flex flex-col;
