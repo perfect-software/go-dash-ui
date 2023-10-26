@@ -38,14 +38,13 @@ const LoginRegister = () => {
   // };
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateEmail(formData.email)) {
       toast.error("Check Your email");
-    
+
       return;
     } else if (!validatePhoneNumber(formData.phone)) {
       toast.error("Must Have 10 Digits");
-     
       return;
       // } else if (!validatePassword(formData.password)) {
       //   toast.error("Check Your Password");
@@ -158,7 +157,7 @@ const LoginRegister = () => {
           </div>
         ) : (
           <div className={styles.registerBoxContainer}>
-          <h1>Shoe ERP+</h1>
+            <h1>Shoe ERP+</h1>
 
             <div className={styles.registerFormContainer}>
               <input

@@ -124,15 +124,15 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="date"
-                  className={styles.basicInput}
-                  placeholder="9BR45C"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
                   readOnly
                   defaultValue={formattedDate}
+                  style={{backgroundColor:'#F7F7F7'}}
                 />
               </div>
               
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Buyer Name
                 </label>
 
@@ -142,6 +142,7 @@ const SampleRequest = () => {
                     placeholder="Click on Search"
                     className={styles.basicInput2}
                     readOnly
+                    required
                   />
                   <button
                     onClick={() => {
@@ -171,11 +172,11 @@ const SampleRequest = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="season">
+                <label className={styles.impsampleLabel} htmlFor="season">
                   Type of Sample
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="sample">
+                  <select className={styles.selectInput} name="sample" required>
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
@@ -256,7 +257,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input3">
+                <label className={styles.impsampleLabel} htmlFor="input3">
                   Buyer Article
                 </label>
                 <input
@@ -264,6 +265,7 @@ const SampleRequest = () => {
                   id="input3"
                   className={styles.basicInput}
                   placeholder="Input 3"
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
@@ -280,11 +282,11 @@ const SampleRequest = () => {
              
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Size
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
+                  <select className={styles.selectInput} name="size" required>
                     <option value="" selected disabled hidden>
                       Select Size
                     </option>
@@ -296,11 +298,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Quantity
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="quantity">
+                  <select className={styles.selectInput} name="quantity" required>
                     <option value="" selected disabled hidden>
                       Select Quantity
                     </option>
@@ -312,7 +314,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Pair
                 </label>
                 <div className={styles.selectWrapper}>
@@ -327,11 +329,11 @@ const SampleRequest = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Upper Colour
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="upperColour">
+                  <select className={styles.selectInput} name="upperColour" required>
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -341,7 +343,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Lining Colour
                 </label>
                 <div className={styles.selectWrapper}>
@@ -355,7 +357,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Last
                 </label>
                 <div className={styles.selectWrapper}>
@@ -369,7 +371,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Insole
                 </label>
                 <div className={styles.selectWrapper}>
@@ -383,8 +385,8 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
-                  Sole Label & Colour
+                <label className={styles.impsampleLabel} htmlFor="buyer" required>
+                  Sole Label <br/>& Colour
                 </label>
                 <input
                   type="text"
@@ -393,33 +395,36 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Socks
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Heel
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Pattern
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
             </div>
@@ -448,43 +453,47 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Upper Leather
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Lining
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Socks
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Qunatity
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -532,22 +541,22 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Delivery Date
                 </label>
-                <input type="date" className={styles.basicInput} />
+                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Prod-Ex Date
                 </label>
-                <input type="date" className={styles.basicInput} />
+                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" className={styles.basicInput} />
+                <input type="text" className={styles.basicInput}  />
               </div>
               
     

@@ -298,3 +298,6 @@ select {
     ),
     var(--Color-2, #00adb5);
 }
+.dateInput{
+  color:rgba(0, 0, 0, 0.66);
+}
