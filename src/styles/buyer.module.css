@@ -1,7 +1,6 @@
-.sampleRequestMainContainer {
-    height: calc(100vh - 4rem);
-  
-    @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
+.buyerMainContainer {
+  height: calc(100vh - 4rem);
+  @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
   }
   
   .subHeadContainer {
@@ -128,15 +127,9 @@
   .sampleLabel {
     @apply relative flex items-center text-[0.84rem] h-[3rem] w-[5.75rem];
   }
-  .sampleLabel::after {
-    content: "*";
-    color: #ff0000;
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
+ 
   .topContainer {
-    @apply flex items-center justify-between relative;
+    @apply flex flex-col;
   }
   .fileinputcontainer {
     @apply flex items-center gap-4 h-[2.5rem];
@@ -175,7 +168,7 @@
     @apply mr-2 text-[0.875rem];
   }
   .bottomContainer {
-    @apply relative flex flex-col;
+    @apply flex flex-col;
   }
   .middleGrid.hide {
     @apply hidden;
@@ -238,11 +231,9 @@
   }
   
   .buttonContainer {
-    @apply absolute sm:relative flex items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
+    @apply flex justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
   }
-  .buttonContainer2 {
-    @apply sm:relative flex items-center gap-1 right-0 sm:justify-center;
-  }
+ 
   .popupOverlay {
     position: fixed;
     top: 0;

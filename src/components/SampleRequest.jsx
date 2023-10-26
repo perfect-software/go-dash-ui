@@ -99,38 +99,15 @@ const SampleRequest = () => {
 
       {activeButton === "details" ? (
         <>
+
           <div className={styles.topContainer}>
             <div className={styles.topGrid}>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  SR No.
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="9BR45C"
-                  readOnly
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Date Of Order
-                </label>
-                <input
-                  type="date"
-                  className={styles.basicInput}
-                  placeholder="9BR45C"
-                  readOnly
-                  defaultValue={formattedDate}
-                />
-              </div>
-
-              <div className={styles.colSpan}>
+            <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="season">
                   Season
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="season">
+                  <select className={styles.selectInput} name="season">
                     <option value="" selected disabled hidden>
                       Select Season
                     </option>
@@ -141,26 +118,22 @@ const SampleRequest = () => {
                   </select>
                 </div>
               </div>
-
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="season">
-                  Type of Sample
+                <label className={styles.impsampleLabel} htmlFor="input1">
+                  Date Of Order
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="sample">
-                    <option value="" selected disabled hidden>
-                      Select Type
-                    </option>
-                    <option value="Type 1">Type 1</option>
-                    <option value="Type 2">Type 2</option>
-                    <option value="Type 3">Type 3</option>
-                    <option value="Type 4">Type 4</option>
-                  </select>
-                </div>
+                <input
+                  type="date"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
+                  readOnly
+                  defaultValue={formattedDate}
+                  style={{backgroundColor:'#F7F7F7'}}
+                />
               </div>
+              
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Buyer
+                <label className={styles.impsampleLabel} htmlFor="input1">
+                  Buyer Name
                 </label>
 
                 <div className={styles.inputWithIcon}>
@@ -169,6 +142,7 @@ const SampleRequest = () => {
                     placeholder="Click on Search"
                     className={styles.basicInput2}
                     readOnly
+                    required
                   />
                   <button
                     onClick={() => {
@@ -179,7 +153,6 @@ const SampleRequest = () => {
                   ></button>
                 </div>
               </div>
-
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Sample Ref.
@@ -197,6 +170,26 @@ const SampleRequest = () => {
                   ></button>
                 </div>
               </div>
+
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="season">
+                  Type of Sample
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select className={styles.selectInput} name="sample" required>
+                    <option value="" selected disabled hidden>
+                      Select Type
+                    </option>
+                    <option value="Type 1">Type 1</option>
+                    <option value="Type 2">Type 2</option>
+                    <option value="Type 3">Type 3</option>
+                    <option value="Type 4">Type 4</option>
+                  </select>
+                </div>
+              </div>
+             
+
+           
               <div className={styles.imgColSpan}>
                 <div className={styles.fileinputcontainer}>
                   {imagePreview && (
@@ -211,6 +204,7 @@ const SampleRequest = () => {
                   <label htmlFor="file" className={styles.filelabel}>
                     Insert Image
                     <input
+                  
                       type="file"
                       id="file"
                       accept="image/*"
@@ -243,30 +237,9 @@ const SampleRequest = () => {
                 isGridVisible.basic ? "" : styles.hide
               }`}
             >
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
-                  Buyer Ref.
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Input Here"
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input3">
-                  Buyer Article No.
-                </label>
-                <input
-                  type="text"
-                  id="input3"
-                  className={styles.basicInput}
-                  placeholder="Input 3"
-                />
-              </div>
-              <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input2">
-                  Article Id and Name
+               <div className={styles.colSpan2}>
+                <label className={styles.articlesampleLabel} htmlFor="input2">
+                  Article No
                 </label>
                 <div className={styles.inputWithIcon}>
                   <input
@@ -284,13 +257,37 @@ const SampleRequest = () => {
                   ></button>
                 </div>
               </div>
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="input3">
+                  Buyer Article
+                </label>
+                <input
+                  type="text"
+                  id="input3"
+                  className={styles.basicInput}
+                  placeholder="Input 3"
+                  required
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Buyer Ref.
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                />
+              </div>
+             
+             
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Size
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size" required>
                     <option value="" selected disabled hidden>
                       Select Size
                     </option>
@@ -302,11 +299,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Quantity
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="quantity">
+                  <select className={styles.selectInput} name="quantity" required>
                     <option value="" selected disabled hidden>
                       Select Quantity
                     </option>
@@ -318,11 +315,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Pair
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="pair">
+                  <select className={styles.selectInput} name="pair">
                     <option value="" selected disabled hidden>
                       Select Pair
                     </option>
@@ -331,27 +328,13 @@ const SampleRequest = () => {
                   </select>
                 </div>
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Colour
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Colour">
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
-              </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4">
                   Upper Colour
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="upperColour">
+                  <select className={styles.selectInput} name="upperColour" required>
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -361,11 +344,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Lining Colour
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="liningColour">
+                  <select className={styles.selectInput} name="liningColour">
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -375,11 +358,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Last
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Last">
+                  <select className={styles.selectInput} name="Last">
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -389,11 +372,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="input4" required>
                   Insole
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="Insole">
+                  <select className={styles.selectInput} name="Insole">
                     <option value="" selected disabled hidden>
                       Select Insole
                     </option>
@@ -403,8 +386,8 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
-                  Sole Label & Colour
+                <label className={styles.impsampleLabel} htmlFor="buyer" required>
+                  Sole Label <br/>& Colour
                 </label>
                 <input
                   type="text"
@@ -413,33 +396,36 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Socks
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Heel
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Pattern
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  required
                 />
               </div>
             </div>
@@ -468,28 +454,52 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Upper Leather
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Lining
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  required
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Socks
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter.."
+                  required
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="input1">
+                  Qunatity
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter.."
+                  required
+                />
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.commentsampleLabel} htmlFor="input1">
+                  Comment (Leather)
                 </label>
                 <input
                   type="text"
@@ -497,9 +507,9 @@ const SampleRequest = () => {
                   placeholder="Enter.."
                 />
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Qunatity
+              <div className={styles.colSpan2}>
+                <label className={styles.commentsampleLabel} htmlFor="input1">
+                  Comment (Sole)
                 </label>
                 <input
                   type="text"
@@ -532,63 +542,37 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Delivery Date
                 </label>
-                <input type="date" className={styles.basicInput} />
+                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Prod-Ex Date
                 </label>
-                <input type="date" className={styles.basicInput} />
+                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" className={styles.basicInput} />
+                <input type="text" className={styles.basicInput}  />
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Comment (Leather)
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Comment (Sole)
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.buttonColSpan}>
-                <div className={styles.buttonContainer2}>
-                  <button className={styles.resetButton}>Reset</button>
-                  <button onClick={togglePopup} className={styles.submitButton}>
-                    Submit
-                  </button>
-                </div>
-              </div>
+              
+    
             </div>
-            {isGridVisible.delivery ? (
-              ""
-            ) : (
-              <div className={styles.buttonContainer}>
+           
+           
+          </div>
+
+          
+          <div className={styles.buttonContainer}>
                 <button className={styles.resetButton}>Reset</button>
                 <button onClick={togglePopup} className={styles.submitButton}>
                   Submit
                 </button>
               </div>
-            )}
-          </div>
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>

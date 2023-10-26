@@ -3,12 +3,14 @@ import styles from "../styles/login_register.module.css";
 import { NavLink } from "react-router-dom";
 import EyeClosedIcon from "../assets/closeEye.svg";
 import EyeOpenIcon from "../assets/openEye.svg";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 const LoginRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setisLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -22,6 +24,7 @@ const LoginRegister = () => {
 
   const [submittedData, setSubmittedData] = useState([]);
   const [logEmail, setLogEmail] = useState("");
+
   const [logPassword, setLogPassword] = useState("");
   const validateEmail = (email) =>
     /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
@@ -33,31 +36,47 @@ const LoginRegister = () => {
   //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   //   return regex.test(password);
   // };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateEmail(formData.email)) {
       toast.error("Check Your email");
+
       return;
     } else if (!validatePhoneNumber(formData.phone)) {
       toast.error("Must Have 10 Digits");
       return;
-    // } else if (!validatePassword(formData.password)) {
-    //   toast.error("Check Your Password");
+      // } else if (!validatePassword(formData.password)) {
+      //   toast.error("Check Your Password");
       // return;
     }
-
-    setSubmittedData((prevData) => [...prevData, formData]);
-    setFormData({
-      username: "",
-      email: "",
-      phone: "",
-      password: "",
-    });
-    toast.success("Registered Successfully");
     console.log(formData);
-    sendRequest(formData);
-    setisLogin(true);
+    setLoading(true);
+    const url = "http://localhost:8081/api/user/register";
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Success:", response.data);
+      toast.success(response.data.message);
+    } catch (error) {
+      if (error.response) {
+        toast.error(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        toast.error("No response received from the server.");
+      } else {
+        toast.error(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLoginSubmit = (e) => {
@@ -194,18 +213,22 @@ const LoginRegister = () => {
                   />
                 </button>
               </div>
-              <button
-                onClick={handleSubmit}
-                disabled={
-                  !formData.email ||
-                  !formData.username ||
-                  !formData.password ||
-                  !formData.phone
-                }
-                className={styles.button}
-              >
-                Register
-              </button>
+              {loading ? (
+                <div className={styles.loader}></div>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={
+                    !formData.email ||
+                    !formData.username ||
+                    !formData.password ||
+                    !formData.phone
+                  }
+                  className={styles.button}
+                >
+                  Register
+                </button>
+              )}
             </div>
 
             <div className={styles.footerContainer}>
@@ -233,35 +256,3 @@ const LoginRegister = () => {
 };
 
 export default LoginRegister;
-
-function sendRequest(formData){
-  console.log("inside send request")
-  var url="http://localhost:8081/api/user/register/"
-  try{
-  const response = fetch(url, {
-    method: 'POST',
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
-  // .then(response => response.status())
-  // .then(data => {
-  //   toast.error(data);
-  // })
-  // .catch(error => {
-  //   toast.error(error);
-  // });
-  
-  const data = response.json();
-
-  if (response.status === 400) {
-    toast.error(data.message);
-  } else {
-    // Handle successful response
-  }}
-  catch (error) {
-  toast.error(error);
-}
-}
