@@ -270,7 +270,7 @@ const BuyerPopup = ({onCancel}) => {
                   Buyer No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Buyer Name
                     </option>
@@ -287,7 +287,7 @@ const BuyerPopup = ({onCancel}) => {
                   Buyer No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                      Buyer No.
                     </option>
@@ -303,7 +303,7 @@ const BuyerPopup = ({onCancel}) => {
                   Buyer No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Select Buyer
                     </option>

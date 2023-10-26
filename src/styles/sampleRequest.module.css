@@ -98,7 +98,7 @@
   padding: 4px 50px 9px 9px;
 }
 .selectInput {
-  @apply border p-2 w-full rounded-[0.3125rem];
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
   height: 2.5rem;
   color: rgba(0, 0, 0, 0.66);
 }

@@ -67,7 +67,7 @@ select {
   border: 1px solid #00a5ad;
 }
 .selectInput {
-  @apply border p-2 w-full rounded-[0.3125rem];
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
   height: 2.5rem;
   color: rgba(0, 0, 0, 0.66);
 }
