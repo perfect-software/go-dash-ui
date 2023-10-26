@@ -63,7 +63,7 @@
     @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
   }
   .topGrid {
-    @apply grid sm:grid-cols-2 smp:grid-cols-1 sml:grid-cols-3 grid-cols-4 gap-2 mt-2;
+    @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
   }
   
   .colSpan {
@@ -75,6 +75,7 @@
   .colSpan2 {
     @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
   }
+ 
   .imgColSpan {
     @apply col-span-2 sm:col-span-2 smp:col-span-1 sml:col-span-3 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
   }
@@ -125,39 +126,24 @@
   }
   
   .sampleLabel {
-    @apply relative flex items-center text-[0.84rem] h-[3rem] w-[5.75rem];
-  }
- 
+    @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+    min-width: 5.6rem;
+}
   .topContainer {
     @apply flex flex-col;
   }
   .fileinputcontainer {
     @apply flex items-center gap-4 h-[2.5rem];
   }
-  
-  .filelabel {
-    @apply inline-block px-4 py-2 cursor-pointer bg-blue-700 text-white rounded-[5px];
-  }
-  
-  .filelabel input {
-    display: none;
-  }
-  
-  .imagepreview img {
-    @apply w-[3.7rem] h-[3.7rem] cursor-pointer rounded-full block border border-green-600 shadow-lg;
-  }
+ 
+
   .middleContainer {
     @apply flex flex-col;
   }
   .middleContainerTop {
     @apply mt-2 flex items-center cursor-pointer w-fit;
   }
-  .middleContainerBottom {
-    @apply mt-2 flex items-center cursor-pointer  w-fit;
-  }
-  .middleContainerBottom span {
-    @apply mr-2 text-[0.875rem];
-  }
+
   .insideBottomContainer {
     @apply mt-2 flex items-center w-fit cursor-pointer;
   }
@@ -190,7 +176,15 @@
     -webkit-appearance: none;
     -moz-appearance: none;
   }
-  
+  .selectInput {
+    @apply border p-2 w-full rounded-[0.3125rem];
+    height: 2.5rem;
+    color: rgba(0, 0, 0, 0.66);
+  }
+  .selectInput:focus {
+    outline: none;
+    border: 1px solid #00a5ad;
+  }
   .selectWrapper {
     position: relative;
     display: inline-block;
@@ -231,7 +225,7 @@
   }
   
   .buttonContainer {
-    @apply flex justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
+    @apply flex mt-3 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
   }
  
   .popupOverlay {

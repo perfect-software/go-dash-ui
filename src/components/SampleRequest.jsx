@@ -3,6 +3,7 @@ import styles from "../styles/sampleRequest.module.css";
 import UpIcon from "../assets/up.svg";
 import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
+import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
 
@@ -45,7 +46,7 @@ const SampleRequest = () => {
   const today = new Date();
 
   const formattedDate = today.toISOString().split("T")[0];
-  
+
   return (
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContiner}>
@@ -99,10 +100,9 @@ const SampleRequest = () => {
 
       {activeButton === "details" ? (
         <>
-
           <div className={styles.topContainer}>
             <div className={styles.topGrid}>
-            <div className={styles.colSpan}>
+              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="season">
                   Season
                 </label>
@@ -127,10 +127,10 @@ const SampleRequest = () => {
                   className={`${styles.basicInput} ${styles.dateInput}`}
                   readOnly
                   defaultValue={formattedDate}
-                  style={{backgroundColor:'#F7F7F7'}}
+                  style={{ backgroundColor: "#F7F7F7" }}
                 />
               </div>
-              
+
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input1">
                   Buyer Name
@@ -187,9 +187,7 @@ const SampleRequest = () => {
                   </select>
                 </div>
               </div>
-             
 
-           
               <div className={styles.imgColSpan}>
                 <div className={styles.fileinputcontainer}>
                   {imagePreview && (
@@ -204,7 +202,6 @@ const SampleRequest = () => {
                   <label htmlFor="file" className={styles.filelabel}>
                     Insert Image
                     <input
-                  
                       type="file"
                       id="file"
                       accept="image/*"
@@ -237,8 +234,8 @@ const SampleRequest = () => {
                 isGridVisible.basic ? "" : styles.hide
               }`}
             >
-               <div className={styles.colSpan2}>
-                <label className={styles.articlesampleLabel} htmlFor="input2">
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="input2">
                   Article No
                 </label>
                 <div className={styles.inputWithIcon}>
@@ -259,7 +256,7 @@ const SampleRequest = () => {
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input3">
-                  Buyer Article
+                  Buyer <br/> Article
                 </label>
                 <input
                   type="text"
@@ -279,8 +276,6 @@ const SampleRequest = () => {
                   placeholder="Input Here"
                 />
               </div>
-             
-             
 
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input4">
@@ -303,7 +298,11 @@ const SampleRequest = () => {
                   Quantity
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="quantity" required>
+                  <select
+                    className={styles.selectInput}
+                    name="quantity"
+                    required
+                  >
                     <option value="" selected disabled hidden>
                       Select Quantity
                     </option>
@@ -315,7 +314,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4" required>
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="input4"
+                  required
+                >
                   Pair
                 </label>
                 <div className={styles.selectWrapper}>
@@ -331,10 +334,14 @@ const SampleRequest = () => {
 
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input4">
-                  Upper Colour
+                  Upper <br/> Colour
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="upperColour" required>
+                  <select
+                    className={styles.selectInput}
+                    name="upperColour"
+                    required
+                  >
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -344,7 +351,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4" required>
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="input4"
+                  required
+                >
                   Lining Colour
                 </label>
                 <div className={styles.selectWrapper}>
@@ -358,7 +369,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4" required>
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="input4"
+                  required
+                >
                   Last
                 </label>
                 <div className={styles.selectWrapper}>
@@ -372,7 +387,11 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4" required>
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="input4"
+                  required
+                >
                   Insole
                 </label>
                 <div className={styles.selectWrapper}>
@@ -386,8 +405,12 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="buyer" required>
-                  Sole Label <br/>& Colour
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="buyer"
+                  required
+                >
+                  Sole Label <br />& Colour
                 </label>
                 <input
                   type="text"
@@ -455,7 +478,7 @@ const SampleRequest = () => {
             >
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input1">
-                  Upper Leather
+                  Upper <br/> Leather
                 </label>
                 <input
                   type="text"
@@ -498,8 +521,8 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.commentsampleLabel} htmlFor="input1">
-                  Comment (Leather)
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Comment <br/> (Leather)
                 </label>
                 <input
                   type="text"
@@ -508,7 +531,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.commentsampleLabel} htmlFor="input1">
+                <label className={styles.sampleLabel} htmlFor="input1">
                   Comment (Sole)
                 </label>
                 <input
@@ -545,34 +568,37 @@ const SampleRequest = () => {
                 <label className={styles.impsampleLabel} htmlFor="input1">
                   Delivery Date
                 </label>
-                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
+                <input
+                  type="date"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
+                  required
+                />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input1">
                   Prod-Ex Date
                 </label>
-                <input type="date" className={`${styles.basicInput} ${styles.dateInput}`} required />
+                <input
+                  type="date"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
+                  required
+                />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" className={styles.basicInput}  />
+                <input type="text" className={styles.basicInput} />
               </div>
-              
-    
             </div>
-           
-           
           </div>
 
-          
           <div className={styles.buttonContainer}>
-                <button className={styles.resetButton}>Reset</button>
-                <button onClick={togglePopup} className={styles.submitButton}>
-                  Submit
-                </button>
-              </div>
+            <button className={styles.resetButton}>Reset</button>
+            <button onClick={togglePopup} className={styles.submitButton}>
+              Submit
+            </button>
+          </div>
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
@@ -587,17 +613,20 @@ const SampleRequest = () => {
           )}
           {isImagePopup && (
             <div className={styles.popupOverlay}>
-              <div
-                className={styles.imagePopupContent}
-                style={{ backgroundImage: `url(${imagePreview})` }}
-              >
-                <button
-                  className={styles.popupButton}
-                  style={{ marginBottom: "3px" }}
-                  onClick={() => setIsImagePopup(false)}
-                >
-                  Close
-                </button>
+              <div className={styles.imagePopupContent}>
+                <img
+                  src={imagePreview}
+                  className={styles.imagepreviewPopup}
+                  alt=""
+                />
+                <img
+                  onClick={() => {
+                    setIsImagePopup(false);
+                  }}
+                  src={Cross}
+                  alt="Select Icon"
+                  className={styles.crossIcon}
+                />
               </div>
             </div>
           )}
