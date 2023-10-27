@@ -70,7 +70,27 @@
  
 }
 
+.error {
+  @apply mt-2;
+  color: rgb(255, 255, 255);
+  margin-bottom: 15px; /* Adjust the margin to move the error message up */
+  text-align: center;
+  font-size: 14px;
+  background-color: rgba(214, 41, 10, 0.945);
+  padding: 5px;
+  border-radius: 5px;
+}
 
+.msg {
+  @apply mt-2;
+  color: rgb(255, 255, 255);
+  margin-bottom: 15px; /* Adjust the margin to move the error message up */
+  text-align: center;
+  font-size: 14px;
+  background-color: rgba(18, 160, 30, 0.945);
+  padding: 5px;
+  border-radius: 5px;
+}
 .loader {
   border: 3px solid #f3f3f3;
   border-top: 3px solid #3498db;
@@ -99,7 +119,7 @@
 }
 
 .registerBoxContainer h1 {
-  @apply text-[3rem] font-[600] sml:text-[2rem] leading-[3rem];
+  @apply text-[2.5rem] font-[600] sml:text-[2rem] leading-[3rem];
 }
 
 .loginFormContainer {
@@ -109,7 +129,7 @@
  @apply flex flex-wrap mt-3;
 }
 .registerFormContainer {
-  @apply flex mt-[3rem] flex-col gap-[2rem];
+  @apply flex mt-[1.7rem] flex-col gap-[2rem];
 }
 
 .input {

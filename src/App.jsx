@@ -20,6 +20,7 @@ function App() {
   };
   return (
     <>
+      
       {!isLoginPage && <Header toggleSidebar={toggleSidebar} />}
 
       <div className="parentContainer">
@@ -41,7 +42,9 @@ function App() {
       </div>
 
       {!isLoginPage && <Footer />}
+     
     </>
+
   );
 }
 
