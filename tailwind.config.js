@@ -8,7 +8,7 @@ export default {
     screens:{
       'sml': {'max': '1000px'},
       'sm': {'max': '695px'},
-       'smp':  {'max': '400px'},
+       'smp':  {'max': '541px'},
      
      
     },

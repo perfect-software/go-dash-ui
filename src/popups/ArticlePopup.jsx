@@ -271,7 +271,7 @@ const ArticlePopup = ({ onCancel }) => {
                   Article No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Article Name
                     </option>
@@ -288,7 +288,7 @@ const ArticlePopup = ({ onCancel }) => {
                   Article No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Article No.
                     </option>
@@ -304,7 +304,7 @@ const ArticlePopup = ({ onCancel }) => {
                   Article No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Select Article
                     </option>

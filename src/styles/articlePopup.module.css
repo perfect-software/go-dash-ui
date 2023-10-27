@@ -63,9 +63,17 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
 }
-option {
-  color: rgba(91, 91, 91, 1);
+
+.selectInput {
+  @apply border text-sm p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+  color: rgba(0, 0, 0, 0.66);
 }
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+
 
 .topBarContainer {
   @apply flex w-full justify-between;

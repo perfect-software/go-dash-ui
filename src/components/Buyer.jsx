@@ -93,7 +93,7 @@ const Buyer = () => {
                   Country
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="country">
+                  <select className={styles.selectInput} name="country">
                     <option value="" selected disabled hidden>
                       Select Country
                     </option>
@@ -110,7 +110,7 @@ const Buyer = () => {
                   City
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="city">
+                  <select className={styles.selectInput} name="city">
                     <option value="" selected disabled hidden>
                       Select City
                     </option>
@@ -126,7 +126,7 @@ const Buyer = () => {
                   Buyer Type
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="city">
+                  <select className={styles.selectInput} name="city">
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
@@ -168,6 +168,7 @@ const Buyer = () => {
                   placeholder="Address"
                 />
               </div>
+             
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   Mobile Number
@@ -194,7 +195,7 @@ const Buyer = () => {
                   Currency
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="currency">
+                  <select className={styles.selectInput} name="currency">
                     <option value="" selected disabled hidden>
                       Select Currency
                     </option>
@@ -280,6 +281,32 @@ const Buyer = () => {
                   className={styles.basicInput}
                 />
               </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="city">
+                  City
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select className={styles.selectInput} name="city">
+                    <option value="" selected disabled hidden>
+                      Select City
+                    </option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Agra">Agra</option>
+                    <option value="Kanpur">Kanpur</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="buyer">
+                  Swift Code
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Swift"
+                />
+              </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Bank Address
@@ -291,33 +318,9 @@ const Buyer = () => {
                 />
               </div>
 
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
-                  City
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="city">
-                    <option value="" selected disabled hidden>
-                      Select City
-                    </option>
-                    <option value="Lucknow">Lucknow</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Agra">Agra</option>
-                    <option value="Kanpur">Kanpur</option>
-                  </select>
-                </div>
-              </div>
+             
 
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
-                  Swift Code
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Swift"
-                />
-              </div>
+             
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   A/C no
@@ -330,7 +333,7 @@ const Buyer = () => {
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Confirm <br /> A/C no
+                  Confirm <br/>A/C no
                 </label>
                 <input
                   type="number"
@@ -398,7 +401,7 @@ const Buyer = () => {
                   Payment Terms
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="type">
+                  <select className={styles.selectInput} name="type">
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>

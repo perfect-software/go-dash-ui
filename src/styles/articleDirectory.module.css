@@ -23,7 +23,8 @@
   height: 2.5rem;
 }
 .sampleLabel {
-  @apply flex items-center text-[0.84rem] h-[3rem] w-[5.75rem];
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+  min-width: 5.6rem;
 }
 
 .headSmallBorder {
@@ -35,19 +36,48 @@
   @apply text-[#00ADB5] mt-3 text-[1.5625rem] leading-4 font-[400];
 }
 .topGrid {
-  @apply grid sm:grid-cols-2 smp:grid-cols-1 sml:grid-cols-3 grid-cols-4 gap-2 mt-2;
+  @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
 }
 
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
 .largeColSpan {
-  @apply col-span-4 smp:col-span-1 sm:col-span-2 sml:col-span-3 flex flex-row items-center gap-1;
+  @apply col-span-3 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1;
 }
 .basicInput2 {
   @apply border p-2 w-full rounded-[0.3125rem];
   resize: none;
   height: 6rem;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  @apply w-full;
+}
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.selectInput {
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+  color: rgba(0, 0, 0, 0.66);
+}
+.selectWrapper::after {
+  content: url("../assets/dropDown.svg");
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 .resetButton {
   @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 

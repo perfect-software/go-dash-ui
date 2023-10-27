@@ -61,7 +61,7 @@
   @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
 }
 .topGrid {
-  @apply grid sm:grid-cols-2 smp:grid-cols-1 sml:grid-cols-3 grid-cols-3 gap-2 mt-2;
+  @apply grid sml:grid-cols-2 smp:grid-cols-1 grid-cols-3 gap-2 mt-2;
 }
 
 .colSpan {
@@ -74,7 +74,7 @@
   @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
 }
 .imgColSpan {
-  @apply col-span-1 sm:col-span-2 smp:col-span-1 sml:col-span-3 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
+  @apply col-span-1 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
 }
 .colSpan3 {
   @apply col-span-3 sm:col-span-1 sml:col-span-1 flex flex-row items-center gap-1;
@@ -97,10 +97,10 @@
   @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
   padding: 4px 50px 9px 9px;
 }
-.selectInput{
-  @apply border p-2 w-full rounded-[0.3125rem];
+.selectInput {
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
   height: 2.5rem;
-  color:rgba(0, 0, 0, 0.66);
+  color: rgba(0, 0, 0, 0.66);
 }
 .searchBtn {
   @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
@@ -131,17 +131,13 @@
 }
 
 .sampleLabel {
-  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[8rem];
-}
-.articlesampleLabel {
-  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[6.6rem];
-}
-.commentsampleLabel {
-  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] w-[6.3rem];
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] ;
+  min-width: 5.6rem;
 }
 
 .impsampleLabel {
-  @apply relative text-[#5b5b5b] flex items-center text-[0.84rem] h-[2.5rem] w-[8rem];
+  @apply relative text-[#5b5b5b] flex items-center text-[0.84rem] h-[2.5rem] ;
+  min-width: 5.6rem;
 }
 .impsampleLabel::after {
   content: "*";
@@ -167,7 +163,8 @@
 
 .imagepreview img {
   @apply h-[40px] w-[83px] cursor-pointer rounded-[0.4rem];
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
+    rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 .middleContainer {
   @apply flex flex-col;
@@ -212,9 +209,6 @@ select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-
-  
-
 }
 
 .selectWrapper {
@@ -259,7 +253,17 @@ select {
 .buttonContainer {
   @apply flex mt-4 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
 }
+.crossIcon {
+  @apply h-[1rem] w-[1rem] cursor-pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transition: transform 1s ease-in;
+}
 
+.crossIcon:hover {
+  transform: rotate(90deg);
+}
 .popupOverlay {
   position: fixed;
   top: 0;
@@ -278,27 +282,24 @@ select {
 }
 
 .imagePopupContent {
-  @apply flex flex-col justify-center items-center rounded-[0.625rem] h-[25vh] w-[20vw] sm:h-[10rem] sm:w-[10rem];
+  @apply relative h-[55vh] w-[50vw] sm:h-[20rem] rounded-[0.625rem] sm:w-[20rem];
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
-    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  justify-content: flex-end;
+  rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+.imagepreviewPopup {
+  width: 100%;
+  @apply rounded-[0.625rem];
+  height: 100%;
+  display: block;
+  margin: auto;
+  object-fit: fit;
+  
 }
 .popupContent h2 {
   @apply text-[#00ADB5] smp:text-[0.8rem] sm:text-[0.8rem] font-bold;
 }
 
-.popupButton {
-  @apply w-[8.375vw] mt-4 h-[5vh] text-white font-bold rounded-[0.4375rem] text-[1rem] sm:h-[2rem] sm:w-[4rem];
-  background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.2) 0%,
-      rgba(0, 0, 0, 0.2) 100%
-    ),
-    var(--Color-2, #00adb5);
-}
-.dateInput{
-  color:rgba(0, 0, 0, 0.66);
+.dateInput {
+  color: rgba(0, 0, 0, 0.66);
 }

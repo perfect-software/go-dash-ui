@@ -267,7 +267,7 @@ const SampleDirPopup = ({ onCancel }) => {
                   Sample No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Sample Name
                     </option>
@@ -284,7 +284,7 @@ const SampleDirPopup = ({ onCancel }) => {
                   Sample No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Sample No.
                     </option>
@@ -300,7 +300,7 @@ const SampleDirPopup = ({ onCancel }) => {
                   Sample No.
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.basicInput} name="size">
+                  <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
                       Select Sample
                     </option>
