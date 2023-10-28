@@ -18,6 +18,6 @@ export const postApiService = async (formData, BASE_URL) => {
 export const getApiService = async (BASE_URL) => {
   const url = `http://localhost:8081/api/${BASE_URL}`;
   const response = await axios.get(url);
-  console.log(response);
+  
   return response.data;
 };

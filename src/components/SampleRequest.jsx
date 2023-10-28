@@ -180,9 +180,9 @@ const SampleRequest = () => {
 
                   {showSuggestions && (
                     <div className={styles.suggestions}>
-                      {buyers.map((buyer) => (
+                      {buyers.map((buyer,index) => (
                         <div
-                          key={buyer.id}
+                          key={index}
                           className={styles.suggestionItem}
                           onClick={() => {
                             setBuyerInput(buyer);

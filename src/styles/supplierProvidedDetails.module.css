@@ -19,7 +19,15 @@
     .colSpan3 {
       @apply col-span-3 sm:col-span-1 sml:col-span-1 flex flex-row items-center gap-1;
     }
-    
+    .selectInput:focus {
+      outline: none;
+      border: 1px solid #00a5ad;
+    }
+    .selectInput {
+      @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
+      height: 2.5rem;
+      color: rgba(0, 0, 0, 0.66);
+    }
     .basicInput {
       @apply border p-2 w-full rounded-[0.3125rem];
       height: 2.5rem;
@@ -33,11 +41,7 @@
       position: relative;
       @apply w-[25.875vw] sm:w-[9rem] h-[5vh];
     }
-    .basicInput2 {
-      @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
-      padding: 4px 50px 9px 9px;
-    }
-    
+  
     .searchBtn {
       @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
       background-image: url("../assets/search.svg");
@@ -47,7 +51,14 @@
       background-size: 16px 16px;
       border: none;
     }
-    
+    .largeColSpan {
+      @apply col-span-3 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1;
+    }
+    .largeInput {
+      @apply border p-2 w-full rounded-[0.3125rem];
+      resize: none;
+      height: 6rem;
+    }
     .searchBtn:hover {
       opacity: 0.8;
     }
@@ -56,18 +67,20 @@
       outline: none;
       border: 1px solid #00a5ad;
     }
-    .basicInput2:focus {
+    .largeInput:focus {
       outline: none;
     
       border: 1px solid #00a5ad;
     }
     
     .sampleLabel {
-      @apply relative flex items-center text-[0.84rem] h-[3rem] w-[5.75rem];
+      @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] ;
+      min-width: 5.6rem;
     }
+    
    
     .topContainer {
-      @apply flex flex-col;
+      @apply flex flex-col mt-3;
     }
     .fileinputcontainer {
       @apply flex items-center gap-4 h-[2.5rem];

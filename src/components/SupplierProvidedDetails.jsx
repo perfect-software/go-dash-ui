@@ -92,7 +92,7 @@ const SupplierProvidedDetails = () => {
               Ownership Type
             </label>
             <div className={styles.selectWrapper}>
-              <select className={styles.basicInput} name="ownership">
+              <select className={styles.selectInput} name="ownership">
                 <option value="" selected disabled hidden>
                   Select Owner
                 </option>
@@ -103,10 +103,10 @@ const SupplierProvidedDetails = () => {
           </div>
           <div className={styles.colSpan2}>
             <label className={styles.sampleLabel} htmlFor="bussinessNature">
-              Bussiness Nature
+              Bussiness <br/> Nature
             </label>
             <div className={styles.selectWrapper}>
-              <select className={styles.basicInput} name="bussinessNature">
+              <select className={styles.selectInput} name="bussinessNature">
                 <option value="" selected disabled hidden>
                   Select Nature
                 </option>
@@ -271,7 +271,7 @@ const SupplierProvidedDetails = () => {
               City
             </label>
             <div className={styles.selectWrapper}>
-              <select className={styles.basicInput} name="city">
+              <select className={styles.selectInput} name="city">
                 <option value="" selected disabled hidden>
                   Select City
                 </option>
@@ -283,7 +283,7 @@ const SupplierProvidedDetails = () => {
             </div>
           </div>
 
-          <div className={styles.colSpan2}>
+          <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="buyer">
               A/C no
             </label>
@@ -314,15 +314,15 @@ const SupplierProvidedDetails = () => {
             />
           </div>
 
-          <div className={styles.colSpan3}>
+          <div className={styles.largeColSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
               Comment
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter.."
-            />
+            <textarea
+              className={styles.largeInput}
+              placeholder="Enter Here"
+              rows="3" 
+            ></textarea>
           </div>
         </div>
       </div>
