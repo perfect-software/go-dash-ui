@@ -3,13 +3,13 @@ import styles from "../styles/login_register.module.css";
 import { NavLink } from "react-router-dom";
 import EyeClosedIcon from "../assets/closeEye.svg";
 import EyeOpenIcon from "../assets/openEye.svg";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { postApiService } from "../service/apiService";
 
 const LoginRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setisLogin] = useState(true);
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const togglePasswordVisibility = () => {
@@ -31,48 +31,58 @@ const LoginRegister = () => {
 
   const validatePhoneNumber = (number) => /^\d{10}$/.test(number);
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const showSuccessMessage = (message) => {
+    setSuccess(message);
+    setTimeout(() => {
+      setSuccess(null);
+    }, 3000);
+  };
+
+  const showErrorMessage = (message) => {
+    setError(message);
+    setTimeout(() => {
+      setError(null);
+    }, 3000);
+  };
+
   // const validatePassword = (password) => {
   //   const regex =
   //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   //   return regex.test(password);
   // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateEmail(formData.email)) {
-      toast.error("Check Your email");
-
+      showErrorMessage("Check Your email");
       return;
     } else if (!validatePhoneNumber(formData.phone)) {
-      toast.error("Must Have 10 Digits");
+      showErrorMessage("Must Have 10 Digits");
+
       return;
       // } else if (!validatePassword(formData.password)) {
       //   toast.error("Check Your Password");
       // return;
     }
-    console.log(formData);
     setLoading(true);
-    const url = "http://localhost:8081/api/user/register";
+    const BASE_URL = "user/register";
     try {
-      const response = await axios.post(url, formData, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("Success:", response.data);
-      toast.success(response.data.message);
+      const responseData = await postApiService(formData,BASE_URL);
+      console.log("Success:", responseData);
+      showSuccessMessage(responseData.message);
     } catch (error) {
       if (error.response) {
-        toast.error(
+        showErrorMessage(
           error.response.data.message ||
             `Server error: ${error.response.status}`
         );
       } else if (error.request) {
-        toast.error("No response received from the server.");
+        showErrorMessage("No response received from the server.");
       } else {
-        toast.error(error.message);
+        showErrorMessage(error.message);
       }
     } finally {
       setLoading(false);
@@ -84,23 +94,20 @@ const LoginRegister = () => {
     const user = submittedData.find((user) => user.email === logEmail);
 
     if (!user) {
-      toast.error("User not found!");
+      showErrorMessage("User not found!");
       return;
     }
 
     if (user.password !== logPassword) {
-      toast.error("Invalid Credentials");
+      showErrorMessage("Invalid Credentials");
       return;
     }
 
-    toast.success("Login successful!");
+    showSuccessMessage("Login successful!");
   };
 
   return (
     <div className={styles.mainLoginContainer}>
-      <div>
-        <Toaster />
-      </div>
       <div className={styles.leftDiv}>
         {isLogin ? (
           <div className={styles.loginBoxContainer}>
@@ -153,6 +160,10 @@ const LoginRegister = () => {
               <p className={styles.link} onClick={() => setisLogin(false)}>
                 Request a new account
               </p>
+            </div>
+            <div>
+              {success && <div className={styles.msg}>{success}</div>}
+              {error && <div className={styles.error}>{error}</div>}
             </div>
           </div>
         ) : (
@@ -239,11 +250,16 @@ const LoginRegister = () => {
                 Already have an account?
               </p>
             </div>
+
             <div className={styles.validationPara}>
               <p className={styles.valid}>
                 Password : Must have 8 digits , at least one small and <br />{" "}
                 one capital alphabet , at least a nubmer and symbol
               </p>
+            </div>
+            <div>
+              {success && <div className={styles.msg}>{success}</div>}
+              {error && <div className={styles.error}>{error}</div>}
             </div>
           </div>
         )}

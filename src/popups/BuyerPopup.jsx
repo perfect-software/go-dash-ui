@@ -4,12 +4,24 @@ import TickCheck from "../assets/tickCheck.svg";
 import BlueCheck from "../assets/blueTick.svg";
 import Cross from "../assets/cross.svg";
 import { useNavigate } from "react-router-dom";
+import { fetchAllBuyers } from "../reducer/buyersSlice";
+import { useSelector, useDispatch } from 'react-redux';
 const BuyerPopup = ({onCancel}) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const ROWS_PER_PAGE = 4;
 
+  
+  const dispatch = useDispatch();
+  const buyers = useSelector((state) => state.buyer.buyers);
+  const loaded = useSelector(state => state.buyer.loaded);
+
+  useEffect(() => {
+    if (!loaded) {
+      dispatch(fetchAllBuyers());
+    }
+  }, [dispatch, loaded]);
   const rowData = [
     {
       id: 1,
@@ -139,27 +151,24 @@ const BuyerPopup = ({onCancel}) => {
   const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const generateRow = (data, rowIndex) => (
-    <tr
-      key={data.id}>
+  const generateRow = (buyer, data, rowIndex) => (
+    <tr key={data.id}>
       <td className={styles.selectColumn}>
         <button
           className={styles.selectButton}
           onClick={(e) => {
             e.stopPropagation(); 
             if (selectedRowIndex === rowIndex) {
-             
               setSelectedRowIndex(null);
             } else {
               setSelectedRowIndex(rowIndex);
-             
             }
           }}
         >
-        <img src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck} alt="Select Icon" className={styles.icon} />
-
+          <img src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck} alt="Select Icon" className={styles.icon} />
         </button>
       </td>
+      <td className={styles.buyerContent}>{buyer}</td> {/* Here's the buyer column */}
       {data.columns.map((columnData, columnIndex) => (
         <td className={styles.buyerContent} key={columnIndex}>
           {columnData}
@@ -167,11 +176,16 @@ const BuyerPopup = ({onCancel}) => {
       ))}
     </tr>
   );
+  
+  
   const renderTableRows = () => {
     const start = (currentPage - 1) * ROWS_PER_PAGE;
     const end = start + ROWS_PER_PAGE;
-    return rowData.slice(start, end).map(generateRow);
+    return rowData.slice(start, end).map((data, index) => generateRow(buyers[index], data, index));
   };
+  
+  
+  
   const paginationRef = useRef(null);
 
   useEffect(() => {

@@ -128,3 +128,7 @@ select {
   outline: none;
   border: 1px solid #00a5ad;
 }
+.basicInput2:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}

@@ -6,11 +6,17 @@ import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
+import { getApiService } from "../service/apiService";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
+
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [buyerInput, setBuyerInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
+  const [buyers, setBuyers] = useState([]);
+
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
@@ -25,6 +31,25 @@ const SampleRequest = () => {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+
+  const handleBuyerInputChange = async (e) => {
+    const value = e.target.value;
+    setBuyerInput(value);
+
+    if (value.length >= 3) {
+      const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
+
+      try {
+        const fetchedBuyers = await getApiService(BASE_URL);
+        setBuyers(fetchedBuyers);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Failed to fetch buyers:", error);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -141,7 +166,8 @@ const SampleRequest = () => {
                     type="text"
                     placeholder="Click on Search"
                     className={styles.basicInput2}
-                    readOnly
+                    onChange={handleBuyerInputChange}
+                    value={buyerInput}
                     required
                   />
                   <button
@@ -151,6 +177,23 @@ const SampleRequest = () => {
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
+
+                  {showSuggestions && (
+                    <div className={styles.suggestions}>
+                      {buyers.map((buyer,index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setBuyerInput(buyer);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {buyer}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.colSpan}>
@@ -256,7 +299,7 @@ const SampleRequest = () => {
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input3">
-                  Buyer <br/> Article
+                  Buyer <br /> Article
                 </label>
                 <input
                   type="text"
@@ -334,7 +377,7 @@ const SampleRequest = () => {
 
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input4">
-                  Upper <br/> Colour
+                  Upper <br /> Colour
                 </label>
                 <div className={styles.selectWrapper}>
                   <select
@@ -478,7 +521,7 @@ const SampleRequest = () => {
             >
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input1">
-                  Upper <br/> Leather
+                  Upper <br /> Leather
                 </label>
                 <input
                   type="text"
@@ -522,7 +565,7 @@ const SampleRequest = () => {
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="input1">
-                  Comment <br/> (Leather)
+                  Comment <br /> (Leather)
                 </label>
                 <input
                   type="text"

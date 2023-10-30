@@ -12,6 +12,34 @@
 .headInputContainer {
   @apply flex items-center gap-2 sm:mb-2;
 }
+.inputWithIcon {
+  @apply relative w-full inline-block;
+}
+
+.suggestions::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+
+.suggestions::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+.suggestions::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-500;
+}
+
+
+.suggestions {
+  @apply absolute w-full border  border-t-0 border-gray-300 rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+}
+
+.suggestionItem {
+  @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+}
+
+.inputWithIcon-active {
+  @apply bg-blue-600 text-white;
+}
 
 .headInput {
   @apply border border-solid bg-[#F7F7F7] w-[25.875vw] sm:w-[9rem] h-[5vh] border-teal-400 rounded-[0.3125rem] px-2 py-1;
@@ -84,11 +112,7 @@
   @apply border p-2 w-full rounded-[0.3125rem];
   height: 2.5rem;
 }
-.inputWithIcon {
-  position: relative;
 
-  @apply w-full;
-}
 .headInputWithIcon {
   position: relative;
   @apply w-[25.875vw] sm:w-[9rem] h-[5vh];

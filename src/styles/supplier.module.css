@@ -5,7 +5,7 @@
 }
 
 .subHeadContainer {
-  @apply flex justify-between  items-center mt-[1rem] sml:flex-col sml:gap-4;
+  @apply flex justify-between items-center mt-[1rem] sml:flex-col sml:gap-4;
 }
 .headText {
   @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
@@ -25,7 +25,59 @@
 .topButtons {
   @apply flex gap-[3.12rem] ;
 }
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
 
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  @apply w-full;
+}
+
+.selectWrapper::after {
+  content: url("../assets/dropDown.svg");
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.selectInput {
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+  color: rgba(0, 0, 0, 0.66);
+}
+.basicInput {
+  @apply border p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+}
+.basicInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.topGrid {
+  @apply grid sm:grid-cols-2 smp:grid-cols-1 grid-cols-3 gap-2;
+}
+.sampleLabel {
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] ;
+  min-width: 5.6rem;
+}
+
+.colSpan {
+  @apply col-span-1 flex flex-row items-center gap-1;
+}
+.topContainer {
+  @apply flex flex-col mt-3;
+}
 .screenChangeButton {
     position: relative; 
   }
@@ -47,4 +99,18 @@
   .screenChangeButton.active::before {
     opacity: 1;
   }
+  .resetButton {
+    @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+    leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+  }
+  .submitButton {
+    @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+    leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+  }
   
+  .buttonContainer {
+    @apply flex mt-4 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:mb-2 sm:mt-4 sm:ml-8;
+  }
+ 
