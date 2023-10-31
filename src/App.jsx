@@ -10,8 +10,8 @@ import ArticleDirectory from "./components/ArticleDirectory";
 import Supplier from "./components/Supplier";
 import LoginRegister from "./components/LoginRegister";
 import Buyer from "./components/Buyer";
-import { Provider } from 'react-redux';
-import { store } from './helper/store';
+// import { Provider } from 'react-redux';
+// import { store } from './helper/store';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -22,7 +22,7 @@ function App() {
   };
   return (
     <>
-        <Provider store={store}>
+        {/* <Provider store={store}> */}
       {!isLoginPage && <Header toggleSidebar={toggleSidebar} />}
 
       <div className="parentContainer">
@@ -44,7 +44,7 @@ function App() {
       </div>
 
       {!isLoginPage && <Footer />}
-      </Provider>
+      {/* </Provider> */}
     </>
 
   );

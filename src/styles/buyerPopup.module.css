@@ -28,7 +28,6 @@
   color: rgba(91, 91, 91, 1);
 }
 
-
 .topBarContainer h1 {
   @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400];
 }
@@ -43,10 +42,8 @@
 }
 .crossIcon {
   @apply h-[1rem] w-[1rem] cursor-pointer;
-   transition: transform 1s ease-in;
- 
+  transition: transform 1s ease-in;
 }
-
 
 .crossIcon:hover {
   transform: rotate(90deg);
@@ -78,7 +75,7 @@ select {
   @apply flex overflow-x-auto gap-2 px-3;
 }
 
-.icon{
+.icon {
   @apply m-0 p-0 h-[1.2rem] w-[1.2rem] mt-2;
 }
 .activePage {
@@ -119,13 +116,15 @@ select {
 
 .table td,
 .table th {
-  @apply py-[1.4px] px-2 whitespace-nowrap text-sm ;
+  @apply py-[1.4px] px-2 whitespace-nowrap text-sm;
   color: rgba(91, 91, 91, 1);
   height: 1rem;
 
   border: 2px solid rgba(238, 238, 238, 0.8);
 }
-
+tr{
+  @apply cursor-pointer;
+}
 .tablecontainer::-webkit-scrollbar {
   display: block;
   height: 0.4rem;
@@ -147,17 +146,17 @@ select {
   background: rgba(58, 71, 80, 1);
 }
 .buyerPopupButton {
-  background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.2) 0%,
-      rgba(0, 0, 0, 0.2) 100%
-    ),
-    var(--Color-2, #00adb5);
+  @apply flex bg-[#001314] items-center justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
 
-  @apply flex items-center justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+.buyerSelectPopupButton {
+  @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
 .bottombuyerButtonContainer {
-  @apply flex justify-end sm:justify-center items-center gap-2 w-full mt-1;
+  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
+}
+.buyerSelectPopupButton:disabled{
+  @apply cursor-not-allowed;
 }
 
 .buyerPopupButton::after {
