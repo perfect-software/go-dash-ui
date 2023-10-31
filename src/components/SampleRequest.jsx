@@ -49,8 +49,9 @@ const SampleRequest = () => {
     prodExDate: "",
   });
 
-  const [buyerDetailsForm, setBuyerDetailsFrom] = useState({
+  const [buyerDetailsForm, setBuyerDetailsForm] = useState({
     buyername: "",
+    deliveryAddress:"",
   });
 
   const togglePopup = (message) => {
@@ -66,7 +67,16 @@ const SampleRequest = () => {
     });
   };
   const areAllFieldsFilled = (form) => {
-    return !Object.values(form).some((value) => value === "");
+    const fieldsToExclude = [
+      "comments",
+      "season",
+      "sampleRef",
+      "articleNo",
+      "buyerRef",
+    ];
+    return !Object.entries(form)
+      .filter(([key]) => !fieldsToExclude.includes(key))
+      .some(([, value]) => value === "");
   };
   const [isGridVisible, setIsGridVisible] = useState({
     basic: true,
@@ -78,7 +88,7 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
-    setBuyerDetailsFrom({ ...buyerDetailsForm, buyername: value });
+    setBuyerDetailsForm({ ...buyerDetailsForm, buyername: value });
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -97,9 +107,10 @@ const SampleRequest = () => {
 
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
-      setBuyerDetailsFrom({
+      setBuyerDetailsForm({
         ...buyerDetailsForm,
         buyername: selectedBuyer.bsName,
+        deliveryAddress:selectedBuyer.billingAddress
       });
       setShowSuggestions(false);
       setIsBuyerPopup(false);
@@ -130,10 +141,10 @@ const SampleRequest = () => {
       inQuantity: "",
       comments: "",
       deliveryDate: "",
-      prodExDate: ""
+      prodExDate: "",
     });
   };
-  
+
   const handleCreateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -296,7 +307,7 @@ const SampleRequest = () => {
                           key={index}
                           className={styles.suggestionItem}
                           onClick={() => {
-                            setBuyerInput(buyer);
+                            setBuyerDetailsForm({ ...buyerDetailsForm, buyername: buyer });
                             setShowSuggestions(false);
                           }}
                         >
@@ -819,7 +830,7 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" className={styles.basicInput} />
+                <input type="text" name="deliveryAddress" className={styles.basicInput} value={buyerDetailsForm.deliveryAddress} onChange={(e)=> setBuyerDetailsForm({...buyerDetailsForm , deliveryAddress:e.target.value})} />
               </div>
             </div>
           </div>
@@ -827,12 +838,13 @@ const SampleRequest = () => {
           <div className={styles.parentButtonContainer}>
             {loading ? (
               <div className={styles.buttonContainer}>
-            
                 <div className={styles.loader}></div>
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-                <button className={styles.resetButton}  onClick={resetAllFields}>Reset</button>
+                <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
                 <button
                   onClick={handleCreateSampleSubmit}
                   className={styles.submitButton}
@@ -847,9 +859,7 @@ const SampleRequest = () => {
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
-                <h2>
-                  {popupMessage}
-                </h2>
+                <h2>{popupMessage}</h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
                 </button>
@@ -888,7 +898,6 @@ const SampleRequest = () => {
               onCancel={() => {
                 setIsBuyerPopup(false);
               }}
-          
               onSubmitBuyerData={handleBuyerSubmit}
             />
           )}
