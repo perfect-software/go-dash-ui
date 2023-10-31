@@ -49,8 +49,9 @@ const SampleRequest = () => {
     prodExDate: "",
   });
 
-  const [buyerDetailsForm, setBuyerDetailsFrom] = useState({
+  const [buyerDetailsForm, setBuyerDetailsForm] = useState({
     buyername: "",
+    deliveryAddress:"",
   });
 
   const togglePopup = (message) => {
@@ -87,7 +88,7 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
-    setBuyerDetailsFrom({ ...buyerDetailsForm, buyername: value });
+    setBuyerDetailsForm({ ...buyerDetailsForm, buyername: value });
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -106,9 +107,10 @@ const SampleRequest = () => {
 
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
-      setBuyerDetailsFrom({
+      setBuyerDetailsForm({
         ...buyerDetailsForm,
         buyername: selectedBuyer.bsName,
+        deliveryAddress:selectedBuyer.billingAddress
       });
       setShowSuggestions(false);
       setIsBuyerPopup(false);
@@ -305,7 +307,7 @@ const SampleRequest = () => {
                           key={index}
                           className={styles.suggestionItem}
                           onClick={() => {
-                            setBuyerInput(buyer);
+                            setBuyerDetailsForm({ ...buyerDetailsForm, buyername: buyer });
                             setShowSuggestions(false);
                           }}
                         >
@@ -828,7 +830,7 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" className={styles.basicInput} />
+                <input type="text" name="deliveryAddress" className={styles.basicInput} value={buyerDetailsForm.deliveryAddress} onChange={(e)=> setBuyerDetailsForm({...buyerDetailsForm , deliveryAddress:e.target.value})} />
               </div>
             </div>
           </div>

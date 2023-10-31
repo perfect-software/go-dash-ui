@@ -16,7 +16,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const ROWS_PER_PAGE = 4;
 
   const callApi = async (page = 1) => {
-    const adjustedPage = page - 1; 
+    const adjustedPage = page - 1;
     const BASE_URL = `http://localhost:8081/api/sample/getAllBuyer/{page_num}?page_num=${adjustedPage}`;
     try {
       const response = await axios.get(BASE_URL);
@@ -27,8 +27,8 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
         billingAddress: item.billingAddress,
       }));
       setBuyers(extractedData);
-      setSelectedRowIndex(null);  
-      setSelectedBuyer(null); 
+      setSelectedRowIndex(null);
+      setSelectedBuyer(null);
     } catch (error) {
       console.error("Failed to fetch All buyers:", error);
     }
@@ -37,8 +37,6 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   useEffect(() => {
     callApi(1);
   }, []);
-
-
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -90,14 +88,11 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     }
   }, [currentPage]);
 
-
-
   const renderPaginationControls = () => {
     const navigateTo = (page) => {
       if (page >= 1) {
         callApi(page);
         setCurrentPage(page);
-        
       }
     };
 
@@ -121,7 +116,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
         <input
           type="number"
           placeholder="Go to page"
-          style={{width:'80px'}}
+          style={{ width: "80px" }}
           min="1"
           onKeyDown={(e) => {
             if (e.key === "Enter" && e.target.value) {
@@ -211,7 +206,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                     <th className={styles.selectColumn}>Select</th>
                     <th className={styles.buyerColumn}>Buyer Name</th>
                     <th className={styles.buyerColumn}>Buyer Code</th>
-                    <th className={styles.buyerColumn}>Billing Address</th>
+                    <th className={styles.buyerColumn}>Delivery Address</th>
                     {/* Add more headers as needed */}
                   </tr>
                 </thead>
