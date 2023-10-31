@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
-import buyersSlice from '../reducer/buyersSlice';
+// import { configureStore } from '@reduxjs/toolkit';
 
 
-export const store = configureStore({
-  reducer: {
-    buyer: buyersSlice
-  }
-});
+
+// export const store = configureStore({
+//   reducer: {
+//     buyer: buyersSlice
+//   }
+// });

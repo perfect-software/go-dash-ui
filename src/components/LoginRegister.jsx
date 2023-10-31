@@ -177,6 +177,7 @@ const LoginRegister = () => {
                 placeholder="Name"
                 value={formData.username}
                 required
+                name="username"
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
@@ -186,6 +187,7 @@ const LoginRegister = () => {
                 type="email"
                 placeholder="Email"
                 value={formData.email}
+                name="email"
                 required
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
@@ -195,6 +197,7 @@ const LoginRegister = () => {
                 className={styles.input}
                 type="text"
                 placeholder="Phone Number"
+                name="phone"
                 value={formData.phone}
                 required
                 onChange={(e) =>
@@ -206,6 +209,7 @@ const LoginRegister = () => {
                   className={styles.passInput}
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
+                  name="password"
                   value={formData.password}
                   required
                   onChange={(e) =>

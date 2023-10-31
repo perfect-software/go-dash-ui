@@ -2,27 +2,71 @@ import React, { useEffect, useState } from "react";
 import styles from "../styles/sampleRequest.module.css";
 import UpIcon from "../assets/up.svg";
 import ArticlePopup from "../popups/ArticlePopup";
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
-import { getApiService } from "../service/apiService";
+import { getApiService, postApiService } from "../service/apiService";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
-
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [buyerInput, setBuyerInput] = useState("");
+
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
-  const togglePopup = () => {
+
+  const [sampleDetailsForm, setSampleDetailsForm] = useState({
+    season: "",
+    sampleRef: "",
+    sampleType: "",
+    articleNo: "",
+    buyerArticle: "",
+    size: "",
+    quantity: "",
+    pair: "",
+    upperColor: "",
+    liningColor: "",
+    last: "",
+    insole: "",
+    soleLabel: "",
+    socks: "",
+    heel: "",
+    pattern: "",
+    buyerRef: "",
+    inUpperLeather: "",
+    inLining: "",
+    inSocks: "",
+    inQuantity: "",
+    comments: "",
+    deliveryDate: "",
+    prodExDate: "",
+  });
+
+  const [buyerDetailsForm, setBuyerDetailsFrom] = useState({
+    buyername: "",
+  });
+
+  const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
+    setPopupMessage(message);
+  };
+
+  const handleCreateSampleChange = (e) => {
+    const { name, value } = e.target;
+    setSampleDetailsForm({
+      ...sampleDetailsForm,
+      [name]: value,
+    });
+  };
+  const areAllFieldsFilled = (form) => {
+    return !Object.values(form).some((value) => value === "");
   };
   const [isGridVisible, setIsGridVisible] = useState({
     basic: true,
@@ -34,7 +78,7 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
-    setBuyerInput(value);
+    setBuyerDetailsFrom({ ...buyerDetailsForm, buyername: value });
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -48,6 +92,68 @@ const SampleRequest = () => {
       }
     } else {
       setShowSuggestions(false);
+    }
+  };
+
+  const handleBuyerSubmit = (selectedBuyer) => {
+    if (selectedBuyer) {
+      setBuyerDetailsFrom({
+        ...buyerDetailsForm,
+        buyername: selectedBuyer.bsName,
+      });
+      setShowSuggestions(false);
+      setIsBuyerPopup(false);
+    }
+  };
+  const resetAllFields = () => {
+    setSampleDetailsForm({
+      season: "",
+      sampleRef: "",
+      sampleType: "",
+      articleNo: "",
+      buyerArticle: "",
+      size: "",
+      quantity: "",
+      pair: "",
+      upperColor: "",
+      liningColor: "",
+      last: "",
+      insole: "",
+      soleLabel: "",
+      socks: "",
+      heel: "",
+      pattern: "",
+      buyerRef: "",
+      inUpperLeather: "",
+      inLining: "",
+      inSocks: "",
+      inQuantity: "",
+      comments: "",
+      deliveryDate: "",
+      prodExDate: ""
+    });
+  };
+  
+  const handleCreateSampleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const BASE_URL = "sample/create";
+    try {
+      const responseData = await postApiService(sampleDetailsForm, BASE_URL);
+      togglePopup(responseData.message);
+    } catch (error) {
+      if (error.response) {
+        togglePopup(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        togglePopup("No response received from the server.");
+      } else {
+        togglePopup(error.message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,7 +238,12 @@ const SampleRequest = () => {
                   Season
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="season">
+                  <select
+                    className={styles.selectInput}
+                    name="season"
+                    value={sampleDetailsForm.season}
+                    onChange={handleCreateSampleChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Season
                     </option>
@@ -167,8 +278,8 @@ const SampleRequest = () => {
                     placeholder="Click on Search"
                     className={styles.basicInput2}
                     onChange={handleBuyerInputChange}
-                    value={buyerInput}
-                    required
+                    value={buyerDetailsForm.buyername}
+                    name="buyername"
                   />
                   <button
                     onClick={() => {
@@ -180,7 +291,7 @@ const SampleRequest = () => {
 
                   {showSuggestions && (
                     <div className={styles.suggestions}>
-                      {buyers.map((buyer,index) => (
+                      {buyers.map((buyer, index) => (
                         <div
                           key={index}
                           className={styles.suggestionItem}
@@ -202,10 +313,12 @@ const SampleRequest = () => {
                 </label>
                 <div className={styles.inputWithIcon}>
                   <input
-                    type="text"
+                    type="number"
                     placeholder="Click on Search"
                     className={styles.basicInput2}
-                    readOnly
+                    name="sampleRef"
+                    value={sampleDetailsForm.sampleRef}
+                    onChange={handleCreateSampleChange}
                   />
                   <button
                     className={styles.searchBtn}
@@ -219,7 +332,13 @@ const SampleRequest = () => {
                   Type of Sample
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="sample" required>
+                  <select
+                    className={styles.selectInput}
+                    name="sampleType"
+                    value={sampleDetailsForm.sampleType}
+                    onChange={handleCreateSampleChange}
+                    required
+                  >
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
@@ -286,7 +405,9 @@ const SampleRequest = () => {
                     type="text"
                     placeholder="Click on Search"
                     className={styles.basicInput2}
-                    readOnly
+                    name="articleNo"
+                    value={sampleDetailsForm.articleNo}
+                    onChange={handleCreateSampleChange}
                   />
                   <button
                     onClick={() => {
@@ -306,7 +427,9 @@ const SampleRequest = () => {
                   id="input3"
                   className={styles.basicInput}
                   placeholder="Input 3"
-                  required
+                  name="buyerArticle"
+                  value={sampleDetailsForm.buyerArticle}
+                  onChange={handleCreateSampleChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -317,6 +440,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  name="buyerRef"
+                  value={sampleDetailsForm.buyerRef}
+                  onChange={handleCreateSampleChange}
                 />
               </div>
 
@@ -325,7 +451,13 @@ const SampleRequest = () => {
                   Size
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size" required>
+                  <select
+                    className={styles.selectInput}
+                    name="size"
+                    value={sampleDetailsForm.size}
+                    onChange={handleCreateSampleChange}
+                    required
+                  >
                     <option value="" selected disabled hidden>
                       Select Size
                     </option>
@@ -344,7 +476,8 @@ const SampleRequest = () => {
                   <select
                     className={styles.selectInput}
                     name="quantity"
-                    required
+                    value={sampleDetailsForm.quantity}
+                    onChange={handleCreateSampleChange}
                   >
                     <option value="" selected disabled hidden>
                       Select Quantity
@@ -365,7 +498,12 @@ const SampleRequest = () => {
                   Pair
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="pair">
+                  <select
+                    className={styles.selectInput}
+                    name="pair"
+                    value={sampleDetailsForm.pair}
+                    onChange={handleCreateSampleChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Pair
                     </option>
@@ -382,7 +520,9 @@ const SampleRequest = () => {
                 <div className={styles.selectWrapper}>
                   <select
                     className={styles.selectInput}
-                    name="upperColour"
+                    name="upperColor"
+                    value={sampleDetailsForm.upperColor}
+                    onChange={handleCreateSampleChange}
                     required
                   >
                     <option value="" selected disabled hidden>
@@ -402,7 +542,12 @@ const SampleRequest = () => {
                   Lining Colour
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="liningColour">
+                  <select
+                    className={styles.selectInput}
+                    name="liningColor"
+                    value={sampleDetailsForm.liningColor}
+                    onChange={handleCreateSampleChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -420,7 +565,12 @@ const SampleRequest = () => {
                   Last
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="Last">
+                  <select
+                    className={styles.selectInput}
+                    name="last"
+                    value={sampleDetailsForm.last}
+                    onChange={handleCreateSampleChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Color
                     </option>
@@ -438,7 +588,12 @@ const SampleRequest = () => {
                   Insole
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="Insole">
+                  <select
+                    className={styles.selectInput}
+                    name="insole"
+                    value={sampleDetailsForm.insole}
+                    onChange={handleCreateSampleChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Insole
                     </option>
@@ -459,6 +614,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  name="soleLabel"
+                  value={sampleDetailsForm.soleLabel}
+                  onChange={handleCreateSampleChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -469,6 +627,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  name="socks"
+                  value={sampleDetailsForm.socks}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -480,6 +641,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  name="heel"
+                  value={sampleDetailsForm.heel}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -491,6 +655,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  name="pattern"
+                  value={sampleDetailsForm.pattern}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -526,6 +693,9 @@ const SampleRequest = () => {
                 <input
                   type="text"
                   className={styles.basicInput}
+                  name="inUpperLeather"
+                  value={sampleDetailsForm.inUpperLeather}
+                  onChange={handleCreateSampleChange}
                   placeholder="Enter.."
                   required
                 />
@@ -538,6 +708,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  name="inLining"
+                  value={sampleDetailsForm.inLining}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -549,6 +722,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  name="inSocks"
+                  value={sampleDetailsForm.inSocks}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -560,6 +736,9 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  name="inQuantity"
+                  value={sampleDetailsForm.inQuantity}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -570,6 +749,9 @@ const SampleRequest = () => {
                 <input
                   type="text"
                   className={styles.basicInput}
+                  name="comments"
+                  value={sampleDetailsForm.comments}
+                  onChange={handleCreateSampleChange}
                   placeholder="Enter.."
                 />
               </div>
@@ -614,6 +796,9 @@ const SampleRequest = () => {
                 <input
                   type="date"
                   className={`${styles.basicInput} ${styles.dateInput}`}
+                  name="deliveryDate"
+                  value={sampleDetailsForm.deliveryDate}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -624,6 +809,9 @@ const SampleRequest = () => {
                 <input
                   type="date"
                   className={`${styles.basicInput} ${styles.dateInput}`}
+                  name="prodExDate"
+                  value={sampleDetailsForm.prodExDate}
+                  onChange={handleCreateSampleChange}
                   required
                 />
               </div>
@@ -636,17 +824,31 @@ const SampleRequest = () => {
             </div>
           </div>
 
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton}>Reset</button>
-            <button onClick={togglePopup} className={styles.submitButton}>
-              Submit
-            </button>
+          <div className={styles.parentButtonContainer}>
+            {loading ? (
+              <div className={styles.buttonContainer}>
+            
+                <div className={styles.loader}></div>
+              </div>
+            ) : (
+              <div className={styles.buttonContainer}>
+                <button className={styles.resetButton}  onClick={resetAllFields}>Reset</button>
+                <button
+                  onClick={handleCreateSampleSubmit}
+                  className={styles.submitButton}
+                  disabled={!areAllFieldsFilled(sampleDetailsForm)}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
           </div>
+
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
                 <h2>
-                  Sample Request <br /> Successfully Submitted
+                  {popupMessage}
                 </h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
@@ -686,6 +888,8 @@ const SampleRequest = () => {
               onCancel={() => {
                 setIsBuyerPopup(false);
               }}
+          
+              onSubmitBuyerData={handleBuyerSubmit}
             />
           )}
           {isSampleDirPopup && (
