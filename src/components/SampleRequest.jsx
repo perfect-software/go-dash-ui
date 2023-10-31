@@ -66,7 +66,16 @@ const SampleRequest = () => {
     });
   };
   const areAllFieldsFilled = (form) => {
-    return !Object.values(form).some((value) => value === "");
+    const fieldsToExclude = [
+      "comments",
+      "season",
+      "sampleRef",
+      "articleNo",
+      "buyerRef",
+    ];
+    return !Object.entries(form)
+      .filter(([key]) => !fieldsToExclude.includes(key))
+      .some(([, value]) => value === "");
   };
   const [isGridVisible, setIsGridVisible] = useState({
     basic: true,
@@ -130,10 +139,10 @@ const SampleRequest = () => {
       inQuantity: "",
       comments: "",
       deliveryDate: "",
-      prodExDate: ""
+      prodExDate: "",
     });
   };
-  
+
   const handleCreateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -827,12 +836,13 @@ const SampleRequest = () => {
           <div className={styles.parentButtonContainer}>
             {loading ? (
               <div className={styles.buttonContainer}>
-            
                 <div className={styles.loader}></div>
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-                <button className={styles.resetButton}  onClick={resetAllFields}>Reset</button>
+                <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
                 <button
                   onClick={handleCreateSampleSubmit}
                   className={styles.submitButton}
@@ -847,9 +857,7 @@ const SampleRequest = () => {
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
-                <h2>
-                  {popupMessage}
-                </h2>
+                <h2>{popupMessage}</h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
                 </button>
@@ -888,7 +896,6 @@ const SampleRequest = () => {
               onCancel={() => {
                 setIsBuyerPopup(false);
               }}
-          
               onSubmitBuyerData={handleBuyerSubmit}
             />
           )}
