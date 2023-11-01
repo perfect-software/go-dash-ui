@@ -15,16 +15,7 @@
 .inputWithIcon {
   @apply relative w-full inline-block;
 }
-element::-webkit-scrollbar {
-  width: 0px;
-  background: transparent; /* make scrollbar transparent */
-}
 
-/* For Firefox */
-element {
-  scrollbar-width: none; /* Firefox 64+ */
-  -ms-overflow-style: none;  /* Internet Explorer 11+ */
-}
 
 .suggestions::-webkit-scrollbar {
   @apply h-1 block w-0;

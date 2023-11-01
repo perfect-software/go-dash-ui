@@ -14,6 +14,23 @@ const Buyer = () => {
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
+  const [buyerForm, setBuyerForm] = useState({
+    bsName: "",
+    bsAbbreviation: "",
+    billingAddress: "",
+    deliveryAddress: "",
+    city: "",
+    pincode: "",
+    country: "",
+    currency: "",
+    bsCode: "",
+    contactPerson: "",
+    mobileExt: "",
+    mobile: "",
+    phone: "",
+    email: "",
+    username: "",
+  });
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
   };
@@ -27,6 +44,11 @@ const Buyer = () => {
       ...prevState,
       [grid]: !prevState[grid],
     }));
+  };
+
+  const handleBuyerFormChange = (e) => {
+    const { name, value } = e.target;
+    setBuyerForm({ ...buyerForm, [name]: value });
   };
   const today = new Date();
 
@@ -75,6 +97,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Name"
+                  value={buyerForm.bsName}
+                  name="bsName"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -85,6 +110,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter here "
+                  value={buyerForm.bsAbbreviation}
+                  name="bsAbbreviation"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
 
@@ -93,7 +121,10 @@ const Buyer = () => {
                   Country
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="country">
+                  <select className={styles.selectInput}  
+                  value={buyerForm.country}
+                  name="country"
+                  onChange={handleBuyerFormChange}>
                     <option value="" selected disabled hidden>
                       Select Country
                     </option>
@@ -110,7 +141,10 @@ const Buyer = () => {
                   City
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="city">
+                  <select className={styles.selectInput}
+                   value={buyerForm.city}
+                   name="city"
+                   onChange={handleBuyerFormChange}>
                     <option value="" selected disabled hidden>
                       Select City
                     </option>
@@ -146,6 +180,9 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Pincode"
+                  value={buyerForm.pincode}
+                  name="pincode"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -156,6 +193,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  value={buyerForm.billingAddress}
+                  name="billingAddress"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -166,9 +206,12 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  value={buyerForm.contactPerson}
+                  name="contactPerson"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
-             
+
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   Mobile Number
@@ -177,6 +220,9 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Mobile Number"
+                  value={buyerForm.mobile}
+                  name="mobile"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -187,6 +233,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  value={buyerForm.deliveryAddress}
+                  name="deliveryAddress"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
 
@@ -195,7 +244,10 @@ const Buyer = () => {
                   Currency
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="currency">
+                  <select className={styles.selectInput}
+                   value={buyerForm.currency}
+                   name="currency"
+                   onChange={handleBuyerFormChange}>
                     <option value="" selected disabled hidden>
                       Select Currency
                     </option>
@@ -213,6 +265,9 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Phone Number"
+                  value={buyerForm.phone}
+                  name="phone"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
 
@@ -224,6 +279,9 @@ const Buyer = () => {
                   type="email"
                   className={styles.basicInput}
                   placeholder="Email"
+                  value={buyerForm.email}
+                  name="email"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
 
@@ -318,9 +376,6 @@ const Buyer = () => {
                 />
               </div>
 
-             
-
-             
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   A/C no
@@ -333,7 +388,8 @@ const Buyer = () => {
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
-                  Confirm <br/>A/C no
+                  Confirm <br />
+                  A/C no
                 </label>
                 <input
                   type="number"

@@ -13,7 +13,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const [buyers, setBuyers] = useState([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
-  const ROWS_PER_PAGE = 4;
+ 
 
   const callApi = async (page = 1) => {
     const adjustedPage = page - 1;
@@ -21,9 +21,9 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     try {
       const response = await axios.get(BASE_URL);
       const fetchedBuyers = response.data;
+      console.log(fetchedBuyers);
       const extractedData = fetchedBuyers.map((item) => ({
         bsName: item.bsName,
-        code: item.code,
         billingAddress: item.billingAddress,
       }));
       setBuyers(extractedData);
@@ -34,6 +34,35 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     }
   };
 
+  const handleBuyerInputChange = async (e) => {
+    const value = e.target.value;   
+
+    if (value.length >= 3) {
+      const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
+
+      try {
+        const fetchedBuyers = await getApiService(BASE_URL);
+        setBuyers(fetchedBuyers);
+        
+        const extractedData = fetchedBuyers.map((item) => ({
+          bsName: item.bsName,
+          billingAddress: item.deliveryAddress,
+        }));
+        setBuyers(extractedData);
+        setSelectedRowIndex(null);
+        setSelectedBuyer(null);
+      } catch (error) {
+        console.error("Failed to fetch buyers:", error);
+      }
+    }
+    else
+    {
+      callApi(1);
+    }
+    
+  };
+  
+
   useEffect(() => {
     callApi(1);
   }, []);
@@ -42,7 +71,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
   const generateRow = (buyer, rowIndex) => (
     <tr
-      key={buyer.code}
+      key={rowIndex}
       onClick={() => {
         setSelectedRowIndex(rowIndex);
 
@@ -59,9 +88,8 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
           />
         </button>
       </td>
-      <td className={styles.buyerContent}>{buyer.bsName}</td>
-      <td className={styles.buyerContent}>{buyer.code}</td>
-      <td className={styles.buyerContent}>{buyer.billingAddress}</td>
+      <td style={{textAlign:'left'}} className={styles.buyerContent}>{buyer.bsName}</td>
+      <td style={{textAlign:'left'}} className={styles.buyerContent}>{buyer.billingAddress}</td>
       {/* Add more columns as needed */}
     </tr>
   );
@@ -72,21 +100,21 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
   const paginationRef = useRef(null);
 
-  useEffect(() => {
-    if (paginationRef.current) {
-      const activePage = paginationRef.current.querySelector(
-        `.${styles.activePage}`
-      );
-      if (activePage) {
-        const containerLeft =
-          paginationRef.current.getBoundingClientRect().left;
-        const activeButtonLeft = activePage.getBoundingClientRect().left;
-        const offset = activeButtonLeft - containerLeft;
+  // useEffect(() => {
+  //   if (paginationRef.current) {
+  //     const activePage = paginationRef.current.querySelector(
+  //       `.${styles.activePage}`
+  //     );
+  //     if (activePage) {
+  //       const containerLeft =
+  //         paginationRef.current.getBoundingClientRect().left;
+  //       const activeButtonLeft = activePage.getBoundingClientRect().left;
+  //       const offset = activeButtonLeft - containerLeft;
 
-        paginationRef.current.scrollLeft += offset;
-      }
-    }
-  }, [currentPage]);
+  //       paginationRef.current.scrollLeft += offset;
+  //     }
+  //   }
+  // }, [currentPage]);
 
   const renderPaginationControls = () => {
     const navigateTo = (page) => {
@@ -108,7 +136,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
         <button
           onClick={() => navigateTo(currentPage + 1)}
-          disabled={buyers.length < 5}
+          disabled={buyers.length < 10}
         >
           &gt;
         </button>
@@ -146,20 +174,25 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               />
             </div>
             <div className={styles.buyerDropGrid}>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Buyer No.
+            <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Buyer Name
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Buyer Name
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
+
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    placeholder="Type three letters"
+                    className={styles.basicInput2}
+                    onChange={handleBuyerInputChange}
+                    name="buyername"
+                  />
+                  <button
+                    className={styles.searchBtn}
+                    aria-label="Search"
+                  ></button>
+
+                
                 </div>
               </div>
 
@@ -205,7 +238,6 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                   <tr>
                     <th className={styles.selectColumn}>Select</th>
                     <th className={styles.buyerColumn}>Buyer Name</th>
-                    <th className={styles.buyerColumn}>Buyer Code</th>
                     <th className={styles.buyerColumn}>Delivery Address</th>
                     {/* Add more headers as needed */}
                   </tr>

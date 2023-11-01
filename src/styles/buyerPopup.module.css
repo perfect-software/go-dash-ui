@@ -14,7 +14,7 @@
   @apply col-span-1 flex flex-row items-center gap-1;
 }
 .buyerPopupContainer {
-  @apply bg-[#ffffff] flex w-[49vw] smp:w-[75vw] sm:w-[60vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
+  @apply bg-[#ffffff] flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
 }
 .buyerDropGrid {
   @apply grid sml:grid-cols-1 grid-cols-3 gap-2 mt-2;
@@ -40,6 +40,34 @@
   outline: none;
   border: 1px solid #00a5ad;
 }
+.searchBtn {
+  @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+  background-image: url("../assets/search.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translateY(-50%);
+  background-size: 16px 16px;
+  border: none;
+}
+
+
+.basicInput2 {
+  @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
+  padding: 4px 50px 9px 9px;
+}
+
+.basicInput2:focus {
+  outline: none;
+
+  border: 1px solid #00a5ad;
+}
+.inputWithIcon {
+  @apply relative w-full inline-block;
+}
+.inputWithIcon-active {
+  @apply bg-blue-600 text-white;
+}
+
 .crossIcon {
   @apply h-[1rem] w-[1rem] cursor-pointer;
   transition: transform 1s ease-in;
@@ -119,7 +147,6 @@ select {
   @apply py-[1.4px] px-2 whitespace-nowrap text-sm;
   color: rgba(91, 91, 91, 1);
   height: 1rem;
-
   border: 2px solid rgba(238, 238, 238, 0.8);
 }
 tr{

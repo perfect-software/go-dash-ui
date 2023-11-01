@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../styles/sampleRequest.module.css";
 import UpIcon from "../assets/up.svg";
 import ArticlePopup from "../popups/ArticlePopup";
-import { Form, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
@@ -11,7 +11,7 @@ import { getApiService, postApiService } from "../service/apiService";
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-
+  const [removeImage, setRemoveImage] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
@@ -51,7 +51,7 @@ const SampleRequest = () => {
 
   const [buyerDetailsForm, setBuyerDetailsForm] = useState({
     buyername: "",
-    deliveryAddress:"",
+    deliveryAddress: "",
   });
 
   const togglePopup = (message) => {
@@ -89,6 +89,7 @@ const SampleRequest = () => {
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
     setBuyerDetailsForm({ ...buyerDetailsForm, buyername: value });
+   
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -110,7 +111,7 @@ const SampleRequest = () => {
       setBuyerDetailsForm({
         ...buyerDetailsForm,
         buyername: selectedBuyer.bsName,
-        deliveryAddress:selectedBuyer.billingAddress
+        deliveryAddress: selectedBuyer.billingAddress,
       });
       setShowSuggestions(false);
       setIsBuyerPopup(false);
@@ -143,6 +144,10 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+    setBuyerDetailsForm({
+      buyername: "",
+      deliveryAddress: "",
+    })
   };
 
   const handleCreateSampleSubmit = async (e) => {
@@ -169,6 +174,7 @@ const SampleRequest = () => {
   };
 
   const handleFileChange = (event) => {
+    setRemoveImage(true);
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -265,20 +271,8 @@ const SampleRequest = () => {
                   </select>
                 </div>
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
-                  Date Of Order
-                </label>
-                <input
-                  type="date"
-                  className={`${styles.basicInput} ${styles.dateInput}`}
-                  readOnly
-                  defaultValue={formattedDate}
-                  style={{ backgroundColor: "#F7F7F7" }}
-                />
-              </div>
 
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.impsampleLabel} htmlFor="input1">
                   Buyer Name
                 </label>
@@ -307,11 +301,14 @@ const SampleRequest = () => {
                           key={index}
                           className={styles.suggestionItem}
                           onClick={() => {
-                            setBuyerDetailsForm({ ...buyerDetailsForm, buyername: buyer });
+                            setBuyerDetailsForm({
+                              ...buyerDetailsForm,
+                              buyername: buyer.bsName, deliveryAddress:buyer.deliveryAddress
+                            });
                             setShowSuggestions(false);
                           }}
                         >
-                          {buyer}
+                          {buyer.bsName}
                         </div>
                       ))}
                     </div>
@@ -372,15 +369,30 @@ const SampleRequest = () => {
                       />
                     </div>
                   )}
-                  <label htmlFor="file" className={styles.filelabel}>
-                    Insert Image
-                    <input
-                      type="file"
-                      id="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                  </label>
+                  {removeImage ? (
+                    <div>
+                      <button
+                        style={{ backgroundColor: "#001314" }}
+                        className={styles.filelabel}
+                        onClick={() => {
+                          setRemoveImage(false);
+                          setImagePreview(null);
+                        }}
+                      >
+                        Remove Image
+                      </button>
+                    </div>
+                  ) : (
+                    <label htmlFor="file" className={styles.filelabel}>
+                      Insert Image
+                      <input
+                        type="file"
+                        id="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
             </div>
@@ -456,7 +468,18 @@ const SampleRequest = () => {
                   onChange={handleCreateSampleChange}
                 />
               </div>
-
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="input1">
+                  Date Of Order
+                </label>
+                <input
+                  type="date"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
+                  readOnly
+                  defaultValue={formattedDate}
+                  style={{ backgroundColor: "#F7F7F7" }}
+                />
+              </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="input4">
                   Size
@@ -830,7 +853,18 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Delivery Address
                 </label>
-                <input type="text" name="deliveryAddress" className={styles.basicInput} value={buyerDetailsForm.deliveryAddress} onChange={(e)=> setBuyerDetailsForm({...buyerDetailsForm , deliveryAddress:e.target.value})} />
+                <input
+                  type="text"
+                  name="deliveryAddress"
+                  className={styles.basicInput}
+                  value={buyerDetailsForm.deliveryAddress}
+                  onChange={(e) =>
+                    setBuyerDetailsForm({
+                      ...buyerDetailsForm,
+                      deliveryAddress: e.target.value,
+                    })
+                  }
+                />
               </div>
             </div>
           </div>
