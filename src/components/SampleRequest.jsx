@@ -7,15 +7,25 @@ import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
 import { getApiService, postApiService } from "../service/apiService";
+import { formatDate } from "../features/convertDate";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState({
+    buyer: false,
+    upperColor: false,
+    liningColor: false,
+    soleLabel: false,
+    sampleRef:false
+  });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [SampleRefrences, setSampleRefrences] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [bsId, setBsID] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
@@ -26,6 +36,8 @@ const SampleRequest = () => {
     season: "",
     sampleRef: "",
     sampleType: "",
+    bsName: "",
+    deliveryAddress: "",
     articleNo: "",
     buyerArticle: "",
     size: "",
@@ -47,11 +59,6 @@ const SampleRequest = () => {
     comments: "",
     deliveryDate: "",
     prodExDate: "",
-  });
-
-  const [buyerDetailsForm, setBuyerDetailsForm] = useState({
-    buyername: "",
-    deliveryAddress: "",
   });
 
   const togglePopup = (message) => {
@@ -88,8 +95,7 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
-    setBuyerDetailsForm({ ...buyerDetailsForm, buyername: value });
-   
+    setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -97,26 +103,84 @@ const SampleRequest = () => {
       try {
         const fetchedBuyers = await getApiService(BASE_URL);
         setBuyers(fetchedBuyers);
-        setShowSuggestions(true);
+        toggleSuggestVisibility("buyer", true);
       } catch (error) {
         console.error("Failed to fetch buyers:", error);
       }
     } else {
-      setShowSuggestions(false);
+      toggleSuggestVisibility("buyer", false);
+    }
+  };
+  const handleCreateColorChange = async (e) => {
+    const { name, value } = e.target;
+    setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
+    if (value.length >= 2) {
+      const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
+        value
+      )}`;
+
+      try {
+        const fetchedColors = await getApiService(BASE_URL);
+        setColors(fetchedColors);
+
+        toggleSuggestVisibility(`${name}`, true);
+      } catch (error) {
+        console.error("Failed to fetch Colors:", error);
+      }
+    } else {
+      toggleSuggestVisibility(`${name}`, false);
     }
   };
 
+ const handleSampleRefChange = async (e)=>{
+  const value  = e.target.value;
+  setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
+  
+  const encodedBsId = encodeURIComponent(bsId);
+  const encodedInput = encodeURIComponent(value);
+   
+  // if (value.length >= 1) {
+  //   const BASE_URL = `sample/getSRNO/{bsId}/{input}?input=${encodedInput}&bsId=${encodedBsId}`;
+
+  //   try {
+  //     const fetchedRef = await getApiService(BASE_URL);
+  //     setSampleRefrences(fetchedRef);
+      
+  //     toggleSuggestVisibility('sampleRef', true);
+  //   } catch (error) {
+  //     console.error("Failed to fetch SampleRefs:", error);
+  //   }
+  // } else {
+  //   toggleSuggestVisibility('sampleRef', false);
+  // }
+ }
+
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
-      setBuyerDetailsForm({
-        ...buyerDetailsForm,
-        buyername: selectedBuyer.bsName,
+      setSampleDetailsForm({
+        ...sampleDetailsForm,
+        bsName: selectedBuyer.bsName,
         deliveryAddress: selectedBuyer.billingAddress,
       });
-      setShowSuggestions(false);
+      toggleSuggestVisibility("buyer", false);
       setIsBuyerPopup(false);
     }
   };
+
+  const handleSampleSubmit = (selectedSample) => {
+    if (selectedSample) {
+      setSampleDetailsForm({
+        ...sampleDetailsForm,
+        ...selectedSample,
+        bsName: selectedSample.buyer.bsName,
+        deliveryAddress: selectedSample.buyer.billingAddress,
+        deliveryDate: formatDate(selectedSample.deliveryDate),
+        prodExDate: formatDate(selectedSample.prodExDate),
+      });
+      setIsSampleDirPopup(false);
+    }
+  };
+
   const resetAllFields = () => {
     setSampleDetailsForm({
       season: "",
@@ -127,6 +191,8 @@ const SampleRequest = () => {
       size: "",
       quantity: "",
       pair: "",
+      bsName: "",
+      deliveryAddress: "",
       upperColor: "",
       liningColor: "",
       last: "",
@@ -144,10 +210,6 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
-    setBuyerDetailsForm({
-      buyername: "",
-      deliveryAddress: "",
-    })
   };
 
   const handleCreateSampleSubmit = async (e) => {
@@ -185,6 +247,12 @@ const SampleRequest = () => {
     }
   };
 
+  const toggleSuggestVisibility = (key, value) => {
+    setShowSuggestions((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+  };
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
       ...prevState,
@@ -201,7 +269,7 @@ const SampleRequest = () => {
         <div className={styles.subHeadContainer}>
           <h1 className={styles.headText}>Sample Request</h1>
           <div className={styles.headInputContainer}>
-            <label className={styles.inputLabel} htmlFor="Copy from">
+            <label className={styles.inputLabel} htmlFor="Copyfrom">
               Copy from
             </label>
             <div className={styles.headInputWithIcon}>
@@ -273,7 +341,7 @@ const SampleRequest = () => {
               </div>
 
               <div className={styles.colSpan2}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="bsName">
                   Buyer Name
                 </label>
 
@@ -283,8 +351,8 @@ const SampleRequest = () => {
                     placeholder="Click on Search"
                     className={styles.basicInput2}
                     onChange={handleBuyerInputChange}
-                    value={buyerDetailsForm.buyername}
-                    name="buyername"
+                    value={sampleDetailsForm.bsName}
+                    name="bsName"
                   />
                   <button
                     onClick={() => {
@@ -294,18 +362,20 @@ const SampleRequest = () => {
                     aria-label="Search"
                   ></button>
 
-                  {showSuggestions && (
+                  {showSuggestions.buyer && (
                     <div className={styles.suggestions}>
                       {buyers.map((buyer, index) => (
                         <div
                           key={index}
                           className={styles.suggestionItem}
                           onClick={() => {
-                            setBuyerDetailsForm({
-                              ...buyerDetailsForm,
-                              buyername: buyer.bsName, deliveryAddress:buyer.deliveryAddress
+                            setSampleDetailsForm({
+                              ...sampleDetailsForm,
+                              bsName: buyer.bsName,
+                              deliveryAddress: buyer.deliveryAddress,
                             });
-                            setShowSuggestions(false);
+                            setBsID(buyer.bsId);
+                            toggleSuggestVisibility("buyer", false);
                           }}
                         >
                           {buyer.bsName}
@@ -316,27 +386,46 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.sampleLabel} htmlFor="sampleRef">
                   Sample Ref.
                 </label>
                 <div className={styles.inputWithIcon}>
                   <input
-                    type="number"
-                    placeholder="Click on Search"
+                    type="text"
+                    placeholder="Type any World"
                     className={styles.basicInput2}
                     name="sampleRef"
                     value={sampleDetailsForm.sampleRef}
-                    onChange={handleCreateSampleChange}
+                    onChange={handleSampleRefChange}
                   />
                   <button
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
+                    {showSuggestions.sampleRef && (
+                    <div className={styles.suggestions}>
+                      {SampleRefrences.map((sample, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setSampleDetailsForm({
+                              ...sampleDetailsForm,
+                              sampleRef: sample,
+                            });
+                            toggleSuggestVisibility("sampleRef", false);
+                          }}
+                        >
+                          {sample}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="season">
+                <label className={styles.impsampleLabel} htmlFor="sampleType">
                   Type of Sample
                 </label>
                 <div className={styles.selectWrapper}>
@@ -420,7 +509,7 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input2">
+                <label className={styles.sampleLabel} htmlFor="articleNo">
                   Article No
                 </label>
                 <div className={styles.inputWithIcon}>
@@ -442,7 +531,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input3">
+                <label className={styles.impsampleLabel} htmlFor="buyerArticle">
                   Buyer <br /> Article
                 </label>
                 <input
@@ -456,7 +545,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.sampleLabel} htmlFor="buyerRef">
                   Buyer Ref.
                 </label>
                 <input
@@ -469,7 +558,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="dateOfOrder">
                   Date Of Order
                 </label>
                 <input
@@ -481,7 +570,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="size">
                   Size
                 </label>
                 <div className={styles.selectWrapper}>
@@ -503,7 +592,7 @@ const SampleRequest = () => {
                 </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="quantity">
                   Quantity
                 </label>
                 <div className={styles.selectWrapper}>
@@ -526,7 +615,7 @@ const SampleRequest = () => {
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="input4"
+                  htmlFor="pair"
                   required
                 >
                   Pair
@@ -548,52 +637,81 @@ const SampleRequest = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input4">
+                <label className={styles.impsampleLabel} htmlFor="upperColor">
                   Upper <br /> Colour
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Input Here"
                     name="upperColor"
                     value={sampleDetailsForm.upperColor}
-                    onChange={handleCreateSampleChange}
-                    required
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
+                    onChange={handleCreateColorChange}
+                  />
+                  {showSuggestions.upperColor && (
+                    <div className={styles.suggestions}>
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setSampleDetailsForm({
+                              ...sampleDetailsForm,
+                              upperColor: color,
+                            });
+                            toggleSuggestVisibility("upperColor", false);
+                          }}
+                        >
+                          {color}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="input4"
+                  htmlFor="liningColor"
                   required
                 >
                   Lining Colour
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Input Here"
                     name="liningColor"
                     value={sampleDetailsForm.liningColor}
-                    onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
+                    onChange={handleCreateColorChange}
+                  />
+                  {showSuggestions.liningColor && (
+                    <div className={styles.suggestions}>
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setSampleDetailsForm({
+                              ...sampleDetailsForm,
+                              liningColor: color,
+                            });
+                            toggleSuggestVisibility("liningColor", false);
+                          }}
+                        >
+                          {color}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="input4"
+                  htmlFor="last"
                   required
                 >
                   Last
@@ -616,7 +734,7 @@ const SampleRequest = () => {
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="input4"
+                  htmlFor="insole"
                   required
                 >
                   Insole
@@ -639,22 +757,43 @@ const SampleRequest = () => {
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="buyer"
+                  htmlFor="soleLabel"
                   required
                 >
                   Sole Label <br />& Colour
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Input Here"
-                  name="soleLabel"
-                  value={sampleDetailsForm.soleLabel}
-                  onChange={handleCreateSampleChange}
-                />
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Input Here"
+                    name="soleLabel"
+                    value={sampleDetailsForm.soleLabel}
+                    onChange={handleCreateColorChange}
+                  />
+                  {showSuggestions.soleLabel && (
+                    <div className={styles.suggestions}>
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setSampleDetailsForm({
+                              ...sampleDetailsForm,
+                              soleLabel: color,
+                            });
+                            toggleSuggestVisibility("soleLabel", false);
+                          }}
+                        >
+                          {color}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="socks">
                   Socks
                 </label>
                 <input
@@ -668,7 +807,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="heel">
                   Heel
                 </label>
                 <input
@@ -682,7 +821,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="pattern">
                   Pattern
                 </label>
                 <input
@@ -721,7 +860,10 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="inUpperLeather"
+                >
                   Upper <br /> Leather
                 </label>
                 <input
@@ -735,7 +877,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="inLining">
                   Lining
                 </label>
                 <input
@@ -749,7 +891,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="inSocks">
                   Socks
                 </label>
                 <input
@@ -763,7 +905,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="quantity">
                   Qunatity
                 </label>
                 <input
@@ -777,7 +919,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.sampleLabel} htmlFor="commentLeather">
                   Comment <br /> (Leather)
                 </label>
                 <input
@@ -790,7 +932,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.sampleLabel} htmlFor="commentSole">
                   Comment (Sole)
                 </label>
                 <input
@@ -824,7 +966,7 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="deliveryDate">
                   Delivery Date
                 </label>
                 <input
@@ -837,7 +979,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="prodExDate">
                   Prod-Ex Date
                 </label>
                 <input
@@ -850,20 +992,15 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.sampleLabel} htmlFor="deliveryAddress">
                   Delivery Address
                 </label>
                 <input
                   type="text"
                   name="deliveryAddress"
                   className={styles.basicInput}
-                  value={buyerDetailsForm.deliveryAddress}
-                  onChange={(e) =>
-                    setBuyerDetailsForm({
-                      ...buyerDetailsForm,
-                      deliveryAddress: e.target.value,
-                    })
-                  }
+                  value={sampleDetailsForm.deliveryAddress}
+                  onChange={handleCreateSampleChange}
                 />
               </div>
             </div>
@@ -940,6 +1077,7 @@ const SampleRequest = () => {
               onCancel={() => {
                 setIsSampleDirPopup(false);
               }}
+              onSubmitSampleData={handleSampleSubmit}
             />
           )}
         </>

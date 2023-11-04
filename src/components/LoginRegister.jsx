@@ -21,11 +21,11 @@ const LoginRegister = () => {
     phone: "",
     password: "",
   });
+  const [loginformData, setLoginFormData] = useState({
+    username: "",
+    password: "",
+  });
 
-  const [submittedData, setSubmittedData] = useState([]);
-  const [logEmail, setLogEmail] = useState("");
-
-  const [logPassword, setLogPassword] = useState("");
   const validateEmail = (email) =>
     /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
 
@@ -70,8 +70,7 @@ const LoginRegister = () => {
     setLoading(true);
     const BASE_URL = "user/register";
     try {
-      const responseData = await postApiService(formData,BASE_URL);
-      console.log("Success:", responseData);
+      const responseData = await postApiService(formData, BASE_URL);
       showSuccessMessage(responseData.message);
     } catch (error) {
       if (error.response) {
@@ -89,21 +88,27 @@ const LoginRegister = () => {
     }
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    const user = submittedData.find((user) => user.email === logEmail);
-
-    if (!user) {
-      showErrorMessage("User not found!");
-      return;
+    setLoading(true);
+    const BASE_URL = "user/login";
+    try {
+      const responseData = await postApiService(loginformData, BASE_URL);
+      showSuccessMessage(responseData.message);
+    } catch (error) {
+      if (error.response) {
+        showErrorMessage(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        showErrorMessage("No response received from the server.");
+      } else {
+        showErrorMessage(error.message);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    if (user.password !== logPassword) {
-      showErrorMessage("Invalid Credentials");
-      return;
-    }
-
-    showSuccessMessage("Login successful!");
   };
 
   return (
@@ -116,22 +121,30 @@ const LoginRegister = () => {
             <div className={styles.loginFormContainer}>
               <input
                 className={styles.input}
-                type="email"
-                placeholder="Email"
-                required
-                value={logEmail}
-                onChange={(e) => setLogEmail(e.target.value)}
+                type="username"
+                placeholder="Username"
+                name="username"
+                value={loginformData.username}
+                onChange={(e) =>
+                  setLoginFormData({
+                    ...loginformData,
+                    username: e.target.value,
+                  })
+                }
               />
               <div className={styles.passwordContainer}>
                 <input
                   className={styles.passInput}
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  required
-                  value={logPassword}
-                  onChange={(e) => {
-                    setLogPassword(e.target.value);
-                  }}
+                  name="password"
+                  value={loginformData.password}
+                  onChange={(e) =>
+                    setLoginFormData({
+                      ...loginformData,
+                      password: e.target.value,
+                    })
+                  }
                 />
                 <button
                   className={styles.eyeButton}
@@ -144,13 +157,17 @@ const LoginRegister = () => {
                   />
                 </button>
               </div>
-              <button
-                onClick={handleLoginSubmit}
-                disabled={!logEmail || !logPassword}
-                className={styles.button}
-              >
-                Sign In
-              </button>
+              {loading ? (
+                <div className={styles.loader}></div>
+              ) : (
+                <button
+                  onClick={handleLoginSubmit}
+                  disabled={!loginformData.username || !loginformData.password}
+                  className={styles.button}
+                >
+                  Sign In
+                </button>
+              )}
             </div>
 
             <div className={styles.footerContainer}>

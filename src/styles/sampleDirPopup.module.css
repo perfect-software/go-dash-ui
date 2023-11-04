@@ -14,9 +14,11 @@
     @apply col-span-1 flex flex-row items-center gap-1;
   }
   .sampleDirPopupContainer {
-    @apply bg-[#ffffff] flex w-[49vw] smp:w-[75vw] sm:w-[60vw] flex-col p-3 items-center rounded-[0.625rem] text-center;
+    @apply bg-[#ffffff] flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
   }
-  
+  .bottomSampleButtonContainer {
+    @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
+  }
   .topsampleDirPopupContainer {
     @apply flex flex-col w-full p-1;
   }
@@ -123,16 +125,16 @@
     width: 100%;
     border-collapse: collapse;
   }
-  
   .table td,
   .table th {
-    @apply py-1 px-2 whitespace-nowrap ;
+    @apply py-[1.4px] px-2 whitespace-nowrap text-sm;
     color: rgba(91, 91, 91, 1);
     height: 1rem;
-  
     border: 2px solid rgba(238, 238, 238, 0.8);
   }
-  
+  tr{
+    @apply cursor-pointer;
+  }
   .tablecontainer::-webkit-scrollbar {
     display: block;
     height: 0.4rem;
@@ -153,3 +155,10 @@
   .tablecontainer::-webkit-scrollbar-thumb:hover {
     background: rgba(58, 71, 80, 1);
   }
+  .selectPopupButton {
+    @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+  }
+  .selectPopupButton:disabled{
+    @apply cursor-not-allowed;
+  }
+  

@@ -21,7 +21,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     try {
       const response = await axios.get(BASE_URL);
       const fetchedBuyers = response.data;
-      console.log(fetchedBuyers);
+   
       const extractedData = fetchedBuyers.map((item) => ({
         bsName: item.bsName,
         billingAddress: item.billingAddress,
