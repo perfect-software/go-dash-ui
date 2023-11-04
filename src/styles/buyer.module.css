@@ -12,6 +12,25 @@
   .headInputContainer {
     @apply flex items-center gap-2 sm:mb-2;
   }
+
+  .submitButton:disabled{
+    @apply cursor-not-allowed;
+  }
+  
+  .loader {
+    @apply mr-14 mt-2 sm:mr-0;
+    border: 7px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   .headContiner{
     @apply flex flex-col gap-4;
   }
@@ -214,18 +233,23 @@
   }
   
   .resetButton {
-    @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+    @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
     leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
     sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
   }
   .submitButton {
+    
     @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
     leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
     sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
   }
   
+  
   .buttonContainer {
-    @apply flex mt-3 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:my-2 sm:ml-8;
+    @apply flex gap-1 right-[1rem] ;
+  }
+  .parentButtonContainer {
+    @apply flex mt-4 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
   }
  
   .popupOverlay {
@@ -257,7 +281,7 @@
   .popupContent h2 {
     @apply text-[#00ADB5] smp:text-[0.8rem] sm:text-[0.8rem] font-bold;
   }
-  
+ 
   .popupButton {
     @apply w-[8.375vw] mt-4 h-[5vh] text-white font-bold rounded-[0.4375rem] text-[1rem] sm:h-[2rem] sm:w-[4rem];
     background: linear-gradient(

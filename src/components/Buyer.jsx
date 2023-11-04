@@ -5,34 +5,49 @@ import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
 import BuyerPopup from "../popups/BuyerPopup";
 import SampleDirPopup from "../popups/SampleDirPopup";
+import { postApiService } from "../service/apiService";
 
 const Buyer = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
-  const [isImagePopup, setIsImagePopup] = useState(false);
-  const [isArticlePopup, setIsArticlePopup] = useState(false);
-  const [isBuyerPopup, setIsBuyerPopup] = useState(false);
-  const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
+  const [confirmAccountNo, setConfirmAccountNo] = useState("");
+  const [isMatching, setIsMatching] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
   const [buyerForm, setBuyerForm] = useState({
-    bsName: "",
-    bsAbbreviation: "",
-    billingAddress: "",
-    deliveryAddress: "",
-    city: "",
-    pincode: "",
-    country: "",
+    buyerName: "",
+    buyerAbbriviation: "",
+    buyerBillingAddress: "",
+    buyerShippingAddress: "",
+    buyerPhone: "",
+    buyerMobile: "",
+    buyerEmail: "",
+    buyerCity: "",
+    buyerState: "",
+    buyerCountry: "",
+    buyerPincode: "",
+    buyerType: "",
+    buyerContactPerson: "",
+    merchendiser: "",
     currency: "",
-    bsCode: "",
-    contactPerson: "",
-    mobileExt: "",
-    mobile: "",
-    phone: "",
-    email: "",
-    username: "",
+    bankName: "",
+    bankBranch: "",
+    bankAccountNo: "",
+    bankIFSC: "",
+    bankAccountType: "",
+    bankCity: "",
+    bankAddress: "",
+    bankSwiftCode: "",
+    discount: "",
+    paymentTerms: "",
+    splDiscount: "",
+    comments: "",
   });
-  const togglePopup = () => {
+  const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
+    setPopupMessage(message);
   };
   const [isGridVisible, setIsGridVisible] = useState({
     bank: true,
@@ -45,12 +60,47 @@ const Buyer = () => {
       [grid]: !prevState[grid],
     }));
   };
+  const handleConfirmAccountChange = (e) => {
+    const value = e.target.value;
+    setConfirmAccountNo(value);
+  };
 
+  const onSubmitBuyerForm = async (e) => {
+    
+    e.preventDefault();
+    setLoading(true);
+    const BASE_URL = "buyer/create";
+    try {
+      const responseData = await postApiService(buyerForm, BASE_URL);
+      togglePopup(responseData.message);
+    } catch (error) {
+      if (error.response) {
+        togglePopup(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        togglePopup("No response received from the server.");
+      } else {
+        togglePopup(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
     setBuyerForm({ ...buyerForm, [name]: value });
   };
   const today = new Date();
+
+  useEffect(() => {
+    if (confirmAccountNo === buyerForm.bankAccountNo) {
+      setIsMatching(true);
+    } else {
+      setIsMatching(false);
+    }
+  }, [buyerForm.bankAccountNo, confirmAccountNo]);
 
   const formattedDate = today.toISOString().split("T")[0];
 
@@ -97,8 +147,8 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Name"
-                  value={buyerForm.bsName}
-                  name="bsName"
+                  value={buyerForm.buyerName}
+                  name="buyerName"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -110,8 +160,8 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter here "
-                  value={buyerForm.bsAbbreviation}
-                  name="bsAbbreviation"
+                  value={buyerForm.buyerAbbriviation}
+                  name="buyerAbbriviation"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -121,10 +171,12 @@ const Buyer = () => {
                   Country
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput}  
-                  value={buyerForm.country}
-                  name="country"
-                  onChange={handleBuyerFormChange}>
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.buyerCountry}
+                    name="buyerCountry"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Country
                     </option>
@@ -141,10 +193,12 @@ const Buyer = () => {
                   City
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput}
-                   value={buyerForm.city}
-                   name="city"
-                   onChange={handleBuyerFormChange}>
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.buyerCity}
+                    name="buyerCity"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select City
                     </option>
@@ -160,7 +214,12 @@ const Buyer = () => {
                   Buyer Type
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="city">
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.buyerType}
+                    name="buyerType"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
@@ -180,8 +239,8 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Pincode"
-                  value={buyerForm.pincode}
-                  name="pincode"
+                  value={buyerForm.buyerPincode}
+                  name="buyerPincode"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -193,8 +252,8 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
-                  value={buyerForm.billingAddress}
-                  name="billingAddress"
+                  value={buyerForm.buyerBillingAddress}
+                  name="buyerBillingAddress"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -206,8 +265,8 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
-                  value={buyerForm.contactPerson}
-                  name="contactPerson"
+                  value={buyerForm.buyerContactPerson}
+                  name="buyerContactPerson"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -220,8 +279,8 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Mobile Number"
-                  value={buyerForm.mobile}
-                  name="mobile"
+                  value={buyerForm.buyerMobile}
+                  name="buyerMobile"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -233,8 +292,8 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
-                  value={buyerForm.deliveryAddress}
-                  name="deliveryAddress"
+                  value={buyerForm.buyerShippingAddress}
+                  name="buyerShippingAddress"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -244,10 +303,12 @@ const Buyer = () => {
                   Currency
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput}
-                   value={buyerForm.currency}
-                   name="currency"
-                   onChange={handleBuyerFormChange}>
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.currency}
+                    name="currency"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Currency
                     </option>
@@ -265,8 +326,8 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Phone Number"
-                  value={buyerForm.phone}
-                  name="phone"
+                  value={buyerForm.buyerPhone}
+                  name="buyerPhone"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -279,8 +340,8 @@ const Buyer = () => {
                   type="email"
                   className={styles.basicInput}
                   placeholder="Email"
-                  value={buyerForm.email}
-                  name="email"
+                  value={buyerForm.buyerEmail}
+                  name="buyerEmail"
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -293,6 +354,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Merchandiser"
+                  value={buyerForm.merchendiser}
+                  name="merchendiser"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
             </div>
@@ -327,6 +391,9 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Name"
                   className={styles.basicInput}
+                  value={buyerForm.bankName}
+                  name="bankName"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -337,14 +404,22 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Branch"
                   className={styles.basicInput}
+                  value={buyerForm.bankBranch}
+                  name="bankBranch"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">
-                  City
+                  Bank City
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="city">
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.bankCity}
+                    name="bankCity"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select City
                     </option>
@@ -363,6 +438,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Swift"
+                  value={buyerForm.bankSwiftCode}
+                  name="bankSwiftCode"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -373,6 +451,9 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Address"
                   className={styles.basicInput}
+                  value={buyerForm.bankAddress}
+                  name="bankAddress"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
 
@@ -384,6 +465,9 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Account Number"
+                  value={buyerForm.bankAccountNo}
+                  name="bankAccountNo"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -395,6 +479,10 @@ const Buyer = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Confirm Account Number"
+                  value={confirmAccountNo}
+                  onChange={handleConfirmAccountChange}
+                  name="confirmAccountNo"
+                  style={!isMatching ? { border: "2px solid red" } : {}}
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -405,6 +493,9 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="IFSC Code"
+                  value={buyerForm.bankIFSC}
+                  name="bankIFSC"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
             </div>
@@ -440,6 +531,9 @@ const Buyer = () => {
                   type="text"
                   placeholder="Discount"
                   className={styles.basicInput}
+                  value={buyerForm.discount}
+                  name="discount"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -450,6 +544,9 @@ const Buyer = () => {
                   type="text"
                   placeholder=" SP. Discount"
                   className={styles.basicInput}
+                  value={buyerForm.splDiscount}
+                  name="splDiscount"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
@@ -457,7 +554,12 @@ const Buyer = () => {
                   Payment Terms
                 </label>
                 <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="type">
+                  <select
+                    className={styles.selectInput}
+                    value={buyerForm.paymentTerms}
+                    name="paymentTerms"
+                    onChange={handleBuyerFormChange}
+                  >
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
@@ -476,66 +578,41 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Enter.."
+                  value={buyerForm.comments}
+                  name="comments"
+                  onChange={handleBuyerFormChange}
                 />
               </div>
             </div>
           </div>
 
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton}>Reset</button>
-            <button onClick={togglePopup} className={styles.submitButton}>
-              Submit
-            </button>
+          <div className={styles.parentButtonContainer}>
+            {loading ? (
+              <div className={styles.buttonContainer}>
+                <div className={styles.loader}></div>
+              </div>
+            ) : (
+              <div className={styles.buttonContainer}>
+                <button className={styles.resetButton}>Reset</button>
+                <button
+                  className={styles.submitButton}
+                  disabled={!isMatching}
+                  onClick={onSubmitBuyerForm}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
           </div>
           {isPopupVisible && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
-                <h2>
-                  Buyer Details <br /> Successfully Submitted
-                </h2>
+                <h2>{popupMessage}</h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
                 </button>
               </div>
             </div>
-          )}
-          {isImagePopup && (
-            <div className={styles.popupOverlay}>
-              <div
-                className={styles.imagePopupContent}
-                style={{ backgroundImage: `url(${imagePreview})` }}
-              >
-                <button
-                  className={styles.popupButton}
-                  style={{ marginBottom: "3px" }}
-                  onClick={() => setIsImagePopup(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-
-          {isArticlePopup && (
-            <ArticlePopup
-              onCancel={() => {
-                setIsArticlePopup(false);
-              }}
-            />
-          )}
-          {isBuyerPopup && (
-            <BuyerPopup
-              onCancel={() => {
-                setIsBuyerPopup(false);
-              }}
-            />
-          )}
-          {isSampleDirPopup && (
-            <SampleDirPopup
-              onCancel={() => {
-                setIsSampleDirPopup(false);
-              }}
-            />
           )}
         </>
       ) : (
