@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/sideNav.module.css";
 import { useNavigate } from "react-router-dom";
 import PlusIcon from "../assets/plus.svg";
@@ -23,6 +23,8 @@ import BomIcon from "../assets/hash.svg";
 import ArticleIcon from "../assets/articleDirectory.svg";
 import ItemIcon from "../assets/itemDirectory.svg";
 import useIsSmallScreen from "../features/useIsSmallScreen";
+import { useSidebar } from "../context/SidebarContext";
+
 
 const MENU_ITEMS = {
   sample: {
@@ -67,26 +69,12 @@ const SUBITEM_ICONS = {
   "Item Directory": ItemIcon,
 };
 
-const SideNavbar = ({isOpen,toggleSidebar}) => {
+const SideNavbar = ({isOpen,toggleSidebar }) => {
   const navigate = useNavigate();
   const isSmallScreen = useIsSmallScreen();
   const [expandedItems, setExpandedItems] = useState({});
+  const {isCollapsed , toggleNavbar} = useSidebar();
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
-
-
-  const toggleNavbar = () => {
-    setIsCollapsed(prev => !prev);
-  };
 
   const toggleSpread = () => {
     const allExpanded = Object.values(expandedItems).every((val) => val);
@@ -107,6 +95,7 @@ const SideNavbar = ({isOpen,toggleSidebar}) => {
   const allExpanded = Object.values(expandedItems).some((val) => val);
 
   return (
+   
     <aside className={`${styles.navbar} ${isCollapsed&&!isSmallScreen ? styles.collapsed : ''} ${isOpen ? styles.open : ''}`}>
       <div className={styles.navbarTop}>
       <img
@@ -176,6 +165,7 @@ const SideNavbar = ({isOpen,toggleSidebar}) => {
         ))}
       </div>
     </aside>
+
   );
 };
 

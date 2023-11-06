@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     screens:{
+      'smxl': {'max': '1231px'},
       'sml': {'max': '1000px'},
       'sm': {'max': '695px'},
        'smp':  {'max': '541px'},

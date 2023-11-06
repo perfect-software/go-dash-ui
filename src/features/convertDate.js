@@ -20,3 +20,9 @@ export const formatDDMMYYYYDate = (dateString) => {
 
   return `${day}-${month}-${year}`;
 };
+
+export function getCurrentYearLastTwoDigits() {
+  const currentYear = new Date().getFullYear();
+  const lastTwoDigits = currentYear.toString().slice(-2);
+  return lastTwoDigits;
+}

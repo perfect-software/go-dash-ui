@@ -5,9 +5,14 @@ import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
+import ViewSr from "./ViewSr";
 import SampleDirPopup from "../popups/SampleDirPopup";
 import { getApiService, postApiService } from "../service/apiService";
-import { formatDate } from "../features/convertDate";
+import {
+  formatDate,
+  getCurrentYearLastTwoDigits,
+} from "../features/convertDate";
+import { useSidebar } from "../context/SidebarContext";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -18,10 +23,11 @@ const SampleRequest = () => {
     upperColor: false,
     liningColor: false,
     soleLabel: false,
-    sampleRef:false
+    sampleRef: false,
   });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
+  const {isCollapsed , toggleNavbar} = useSidebar();
   const [colors, setColors] = useState([]);
   const [SampleRefrences, setSampleRefrences] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -132,28 +138,28 @@ const SampleRequest = () => {
     }
   };
 
- const handleSampleRefChange = async (e)=>{
-  const value  = e.target.value;
-  setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
-  
-  const encodedBsId = encodeURIComponent(bsId);
-  const encodedInput = encodeURIComponent(value);
-   
-  // if (value.length >= 1) {
-  //   const BASE_URL = `sample/getSRNO/{bsId}/{input}?input=${encodedInput}&bsId=${encodedBsId}`;
+  const handleSampleRefChange = async (e) => {
+    const value = e.target.value;
+    setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
 
-  //   try {
-  //     const fetchedRef = await getApiService(BASE_URL);
-  //     setSampleRefrences(fetchedRef);
-      
-  //     toggleSuggestVisibility('sampleRef', true);
-  //   } catch (error) {
-  //     console.error("Failed to fetch SampleRefs:", error);
-  //   }
-  // } else {
-  //   toggleSuggestVisibility('sampleRef', false);
-  // }
- }
+    const encodedBsId = encodeURIComponent(bsId);
+    const encodedInput = encodeURIComponent(value);
+
+    if (value.length >= 1) {
+      const BASE_URL = `sample/getSRNO/{bsId}/{input}?input=${encodedInput}&bsId=${encodedBsId}`;
+
+      try {
+        const fetchedRef = await getApiService(BASE_URL);
+        setSampleRefrences(fetchedRef);
+
+        toggleSuggestVisibility("sampleRef", true);
+      } catch (error) {
+        console.error("Failed to fetch SampleRefs:", error);
+      }
+    } else {
+      toggleSuggestVisibility("sampleRef", false);
+    }
+  };
 
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
@@ -265,30 +271,37 @@ const SampleRequest = () => {
 
   return (
     <div className={styles.sampleRequestMainContainer}>
-      <div className={styles.headContiner}>
+      <div className={styles.headContainer}>
         <div className={styles.subHeadContainer}>
-          <h1 className={styles.headText}>Sample Request</h1>
-          <div className={styles.headInputContainer}>
-            <label className={styles.inputLabel} htmlFor="Copyfrom">
-              Copy from
-            </label>
-            <div className={styles.headInputWithIcon}>
-              <input
-                type="text"
-                name="input1"
-                placeholder="Search Sample Request to duplicate"
-                className={styles.headInput}
-                readOnly
-              />
-              <button
-                onClick={() => {
-                  setIsSampleDirPopup(true);
-                }}
-                className={styles.searchBtn}
-                aria-label="Search"
-              ></button>
+          <h1 className={styles.headText} style={activeButton === 'view' ? { marginBottom: '11px' , marginTop:'13px' } : {}}>
+            {activeButton === "view"
+              ? "Sample Request Search"
+              : "Sample Request"}
+              
+          </h1>
+          {activeButton === "details" && (
+            <div className={styles.headInputContainer}>
+              <label className={styles.inputLabel} htmlFor="Copyfrom">
+                Copy from
+              </label>
+              <div className={styles.headInputWithIcon}>
+                <input
+                  type="text"
+                  name="input1"
+                  placeholder="Search Sample Request to duplicate"
+                  className={styles.headInput}
+                  readOnly
+                />
+                <button
+                  onClick={() => {
+                    setIsSampleDirPopup(true);
+                  }}
+                  className={styles.searchBtn}
+                  aria-label="Search"
+                ></button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className={styles.subHeadContainerTwo}>
           {/* <h2>Sample Order Details</h2> */}
@@ -305,7 +318,12 @@ const SampleRequest = () => {
               className={`${styles.screenChangeButton} ${
                 activeButton === "view" ? styles.active : ""
               }`}
-              onClick={() => setActiveButton("view")}
+
+
+              onClick={() => {setActiveButton("view");
+              {!isCollapsed && toggleNavbar()}
+            }}
+              
             >
               View SRs
             </button>
@@ -332,10 +350,18 @@ const SampleRequest = () => {
                     <option value="" selected disabled hidden>
                       Select Season
                     </option>
-                    <option value="Winter">Winter</option>
-                    <option value="Summer">Summer</option>
-                    <option value="Spring">Spring</option>
-                    <option value="Autumn">Autumn</option>
+                    <option value={`SS${getCurrentYearLastTwoDigits()}`}>
+                      SS{getCurrentYearLastTwoDigits()}
+                    </option>
+                    <option value={`SW${getCurrentYearLastTwoDigits()}`}>
+                      SW{getCurrentYearLastTwoDigits()}
+                    </option>
+                    <option value={`SS${getCurrentYearLastTwoDigits()}`}>
+                      SR{getCurrentYearLastTwoDigits()}
+                    </option>
+                    <option value={`SW${getCurrentYearLastTwoDigits()}`}>
+                      SA{getCurrentYearLastTwoDigits()}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -402,7 +428,7 @@ const SampleRequest = () => {
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
-                    {showSuggestions.sampleRef && (
+                  {showSuggestions.sampleRef && (
                     <div className={styles.suggestions}>
                       {SampleRefrences.map((sample, index) => (
                         <div
@@ -1082,7 +1108,7 @@ const SampleRequest = () => {
           )}
         </>
       ) : (
-        <div>View Sr</div>
+        <ViewSr />
       )}
     </div>
   );

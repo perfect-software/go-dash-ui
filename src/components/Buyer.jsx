@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/buyer.module.css";
 import UpIcon from "../assets/up.svg";
-import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
-import BuyerPopup from "../popups/BuyerPopup";
-import SampleDirPopup from "../popups/SampleDirPopup";
+import { useSidebar } from "../context/SidebarContext";
 import { postApiService } from "../service/apiService";
+import ViewBuyer from "./ViewBuyer";
 
 const Buyer = () => {
   const navigate = useNavigate();
@@ -15,7 +14,7 @@ const Buyer = () => {
   const [isMatching, setIsMatching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-
+  const {isCollapsed , toggleNavbar} = useSidebar();
   const [buyerForm, setBuyerForm] = useState({
     buyerName: "",
     buyerAbbriviation: "",
@@ -108,7 +107,12 @@ const Buyer = () => {
     <div className={styles.buyerMainContainer}>
       <div className={styles.headContiner}>
         <div className={styles.subHeadContainer}>
-          <h1 className={styles.headText}>Buyer Directory</h1>
+        <h1 className={styles.headText} >
+            {activeButton === "view"
+              ? "Buyer Directory Search"
+              : "Buyer Directory"}
+              
+          </h1>
         </div>
 
         <div className={styles.subHeadContainerTwo}>
@@ -126,7 +130,12 @@ const Buyer = () => {
               className={`${styles.screenChangeButton} ${
                 activeButton === "view" ? styles.active : ""
               }`}
-              onClick={() => setActiveButton("view")}
+            
+                onClick={() => {
+                  setActiveButton("view");
+                  {!isCollapsed && toggleNavbar()}
+                }}
+                
             >
               View all buyers
             </button>
@@ -616,7 +625,7 @@ const Buyer = () => {
           )}
         </>
       ) : (
-        <div>View Sr</div>
+       <ViewBuyer/>
       )}
     </div>
   );
