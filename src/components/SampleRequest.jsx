@@ -147,7 +147,7 @@ const SampleRequest = () => {
     const encodedInput = encodeURIComponent(value);
 
     if (value.length >= 1) {
-      const BASE_URL = `sample/getSRNO/{bsId}/{input}?input=${encodedInput}&bsId=${encodedBsId}`;
+      const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
 
       try {
         const fetchedRef = await getApiService(BASE_URL);
@@ -242,21 +242,20 @@ const SampleRequest = () => {
     }
   };
 
-useEffect(()=>{
-  handleSampleType();
-},[])
+
+   
 
 
-  const handleSampleType = async ()=>{
-    const BASE_URL =  'sample/getSampleType';
-     try {
+  const handleSampleType = async () => {
+    const BASE_URL = "sample/getSampleType";
+    try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
-    
+     
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
     }
-  }
+  };
   const handleFileChange = (event) => {
     setRemoveImage(true);
     const file = event.target.files[0];
@@ -482,15 +481,17 @@ useEffect(()=>{
                     name="sampleType"
                     value={sampleDetailsForm.sampleType}
                     onChange={handleCreateSampleChange}
-              
+                    onClick={()=> handleSampleType()}
                     required
                   >
-                    <option value="" disabled hidden>
+                    <option  value="" disabled hidden>
                       Select Type
                     </option>
-                    {sampleType.map((type) => (
-        <option key={type.id} value={type.id}>{type.name}</option>
-      ))}
+                    {sampleType.map((type, index) => (
+                      <option  key={index} value={type}>
+                        {type}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

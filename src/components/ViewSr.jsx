@@ -199,7 +199,8 @@ const ViewSr = () => {
           </div>
         </div>
       ) : (
-        <div className={styles.gridTableWrapper}>
+        <>
+         <div className={styles.gridTableWrapper}>
           <div className={styles.gridTable}>
             <div className={styles.gridHeader}>SR No.</div>
             <div className={styles.gridHeader}>Date of Order</div>
@@ -232,8 +233,11 @@ const ViewSr = () => {
             {renderGridRows()}
           </div>
         </div>
+        <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
+        </>
+       
       )}
-      <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
+   
     </div>
   );
 };

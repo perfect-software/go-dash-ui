@@ -14,7 +14,7 @@ const Buyer = () => {
   const [isMatching, setIsMatching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const {isCollapsed , toggleNavbar} = useSidebar();
+  const { isCollapsed, toggleNavbar } = useSidebar();
   const [buyerForm, setBuyerForm] = useState({
     buyerName: "",
     buyerAbbriviation: "",
@@ -31,14 +31,16 @@ const Buyer = () => {
     buyerContactPerson: "",
     merchendiser: "",
     currency: "",
-    bankName: "",
-    bankBranch: "",
-    bankAccountNo: "",
-    bankIFSC: "",
-    bankAccountType: "",
-    bankCity: "",
-    bankAddress: "",
-    bankSwiftCode: "",
+    bsAccountRequest: {
+      bankName: "",
+      bankBranch: "",
+      bankAccountNo: "",
+      bankIFSC: "",
+      bankAccountType: "",
+      bankCity: "",
+      bankAddress: "",
+      bankSwiftCode: "",
+    },
     discount: "",
     paymentTerms: "",
     splDiscount: "",
@@ -65,7 +67,6 @@ const Buyer = () => {
   };
 
   const onSubmitBuyerForm = async (e) => {
-    
     e.preventDefault();
     setLoading(true);
     const BASE_URL = "buyer/create";
@@ -89,17 +90,32 @@ const Buyer = () => {
   };
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
-    setBuyerForm({ ...buyerForm, [name]: value });
+
+    if (name.startsWith("bank")) {
+      setBuyerForm((prevState) => ({
+        ...prevState,
+        bsAccountRequest: {
+          ...prevState.bsAccountRequest,
+          [name]: value,
+        },
+      }));
+    } else {
+      setBuyerForm((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
+
   const today = new Date();
 
   useEffect(() => {
-    if (confirmAccountNo === buyerForm.bankAccountNo) {
+    if (confirmAccountNo === buyerForm.bsAccountRequest.bankAccountNo) {
       setIsMatching(true);
     } else {
       setIsMatching(false);
     }
-  }, [buyerForm.bankAccountNo, confirmAccountNo]);
+  }, [buyerForm.bsAccountRequest.bankAccountNo, confirmAccountNo]);
 
   const formattedDate = today.toISOString().split("T")[0];
 
@@ -107,11 +123,10 @@ const Buyer = () => {
     <div className={styles.buyerMainContainer}>
       <div className={styles.headContiner}>
         <div className={styles.subHeadContainer}>
-        <h1 className={styles.headText} >
+          <h1 className={styles.headText}>
             {activeButton === "view"
               ? "Buyer Directory Search"
               : "Buyer Directory"}
-              
           </h1>
         </div>
 
@@ -130,12 +145,12 @@ const Buyer = () => {
               className={`${styles.screenChangeButton} ${
                 activeButton === "view" ? styles.active : ""
               }`}
-            
-                onClick={() => {
-                  setActiveButton("view");
-                  {!isCollapsed && toggleNavbar()}
-                }}
-                
+              onClick={() => {
+                setActiveButton("view");
+                {
+                  !isCollapsed && toggleNavbar();
+                }
+              }}
             >
               View all buyers
             </button>
@@ -625,7 +640,7 @@ const Buyer = () => {
           )}
         </>
       ) : (
-       <ViewBuyer/>
+        <ViewBuyer />
       )}
     </div>
   );
