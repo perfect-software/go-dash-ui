@@ -100,7 +100,7 @@
   stroke: rgba(58, 71, 80, 0.13);
 }
 .headText {
-  @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
+  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
 }
 .topGrid {
   @apply grid sml:grid-cols-2 smp:grid-cols-1 grid-cols-3 gap-2 mt-2;

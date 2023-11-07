@@ -1,0 +1,151 @@
+.colSpan {
+    @apply col-span-1 flex flex-row items-center gap-1;
+  }
+  .colSpan4 {
+    @apply col-span-4 mt-5 sml:col-span-2 sm:col-span-1 flex justify-center flex-row items-center gap-1;
+  }
+  
+  .sampleLabel {
+    @apply flex items-center text-[0.84rem] h-[3rem] w-[5.75rem] whitespace-nowrap;
+    color: rgba(91, 91, 91, 1);
+  }
+  
+  .viewBuyerDropGrid {
+    @apply grid sml:grid-cols-2 sm:grid-cols-1 grid-cols-4 gap-2 mt-2;
+  }
+  
+  .basicInput {
+    @apply border p-2 w-full rounded-[0.3125rem];
+    height: 2.5rem;
+  }
+  .basicInput:focus {
+    outline: none;
+    border: 1px solid #00a5ad;
+  }
+  .crossIcon {
+    @apply h-[1rem] w-[1rem] cursor-pointer;
+    transition: transform 1s ease-in;
+  }
+  
+  .crossIcon:hover {
+    transform: rotate(90deg);
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  .selectInput {
+    @apply border text-sm p-2 w-full rounded-[0.3125rem];
+    height: 2.5rem;
+    color: rgba(0, 0, 0, 0.66);
+  }
+  .selectInput:focus {
+    outline: none;
+    border: 1px solid #00a5ad;
+  }
+  
+  .selectWrapper {
+    position: relative;
+    display: inline-block;
+    @apply w-full;
+  }
+  .paginationControls {
+    @apply flex overflow-x-auto gap-2 px-3;
+  }
+  
+  .activePage {
+    @apply rounded-[50%] bg-[#5B5B5B] p-2 text-sm text-white;
+  }
+  .parentPaginationControls {
+    @apply flex justify-center  items-center gap-2 mt-3 px-3 p-3 w-full;
+  }
+  
+  .parentPaginationControls input {
+    @apply border rounded-[0.4rem] p-1 h-8;
+    border-color: rgba(58, 71, 80, 0.6);
+  }
+  .selectWrapper::after {
+    content: url("../assets/dropDown.svg");
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  
+  .gridTable::-webkit-scrollbar {
+    display: block;
+    height: 0.4rem;
+  }
+  
+  .gridTable::-webkit-scrollbar-track {
+    margin: 2px 0;
+    background: transparent;
+    border-radius: 2px;
+  }
+  
+  .gridTable::-webkit-scrollbar-thumb {
+    margin: 2px 0;
+    background: rgba(58, 71, 80, 0.6);
+    border-radius: 2px;
+  }
+  
+  .gridTable::-webkit-scrollbar-thumb:hover {
+    background: rgba(58, 71, 80, 1);
+  }
+  
+  .gridTableWrapper {
+    @apply mt-6;
+    overflow-x: auto;
+    display: block;
+  }
+  .topContainer {
+    @apply flex flex-col w-[94vw] smp:w-[94vw] sm:w-[94vw] sml:w-[89vw] smxl:w-[93vw] pr-2;
+  }
+  .topContainerOpen {
+    @apply flex flex-col smp:w-[94vw] sm:w-[94vw] sml:w-[62.72vw] smxl:w-[75vw] pr-2 w-[80.72vw];
+    
+  }
+  
+  .gridTable {
+    @apply self-center;
+    display: grid;
+    grid-template-columns: repeat(18, 1fr); 
+    text-align: left;
+    overflow-x: auto; 
+   
+  }
+  
+  .gridHeader,
+  .gridRow {
+    @apply whitespace-nowrap text-[1rem] px-2;
+    color: rgba(91, 91, 91, 1);
+    border: 1px solid rgba(238, 238, 238, 0.8);
+  }
+ 
+  .gridHeader {
+    font-weight: bold;
+    @apply bg-transparent;
+  }
+
+
+  .loader {
+    @apply mr-14 mt-2 sm:mr-0;
+    border: 10px solid #f3f3f3;
+    border-top: 7px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+
+  .colSpan4 h2{
+    @apply text-base font-bold;
+  }
