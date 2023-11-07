@@ -1,6 +1,9 @@
 .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
   }
+  .colSpan4 {
+    @apply col-span-4 mt-5 sml:col-span-2 sm:col-span-1 flex justify-center flex-row items-center gap-1;
+  }
   
   .sampleLabel {
     @apply flex items-center text-[0.84rem] h-[3rem] w-[5.75rem] whitespace-nowrap;
@@ -116,15 +119,33 @@
   
   .gridHeader,
   .gridRow {
-    @apply whitespace-nowrap text-[1rem];
-    padding: 4px;
-    border: 1px solid #ddd;
+    @apply whitespace-nowrap text-[1rem] px-2;
+    color: rgba(91, 91, 91, 1);
+    border: 1px solid rgba(238, 238, 238, 0.8);
   }
-  
+ 
   .gridHeader {
     font-weight: bold;
-    background-color: #f3f3f3;
+    @apply bg-transparent;
   }
 
 
- 
+  .loader {
+    @apply mr-14 mt-2 sm:mr-0;
+    border: 10px solid #f3f3f3;
+    border-top: 7px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+
+  .colSpan4 h2{
+    @apply text-base font-bold;
+  }

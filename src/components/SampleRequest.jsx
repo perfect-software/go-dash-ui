@@ -18,6 +18,7 @@ const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
+  const [sampleType, setSampleType] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
     upperColor: false,
@@ -27,7 +28,7 @@ const SampleRequest = () => {
   });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
-  const {isCollapsed , toggleNavbar} = useSidebar();
+  const { isCollapsed, toggleNavbar } = useSidebar();
   const [colors, setColors] = useState([]);
   const [SampleRefrences, setSampleRefrences] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -241,6 +242,21 @@ const SampleRequest = () => {
     }
   };
 
+useEffect(()=>{
+  handleSampleType();
+},[])
+
+
+  const handleSampleType = async ()=>{
+    const BASE_URL =  'sample/getSampleType';
+     try {
+      const fetchedType = await getApiService(BASE_URL);
+      setSampleType(fetchedType);
+    
+    } catch (error) {
+      console.error("Failed to fetch Sample Type:", error);
+    }
+  }
   const handleFileChange = (event) => {
     setRemoveImage(true);
     const file = event.target.files[0];
@@ -273,11 +289,17 @@ const SampleRequest = () => {
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContainer}>
         <div className={styles.subHeadContainer}>
-          <h1 className={styles.headText} style={activeButton === 'view' ? { marginBottom: '11px' , marginTop:'13px' } : {}}>
+          <h1
+            className={styles.headText}
+            style={
+              activeButton === "view"
+                ? { marginBottom: "11px", marginTop: "13px" }
+                : {}
+            }
+          >
             {activeButton === "view"
               ? "Sample Request Search"
               : "Sample Request"}
-              
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
@@ -318,12 +340,12 @@ const SampleRequest = () => {
               className={`${styles.screenChangeButton} ${
                 activeButton === "view" ? styles.active : ""
               }`}
-
-
-              onClick={() => {setActiveButton("view");
-              {!isCollapsed && toggleNavbar()}
-            }}
-              
+              onClick={() => {
+                setActiveButton("view");
+                {
+                  !isCollapsed && toggleNavbar();
+                }
+              }}
             >
               View SRs
             </button>
@@ -460,15 +482,15 @@ const SampleRequest = () => {
                     name="sampleType"
                     value={sampleDetailsForm.sampleType}
                     onChange={handleCreateSampleChange}
+              
                     required
                   >
-                    <option value="" selected disabled hidden>
+                    <option value="" disabled hidden>
                       Select Type
                     </option>
-                    <option value="Type 1">Type 1</option>
-                    <option value="Type 2">Type 2</option>
-                    <option value="Type 3">Type 3</option>
-                    <option value="Type 4">Type 4</option>
+                    {sampleType.map((type) => (
+        <option key={type.id} value={type.id}>{type.name}</option>
+      ))}
                   </select>
                 </div>
               </div>

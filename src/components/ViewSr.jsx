@@ -8,19 +8,19 @@ import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 
 const ViewSr = () => {
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [samples, setSamples] = useState([]);
-  const {isCollapsed } = useSidebar();
+  const { isCollapsed } = useSidebar();
   const [currentPage, setCurrentPage] = useState(1);
 
   const generateGridItem = (sample, index, fieldName, formatFunction) => (
     <div key={`${fieldName}-${index}`} className={styles.gridRow}>
       {formatFunction ? formatFunction(sample[fieldName]) : sample[fieldName]}
-      
     </div>
   );
-  
+
   const callApi = async (page = 1) => {
+    setLoading(true);
     const adjustedPage = page - 1;
     const BASE_URL = `http://localhost:8081/api/sample/view/{page_num}?page_num=${adjustedPage}`;
     try {
@@ -28,53 +28,48 @@ const ViewSr = () => {
       const fetchedSample = response.data;
       setSamples(fetchedSample);
     } catch (error) {
-      console.error("Failed to fetch All buyers:", error);
+      console.error("Failed to fetch All Sample:", error);
+    } finally {
+      setLoading(false);
     }
   };
-   
-
-
 
   const renderGridRows = () => {
     return samples.map((sample, index) => (
       <React.Fragment key={index}>
-        {generateGridItem(sample, index, 'sampleRef')}
-        {generateGridItem(sample.buyer, index, 'entDate', formatDDMMYYYYDate)}
-        {generateGridItem(sample, index, 'season')}
-        {generateGridItem(sample, index, 'articleNo')}
-        {generateGridItem(sample.buyer, index, 'bsName')}
-        {generateGridItem(sample, index, 'sampleType')}
-        {generateGridItem(sample, index, 'buyerArticle')}
-        {generateGridItem(sample.buyer, index, 'deliveryAddress')}
-        {generateGridItem(sample, index, 'size')}
-        {generateGridItem(sample, index, 'quantity')}
-        {generateGridItem(sample, index, 'pair')}
-        {generateGridItem(sample, index, 'upperColor')}
-        {generateGridItem(sample, index, 'liningColor')}
-        {generateGridItem(sample, index, 'last')}
-        {generateGridItem(sample, index, 'insole')}
-        {generateGridItem(sample, index, 'soleLabel')}
-        {generateGridItem(sample, index, 'socks')}
-        {generateGridItem(sample, index, 'heel')}
-        {generateGridItem(sample, index, 'pattern')}
-        {generateGridItem(sample, index, 'buyerRef')}
-        {generateGridItem(sample, index, 'inUpperLeather')}
-        {generateGridItem(sample, index, 'inLining')}
-        {generateGridItem(sample, index, 'inSocks')}
-        {generateGridItem(sample, index, 'inQuantity')}
-        {generateGridItem(sample, index, 'comments')}
-        {generateGridItem(sample, index, 'deliveryDate', formatDDMMYYYYDate)}
-        {generateGridItem(sample, index, 'prodExDate', formatDDMMYYYYDate)}
+        {generateGridItem(sample, index, "sampleRef")}
+        {generateGridItem(sample.buyer, index, "entDate", formatDDMMYYYYDate)}
+        {generateGridItem(sample, index, "season")}
+        {generateGridItem(sample, index, "articleNo")}
+        {generateGridItem(sample.buyer, index, "bsName")}
+        {generateGridItem(sample, index, "sampleType")}
+        {generateGridItem(sample, index, "buyerArticle")}
+        {generateGridItem(sample.buyer, index, "deliveryAddress")}
+        {generateGridItem(sample, index, "size")}
+        {generateGridItem(sample, index, "quantity")}
+        {generateGridItem(sample, index, "pair")}
+        {generateGridItem(sample, index, "upperColor")}
+        {generateGridItem(sample, index, "liningColor")}
+        {generateGridItem(sample, index, "last")}
+        {generateGridItem(sample, index, "insole")}
+        {generateGridItem(sample, index, "soleLabel")}
+        {generateGridItem(sample, index, "socks")}
+        {generateGridItem(sample, index, "heel")}
+        {generateGridItem(sample, index, "pattern")}
+        {generateGridItem(sample, index, "buyerRef")}
+        {generateGridItem(sample, index, "inUpperLeather")}
+        {generateGridItem(sample, index, "inLining")}
+        {generateGridItem(sample, index, "inSocks")}
+        {generateGridItem(sample, index, "inQuantity")}
+        {generateGridItem(sample, index, "comments")}
+        {generateGridItem(sample, index, "deliveryDate", formatDDMMYYYYDate)}
+        {generateGridItem(sample, index, "prodExDate", formatDDMMYYYYDate)}
       </React.Fragment>
     ));
   };
-  
-
-
 
   useEffect(() => {
     callApi(1);
-   
   }, []);
 
   const paginationRef = useRef(null);
@@ -120,10 +115,9 @@ const ViewSr = () => {
   };
 
   return (
-   
-    <div className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
+    <div
+      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
     >
-      
       <div className={styles.viewSrDropGrid}>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="input4">
@@ -191,41 +185,54 @@ const ViewSr = () => {
           </div>
         </div>
       </div>
-      <div className={styles.gridTableWrapper}>
-      <div className={styles.gridTable}>
-  {/* Header items */}
-  <div className={styles.gridHeader}>SR No.</div>
-  <div className={styles.gridHeader}>Date of Order</div>
-  <div className={styles.gridHeader}>Season</div>
-  <div className={styles.gridHeader}>Article No</div>
-  <div className={styles.gridHeader}>Buyer</div>
-  <div className={styles.gridHeader}>Sample Type</div>
-  <div className={styles.gridHeader}>Buyer Article</div>
-  <div className={styles.gridHeader}>Delivery Address</div>
-  <div className={styles.gridHeader}>Size</div>
-  <div className={styles.gridHeader}>Quantity</div>
-  <div className={styles.gridHeader}>Pair</div>
-  <div className={styles.gridHeader}>Upper Color</div>
-  <div className={styles.gridHeader}>Lining Color</div>
-  <div className={styles.gridHeader}>Last</div>
-  <div className={styles.gridHeader}>Insole</div>
-  <div className={styles.gridHeader}>Sole Label</div>
-  <div className={styles.gridHeader}>Socks</div>
-  <div className={styles.gridHeader}>Heel</div>
-  <div className={styles.gridHeader}>Pattern</div>
-  <div className={styles.gridHeader}>Buyer Reference</div>
-  <div className={styles.gridHeader}>In Upper Leather</div>
-  <div className={styles.gridHeader}>In Lining</div>
-  <div className={styles.gridHeader}>In Socks</div>
-  <div className={styles.gridHeader}>In Quantity</div>
-  <div className={styles.gridHeader}>Comments</div>
-  <div className={styles.gridHeader}>Delivery Date</div>
-  <div className={styles.gridHeader}>Production Ex Date</div>
+      {loading ? (
+        <div className={styles.viewSrDropGrid}>
+            <div className={styles.colSpan4}>
+               <div className={styles.loader}></div>
+               <h2>Loading Requests..</h2>
+            </div>
+        </div>
+      ) : samples.length === 0 ? (
+        <div className={styles.viewSrDropGrid}>
+          <div className={styles.colSpan4}>
+            <h2>No Data Available</h2>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.gridTableWrapper}>
+          <div className={styles.gridTable}>
+            <div className={styles.gridHeader}>SR No.</div>
+            <div className={styles.gridHeader}>Date of Order</div>
+            <div className={styles.gridHeader}>Season</div>
+            <div className={styles.gridHeader}>Article No</div>
+            <div className={styles.gridHeader}>Buyer</div>
+            <div className={styles.gridHeader}>Sample Type</div>
+            <div className={styles.gridHeader}>Buyer Article</div>
+            <div className={styles.gridHeader}>Delivery Address</div>
+            <div className={styles.gridHeader}>Size</div>
+            <div className={styles.gridHeader}>Quantity</div>
+            <div className={styles.gridHeader}>Pair</div>
+            <div className={styles.gridHeader}>Upper Color</div>
+            <div className={styles.gridHeader}>Lining Color</div>
+            <div className={styles.gridHeader}>Last</div>
+            <div className={styles.gridHeader}>Insole</div>
+            <div className={styles.gridHeader}>Sole Label</div>
+            <div className={styles.gridHeader}>Socks</div>
+            <div className={styles.gridHeader}>Heel</div>
+            <div className={styles.gridHeader}>Pattern</div>
+            <div className={styles.gridHeader}>Buyer Reference</div>
+            <div className={styles.gridHeader}>In Upper Leather</div>
+            <div className={styles.gridHeader}>In Lining</div>
+            <div className={styles.gridHeader}>In Socks</div>
+            <div className={styles.gridHeader}>In Quantity</div>
+            <div className={styles.gridHeader}>Comments</div>
+            <div className={styles.gridHeader}>Delivery Date</div>
+            <div className={styles.gridHeader}>Production Ex Date</div>
 
-  {/* Data rows */}
-  {renderGridRows()}
-</div>
-</div>
+            {renderGridRows()}
+          </div>
+        </div>
+      )}
       <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
     </div>
   );
