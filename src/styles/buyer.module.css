@@ -12,10 +12,23 @@
   .headInputContainer {
     @apply flex items-center gap-2 sm:mb-2;
   }
-
+  .eyeButton {
+    background: none;
+    border: none;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  
+  .eyeIcon{
+    @apply h-[1.3rem] w-[1.3rem];
+  }
   .submitButton:disabled{
     @apply cursor-not-allowed;
   }
+
   
   .loader {
     @apply mr-14 mt-2 sm:mr-0;
@@ -107,9 +120,12 @@
     height: 2.5rem;
   }
   .inputWithIcon {
-    position: relative;
+    @apply relative w-full inline-block;
+  }
   
-    @apply w-full;
+  
+  .inputWithIcon-active {
+    @apply bg-blue-600 text-white;
   }
   .headInputWithIcon {
     position: relative;
@@ -291,4 +307,25 @@
       ),
       var(--Color-2, #00adb5);
   }
+
   
+  .suggestions::-webkit-scrollbar {
+    @apply h-1 block w-0;
+  }
+  
+  .suggestions::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  
+  .suggestions::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-500;
+  }
+  
+  
+  .suggestions {
+    @apply absolute w-full border  border-t-0 border-gray-300 rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+  }
+  
+  .suggestionItem {
+    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+  }

@@ -13,7 +13,6 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const [buyers, setBuyers] = useState([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
- 
 
   const callApi = async (page = 1) => {
     const adjustedPage = page - 1;
@@ -21,10 +20,11 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     try {
       const response = await axios.get(BASE_URL);
       const fetchedBuyers = response.data;
-   
+
       const extractedData = fetchedBuyers.map((item) => ({
         bsName: item.bsName,
         billingAddress: item.billingAddress,
+        bsId:item.bs_id
       }));
       setBuyers(extractedData);
       setSelectedRowIndex(null);
@@ -35,33 +35,30 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   };
 
   const handleBuyerInputChange = async (e) => {
-    const value = e.target.value;   
+    const value = e.target.value;
 
-    if (value.length >= 3) {
+    if (value.length === 0) {
+     
+       callApi(1);
+    } else if(value.length >=3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-
-      try {
-        const fetchedBuyers = await getApiService(BASE_URL);
-        setBuyers(fetchedBuyers);
-        
-        const extractedData = fetchedBuyers.map((item) => ({
-          bsName: item.bsName,
-          billingAddress: item.deliveryAddress,
-        }));
-        setBuyers(extractedData);
-        setSelectedRowIndex(null);
-        setSelectedBuyer(null);
-      } catch (error) {
-        console.error("Failed to fetch buyers:", error);
-      }
+      console.log('hello');
+     try {
+       const fetchedBuyers = await getApiService(BASE_URL);
+       const extractedData = await fetchedBuyers.map((item) => ({
+         bsName: item.bsName,
+         billingAddress: item.deliveryAddress,
+         bsId:item.bsId
+       }));
+     
+       setBuyers(extractedData);
+       setSelectedRowIndex(null);
+       setSelectedBuyer(null);
+     } catch (error) {
+       console.error("Failed to fetch buyers:", error);
+     }
     }
-    else
-    {
-      callApi(1);
-    }
-    
   };
-  
 
   useEffect(() => {
     callApi(1);
@@ -74,8 +71,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       key={rowIndex}
       onClick={() => {
         setSelectedRowIndex(rowIndex);
-
-        console.log("Clicked Buyer:", buyer);
+      
         setSelectedBuyer(buyer);
       }}
     >
@@ -88,8 +84,12 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
           />
         </button>
       </td>
-      <td style={{textAlign:'left'}} className={styles.buyerContent}>{buyer.bsName}</td>
-      <td style={{textAlign:'left'}} className={styles.buyerContent}>{buyer.billingAddress}</td>
+      <td style={{ textAlign: "left" }} className={styles.buyerContent}>
+        {buyer.bsName}
+      </td>
+      <td style={{ textAlign: "left" }} className={styles.buyerContent}>
+        {buyer.billingAddress}
+      </td>
       {/* Add more columns as needed */}
     </tr>
   );
@@ -174,7 +174,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               />
             </div>
             <div className={styles.buyerDropGrid}>
-            <div className={styles.colSpan}>
+              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Buyer Name
                 </label>
@@ -191,8 +191,6 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
-
-                
                 </div>
               </div>
 
