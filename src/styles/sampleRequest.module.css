@@ -140,6 +140,7 @@
   height: 2.5rem;
   color: rgba(0, 0, 0, 0.66);
 }
+
 .searchBtn {
   @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
   background-image: url("../assets/search.svg");

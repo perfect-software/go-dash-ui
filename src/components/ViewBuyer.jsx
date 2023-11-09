@@ -39,7 +39,7 @@ const ViewBuyer = () => {
   const renderGridRows = () => {
     return buyers.map((sample, index) => (
       <React.Fragment key={index}>
-        {generateGridItem(sample, index, "bsId")}
+        {generateGridItem(sample, index, "bs_id")}
         {generateGridItem(sample, index, "code")}
         {generateGridItem(sample, index, "bsName")}
         {generateGridItem(sample, index, "bsAbbreviation")}
@@ -195,6 +195,7 @@ const ViewBuyer = () => {
           </div>
         </div>
       ) : (
+        <>
         <div className={styles.gridTableWrapper}>
           <div className={styles.gridTable}>
             {/* Header items */}
@@ -221,9 +222,11 @@ const ViewBuyer = () => {
             {renderGridRows()}
           </div>
         </div>
+         <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
+         </>
       )}
 
-      <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
+     
     </div>
   );
 };

@@ -147,7 +147,7 @@ const SampleRequest = () => {
     const encodedInput = encodeURIComponent(value);
 
     if (value.length >= 1) {
-      const BASE_URL = `sample/getSRNO/{bsId}/{input}?input=${encodedInput}&bsId=${encodedBsId}`;
+      const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
 
       try {
         const fetchedRef = await getApiService(BASE_URL);
@@ -164,6 +164,7 @@ const SampleRequest = () => {
 
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
+      setBsID(selectedBuyer.bsId);
       setSampleDetailsForm({
         ...sampleDetailsForm,
         bsName: selectedBuyer.bsName,
@@ -242,21 +243,15 @@ const SampleRequest = () => {
     }
   };
 
-useEffect(()=>{
-  handleSampleType();
-},[])
-
-
-  const handleSampleType = async ()=>{
-    const BASE_URL =  'sample/getSampleType';
-     try {
+  const handleSampleType = async () => {
+    const BASE_URL = "sample/getSampleType";
+    try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
-    
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
     }
-  }
+  };
   const handleFileChange = (event) => {
     setRemoveImage(true);
     const file = event.target.files[0];
@@ -372,18 +367,10 @@ useEffect(()=>{
                     <option value="" selected disabled hidden>
                       Select Season
                     </option>
-                    <option value={`SS${getCurrentYearLastTwoDigits()}`}>
-                      SS{getCurrentYearLastTwoDigits()}
-                    </option>
-                    <option value={`SW${getCurrentYearLastTwoDigits()}`}>
-                      SW{getCurrentYearLastTwoDigits()}
-                    </option>
-                    <option value={`SS${getCurrentYearLastTwoDigits()}`}>
-                      SR{getCurrentYearLastTwoDigits()}
-                    </option>
-                    <option value={`SW${getCurrentYearLastTwoDigits()}`}>
-                      SA{getCurrentYearLastTwoDigits()}
-                    </option>
+                    <option value={`SS`}>SS</option>
+                    <option value={`SW`}>SW</option>
+                    <option value={`SS`}>SR</option>
+                    <option value={`SW`}>SA</option>
                   </select>
                 </div>
               </div>
@@ -482,15 +469,17 @@ useEffect(()=>{
                     name="sampleType"
                     value={sampleDetailsForm.sampleType}
                     onChange={handleCreateSampleChange}
-              
+                    onClick={() => handleSampleType()}
                     required
                   >
                     <option value="" disabled hidden>
                       Select Type
                     </option>
-                    {sampleType.map((type) => (
-        <option key={type.id} value={type.id}>{type.name}</option>
-      ))}
+                    {sampleType.map((type, index) => (
+                      <option key={index} value={type}>
+                        {type}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -621,44 +610,27 @@ useEffect(()=>{
                 <label className={styles.impsampleLabel} htmlFor="size">
                   Size
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="size"
-                    value={sampleDetailsForm.size}
-                    onChange={handleCreateSampleChange}
-                    required
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Size
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="size"
+                  value={sampleDetailsForm.size}
+                  onChange={handleCreateSampleChange}
+                />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="quantity">
                   Quantity
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="quantity"
-                    value={sampleDetailsForm.quantity}
-                    onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Quantity
-                    </option>
-                    <option value="5">5</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="quantity"
+                  value={sampleDetailsForm.quantity}
+                  onChange={handleCreateSampleChange}
+                />
               </div>
               <div className={styles.colSpan}>
                 <label
@@ -678,8 +650,9 @@ useEffect(()=>{
                     <option value="" selected disabled hidden>
                       Select Pair
                     </option>
-                    <option value="Right">Right</option>
-                    <option value="Left">Left</option>
+                    <option value="L">L</option>
+                    <option value="R">R</option>
+                    <option value="B">B</option>
                   </select>
                 </div>
               </div>
@@ -764,20 +737,15 @@ useEffect(()=>{
                 >
                   Last
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="last"
-                    value={sampleDetailsForm.last}
-                    onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Color
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="last"
+                  value={sampleDetailsForm.last}
+                  onChange={handleCreateSampleChange}
+                />
+             
               </div>
               <div className={styles.colSpan}>
                 <label
@@ -787,20 +755,15 @@ useEffect(()=>{
                 >
                   Insole
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="insole"
-                    value={sampleDetailsForm.insole}
-                    onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Insole
-                    </option>
-                    <option value="Red">Red</option>
-                    <option value="Black">Black</option>
-                  </select>
-                </div>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="insole"
+                  value={sampleDetailsForm.insole}
+                  onChange={handleCreateSampleChange}
+                />
+              
               </div>
               <div className={styles.colSpan}>
                 <label
@@ -968,7 +931,7 @@ useEffect(()=>{
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="commentLeather">
-                  Comment <br /> (Leather)
+                  Comment
                 </label>
                 <input
                   type="text"
@@ -976,16 +939,6 @@ useEffect(()=>{
                   name="comments"
                   value={sampleDetailsForm.comments}
                   onChange={handleCreateSampleChange}
-                  placeholder="Enter.."
-                />
-              </div>
-              <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="commentSole">
-                  Comment (Sole)
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
                   placeholder="Enter.."
                 />
               </div>

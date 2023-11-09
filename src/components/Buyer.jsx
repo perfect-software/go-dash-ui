@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/buyer.module.css";
+import { Country, State, City } from "country-state-city";
+import Currencydata from "currency-codes/data";
+import EyeClosedIcon from "../assets/closeEye.svg";
+import EyeOpenIcon from "../assets/openEye.svg";
 import UpIcon from "../assets/up.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
@@ -9,12 +13,36 @@ import ViewBuyer from "./ViewBuyer";
 const Buyer = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [showAccount, setShowAccount] = useState({
+    account: false,
+    confirmAccount: false,
+  });
   const [activeButton, setActiveButton] = useState("details");
   const [confirmAccountNo, setConfirmAccountNo] = useState("");
+  const [allCountries, setAllCountires] = useState([]);
+  const [allStates, setAllStates] = useState([]);
+  const [allCities, setAllCities] = useState([]);
+  const [tempList, setTempList] = useState({
+    countryList: [],
+    stateList: [],
+    cityList: [],
+    currencyList: [],
+  });
+  const [currencyList, setCurrencyList] = useState([]);
   const [isMatching, setIsMatching] = useState(true);
+  const [location, setLocation] = useState({
+    country: "",
+    state: "",
+  });
+  const [showSuggestions, setShowSuggestions] = useState({
+    buyerCountry: false,
+    buyerState: false,
+    buyerCity: false,
+    currency: false,
+  });
   const [loading, setLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const {isCollapsed , toggleNavbar} = useSidebar();
+  const { isCollapsed, toggleNavbar } = useSidebar();
   const [buyerForm, setBuyerForm] = useState({
     buyerName: "",
     buyerAbbriviation: "",
@@ -31,14 +59,16 @@ const Buyer = () => {
     buyerContactPerson: "",
     merchendiser: "",
     currency: "",
-    bankName: "",
-    bankBranch: "",
-    bankAccountNo: "",
-    bankIFSC: "",
-    bankAccountType: "",
-    bankCity: "",
-    bankAddress: "",
-    bankSwiftCode: "",
+    bsAccountRequest: {
+      bankName: "",
+      bankBranch: "",
+      bankAccountNo: "",
+      bankIFSC: "",
+      bankAccountType: "",
+      bankCity: "",
+      bankAddress: "",
+      bankSwiftCode: "",
+    },
     discount: "",
     paymentTerms: "",
     splDiscount: "",
@@ -52,6 +82,101 @@ const Buyer = () => {
     bank: true,
     financials: true,
   });
+  const resetAllFields = () => {
+    setBuyerForm({
+      buyerName: "",
+      buyerAbbriviation: "",
+      buyerBillingAddress: "",
+      buyerShippingAddress: "",
+      buyerPhone: "",
+      buyerMobile: "",
+      buyerEmail: "",
+      buyerCity: "",
+      buyerState: "",
+      buyerCountry: "",
+      buyerPincode: "",
+      buyerType: "",
+      buyerContactPerson: "",
+      merchendiser: "",
+      currency: "",
+      bsAccountRequest: {
+        bankName: "",
+        bankBranch: "",
+        bankAccountNo: "",
+        bankIFSC: "",
+        bankAccountType: "",
+        bankCity: "",
+        bankAddress: "",
+        bankSwiftCode: "",
+      },
+      discount: "",
+      paymentTerms: "",
+      splDiscount: "",
+      comments: "",
+    });
+    setConfirmAccountNo("");
+  };
+
+  const handleLocationChange = (e) => {
+    const { name, value } = e.target;
+
+    setBuyerForm({ ...buyerForm, [name]: value });
+    if (name === "buyerCountry" && value.length >= 2) {
+      if (allCountries.length === 0) {
+        setAllCountires(Country.getAllCountries());
+      }
+      const filteredCountries = allCountries
+        .filter((country) =>
+          country.name.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((country) => ({
+          name: country.name,
+          isoCode: country.isoCode,
+        }));
+
+      setTempList({ ...tempList, countryList: filteredCountries });
+
+      toggleSuggestVisibility("buyerCountry", true);
+    } else if (name === "buyerState" && value.length >= 2) {
+      if (allStates.length === 0) {
+        setAllStates(State.getStatesOfCountry(location.country));
+      }
+      const filteredStates = allStates
+        .filter((state) =>
+          state.name.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((state) => ({
+          name: state.name,
+          isoCode: state.isoCode,
+        }));
+      setTempList({ ...tempList, stateList: filteredStates });
+
+      toggleSuggestVisibility("buyerState", true);
+    } else if (name === "buyerCity" && value.length >= 2) {
+      if (allCities.length === 0) {
+        setAllCities(City.getCitiesOfState(location.country, location.state));
+      }
+      const filteredCity = allCities
+        .filter((city) => city.name.toLowerCase().includes(value.toLowerCase()))
+        .map((city) => ({
+          name: city.name,
+        }));
+      setTempList({ ...tempList, cityList: filteredCity });
+
+      toggleSuggestVisibility("buyerCity", true);
+    } else if (name === "currency" && value.length >= 2) {
+      const filteredCurrency = currencyList
+        .filter((currency) =>
+          currency.name.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((currency) => ({
+          name: currency.name,
+          code: currency.code,
+        }));
+      setTempList({ ...tempList, currencyList: filteredCurrency });
+      toggleSuggestVisibility("currency", true);
+    }
+  };
 
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
@@ -59,13 +184,24 @@ const Buyer = () => {
       [grid]: !prevState[grid],
     }));
   };
+
+  const toggleAccountVisibility  = (visible) => {
+    setShowAccount((prevState) => ({
+      ...prevState,
+      [visible]: !prevState[visible],
+    }));
+  };
   const handleConfirmAccountChange = (e) => {
     const value = e.target.value;
     setConfirmAccountNo(value);
   };
-
+  const toggleSuggestVisibility = (key, value) => {
+    setShowSuggestions((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+  };
   const onSubmitBuyerForm = async (e) => {
-    
     e.preventDefault();
     setLoading(true);
     const BASE_URL = "buyer/create";
@@ -87,31 +223,63 @@ const Buyer = () => {
       setLoading(false);
     }
   };
+
+
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
-    setBuyerForm({ ...buyerForm, [name]: value });
+
+    if (name.startsWith("bank")) {
+      setBuyerForm((prevState) => ({
+        ...prevState,
+        bsAccountRequest: {
+          ...prevState.bsAccountRequest,
+          [name]: value,
+        },
+      }));
+    } else {
+      setBuyerForm((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
+
   const today = new Date();
+  const formattedDate = today.toISOString().split("T")[0];
+
+  const getCurrency = () => {
+    const value = Currencydata;
+
+    if (value) {
+      const filteredCurrency = Currencydata.filter((currencyInfo) =>
+        currencyInfo.currency.toLowerCase()
+      ).map((currencyInfo) => ({
+        name: currencyInfo.currency,
+        code: currencyInfo.code,
+      }));
+      setCurrencyList(filteredCurrency);
+    }
+  };
+  useEffect(() => {
+    getCurrency();
+  }, []);
 
   useEffect(() => {
-    if (confirmAccountNo === buyerForm.bankAccountNo) {
+    if (confirmAccountNo === buyerForm.bsAccountRequest.bankAccountNo) {
       setIsMatching(true);
     } else {
       setIsMatching(false);
     }
-  }, [buyerForm.bankAccountNo, confirmAccountNo]);
-
-  const formattedDate = today.toISOString().split("T")[0];
+  }, [buyerForm.bsAccountRequest.bankAccountNo, confirmAccountNo]);
 
   return (
     <div className={styles.buyerMainContainer}>
       <div className={styles.headContiner}>
         <div className={styles.subHeadContainer}>
-        <h1 className={styles.headText} >
+          <h1 className={styles.headText}>
             {activeButton === "view"
               ? "Buyer Directory Search"
               : "Buyer Directory"}
-              
           </h1>
         </div>
 
@@ -130,12 +298,12 @@ const Buyer = () => {
               className={`${styles.screenChangeButton} ${
                 activeButton === "view" ? styles.active : ""
               }`}
-            
-                onClick={() => {
-                  setActiveButton("view");
-                  {!isCollapsed && toggleNavbar()}
-                }}
-                
+              onClick={() => {
+                setActiveButton("view");
+                {
+                  !isCollapsed && toggleNavbar();
+                }
+              }}
             >
               View all buyers
             </button>
@@ -174,48 +342,138 @@ const Buyer = () => {
                   onChange={handleBuyerFormChange}
                 />
               </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="email">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  className={styles.basicInput}
+                  placeholder="Email"
+                  value={buyerForm.buyerEmail}
+                  name="buyerEmail"
+                  onChange={handleBuyerFormChange}
+                />
+              </div>
 
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="merchandiser">
+                  Merchandiser
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Merchandiser"
+                  value={buyerForm.merchendiser}
+                  name="merchendiser"
+                  onChange={handleBuyerFormChange}
+                />
+              </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="country">
                   Country
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Enter here "
                     value={buyerForm.buyerCountry}
                     name="buyerCountry"
-                    onChange={handleBuyerFormChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Country
-                    </option>
-                    <option value="India">India</option>
-                    <option value="Italy">Italy</option>
-                    <option value="US">US</option>
-                    <option value="UK">UK</option>
-                  </select>
+                    onChange={handleLocationChange}
+                  />
+                  {showSuggestions.buyerCountry && (
+                    <div className={styles.suggestions}>
+                      {tempList.countryList.map((country, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setBuyerForm({
+                              ...buyerForm,
+                              buyerCountry: country.name,
+                            });
+                            toggleSuggestVisibility("buyerCountry", false);
+                            setLocation({
+                              ...location,
+                              country: country.isoCode,
+                            });
+                          }}
+                        >
+                          {country.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="city">
+                  State
+                </label>
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Enter here "
+                    value={buyerForm.buyerState}
+                    name="buyerState"
+                    onChange={handleLocationChange}
+                  />
+                  {showSuggestions.buyerState && (
+                    <div className={styles.suggestions}>
+                      {tempList.stateList.map((state, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setBuyerForm({
+                              ...buyerForm,
+                              buyerState: state.name,
+                            });
+                            toggleSuggestVisibility("buyerState", false);
+                            setLocation({ ...location, state: state.isoCode });
+                          }}
+                        >
+                          {state.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">
                   City
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Enter here "
                     value={buyerForm.buyerCity}
                     name="buyerCity"
-                    onChange={handleBuyerFormChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select City
-                    </option>
-                    <option value="Lucknow">Lucknow</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Agra">Agra</option>
-                    <option value="Kanpur">Kanpur</option>
-                  </select>
+                    onChange={handleLocationChange}
+                  />
+                  {showSuggestions.buyerCity && (
+                    <div className={styles.suggestions}>
+                      {tempList.cityList.map((city, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setBuyerForm({
+                              ...buyerForm,
+                              buyerCity: city.name,
+                            });
+                            toggleSuggestVisibility("buyerCity", false);
+                          }}
+                        >
+                          {city.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.colSpan}>
@@ -306,27 +564,6 @@ const Buyer = () => {
                   onChange={handleBuyerFormChange}
                 />
               </div>
-
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="currency">
-                  Currency
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    value={buyerForm.currency}
-                    name="currency"
-                    onChange={handleBuyerFormChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Currency
-                    </option>
-                    <option value="INR">INR</option>
-                    <option value="USD">USD</option>
-                    <option value="EURO">EURO</option>
-                  </select>
-                </div>
-              </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="phone">
                   Phone Number
@@ -340,33 +577,39 @@ const Buyer = () => {
                   onChange={handleBuyerFormChange}
                 />
               </div>
-
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="email">
-                  Email Id
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="currency">
+                  Currency
                 </label>
-                <input
-                  type="email"
-                  className={styles.basicInput}
-                  placeholder="Email"
-                  value={buyerForm.buyerEmail}
-                  name="buyerEmail"
-                  onChange={handleBuyerFormChange}
-                />
-              </div>
-
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="merchandiser">
-                  Merchandiser
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Merchandiser"
-                  value={buyerForm.merchendiser}
-                  name="merchendiser"
-                  onChange={handleBuyerFormChange}
-                />
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    className={styles.basicInput}
+                    placeholder="Enter here "
+                    value={buyerForm.currency}
+                    name="currency"
+                    onChange={handleLocationChange}
+                  />
+                  {showSuggestions.currency && (
+                    <div className={styles.suggestions}>
+                      {tempList.currencyList.map((curr, index) => (
+                        <div
+                          key={index}
+                          className={styles.suggestionItem}
+                          onClick={() => {
+                            setBuyerForm({
+                              ...buyerForm,
+                              currency: curr.code,
+                            });
+                            toggleSuggestVisibility("currency", false);
+                          }}
+                        >
+                          {curr.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -400,7 +643,7 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Name"
                   className={styles.basicInput}
-                  value={buyerForm.bankName}
+                  value={buyerForm.bsAccountRequest.bankName}
                   name="bankName"
                   onChange={handleBuyerFormChange}
                 />
@@ -413,7 +656,7 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Branch"
                   className={styles.basicInput}
-                  value={buyerForm.bankBranch}
+                  value={buyerForm.bsAccountRequest.bankBranch}
                   name="bankBranch"
                   onChange={handleBuyerFormChange}
                 />
@@ -422,22 +665,14 @@ const Buyer = () => {
                 <label className={styles.sampleLabel} htmlFor="city">
                   Bank City
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    value={buyerForm.bankCity}
-                    name="bankCity"
-                    onChange={handleBuyerFormChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select City
-                    </option>
-                    <option value="Lucknow">Lucknow</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Agra">Agra</option>
-                    <option value="Kanpur">Kanpur</option>
-                  </select>
-                </div>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Email"
+                  value={buyerForm.bsAccountRequest.bankCity}
+                  name="bankCity"
+                  onChange={handleBuyerFormChange}
+                />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
@@ -447,7 +682,7 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Swift"
-                  value={buyerForm.bankSwiftCode}
+                  value={buyerForm.bsAccountRequest.bankSwiftCode}
                   name="bankSwiftCode"
                   onChange={handleBuyerFormChange}
                 />
@@ -460,7 +695,7 @@ const Buyer = () => {
                   type="text"
                   placeholder="Bank Address"
                   className={styles.basicInput}
-                  value={buyerForm.bankAddress}
+                  value={buyerForm.bsAccountRequest.bankAddress}
                   name="bankAddress"
                   onChange={handleBuyerFormChange}
                 />
@@ -470,29 +705,53 @@ const Buyer = () => {
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   A/C no
                 </label>
-                <input
-                  type="number"
-                  className={styles.basicInput}
-                  placeholder="Account Number"
-                  value={buyerForm.bankAccountNo}
-                  name="bankAccountNo"
-                  onChange={handleBuyerFormChange}
-                />
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type={showAccount.account ? "text" : "password"}
+                    className={styles.basicInput2}
+                    placeholder="Account Number"
+                    value={buyerForm.bsAccountRequest.bankAccountNo}
+                    name="bankAccountNo"
+                    onChange={handleBuyerFormChange}
+                  />
+                  <button
+                    className={styles.eyeButton}
+                    onClick={()=>toggleAccountVisibility('account')}
+                  >
+                    <img
+                      className={styles.eyeIcon}
+                      src={showAccount.account ? EyeOpenIcon : EyeClosedIcon}
+                      alt="eye icon"
+                    />
+                  </button>
+                </div>
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
                   Confirm <br />
                   A/C no
                 </label>
-                <input
-                  type="number"
-                  className={styles.basicInput}
-                  placeholder="Confirm Account Number"
-                  value={confirmAccountNo}
-                  onChange={handleConfirmAccountChange}
-                  name="confirmAccountNo"
-                  style={!isMatching ? { border: "2px solid red" } : {}}
-                />
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type={showAccount.confirmAccount ? "text" : "password"}
+                    className={styles.basicInput2}
+                    placeholder="Confirm Account Number"
+                    value={confirmAccountNo}
+                    onChange={handleConfirmAccountChange}
+                    name="confirmAccountNo"
+                    style={!isMatching ? { border: "2px solid red" } : {}}
+                  />
+                  <button
+                    className={styles.eyeButton}
+                    onClick={()=>toggleAccountVisibility('confirmAccount')}
+                  >
+                    <img
+                      className={styles.eyeIcon}
+                      src={showAccount.confirmAccount ? EyeOpenIcon : EyeClosedIcon}
+                      alt="eye icon"
+                    />
+                  </button>
+                </div>
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="buyer">
@@ -502,7 +761,7 @@ const Buyer = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="IFSC Code"
-                  value={buyerForm.bankIFSC}
+                  value={buyerForm.bsAccountRequest.bankIFSC}
                   name="bankIFSC"
                   onChange={handleBuyerFormChange}
                 />
@@ -602,7 +861,9 @@ const Buyer = () => {
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-                <button className={styles.resetButton}>Reset</button>
+                <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
                 <button
                   className={styles.submitButton}
                   disabled={!isMatching}
@@ -625,7 +886,7 @@ const Buyer = () => {
           )}
         </>
       ) : (
-       <ViewBuyer/>
+        <ViewBuyer />
       )}
     </div>
   );
