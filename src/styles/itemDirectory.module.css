@@ -12,7 +12,30 @@
   .subHeadContainerTwo h2 {
     @apply text-[0.875rem];
   }
+  .inputWithIcon {
+    @apply relative w-full inline-block;
+  }
+.inputWithIcon input{
+  @apply pr-[3rem];
+}
+  .searchBtn {
+    @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+    background-image: url("../assets/dropDown2.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: translateY(-50%);
+    background-size: 16px 16px;
+    border: none;
+  }
+ 
+
+  .searchBtn:hover {
+    opacity: 0.8;
+  }
   
+  .inputWithIcon-active {
+    @apply bg-blue-600 text-white;
+  }
   .headBorder {
     @apply border-t-[3px] my-1 rounded;
     stroke-width: 3px;
@@ -41,6 +64,9 @@
   
   .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
+  }
+  .colSpan2 {
+    @apply col-span-2 sml:col-span-1 flex flex-row items-center gap-1;
   }
   .largeColSpan {
     @apply col-span-3 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1;
@@ -80,18 +106,37 @@
     pointer-events: none;
   }
   .resetButton {
-    @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-      leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
-      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+    @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+    leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
   }
   .submitButton {
+    
     @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-      leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
-      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+    leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
   }
   
+  
+  .loader {
+    @apply mr-14 mt-2 sm:mr-0;
+    border: 7px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   .buttonContainer {
-    @apply flex items-center mt-4 justify-end gap-1 right-[1rem] sm:justify-center sm:mb-2 sm:ml-8;
+    @apply flex gap-1 right-[1rem] ;
+  }
+  .parentButtonContainer {
+    @apply flex mt-4 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
   }
   
   .popupOverlay {
@@ -132,4 +177,23 @@
     outline: none;
     border: 1px solid #00a5ad;
   }
+  .suggestions::-webkit-scrollbar {
+    @apply h-1 block w-0;
+  }
   
+  .suggestions::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  
+  .suggestions::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-500;
+  }
+  
+  
+  .suggestions {
+    @apply absolute w-full border  border-t-0 border-gray-300 rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+  }
+  
+  .suggestionItem {
+    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+  }

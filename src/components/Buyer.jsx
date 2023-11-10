@@ -121,6 +121,10 @@ const Buyer = () => {
     const { name, value } = e.target;
 
     setBuyerForm({ ...buyerForm, [name]: value });
+
+    if (value.length < 1) {
+      toggleSuggestVisibility(`${name}`, false);
+    }
     if (name === "buyerCountry" && value.length >= 2) {
       if (allCountries.length === 0) {
         setAllCountires(Country.getAllCountries());
@@ -185,7 +189,7 @@ const Buyer = () => {
     }));
   };
 
-  const toggleAccountVisibility  = (visible) => {
+  const toggleAccountVisibility = (visible) => {
     setShowAccount((prevState) => ({
       ...prevState,
       [visible]: !prevState[visible],
@@ -223,7 +227,6 @@ const Buyer = () => {
       setLoading(false);
     }
   };
-
 
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
@@ -490,10 +493,8 @@ const Buyer = () => {
                     <option value="" selected disabled hidden>
                       Select Type
                     </option>
-                    <option value="Type 1">Type 1</option>
-                    <option value="Type 2">Type 2</option>
-                    <option value="Type 3">Type 3</option>
-                    <option value="Type 4">Type 4</option>
+                    <option value="Domestic">Domestic</option>
+                    <option value="International">International</option>
                   </select>
                 </div>
               </div>
@@ -668,7 +669,7 @@ const Buyer = () => {
                 <input
                   type="text"
                   className={styles.basicInput}
-                  placeholder="Email"
+                  placeholder="Bank City"
                   value={buyerForm.bsAccountRequest.bankCity}
                   name="bankCity"
                   onChange={handleBuyerFormChange}
@@ -716,7 +717,7 @@ const Buyer = () => {
                   />
                   <button
                     className={styles.eyeButton}
-                    onClick={()=>toggleAccountVisibility('account')}
+                    onClick={() => toggleAccountVisibility("account")}
                   >
                     <img
                       className={styles.eyeIcon}
@@ -743,11 +744,13 @@ const Buyer = () => {
                   />
                   <button
                     className={styles.eyeButton}
-                    onClick={()=>toggleAccountVisibility('confirmAccount')}
+                    onClick={() => toggleAccountVisibility("confirmAccount")}
                   >
                     <img
                       className={styles.eyeIcon}
-                      src={showAccount.confirmAccount ? EyeOpenIcon : EyeClosedIcon}
+                      src={
+                        showAccount.confirmAccount ? EyeOpenIcon : EyeClosedIcon
+                      }
                       alt="eye icon"
                     />
                   </button>
