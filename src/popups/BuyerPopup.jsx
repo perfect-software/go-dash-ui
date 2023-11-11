@@ -42,7 +42,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
        callApi(1);
     } else if(value.length >=3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-      console.log('hello');
+    
      try {
        const fetchedBuyers = await getApiService(BASE_URL);
        const extractedData = await fetchedBuyers.map((item) => ({
