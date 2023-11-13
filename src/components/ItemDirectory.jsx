@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/itemDirectory.module.css";
-import { getCurrentYearLastTwoDigits } from "../features/convertDate";
 import { getApiService, postApiService } from "../service/apiService";
+import ItemHeadPopup from "../popups/ItemHeadPopup";
 
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
+  const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [filteredList, setFilteredList] = useState({
@@ -14,6 +15,12 @@ const ItemDirectory = () => {
     substanceList: [],
     textureList: [],
     characteristicsList: [],
+    tanneryList: [],
+    originList: [],
+    tanningList: [],
+    colorList: [],
+    skintype: [],
+    itemnameList: [],
   });
   const [showSuggestions, setShowSuggestions] = useState({
     animal: false,
@@ -21,6 +28,12 @@ const ItemDirectory = () => {
     substance: false,
     texture: false,
     characteristics: false,
+    tannery: false,
+    origin: false,
+    tanning: false,
+    color: false,
+    skintype: false,
+    itemname: false,
   });
   const [itemForm, setItemForm] = useState({
     animal: "",
@@ -37,7 +50,23 @@ const ItemDirectory = () => {
     size: "",
     itemname: "",
   });
-
+  const resetItem = () => {
+    setItemForm({
+      animal: "",
+      season: "",
+      characteristics: "",
+      texture: "",
+      substance: "",
+      tanning: "",
+      origin: "",
+      tannery: "",
+      color: "",
+      uniquecode: "",
+      skintype: "",
+      size: "",
+      itemname: "",
+    });
+  };
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -156,10 +185,14 @@ const ItemDirectory = () => {
   const handleSubmitItemClick = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (itemForm.characteristics) {
+      itemForm.characteristics = itemForm.characteristics.replace(/,\s*/g, " ");
+    }
     const formData = Object.entries(itemForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
+
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);
@@ -191,12 +224,46 @@ const ItemDirectory = () => {
             <h1 className={styles.headText}>Item Directory</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
-            <h2>Create Item</h2>
+            <div className={styles.subHeadContainerThree}>
+              <h2>Create Item</h2>
+              <button
+                className={styles.headButton}
+                onClick={() => setIsItemHeadPopup(true)}
+              >
+                Insert New Value
+              </button>
+            </div>
             <div className={styles.headBorder}></div>
           </div>
         </div>
 
         <div className={styles.topGrid}>
+          <div className={styles.colSpan2}>
+            <label className={styles.sampleLabel} htmlFor="skinSize">
+              Item Group
+            </label>
+
+            <input
+              type="text"
+              className={styles.basicInput}
+              placeholder="Write here"
+              name="itemgroup"
+            />
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="skinSize">
+              Item <br /> Sub Group
+            </label>
+
+            <input
+              type="text"
+              className={styles.basicInput}
+              placeholder="Write here"
+              value={itemForm.size}
+              name="itemsubgroup"
+            />
+          </div>
+
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="animal">
               Animal
@@ -396,61 +463,157 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="tanning">
               Tanning
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.tanning}
-              name="tanning"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, tanning: e.target.value })
-              }
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                value={itemForm.tanning}
+                name="tanning"
+                onChange={handleItemChange}
+              />
+              <button
+                onClick={() => handleButtonClick("tanning")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.tanning && (
+                <div className={styles.suggestions}>
+                  {filteredList.tanningList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          tanning: item.name,
+                        });
+                        toggleSuggestVisibility("tanning", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="origin">
               Origin
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.origin}
-              name="origin"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, origin: e.target.value })
-              }
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                value={itemForm.origin}
+                name="origin"
+                onChange={handleItemChange}
+              />
+              <button
+                onClick={() => handleButtonClick("origin")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.origin && (
+                <div className={styles.suggestions}>
+                  {filteredList.originList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          origin: item.name,
+                        });
+                        toggleSuggestVisibility("origin", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="tannery">
               Tannery
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.tannery}
-              name="tannery"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, tannery: e.target.value })
-              }
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                value={itemForm.tannery}
+                name="tannery"
+                onChange={handleItemChange}
+              />
+              <button
+                onClick={() => handleButtonClick("tannery")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.tannery && (
+                <div className={styles.suggestions}>
+                  {filteredList.tanneryList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          tannery: item.name,
+                        });
+                        toggleSuggestVisibility("tannery", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="color">
               Color
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.color}
-              name="color"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, color: e.target.value })
-              }
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                value={itemForm.color}
+                name="color"
+                onChange={handleItemChange}
+              />
+              <button
+                onClick={() => handleButtonClick("color")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.color && (
+                <div className={styles.suggestions}>
+                  {filteredList.colorList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          color: item.name,
+                        });
+                        toggleSuggestVisibility("color", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="uniqueCode">
@@ -471,17 +634,39 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="skinType">
               Skin Type
             </label>
-            <div className={styles.selectWrapper}>
+            <div className={styles.inputWithIcon}>
               <input
                 type="text"
                 className={styles.basicInput}
-                placeholder="Write here"
+                placeholder="Insert First Letter"
                 value={itemForm.skintype}
                 name="skintype"
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, skintype: e.target.value })
-                }
+                onChange={handleItemChange}
               />
+              <button
+                onClick={() => handleButtonClick("skintype")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.skintype && (
+                <div className={styles.suggestions}>
+                  {filteredList.skintypeList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          skintype: item.name,
+                        });
+                        toggleSuggestVisibility("skintype", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className={styles.colSpan}>
@@ -505,16 +690,40 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="itemName">
               Item Name (Own)
             </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.itemname}
-              name="itemname"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, itemname: e.target.value })
-              }
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                value={itemForm.itemname}
+                name="itemname"
+                onChange={handleItemChange}
+              />
+              <button
+                onClick={() => handleButtonClick("itemname")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {showSuggestions.itemname && (
+                <div className={styles.suggestions}>
+                  {filteredList.itemnameList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          itemname: item.name,
+                        });
+                        toggleSuggestVisibility("itemname", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="supplierItemName">
@@ -535,7 +744,9 @@ const ItemDirectory = () => {
           </div>
         ) : (
           <div className={styles.buttonContainer}>
-            <button className={styles.resetButton}>Reset</button>
+            <button className={styles.resetButton} onClick={() => resetItem()}>
+              Reset
+            </button>
             <button
               className={styles.submitButton}
               onClick={handleSubmitItemClick}
@@ -554,6 +765,15 @@ const ItemDirectory = () => {
             </button>
           </div>
         </div>
+      )}
+      {isItemHeadPopup && (
+        <ItemHeadPopup
+          onCancel={() => {
+            setIsItemHeadPopup(false);
+            getItems();
+          }}
+          itemForm={itemForm}
+        />
       )}
     </div>
   );

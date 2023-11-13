@@ -3,14 +3,20 @@
     height: calc(100vh - 4rem);
   }
   .headContiner {
-    @apply flex flex-col gap-3;
+    @apply flex flex-col sm:gap-2 ;
   }
-  
-  .subHeadContainer {
-    @apply flex items-center;
+  .subHeadContainerThree {
+    @apply flex sm:flex-col sm:gap-2 sm:items-center sm:justify-center justify-between items-end;
   }
   .subHeadContainerTwo h2 {
-    @apply text-[0.875rem];
+    @apply text-[1rem] m-0 p-0;
+  }
+  .subHeadContainer{
+    @apply flex sm:flex-col sm:items-center sm:justify-center;
+  }
+  .headButton {
+    @apply w-[9rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
+    leading-4 bg-[#00A5AD] rounded-[0.3125rem];
   }
   .inputWithIcon {
     @apply relative w-full inline-block;
@@ -49,14 +55,53 @@
     @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
     min-width: 5.6rem;
   }
+  .sampleLabel2 {
+    @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+    min-width: 3rem;
+  }
+  .crossIcon {
+    @apply h-[1rem] w-[1rem] cursor-pointer;
+     transition: transform 1s ease-in;
+  }
   
+  .crossIcon:hover {
+    transform: rotate(90deg);
+  }
+  .popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #3a475066;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .topBarContainer h1 {
+    @apply text-[#00ADB5] sm:text-[1rem] text-[1.3rem] leading-4 font-[400];
+  }
+
+  .itemsDiv {
+    @apply flex items-center;
+  }
+  .itemHeadPopupContainer {
+    @apply bg-[#ffffff] flex w-[25rem]  gap-6 flex-col p-3 items-center rounded-[0.625rem] m-5 text-center;
+  }
+  .topBarContainer {
+    @apply flex w-full justify-between;
+  }
+  .bottomBarContainer{
+ @apply flex flex-col gap-3;
+  }
   .headSmallBorder {
     @apply w-52 border-t-[3px]  mb-0 mt-3 rounded;
     stroke-width: 3px;
     stroke: rgba(58, 71, 80, 0.13);
   }
   .headText {
-    @apply text-[#00ADB5] mt-3 text-[1.5625rem] leading-4 font-[400];
+    @apply text-[#00ADB5] mt-3 text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
   }
   .topGrid {
     @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
@@ -128,6 +173,16 @@
     animation: spin 1s linear infinite;
   }
   
+  .loader2 {
+    border: 7px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: spin 1s linear infinite;
+  }
+  
+  
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -136,9 +191,9 @@
     @apply flex gap-1 right-[1rem] ;
   }
   .parentButtonContainer {
-    @apply flex mt-4 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+    @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
   }
-  
+ 
   .popupOverlay {
     position: fixed;
     top: 0;
@@ -196,4 +251,22 @@
   
   .suggestionItem {
     @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+  }
+
+
+
+  .ItemSelectPopupButton {
+    @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+  }
+  .bottomItemButtonContainer {
+    @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
+  }
+  .ItemSelectPopupButton:disabled{
+    @apply cursor-not-allowed;
+  }
+  
+ 
+  .bottomItemButtonContainer h3 {
+    @apply text-[0.8rem] text-red-500 font-bold;
+
   }
