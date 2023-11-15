@@ -10,6 +10,8 @@ import { getApiService } from "../service/apiService";
 const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc"); // or 'desc'
   const [buyers, setBuyers] = useState([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
@@ -24,7 +26,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       const extractedData = fetchedBuyers.map((item) => ({
         bsName: item.bsName,
         billingAddress: item.billingAddress,
-        bsId:item.bs_id
+        bsId: item.bs_id,
       }));
       setBuyers(extractedData);
       setSelectedRowIndex(null);
@@ -33,30 +35,42 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       console.error("Failed to fetch All buyers:", error);
     }
   };
+  const handleSort = (fieldName) => {
+    const direction =
+      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(fieldName);
+    setSortDirection(direction);
 
+    const sortedBuyers = [...buyers].sort((a, b) => {
+      if (a[fieldName] < b[fieldName]) return direction === "asc" ? -1 : 1;
+      if (a[fieldName] > b[fieldName]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setBuyers(sortedBuyers);
+  };
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
 
     if (value.length === 0) {
-     
-       callApi(1);
-    } else if(value.length >=3) {
+      callApi(1);
+    } else if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-    
-     try {
-       const fetchedBuyers = await getApiService(BASE_URL);
-       const extractedData = await fetchedBuyers.map((item) => ({
-         bsName: item.bsName,
-         billingAddress: item.deliveryAddress,
-         bsId:item.bsId
-       }));
-     
-       setBuyers(extractedData);
-       setSelectedRowIndex(null);
-       setSelectedBuyer(null);
-     } catch (error) {
-       console.error("Failed to fetch buyers:", error);
-     }
+
+      try {
+        const fetchedBuyers = await getApiService(BASE_URL);
+        const extractedData = await fetchedBuyers.map((item) => ({
+          bsName: item.bsName,
+          billingAddress: item.deliveryAddress,
+          bsId: item.bsId,
+        }));
+
+        setBuyers(extractedData);
+        setSelectedRowIndex(null);
+        setSelectedBuyer(null);
+      } catch (error) {
+        console.error("Failed to fetch buyers:", error);
+      }
     }
   };
 
@@ -71,11 +85,11 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       key={rowIndex}
       onClick={() => {
         setSelectedRowIndex(rowIndex);
-      
+
         setSelectedBuyer(buyer);
       }}
     >
-      <td className={styles.selectColumn}>
+      <td className={styles.selectColumn} style={{ textAlign: 'center' }}>
         <button className={styles.selectButton}>
           <img
             src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck}
@@ -84,12 +98,8 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
           />
         </button>
       </td>
-      <td style={{ textAlign: "left" }} className={styles.buyerContent}>
-        {buyer.bsName}
-      </td>
-      <td style={{ textAlign: "left" }} className={styles.buyerContent}>
-        {buyer.billingAddress}
-      </td>
+      <td className={styles.buyerContent}>{buyer.bsName}</td>
+      <td className={styles.buyerContent}>{buyer.billingAddress}</td>
       {/* Add more columns as needed */}
     </tr>
   );
@@ -235,9 +245,36 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                 <thead>
                   <tr>
                     <th className={styles.selectColumn}>Select</th>
-                    <th className={styles.buyerColumn}>Buyer Name</th>
-                    <th className={styles.buyerColumn}>Delivery Address</th>
-                    {/* Add more headers as needed */}
+                    <th
+                      className={styles.buyerColumn}
+                      onClick={() => handleSort("bsName")}
+                    >
+                      <div className={styles.flexContainer}  >
+                        Buyer Name.
+                        <button className={styles.sortButton}>
+                          {sortField === "bsName"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
+                    <th
+                      className={styles.buyerColumn} 
+                      onClick={() => handleSort("billingAddress")}
+                    >
+                      <div className={styles.flexContainer}>
+                        Delivery Address
+                        <button className={styles.sortButton}>
+                          {sortField === "billingAddress"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>{renderTableRows()}</tbody>

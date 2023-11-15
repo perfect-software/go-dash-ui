@@ -9,6 +9,11 @@
   @apply flex items-center text-[0.84rem] h-[3rem] w-[5.75rem] whitespace-nowrap;
   color: rgba(91, 91, 91, 1);
 }
+.sortButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 
 .viewSrDropGrid {
   @apply grid sml:grid-cols-2 sm:grid-cols-1 grid-cols-4 gap-2 mt-2;
@@ -101,33 +106,44 @@ select {
   display: block;
 }
 .topContainer {
-  @apply flex flex-col w-[94vw] smp:w-[94vw] sm:w-[94vw] sml:w-[89vw] smxl:w-[93vw] pr-2;
+  width: calc(100vw - 100px);
 }
 .topContainerOpen {
-  @apply flex flex-col smp:w-[94vw] sm:w-[94vw] sml:w-[62.72vw] smxl:w-[75vw] pr-2 w-[80.72vw];
-  
+  width: calc(100vw - 290px);
 }
+@media screen and (max-width: 695px) {
+  .topContainer {
+    width: calc(100vw - 44px);
+  }
+  .topContainerOpen {
+    width: 95vw;
+  }
+}
+
+ 
 
 .gridTable {
   @apply self-center;
   display: grid;
-  grid-template-columns: repeat(27, 1fr); 
+  grid-template-columns: repeat(27, 1fr);
   text-align: left;
-  overflow-x: auto; 
- 
+  overflow-x: auto;
 }
 
-  .gridHeader,
-  .gridRow {
-    @apply whitespace-nowrap text-[1rem] px-2 py-1;
-    color: rgba(91, 91, 91, 1);
-    border: 1px solid rgba(238, 238, 238, 0.8);
-  }
- 
-  .gridHeader {
-    font-weight: bold;
-    @apply bg-transparent;
-  }
+.gridHeader,
+.gridRow {
+  @apply whitespace-nowrap text-[1rem] px-2 py-1;
+  color: rgba(91, 91, 91, 1);
+  border: 1px solid rgba(238, 238, 238, 0.8);
+}
+
+.gridHeader {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  @apply bg-transparent cursor-pointer gap-2;
+}
 
 .loader {
   @apply mr-14 mt-2 sm:mr-0;
@@ -139,12 +155,15 @@ select {
   animation: spin 1s linear infinite;
 }
 
-
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.colSpan4 h2{
+.colSpan4 h2 {
   @apply text-base font-bold;
 }

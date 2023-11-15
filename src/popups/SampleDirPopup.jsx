@@ -5,13 +5,15 @@ import BlueCheck from "../assets/blueTick.svg";
 import axios from "axios";
 import Cross from "../assets/cross.svg";
 import { useNavigate } from "react-router-dom";
-import { formatDate , formatDDMMYYYYDate } from "../features/convertDate";
+import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 
 const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [samples, setSamples] = useState([]);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
   const [selectedSample, setSelectedSample] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -23,7 +25,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
         setSelectedSample(sample);
       }}
     >
-      <td className={styles.selectColumn}>
+      <td className={styles.selectColumn} style={{ textAlign: 'center' }}>
         <button className={styles.selectButton}>
           <img
             src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck}
@@ -33,7 +35,9 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
         </button>
       </td>
       <td className={styles.sampleContent}>{sample.sampleRef}</td>
-      <td className={styles.sampleContent}>{formatDDMMYYYYDate(sample.buyer.entDate)}</td>
+      <td className={styles.sampleContent}>
+        {formatDDMMYYYYDate(sample.buyer.entDate)}
+      </td>
       <td className={styles.sampleContent}>{sample.season}</td>
       <td className={styles.sampleContent}>{sample.articleNo}</td>
       <td className={styles.sampleContent}>{sample.buyer.bsName}</td>
@@ -57,13 +61,37 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       <td className={styles.sampleContent}>{sample.inSocks}</td>
       <td className={styles.sampleContent}>{sample.inQuantity}</td>
       <td className={styles.sampleContent}>{sample.comments}</td>
-      <td className={styles.sampleContent}>{formatDDMMYYYYDate(sample.deliveryDate)}</td>
-      <td className={styles.sampleContent}>{formatDDMMYYYYDate(sample.prodExDate)}</td>
+      <td className={styles.sampleContent}>
+        {formatDDMMYYYYDate(sample.deliveryDate)}
+      </td>
+      <td className={styles.sampleContent}>
+        {formatDDMMYYYYDate(sample.prodExDate)}
+      </td>
 
       {/* Add more columns as needed */}
     </tr>
   );
+  const getNestedValue = (obj, path) => {
+    return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+  };
 
+  const handleSort = (fieldName) => {
+    const direction =
+      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(fieldName);
+    setSortDirection(direction);
+
+    const sortedSamples = [...samples].sort((a, b) => {
+      const aValue = getNestedValue(a, fieldName);
+      const bValue = getNestedValue(b, fieldName);
+
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setSamples(sortedSamples);
+  };
   const callApi = async (page = 1) => {
     const adjustedPage = page - 1;
     const BASE_URL = `http://localhost:8081/api/sample/view/{page_num}?page_num=${adjustedPage}`;
@@ -204,15 +232,90 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
                 <thead>
                   <tr>
                     <th className={styles.selectColumn}>Select</th>
-                    <th className={styles.SampleColumn}>SR No.</th>
-                    <th className={styles.SampleColumn}>Date of order</th>
-                    <th className={styles.SampleColumn}>Season</th>
+                    <th
+                      className={styles.SampleColumn}
+                      onClick={() => handleSort("sampleRef")}
+                    >
+                      <div className={styles.flexContainer}>
+                        SR No.
+                        <button className={styles.sortButton}>
+                          {sortField === "sampleRef"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
+                    <th
+                      className={styles.SampleColumn}
+                      onClick={() => handleSort("buyer.entDate")}
+                    >
+                      <div className={styles.flexContainer}>
+                        Date Of Order
+                        <button className={styles.sortButton}>
+                          {sortField === "buyer.entDate"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
+                    <th
+                      className={styles.SampleColumn}
+                      onClick={() => handleSort("season")}
+                    >
+                      <div className={styles.flexContainer}>
+                        Season
+                        <button className={styles.sortButton}>
+                          {sortField === "season"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
                     <th className={styles.SampleColumn}>Article No</th>
-                    <th className={styles.SampleColumn}>Buyer</th>
+                    <th className={styles.SampleColumn} onClick={() => handleSort("buyer.bsName")}
+                    >
+                      <div className={styles.flexContainer}>
+                      Buyer
+                        <button className={styles.sortButton}>
+                        {sortField === "buyer.bsName"
+                          ? sortDirection === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                        </button>
+                      </div></th>
                     <th className={styles.SampleColumn}>Sample Type</th>
                     <th className={styles.SampleColumn}>Buyer Article</th>
-                    <th className={styles.SampleColumn}>Delivery Address</th>
-                    <th className={styles.SampleColumn}>Size</th>
+                    <th className={styles.SampleColumn} onClick={() => handleSort("buyer.deliveryAddress")}
+                    >
+                      <div className={styles.flexContainer}>
+                       Delivery Address
+                        <button className={styles.sortButton}>
+                        {sortField === "buyer.deliveryAddress"
+                          ? sortDirection === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                        </button>
+                      </div></th>
+                    <th className={styles.SampleColumn} onClick={() => handleSort("size")}
+                    >
+                      <div className={styles.flexContainer}>
+                       Size
+                        <button className={styles.sortButton}>
+                        {sortField === "size"
+                          ? sortDirection === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                        </button>
+                      </div></th>
                     <th className={styles.SampleColumn}>Quantity</th>
                     <th className={styles.SampleColumn}>Pair</th>
                     <th className={styles.SampleColumn}>Upper Color</th>
@@ -229,8 +332,30 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
                     <th className={styles.SampleColumn}>In Socks</th>
                     <th className={styles.SampleColumn}>In Quantity</th>
                     <th className={styles.SampleColumn}>Comments</th>
-                    <th className={styles.SampleColumn}>Delivery Date</th>
-                    <th className={styles.SampleColumn}>Production Ex Date</th>
+                    <th className={styles.SampleColumn} onClick={() => handleSort("deliveryDate")}
+                    >
+                      <div className={styles.flexContainer}>
+                      Delivery Date
+                        <button className={styles.sortButton}>
+                        {sortField === "deliveryDate"
+                          ? sortDirection === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                        </button>
+                      </div></th>
+                    <th className={styles.SampleColumn} onClick={() => handleSort("prodExDate")}
+                    >
+                      <div className={styles.flexContainer}>
+                      Production Ex Date
+                        <button className={styles.sortButton}>
+                        {sortField === "prodExDate"
+                          ? sortDirection === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                        </button>
+                      </div></th>
                   </tr>
                 </thead>
                 <tbody>{renderTableRows()}</tbody>

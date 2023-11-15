@@ -9,12 +9,13 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    @apply py-4;
   }
   .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
   }
   .sampleDirPopupContainer {
-    @apply bg-[#ffffff] flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
+    @apply bg-[#ffffff]  max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw] overflow-auto  flex-col p-3 items-center rounded-[0.625rem] text-center;
   }
   .bottomSampleButtonContainer {
     @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
@@ -112,6 +113,20 @@
   .bottomsampleDirPopupContainer {
     @apply flex justify-center w-full mt-3;
   }
+  .sortButton {
+
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .flexContainer {
+
+    display: flex;
+    gap:8px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
   
   .tablecontainer {
     @apply rounded w-full;
@@ -127,11 +142,13 @@
   }
   .table td,
   .table th {
-    @apply py-[1.4px] px-2 whitespace-nowrap text-sm;
+    @apply py-[1.4px] text-left px-2 whitespace-nowrap text-sm;
     color: rgba(91, 91, 91, 1);
     height: 1rem;
     border: 2px solid rgba(238, 238, 238, 0.8);
   }
+
+
   tr{
     @apply cursor-pointer;
   }

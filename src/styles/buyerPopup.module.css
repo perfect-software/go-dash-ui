@@ -9,12 +9,14 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  @apply py-4;
 }
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
+
 .buyerPopupContainer {
-  @apply bg-[#ffffff] flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center;
+  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
 }
 .buyerDropGrid {
   @apply grid sml:grid-cols-1 grid-cols-3 gap-2 mt-2;
@@ -50,6 +52,13 @@
   border: none;
 }
 
+.flexContainer {
+
+  display: flex;
+  gap:8px;
+  justify-content: space-between;
+  align-items: center;
+}
 
 .basicInput2 {
   @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
@@ -58,7 +67,6 @@
 
 .basicInput2:focus {
   outline: none;
-
   border: 1px solid #00a5ad;
 }
 .inputWithIcon {
@@ -72,7 +80,12 @@
   @apply h-[1rem] w-[1rem] cursor-pointer;
   transition: transform 1s ease-in;
 }
-
+.sortButton {
+  @apply float-right;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 .crossIcon:hover {
   transform: rotate(90deg);
 }
@@ -144,11 +157,12 @@ select {
 
 .table td,
 .table th {
-  @apply py-[1.4px] px-2 whitespace-nowrap text-sm;
+  @apply py-[1.4px] text-left px-2 whitespace-nowrap text-sm;
   color: rgba(91, 91, 91, 1);
   height: 1rem;
   border: 2px solid rgba(238, 238, 238, 0.8);
 }
+
 tr{
   @apply cursor-pointer;
 }
@@ -156,7 +170,6 @@ tr{
   display: block;
   height: 0.4rem;
 }
-
 .tablecontainer::-webkit-scrollbar-track {
   margin: 2px 0;
   background: transparent;
