@@ -7,6 +7,7 @@ const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
+  const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [filteredList, setFilteredList] = useState({
@@ -18,8 +19,7 @@ const ItemDirectory = () => {
     tanneryList: [],
     originList: [],
     tanningList: [],
-    colorList: [],
-    skintype: [],
+    skintypeList: [],
     itemnameList: [],
   });
   const [showSuggestions, setShowSuggestions] = useState({
@@ -83,7 +83,6 @@ const ItemDirectory = () => {
     try {
       const response = await getApiService(BASE_URL);
       setItemsData(response);
-      console.log(itemsData);
     } catch (error) {
       console.error("Failed to fetch Items:", error);
     }
@@ -119,7 +118,26 @@ const ItemDirectory = () => {
       toggleSuggestVisibility(`${name}`, false);
     }
   };
+  const handleCreateColorChange = async (e) => {
+    const { name, value } = e.target;
+    setItemForm({ ...itemForm, [name]: value });
+    if (value.length >= 2) {
+      const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
+        value
+      )}`;
 
+      try {
+        const fetchedColors = await getApiService(BASE_URL);
+        setColors(fetchedColors);
+
+        toggleSuggestVisibility(`${name}`, true);
+      } catch (error) {
+        console.error("Failed to fetch Colors:", error);
+      }
+    } else {
+      toggleSuggestVisibility(`${name}`, false);
+    }
+  };
   const handleItemChange = (e) => {
     const { name, value } = e.target;
     setItemForm({ ...itemForm, [name]: value });
@@ -238,30 +256,85 @@ const ItemDirectory = () => {
         </div>
 
         <div className={styles.topGrid}>
-          <div className={styles.colSpan2}>
+          <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
               Item Group
             </label>
 
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              name="itemgroup"
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                // value={itemForm.animal}
+                // name="animal"
+                onChange={handleItemChange}
+              />
+              <button
+                // onClick={() => handleButtonClick("animal")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {/* {showSuggestions.animal && (
+                <div className={styles.suggestions}>
+                  {filteredList.animalList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          animal: item.name,
+                        });
+                        toggleSuggestVisibility("animal", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )} */}
+            </div>
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
               Item <br /> Sub Group
             </label>
 
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Write here"
-              value={itemForm.size}
-              name="itemsubgroup"
-            />
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Insert First Letter"
+                // value={itemForm.animal}
+                // name="animal"
+                onChange={handleItemChange}
+              />
+              <button
+                // onClick={() => handleButtonClick("animal")}
+                className={styles.searchBtn}
+                aria-label="dropDorn"
+              ></button>
+              {/* {showSuggestions.animal && (
+                <div className={styles.suggestions}>
+                  {filteredList.animalList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => {
+                        setItemForm({
+                          ...itemForm,
+                          animal: item.name,
+                        });
+                        toggleSuggestVisibility("animal", false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )} */}
+            </div>
           </div>
 
           <div className={styles.colSpan}>
@@ -383,42 +456,7 @@ const ItemDirectory = () => {
               )}
             </div>
           </div>
-          <div className={styles.colSpan2}>
-            <label className={styles.sampleLabel} htmlFor="characteristics">
-              Character -<br />
-              istics
-            </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Multiple Entry Using Comma"
-                value={itemForm.characteristics}
-                name="characteristics"
-                onChange={handleItemMultipleChange}
-              />
-              <button
-                onClick={() => handleButtonClick("characteristics")}
-                className={styles.searchBtn}
-                aria-label="dropDown"
-              ></button>
-              {showSuggestions.characteristics && (
-                <div className={styles.suggestions}>
-                  {filteredList.characteristicsList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() =>
-                        handleSuggestionClick(item.name, "characteristics")
-                      }
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="substance">
               Texture
@@ -450,6 +488,43 @@ const ItemDirectory = () => {
                         });
                         toggleSuggestVisibility("texture", false);
                       }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.colSpan2}>
+            <label className={styles.sampleLabel} htmlFor="characteristics">
+              Character -<br />
+              istics
+            </label>
+            <div className={styles.inputWithIcon}>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Multiple Entry Using Comma"
+                value={itemForm.characteristics}
+                name="characteristics"
+                onChange={handleItemMultipleChange}
+              />
+              <button
+                onClick={() => handleButtonClick("characteristics")}
+                className={styles.searchBtn}
+                aria-label="dropDown"
+              ></button>
+              {showSuggestions.characteristics && (
+                <div className={styles.suggestions}>
+                  {filteredList.characteristicsList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() =>
+                        handleSuggestionClick(item.name, "characteristics")
+                      }
                     >
                       {item.name}
                     </div>
@@ -584,31 +659,26 @@ const ItemDirectory = () => {
               <input
                 type="text"
                 className={styles.basicInput}
-                placeholder="Insert First Letter"
+                placeholder="Insert Two Letter"
                 value={itemForm.color}
                 name="color"
-                onChange={handleItemChange}
+                onChange={handleCreateColorChange}
               />
-              <button
-                onClick={() => handleButtonClick("color")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
               {showSuggestions.color && (
                 <div className={styles.suggestions}>
-                  {filteredList.colorList.map((item, index) => (
+                  {colors.map((color, index) => (
                     <div
                       key={index}
                       className={styles.suggestionItem}
                       onClick={() => {
                         setItemForm({
                           ...itemForm,
-                          color: item.name,
+                          color: color,
                         });
                         toggleSuggestVisibility("color", false);
                       }}
                     >
-                      {item.name}
+                      {color}
                     </div>
                   ))}
                 </div>
@@ -690,40 +760,16 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="itemName">
               Item Name (Own)
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.itemname}
-                name="itemname"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("itemname")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.itemname && (
-                <div className={styles.suggestions}>
-                  {filteredList.itemnameList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          itemname: item.name,
-                        });
-                        toggleSuggestVisibility("itemname", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <input
+              type="text"
+              className={styles.basicInput}
+              placeholder="Write here"
+              value={itemForm.itemname}
+              name="itemname"
+              onChange={(e) =>
+                setItemForm({ ...itemForm, itemname: e.target.value })
+              }
+            />
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="supplierItemName">

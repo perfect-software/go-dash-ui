@@ -7,9 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 const ViewBuyer = () => {
   const navigate = useNavigate();
-
-  const [buyers, setBuyers] = useState([]);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc'); // or 'desc'
   const { isCollapsed } = useSidebar();
+  const [buyers, setBuyers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -19,6 +20,20 @@ const ViewBuyer = () => {
     </div>
   );
 
+  const handleSort = (fieldName) => {
+    const direction = fieldName === sortField && sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortField(fieldName);
+    setSortDirection(direction);
+  
+    const sortedBuyers = [...buyers].sort((a, b) => {
+      if (a[fieldName] < b[fieldName]) return direction === 'asc' ? -1 : 1;
+      if (a[fieldName] > b[fieldName]) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  
+    setBuyers(sortedBuyers);
+  };
+  
   const callApi = async (page = 1) => {
     setLoading(true);
     const adjustedPage = page - 1;
@@ -199,15 +214,58 @@ const ViewBuyer = () => {
         <div className={styles.gridTableWrapper}>
           <div className={styles.gridTable}>
             {/* Header items */}
-            <div className={styles.gridHeader}>Buyer Id</div>
+            <div className={styles.gridHeader} onClick={() => handleSort("bs_id")}>Buyer Id
+            <button className={styles.sortButton}>
+                  {sortField === "bs_id"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
             <div className={styles.gridHeader}>code</div>
-            <div className={styles.gridHeader}>Buyer Name</div>
+            <div className={styles.gridHeader} onClick={() => handleSort("bsName")}>Buyer Name
+            <button className={styles.sortButton}>
+                  {sortField === "bsName"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
             <div className={styles.gridHeader}>Bs Abbreviation</div>
-            <div className={styles.gridHeader}>Billing Address</div>
-            <div className={styles.gridHeader}>Delivery Address</div>
-            <div className={styles.gridHeader}>City</div>
+            <div className={styles.gridHeader} onClick={() => handleSort("billingAddress")}>Billing Address
+            <button className={styles.sortButton}>
+                  {sortField === "billingAddress"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
+            <div className={styles.gridHeader} onClick={() => handleSort("deliveryAddress")}>
+              Delivery Address
+              <button className={styles.sortButton}>
+                  {sortField === "deliveryAddress"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button>
+              </div>
+            <div className={styles.gridHeader} onClick={() => handleSort("city")}>City   <button className={styles.sortButton}>
+                  {sortField === "city"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
             <div className={styles.gridHeader}>Pincode</div>
-            <div className={styles.gridHeader}>Country</div>
+            <div className={styles.gridHeader} onClick={() => handleSort("country")}>Country
+            <button className={styles.sortButton}>
+                  {sortField === "country"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
             <div className={styles.gridHeader}>Currency</div>
             <div className={styles.gridHeader}>Buyer Code</div>
             <div className={styles.gridHeader}>Contact Person</div>
@@ -216,7 +274,14 @@ const ViewBuyer = () => {
             <div className={styles.gridHeader}>Phone</div>
             <div className={styles.gridHeader}>Email</div>
             <div className={styles.gridHeader}>User Name</div>
-            <div className={styles.gridHeader}>Date</div>
+            <div className={styles.gridHeader} onClick={() => handleSort("entDate")}>Date
+            <button className={styles.sortButton}>
+                  {sortField === "entDate"
+                    ? sortDirection === "asc"
+                      ? "↓"
+                      : "↑"
+                    : "↕"}
+                </button></div>
 
             {/* Data rows */}
             {renderGridRows()}

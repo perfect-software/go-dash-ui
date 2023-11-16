@@ -1,23 +1,47 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/viewSr.module.css";
 import axios from "axios";
-import { useSidebar } from "../context/SidebarContext";
 
 import { useNavigate } from "react-router-dom";
+import { useSidebar } from "../context/SidebarContext";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 
 const ViewSr = () => {
   const navigate = useNavigate();
+  
   const [loading, setLoading] = useState(false);
   const [samples, setSamples] = useState([]);
   const { isCollapsed } = useSidebar();
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const generateGridItem = (sample, index, fieldName, formatFunction) => (
     <div key={`${fieldName}-${index}`} className={styles.gridRow}>
       {formatFunction ? formatFunction(sample[fieldName]) : sample[fieldName]}
     </div>
   );
+  const getNestedValue = (obj, path) => {
+    return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+  };
+
+  const handleSort = (fieldName) => {
+    const direction =
+      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(fieldName);
+    setSortDirection(direction);
+
+    const sortedSamples = [...samples].sort((a, b) => {
+      const aValue = getNestedValue(a, fieldName);
+      const bValue = getNestedValue(b, fieldName);
+
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setSamples(sortedSamples);
+  };
 
   const callApi = async (page = 1) => {
     setLoading(true);
@@ -115,130 +139,192 @@ const ViewSr = () => {
   };
 
   return (
-    <div
-      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-    >
-      <div className={styles.viewSrDropGrid}>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="input4">
-            User Name
-          </label>
-          <div className={styles.selectWrapper}>
-            <select className={styles.selectInput} name="size">
-              <option value="" selected disabled hidden>
-                Select Name
-              </option>
-              <option value="11">11</option>
-              <option value="22">22</option>
-              <option value="32">32</option>
-              <option value="33">33</option>
-            </select>
-          </div>
-        </div>
-
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="input4">
-            SR Type
-          </label>
-          <div className={styles.selectWrapper}>
-            <select className={styles.selectInput} name="size">
-              <option value="" selected disabled hidden>
-                SR Type
-              </option>
-              <option value="11">11</option>
-              <option value="22">22</option>
-              <option value="32">32</option>
-              <option value="33">33</option>
-            </select>
-          </div>
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="input4">
-            Date
-          </label>
-          <div className={styles.selectWrapper}>
-            <select className={styles.selectInput} name="size">
-              <option value="" selected disabled hidden>
-                Select Date
-              </option>
-              <option value="11">11</option>
-              <option value="22">22</option>
-              <option value="32">32</option>
-              <option value="33">33</option>
-            </select>
-          </div>
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="input4">
-            SR No.
-          </label>
-          <div className={styles.selectWrapper}>
-            <select className={styles.selectInput} name="size">
-              <option value="" selected disabled hidden>
-                Select SR No.
-              </option>
-              <option value="11">11</option>
-              <option value="22">22</option>
-              <option value="32">32</option>
-              <option value="33">33</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      {loading ? (
-        <div className={styles.viewSrDropGrid}>
-            <div className={styles.colSpan4}>
-               <div className={styles.loader}></div>
-               <h2>Loading Requests..</h2>
-            </div>
-        </div>
-      ) : samples.length === 0 ? (
-        <div className={styles.viewSrDropGrid}>
-          <div className={styles.colSpan4}>
-            <h2>No Data Available</h2>
-          </div>
-        </div>
-      ) : (
-        <>
-         <div className={styles.gridTableWrapper}>
-          <div className={styles.gridTable}>
-            <div className={styles.gridHeader}>SR No.</div>
-            <div className={styles.gridHeader}>Date of Order</div>
-            <div className={styles.gridHeader}>Season</div>
-            <div className={styles.gridHeader}>Article No</div>
-            <div className={styles.gridHeader}>Buyer</div>
-            <div className={styles.gridHeader}>Sample Type</div>
-            <div className={styles.gridHeader}>Buyer Article</div>
-            <div className={styles.gridHeader}>Delivery Address</div>
-            <div className={styles.gridHeader}>Size</div>
-            <div className={styles.gridHeader}>Quantity</div>
-            <div className={styles.gridHeader}>Pair</div>
-            <div className={styles.gridHeader}>Upper Color</div>
-            <div className={styles.gridHeader}>Lining Color</div>
-            <div className={styles.gridHeader}>Last</div>
-            <div className={styles.gridHeader}>Insole</div>
-            <div className={styles.gridHeader}>Sole Label</div>
-            <div className={styles.gridHeader}>Socks</div>
-            <div className={styles.gridHeader}>Heel</div>
-            <div className={styles.gridHeader}>Pattern</div>
-            <div className={styles.gridHeader}>Buyer Reference</div>
-            <div className={styles.gridHeader}>In Upper Leather</div>
-            <div className={styles.gridHeader}>In Lining</div>
-            <div className={styles.gridHeader}>In Socks</div>
-            <div className={styles.gridHeader}>In Quantity</div>
-            <div className={styles.gridHeader}>Comments</div>
-            <div className={styles.gridHeader}>Delivery Date</div>
-            <div className={styles.gridHeader}>Production Ex Date</div>
-
-            {renderGridRows()}
-          </div>
-        </div>
-        <div style={{ marginTop: "20px" }}>{renderPaginationControls()}</div>
-        </>
-       
-      )}
    
-    </div>
+      <div
+        className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
+      >
+        <div className={styles.viewSrDropGrid}>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="input4">
+              User Name
+            </label>
+            <div className={styles.selectWrapper}>
+              <select className={styles.selectInput} name="size">
+                <option value="" selected disabled hidden>
+                  Select Name
+                </option>
+                <option value="11">11</option>
+                <option value="22">22</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="input4">
+              SR Type
+            </label>
+            <div className={styles.selectWrapper}>
+              <select className={styles.selectInput} name="size">
+                <option value="" selected disabled hidden>
+                  SR Type
+                </option>
+                <option value="11">11</option>
+                <option value="22">22</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+              </select>
+            </div>
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="input4">
+              Date
+            </label>
+            <div className={styles.selectWrapper}>
+              <select className={styles.selectInput} name="size">
+                <option value="" selected disabled hidden>
+                  Select Date
+                </option>
+                <option value="11">11</option>
+                <option value="22">22</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+              </select>
+            </div>
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="input4">
+              SR No.
+            </label>
+            <div className={styles.selectWrapper}>
+              <select className={styles.selectInput} name="size">
+                <option value="" selected disabled hidden>
+                  Select SR No.
+                </option>
+                <option value="11">11</option>
+                <option value="22">22</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        {loading ? (
+          <div className={styles.viewSrDropGrid}>
+            <div className={styles.colSpan4}>
+              <div className={styles.loader}></div>
+              <h2>Loading Requests..</h2>
+            </div>
+          </div>
+        ) : samples.length === 0 ? (
+          <div className={styles.viewSrDropGrid}>
+            <div className={styles.colSpan4}>
+              <h2>No Data Available</h2>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className={styles.gridTableWrapper}>
+              <div className={styles.gridTable}>
+                <div className={styles.gridHeader}>SR No.</div>
+                <div
+                  className={styles.gridHeader}
+                  onClick={() => handleSort("buyer.entDate")}
+                >
+                  Date of Order
+                  <button className={styles.sortButton}>
+                    {sortField === "buyer.entDate"
+                      ? sortDirection === "asc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </button>
+                </div>
+                <div
+                  className={styles.gridHeader}
+                  onClick={() => handleSort("season")}
+                >
+                  Season
+                  <button className={styles.sortButton}>
+                    {sortField === "season"
+                      ? sortDirection === "asc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </button>
+                </div>
+                <div className={styles.gridHeader}>Article No</div>
+                <div
+                  className={styles.gridHeader}
+                  onClick={() => handleSort("buyer.bsName")}
+                >
+                  Buyer
+                  <button className={styles.sortButton}>
+                    {sortField === "buyer.bsName"
+                      ? sortDirection === "asc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </button>
+                </div>
+                <div className={styles.gridHeader}>Sample Type</div>
+                <div className={styles.gridHeader}>Buyer Article</div>
+                <div
+                  className={styles.gridHeader}
+                  onClick={() => handleSort("buyer.deliveryAddress")}
+                >
+                  Delivery Address
+                  <button className={styles.sortButton}>
+                    {sortField === "buyer.deliveryAddress"
+                      ? sortDirection === "asc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </button>
+                </div>
+                <div
+                  className={styles.gridHeader}
+                  onClick={() => handleSort("size")}
+                >
+                  Size
+                  <button className={styles.sortButton}>
+                    {sortField === "size"
+                      ? sortDirection === "asc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </button>
+                </div>
+                <div className={styles.gridHeader}>Quantity</div>
+                <div className={styles.gridHeader}>Pair</div>
+                <div className={styles.gridHeader}>Upper Color</div>
+                <div className={styles.gridHeader}>Lining Color</div>
+                <div className={styles.gridHeader}>Last</div>
+                <div className={styles.gridHeader}>Insole</div>
+                <div className={styles.gridHeader}>Sole Label</div>
+                <div className={styles.gridHeader}>Socks</div>
+                <div className={styles.gridHeader}>Heel</div>
+                <div className={styles.gridHeader}>Pattern</div>
+                <div className={styles.gridHeader}>Buyer Reference</div>
+                <div className={styles.gridHeader}>In Upper Leather</div>
+                <div className={styles.gridHeader}>In Lining</div>
+                <div className={styles.gridHeader}>In Socks</div>
+                <div className={styles.gridHeader}>In Quantity</div>
+                <div className={styles.gridHeader}>Comments</div>
+                <div className={styles.gridHeader}>Delivery Date</div>
+                <div className={styles.gridHeader}>Production Ex Date</div>
+
+                {renderGridRows()}
+              </div>
+            </div>
+            <div style={{ marginTop: "20px" }}>
+              {renderPaginationControls()}
+            </div>
+          </>
+        )}
+      </div>
+  
   );
 };
 

@@ -101,12 +101,21 @@
     display: block;
   }
   .topContainer {
-    @apply flex flex-col w-[94vw] smp:w-[94vw] sm:w-[94vw] sml:w-[89vw] smxl:w-[93vw] pr-2;
+    width: calc(100vw - 100px);
   }
   .topContainerOpen {
-    @apply flex flex-col smp:w-[94vw] sm:w-[94vw] sml:w-[62.72vw] smxl:w-[75vw] pr-2 w-[80.72vw];
-    
+    width: calc(100vw - 290px);
   }
+  @media screen and (max-width: 695px) {
+    .topContainer {
+      width: calc(100vw - 44px);
+    }
+    .topContainerOpen {
+      width: 95vw;
+    }
+  }
+ 
+   
   
   .gridTable {
     @apply self-center;
@@ -123,12 +132,20 @@
     color: rgba(91, 91, 91, 1);
     border: 1px solid rgba(238, 238, 238, 0.8);
   }
- 
+  .sortButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
   .gridHeader {
     font-weight: bold;
-    @apply bg-transparent;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    @apply bg-transparent cursor-pointer gap-2;
   }
-
+  
 
   .loader {
     @apply mr-14 mt-2 sm:mr-0;

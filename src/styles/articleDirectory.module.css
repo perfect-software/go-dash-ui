@@ -33,7 +33,7 @@
   stroke: rgba(58, 71, 80, 0.13);
 }
 .headText {
-  @apply text-[#00ADB5] mt-3 text-[1.5625rem] leading-4 font-[400];
+  @apply text-[#00ADB5] mt-3 text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
 }
 .topGrid {
   @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
@@ -131,4 +131,46 @@ select {
 .basicInput2:focus {
   outline: none;
   border: 1px solid #00a5ad;
+}
+.suggestions::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+.searchBtn {
+  @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+  background-image: url("../assets/dropDown2.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translateY(-50%);
+  background-size: 16px 16px;
+  border: none;
+}
+
+
+.searchBtn:hover {
+  opacity: 0.8;
+}
+
+.suggestions::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+.inputWithIcon {
+  @apply relative w-full inline-block;
+}
+.inputWithIcon input{
+@apply pr-[3rem];
+}
+.inputWithIcon-active {
+  @apply bg-blue-600 text-white;
+}
+.suggestions::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-500;
+}
+
+
+.suggestions {
+  @apply absolute w-full border  border-t-0 border-gray-300 rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+}
+
+.suggestionItem {
+  @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
 }
