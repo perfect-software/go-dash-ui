@@ -14,6 +14,7 @@ import ItemDirectory from "./components/ItemDirectory";
 import ViewSr from "./components/ViewSr";
 import { SidebarProvider } from "./context/SidebarContext";
 import ViewBuyer from "./components/ViewBuyer";
+import ArticleCosting from "./components/ArticleCosting";
 // import { Provider } from 'react-redux';
 // import { store } from './helper/store';
 
@@ -50,13 +51,13 @@ function App() {
               <Route path="/buyer" element={<Buyer />}>
                 <Route path="viewBuyer" element={<ViewBuyer />} />
               </Route>
+              <Route path="/articlecosting" element={<ArticleCosting />} />
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/login" element={<LoginRegister />} />
             </Routes>
           </div>
         </div>
-
         {!isLoginPage && <Footer />}
       </SidebarProvider>
       {/* </Provider> */}
