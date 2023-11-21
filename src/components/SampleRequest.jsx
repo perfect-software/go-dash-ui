@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/sampleRequest.module.css";
 import UpIcon from "../assets/up.svg";
 import ArticlePopup from "../popups/ArticlePopup";
@@ -13,6 +13,7 @@ import {
   getCurrentYearLastTwoDigits,
 } from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
+import Downshift from "downshift";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -25,12 +26,14 @@ const SampleRequest = () => {
     liningColor: false,
     soleLabel: false,
     sampleRef: false,
+    articleNo: false,
   });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [colors, setColors] = useState([]);
-  const [SampleRefrences, setSampleRefrences] = useState([]);
+  const [sampleRefrences, setSampleRefrences] = useState([]);
+  const [articleNos, setArticleNos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bsId, setBsID] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
@@ -263,7 +266,18 @@ const SampleRequest = () => {
       reader.readAsDataURL(file);
     }
   };
-
+  const articleNoFetch = async () => {
+    articleNoRef.current?.focus();
+    const BASE_URL = "article/getArticleNo";
+    try {
+      const fetchedArticle = await getApiService(BASE_URL);
+      console.log(fetchedArticle);
+      setArticleNos(fetchedArticle);
+      toggleSuggestVisibility("articleNo", true);
+    } catch (error) {
+      console.error("Failed to Article No:", error);
+    }
+  };
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -279,6 +293,305 @@ const SampleRequest = () => {
   const today = new Date();
 
   const formattedDate = today.toISOString().split("T")[0];
+
+  // Suggestions here
+  const downshiftBuyer = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            bsName: selectedItem.bsName,
+            deliveryAddress: selectedItem.deliveryAddress,
+          });
+          setBsID(selectedItem.bsId);
+          toggleSuggestVisibility("buyer", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.bsName}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleBuyerInputChange,
+              name: "bsName",
+            })}
+            type="text"
+            className={styles.basicInput2}
+            placeholder="Click on Search"
+            value={sampleDetailsForm.bsName}
+          />
+          <button
+            onClick={() => setIsBuyerPopup(true)}
+            className={styles.searchBtn}
+            aria-label="Search"
+          ></button>
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.buyer &&
+              buyers.map((buyer, index) => (
+                <div
+                  {...getItemProps({ key: buyer.bsId, index, item: buyer })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {buyer.bsName}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftSampleRef = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            sampleRef: selectedItem,
+          });
+          toggleSuggestVisibility("sampleRef", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.sampleRef}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleSampleRefChange,
+              name: "sampleRef",
+            })}
+            type="text"
+            className={styles.basicInput2}
+            placeholder="Type any word"
+            value={sampleDetailsForm.sampleRef}
+          />
+          <button className={styles.searchBtn} aria-label="Search"></button>
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.sampleRef &&
+              sampleRefrences.map((sample, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: sample })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {sample}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftUpperColor = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            upperColor: selectedItem,
+          });
+          toggleSuggestVisibility("upperColor", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.upperColor}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateColorChange,
+              name: "upperColor",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={sampleDetailsForm.upperColor}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.upperColor &&
+              colors.map((color, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: color })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {color}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftLiningColor = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            liningColor: selectedItem,
+          });
+          toggleSuggestVisibility("liningColor", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.liningColor}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateColorChange,
+              name: "liningColor",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={sampleDetailsForm.liningColor}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.liningColor &&
+              colors.map((color, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: color })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {color}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftSoleLabel = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            soleLabel: selectedItem,
+          });
+          toggleSuggestVisibility("soleLabel", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.soleLabel}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateColorChange,
+              name: "soleLabel",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={sampleDetailsForm.soleLabel}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.soleLabel &&
+              colors.map((color, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: color })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {color}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+  const articleNoRef = useRef(null);
+  const downshiftArticleNo = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            articleNo: selectedItem,
+          });
+          toggleSuggestVisibility("articleNo", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.articleNo}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateSampleChange,
+              name: "articleNo",
+            })}
+            type="text"
+            ref={articleNoRef}
+            className={styles.basicInput2}
+            placeholder="Type any word"
+            value={sampleDetailsForm.articleNo}
+          />
+           <div>
+             <button
+            onClick={() => {
+              setIsArticlePopup(true);
+            }}
+            className={styles.searchBtn}
+            aria-label="Search"
+          ></button>
+          <button
+            onClick={() => articleNoFetch()}
+            className={styles.searchBtn2}
+            aria-label="Search"
+          ></button>
+           </div>
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.articleNo &&
+              articleNos.map((article, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: article })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {article}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  //
 
   return (
     <div className={styles.sampleRequestMainContainer}>
@@ -379,84 +692,13 @@ const SampleRequest = () => {
                 <label className={styles.impsampleLabel} htmlFor="bsName">
                   Buyer Name
                 </label>
-
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    onChange={handleBuyerInputChange}
-                    value={sampleDetailsForm.bsName}
-                    name="bsName"
-                  />
-                  <button
-                    onClick={() => {
-                      setIsBuyerPopup(true);
-                    }}
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-
-                  {showSuggestions.buyer && (
-                    <div className={styles.suggestions}>
-                      {buyers.map((buyer, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setSampleDetailsForm({
-                              ...sampleDetailsForm,
-                              bsName: buyer.bsName,
-                              deliveryAddress: buyer.deliveryAddress,
-                            });
-                            setBsID(buyer.bsId);
-                            toggleSuggestVisibility("buyer", false);
-                          }}
-                        >
-                          {buyer.bsName}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftBuyer}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="sampleRef">
                   Sample Ref.
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Type any World"
-                    className={styles.basicInput2}
-                    name="sampleRef"
-                    value={sampleDetailsForm.sampleRef}
-                    onChange={handleSampleRefChange}
-                  />
-                  <button
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                  {showSuggestions.sampleRef && (
-                    <div className={styles.suggestions}>
-                      {SampleRefrences.map((sample, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setSampleDetailsForm({
-                              ...sampleDetailsForm,
-                              sampleRef: sample,
-                            });
-                            toggleSuggestVisibility("sampleRef", false);
-                          }}
-                        >
-                          {sample}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftSampleRef}
               </div>
 
               <div className={styles.colSpan}>
@@ -549,7 +791,7 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="articleNo">
                   Article No
                 </label>
-                <div className={styles.inputWithIcon}>
+                {/* <div className={styles.inputWithIcon}>
                   <input
                     type="text"
                     placeholder="Click on Search"
@@ -565,7 +807,8 @@ const SampleRequest = () => {
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
-                </div>
+                </div> */}
+                {downshiftArticleNo}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="buyerArticle">
@@ -661,80 +904,16 @@ const SampleRequest = () => {
                 <label className={styles.impsampleLabel} htmlFor="upperColor">
                   Upper <br /> Colour
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Input Here"
-                    name="upperColor"
-                    value={sampleDetailsForm.upperColor}
-                    onChange={handleCreateColorChange}
-                  />
-                  {showSuggestions.upperColor && (
-                    <div className={styles.suggestions}>
-                      {colors.map((color, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setSampleDetailsForm({
-                              ...sampleDetailsForm,
-                              upperColor: color,
-                            });
-                            toggleSuggestVisibility("upperColor", false);
-                          }}
-                        >
-                          {color}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftUpperColor}
               </div>
               <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="liningColor"
-                  required
-                >
+                <label className={styles.impsampleLabel} htmlFor="liningColor">
                   Lining Colour
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Input Here"
-                    name="liningColor"
-                    value={sampleDetailsForm.liningColor}
-                    onChange={handleCreateColorChange}
-                  />
-                  {showSuggestions.liningColor && (
-                    <div className={styles.suggestions}>
-                      {colors.map((color, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setSampleDetailsForm({
-                              ...sampleDetailsForm,
-                              liningColor: color,
-                            });
-                            toggleSuggestVisibility("liningColor", false);
-                          }}
-                        >
-                          {color}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftLiningColor}
               </div>
               <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="last"
-                  required
-                >
+                <label className={styles.impsampleLabel} htmlFor="last">
                   Last
                 </label>
                 <input
@@ -745,14 +924,9 @@ const SampleRequest = () => {
                   value={sampleDetailsForm.last}
                   onChange={handleCreateSampleChange}
                 />
-             
               </div>
               <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="insole"
-                  required
-                >
+                <label className={styles.impsampleLabel} htmlFor="insole">
                   Insole
                 </label>
                 <input
@@ -763,45 +937,12 @@ const SampleRequest = () => {
                   value={sampleDetailsForm.insole}
                   onChange={handleCreateSampleChange}
                 />
-              
               </div>
               <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="soleLabel"
-                  required
-                >
+                <label className={styles.impsampleLabel} htmlFor="soleLabel">
                   Sole Label <br />& Colour
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Input Here"
-                    name="soleLabel"
-                    value={sampleDetailsForm.soleLabel}
-                    onChange={handleCreateColorChange}
-                  />
-                  {showSuggestions.soleLabel && (
-                    <div className={styles.suggestions}>
-                      {colors.map((color, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setSampleDetailsForm({
-                              ...sampleDetailsForm,
-                              soleLabel: color,
-                            });
-                            toggleSuggestVisibility("soleLabel", false);
-                          }}
-                        >
-                          {color}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftSoleLabel}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="socks">

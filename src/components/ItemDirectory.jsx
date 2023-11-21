@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/itemDirectory.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 
+import Downshift from "downshift";
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
@@ -67,6 +68,7 @@ const ItemDirectory = () => {
       itemname: "",
     });
   };
+
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -87,6 +89,7 @@ const ItemDirectory = () => {
       console.error("Failed to fetch Items:", error);
     }
   };
+
   const handleItemMultipleChange = (e) => {
     const { name, value } = e.target;
     setItemForm({ ...itemForm, [name]: value });
@@ -99,7 +102,7 @@ const ItemDirectory = () => {
       const filtered = itemsData
         .filter(
           (item) =>
-            item.head === name &&
+            item.head.toLowerCase() === name.toLowerCase() &&
             item.value.toLowerCase().includes(lastEnteredValue.toLowerCase())
         )
         .map((item) => ({
@@ -147,7 +150,7 @@ const ItemDirectory = () => {
     const filtered = itemsData
       .filter(
         (item) =>
-          item.head === `${name}` &&
+          item.head.toLowerCase() === name.toLowerCase() &&
           item.value.toLowerCase().includes(value.toLowerCase())
       )
       .map((item) => ({
@@ -170,7 +173,7 @@ const ItemDirectory = () => {
     const concatenatedString = `${name}List`;
 
     const filtered = itemsData
-      .filter((item) => item.head === name)
+      .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
         name: item.value,
       }));
@@ -199,6 +202,64 @@ const ItemDirectory = () => {
     setItemForm({ ...itemForm, [fieldName]: updatedValue });
     setShowSuggestions({ ...showSuggestions, [fieldName]: false });
   };
+  const animalInputRef = useRef(null);
+  const downshiftAnimal = (
+    <Downshift
+    onChange={(selectedItem) => {
+      if(selectedItem){
+       setItemForm({
+         ...itemForm,
+         animal: selectedItem.name,
+       });
+       toggleSuggestVisibility("animal", false);
+      }
+   }}
+  
+   selectedItem={itemForm.animal}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "animal",
+            })}
+            type="text"
+            ref={animalInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.animal}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("animal");
+              animalInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.animal && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.animalList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
 
   const handleSubmitItemClick = async (e) => {
     e.preventDefault();
@@ -338,45 +399,11 @@ const ItemDirectory = () => {
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="animal">
+            <label className={styles.sampleLabel} htmlFor="season">
               Animal
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.animal}
-                name="animal"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("animal")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.animal && (
-                <div className={styles.suggestions}>
-                  {filteredList.animalList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          animal: item.name,
-                        });
-                        toggleSuggestVisibility("animal", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftAnimal}
           </div>
-
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="season">
               Season

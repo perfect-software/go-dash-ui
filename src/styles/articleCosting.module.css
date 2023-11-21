@@ -1,18 +1,28 @@
-.articlePageContainer {
+.articleCostingContainer {
   @apply relative  px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
   height: calc(100vh - 4rem);
 }
 .headContiner {
   @apply flex flex-col gap-3;
 }
-
 .subHeadContainer {
   @apply flex items-center;
 }
 .subHeadContainerTwo h2 {
   @apply text-[0.875rem];
 }
-
+.itemHeadContainer {
+  @apply flex-col w-full items-center max-h-[300px] mt-6 overflow-y-auto;
+}
+.bottomParent {
+  @apply flex w-full my-2 items-center;
+}
+.colSpan2 {
+  @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
+}
+.colSpanExtra {
+  @apply flex items-center py-2 gap-2 justify-center w-[150px];
+}
 .headBorder {
   @apply border-t-[3px] my-1 rounded;
   stroke-width: 3px;
@@ -24,9 +34,32 @@
 }
 .sampleLabel {
   @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
-  min-width: 5.6rem;
+  min-width: 5.8rem;
 }
-
+.minus {
+  background-image: url("../assets/newMinus.svg");
+  width: 22px;
+  height: 22px;
+  @apply rounded-[50%];
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+.plus {
+  background-image: url("../assets/newPlus.svg");
+  width: 22px;
+  @apply rounded-[50%];
+  height: 22px;
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+.plus:focus {
+  @apply outline-[#00A5AD];
+}
+.minus:focus {
+  @apply outline-[#00A5AD];
+}
 .headSmallBorder {
   @apply w-52 border-t-[3px]  mb-0 mt-3 rounded;
   stroke-width: 3px;
@@ -38,7 +71,24 @@
 .topGrid {
   @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
 }
+.bottomGrid {
+  @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
+}
+.customTable {
+  border-collapse: collapse;
+  width: 100%;
+}
 
+.customTable th,
+.customTable td {
+  border: 2px solid rgba(238, 238, 238, 1);
+  padding: 3px;
+  text-align: left;
+}
+.customTable th {
+  text-align: center;
+  color: rgba(91, 91, 91, 1);
+}
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
@@ -56,7 +106,12 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
 }
-
+.middleContainerBottom {
+  @apply mt-5 flex items-center cursor-pointer  w-fit;
+}
+.middleContainerBottom span {
+  @apply mr-2 text-[0.875rem];
+}
 .selectWrapper {
   position: relative;
   display: inline-block;
@@ -81,16 +136,14 @@ select {
 }
 .resetButton {
   @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-  leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
-  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+    leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }
 .submitButton {
-  
   @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-  leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
-  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+    leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+    sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }
-
 
 .loader {
   @apply mr-14 mt-2 sm:mr-0;
@@ -103,16 +156,19 @@ select {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .buttonContainer {
-  @apply flex gap-1 right-[1rem] ;
+  @apply flex gap-1 right-[1rem];
 }
 .parentButtonContainer {
   @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
 }
-
 
 .popupOverlay {
   position: fixed;
@@ -165,7 +221,6 @@ select {
   border: none;
 }
 
-
 .searchBtn:hover {
   opacity: 0.8;
 }
@@ -176,8 +231,8 @@ select {
 .inputWithIcon {
   @apply relative w-full inline-block;
 }
-.inputWithIcon input{
-@apply pr-[3rem];
+.inputWithIcon input {
+  @apply pr-[3rem];
 }
 .inputWithIcon-active {
   @apply bg-blue-600 text-white;
@@ -185,7 +240,6 @@ select {
 .suggestions::-webkit-scrollbar-thumb {
   @apply rounded-full bg-gray-500;
 }
-
 
 .suggestions {
   @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
