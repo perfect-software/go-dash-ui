@@ -14,6 +14,7 @@ import {
 } from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
 import Downshift from "downshift";
+import generatePDF from "../features/generatePDF";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -121,6 +122,11 @@ const SampleRequest = () => {
       toggleSuggestVisibility("buyer", false);
     }
   };
+
+  const handleViewPDF = async () => {
+    generatePDF(sampleDetailsForm,imagePreview);
+  };
+
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -165,6 +171,15 @@ const SampleRequest = () => {
     }
   };
 
+  const handleArticleNoSubmit = (selectedArticle)=>{
+    if (selectedArticle) {
+      setSampleDetailsForm({
+        ...sampleDetailsForm,
+        articleNo:selectedArticle
+      });
+      setIsArticlePopup(false);
+    }
+  }
   const handleBuyerSubmit = (selectedBuyer) => {
     if (selectedBuyer) {
       setBsID(selectedBuyer.bsId);
@@ -308,7 +323,9 @@ const SampleRequest = () => {
           toggleSuggestVisibility("buyer", false);
         }
       }}
+     
       selectedItem={sampleDetailsForm.bsName}
+      itemToString={(item) => item ? item.bsName : ''}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -1165,6 +1182,9 @@ const SampleRequest = () => {
                 >
                   Submit
                 </button>
+                <button className={styles.resetButton} onClick={handleViewPDF}>
+                  Print
+                </button>
               </div>
             )}
           </div>
@@ -1204,6 +1224,7 @@ const SampleRequest = () => {
               onCancel={() => {
                 setIsArticlePopup(false);
               }}
+              onSubmitArticleData={handleArticleNoSubmit}
             />
           )}
           {isBuyerPopup && (

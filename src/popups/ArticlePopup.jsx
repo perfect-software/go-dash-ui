@@ -1,216 +1,160 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/articlePopup.module.css";
 import TickCheck from "../assets/tickCheck.svg";
+import axios from "axios";
 import BlueCheck from "../assets/blueTick.svg";
 import Cross from "../assets/cross.svg";
 import { useNavigate } from "react-router-dom";
-
-const ArticlePopup = ({ onCancel }) => {
+import { getApiService } from "../service/apiService";
+const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc"); // or 'desc'
+  const [articles, setArticles] = useState([]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const ROWS_PER_PAGE = 4;
+  const [selectedArticle, setselectedArticle] = useState(null);
+  const [articleSearch, setArticleSearch] = useState({
+    articleName: "",
+    articleNo: "",
+  });
 
-  const rowData = [
-    {
-      id: 1,
-      columns: [
-        "Content1-1",
-        "Content1-2",
-        "Content1-3",
-        "Content1-4",
-        "Content1-5",
-        "Content1-6",
-        "Content1-7",
-        "Content1-8",
-        "Content1-9",
-        "Content1-10",
-        "Content1-11",
-        "Content1-12",
-      ],
-    },
-    {
-      id: 2,
-      columns: [
-        "Content2-1",
-        "Content2-2",
-        "Content2-3",
-        "Content2-4",
-        "Content2-5",
-        "Content2-6",
-        "Content2-7",
-        "Content2-8",
-        "Content2-9",
-        "Content2-10",
-        "Content2-11",
-        "Content2-12",
-      ],
-    },
-    {
-      id: 3,
-      columns: [
-        "Content3-1",
-        "Content3-2",
-        "Content3-3",
-        "Content3-4",
-        "Content3-5",
-        "Content3-6",
-        "Content3-7",
-        "Content3-8",
-        "Content3-9",
-        "Content3-10",
-        "Content3-11",
-        "Content3-12",
-      ],
-    },
-    {
-      id: 4,
-      columns: [
-        "Content4-1",
-        "Content4-2",
-        "Content4-3",
-        "Content4-4",
-        "Content4-5",
-        "Content4-6",
-        "Content4-7",
-        "Content4-8",
-        "Content4-9",
-        "Content4-10",
-        "Content4-11",
-        "Content4-12",
-      ],
-    },
-    {
-      id: 5,
-      columns: [
-        "Content5-1",
-        "Content5-2",
-        "Content5-3",
-        "Content5-4",
-        "Content5-5",
-        "Content5-6",
-        "Content5-7",
-        "Content5-8",
-        "Content5-9",
-        "Content5-10",
-        "Content5-11",
-        "Content5-12",
-      ],
-    },
-    {
-      id: 6,
-      columns: [
-        "Content6-1",
-        "Content6-2",
-        "Content6-3",
-        "Content6-4",
-        "Content6-5",
-        "Content6-6",
-        "Content6-7",
-        "Content6-8",
-        "Content6-9",
-        "Content6-10",
-        "Content6-11",
-        "Content6-12",
-      ],
-    },
-    {
-      id: 7,
-      columns: [
-        "Content7-1",
-        "Content7-2",
-        "Content7-3",
-        "Content7-4",
-        "Content7-5",
-        "Content7-6",
-        "Content7-7",
-        "Content7-8",
-        "Content7-9",
-        "Content7-10",
-        "Content7-11",
-        "Content7-12",
-      ],
-    },
-  ];
-  
-
-  
-
-  const totalRows = 100;
-  const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const generateRow = (data, rowIndex) => (
-    <tr
-      key={data.id}>
-      <td className={styles.selectColumn}>
-        <button
-          className={styles.selectButton}
-          onClick={(e) => {
-            e.stopPropagation(); 
-            if (selectedRowIndex === rowIndex) {
-           
-              setSelectedRowIndex(null);
-            } else {
-              setSelectedRowIndex(rowIndex);
-              console.log(data);
-            }
-          }}
-        >
-        <img src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck} alt="Select Icon" className={styles.icon} />
-
-        </button>
-      </td>
-      {data.columns.map((columnData, columnIndex) => (
-        <td className={styles.articleContent} key={columnIndex}>
-          {columnData}
-        </td>
-      ))}
-    </tr>
-  );
-  const renderTableRows = () => {
-    const start = (currentPage - 1) * ROWS_PER_PAGE;
-    const end = start + ROWS_PER_PAGE;
-    return rowData.slice(start, end).map(generateRow);
+  const callApi = async (page = 1) => {
+    const adjustedPage = page - 1;
+    const BASE_URL = `http://localhost:8081/api/article/view?page_num=${adjustedPage}`;
+    try {
+      const response = await axios.get(BASE_URL);
+      const fetchedArticle = response.data;
+      setArticles(fetchedArticle);
+      setSelectedRowIndex(null);
+      setselectedArticle(null);
+    } catch (error) {
+      console.error("Failed to fetch All articles:", error);
+    }
   };
-  const paginationRef = useRef(null);
+  const handleSort = (fieldName) => {
+    const direction =
+      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(fieldName);
+    setSortDirection(direction);
 
-  useEffect(() => {
-    if (paginationRef.current) {
-      const activePage = paginationRef.current.querySelector(
-        `.${styles.activePage}`
-      );
-      if (activePage) {
-        const containerLeft =
-          paginationRef.current.getBoundingClientRect().left;
-        const activeButtonLeft = activePage.getBoundingClientRect().left;
-        const offset = activeButtonLeft - containerLeft;
+    const sortedArticles = [...articles].sort((a, b) => {
+      if (a[fieldName] < b[fieldName]) return direction === "asc" ? -1 : 1;
+      if (a[fieldName] > b[fieldName]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
 
-        paginationRef.current.scrollLeft += offset;
+    setArticles(sortedArticles);
+  };
+  const handleArticleNameSearch = async () => {
+    if (articleSearch.articleName.length >= 3) {
+      const BASE_URL = `article/getArticleName?input=${encodeURIComponent(
+        articleSearch.articleName
+      )}`;
+      try {
+        const fetchedArticles = await getApiService(BASE_URL);
+        setArticles(fetchedArticles);
+        setSelectedRowIndex(null);
+        setselectedArticle(null);
+      } catch (error) {
+        console.error("Failed to fetch articles:", error);
       }
     }
-  }, [currentPage]);
+  };
+
+  const handleArticleNoSearch = async () => {
+    const BASE_URL = `article/getByArticleNo?input=${encodeURIComponent(
+      articleSearch.articleNo
+    )}`;
+    try {
+      const fetchedArticles = await getApiService(BASE_URL);
+      setArticles(fetchedArticles);
+      setSelectedRowIndex(null);
+      setselectedArticle(null);
+    } catch (error) {
+      console.error("Failed to fetch articles:", error);
+    }
+  };
+
+  const handleArticleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (value.length === 0) {
+      callApi(1);
+    }
+    setArticleSearch({
+      ...articleSearch,
+      [name]: value,
+    });
+  };
+
+  useEffect(() => {
+    callApi(1);
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const generateRow = (article, rowIndex) => (
+    <tr
+      key={rowIndex}
+      onClick={() => {
+        setSelectedRowIndex(rowIndex);
+        setselectedArticle(article.articleId);
+      }}
+    >
+      <td className={styles.selectColumn} style={{ textAlign: "center" }}>
+        <button className={styles.selectButton}>
+          <img
+            src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck}
+            alt="Select Icon"
+            className={styles.icon}
+          />
+        </button>
+      </td>
+      <td className={styles.articleContent}>{article.articleId}</td>
+      <td className={styles.articleContent}>{article.articleName}</td>
+      <td className={styles.articleContent}>{article.animal}</td>
+      <td className={styles.articleContent}>{article.color}</td>
+      <td className={styles.articleContent}>{article.gender}</td>
+      <td className={styles.articleContent}>{article.soleType}</td>
+      <td className={styles.articleContent}>{article.toeShape}</td>
+      <td className={styles.articleContent}>{article.category}</td>
+      <td className={styles.articleContent}>{article.platformType}</td>
+      <td className={styles.articleContent}>{article.platformNo}</td>
+      <td className={styles.articleContent}>{article.heelType}</td>
+      <td className={styles.articleContent}>{article.heelNo}</td>
+      <td className={styles.articleContent}>{article.heelHeight}</td>
+      <td className={styles.articleContent}>{article.lastNo}</td>
+      <td className={styles.articleContent}>{article.liningMaterial}</td>
+      <td className={styles.articleContent}>{article.socksMaterial}</td>
+      <td className={styles.articleContent}>{article.comment}</td>
+      <td className={styles.articleContent}>{article.username}</td>
+      <td className={styles.articleContent}>{article.entDate}</td>
+    </tr>
+  );
+  const handleKeyDownName = (e) => {
+    if (e.key === "Enter") {
+      handleArticleNameSearch();
+    }
+  };
+
+  const handleKeyDownNo = (e) => {
+    if (e.key === "Enter") {
+      handleArticleNoSearch();
+    }
+  };
+  const renderTableRows = () => {
+    return articles.map(generateRow);
+  };
+
+  const paginationRef = useRef(null);
 
   const renderPaginationControls = () => {
-    const pageNumbers = [];
-
     const navigateTo = (page) => {
-      if (page >= 1 && page <= totalPages) {
+      if (page >= 1) {
+        callApi(page);
         setCurrentPage(page);
       }
     };
-
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(
-        <button
-          key={i}
-          onClick={() => navigateTo(i)}
-          className={i === currentPage ? styles.activePage : ""}
-        >
-          {i}
-        </button>
-      );
-    }
 
     return (
       <div className={styles.parentPaginationControls}>
@@ -220,24 +164,20 @@ const ArticlePopup = ({ onCancel }) => {
         >
           &lt;
         </button>
-        <div
-          className={styles.paginationControls}
-          style={{ width: totalRows > 30 ? "8rem" : "fit-content" }}
-          ref={paginationRef}
-        >
-          {pageNumbers}
-        </div>
+        <button className={styles.activePage}>{currentPage}</button>
+
         <button
           onClick={() => navigateTo(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={articles.length < 10}
         >
           &gt;
         </button>
+
         <input
           type="number"
           placeholder="Go to page"
+          style={{ width: "80px" }}
           min="1"
-          max={totalPages}
           onKeyDown={(e) => {
             if (e.key === "Enter" && e.target.value) {
               navigateTo(Number(e.target.value));
@@ -252,7 +192,7 @@ const ArticlePopup = ({ onCancel }) => {
     isPopupVisible && (
       <div className={styles.popupOverlay}>
         <div className={styles.articlePopupContainer}>
-          <div className={styles.topArticlePopupContainer}>
+          <div className={styles.toparticlePopupContainer}>
             <div className={styles.topBarContainer}>
               <h1>Article Directory</h1>
               <img
@@ -267,19 +207,24 @@ const ArticlePopup = ({ onCancel }) => {
             </div>
             <div className={styles.articleDropGrid}>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Article No.
+                <label className={styles.sampleLabel} htmlFor="input1">
+                  Article Name
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Article Name
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
+
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    placeholder="Type three letters"
+                    className={styles.basicInput2}
+                    onChange={handleArticleInputChange}
+                    name="articleName"
+                    onKeyDown={handleKeyDownName}
+                  />
+                  <button
+                    onClick={handleArticleNameSearch}
+                    className={styles.searchBtn}
+                    aria-label="Search"
+                  ></button>
                 </div>
               </div>
 
@@ -287,26 +232,30 @@ const ArticlePopup = ({ onCancel }) => {
                 <label className={styles.sampleLabel} htmlFor="input4">
                   Article No.
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Article No.
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
+                <div className={styles.inputWithIcon}>
+                  <input
+                    type="text"
+                    placeholder="Type three letters"
+                    className={styles.basicInput2}
+                    onChange={handleArticleInputChange}
+                    name="articleNo"
+                    onKeyDown={handleKeyDownNo}
+                  />
+                  <button
+                    onClick={handleArticleNoSearch}
+                    className={styles.searchBtn}
+                    aria-label="Search"
+                  ></button>
                 </div>
               </div>
-              <div className={styles.colSpan}>
+              {/* <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input4">
-                  Article No.
+                  Buyer No.
                 </label>
                 <div className={styles.selectWrapper}>
                   <select className={styles.selectInput} name="size">
                     <option value="" selected disabled hidden>
-                      Select Article
+                      Select Buyer
                     </option>
                     <option value="11">11</option>
                     <option value="22">22</option>
@@ -314,42 +263,86 @@ const ArticlePopup = ({ onCancel }) => {
                     <option value="33">33</option>
                   </select>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <div className={styles.bottomArticlePopupContainer}>
+          <div className={styles.bottomarticlePopupContainer}>
             <div className={styles.tablecontainer}>
               <table className={styles.table}>
                 <thead>
                   <tr>
                     <th className={styles.selectColumn}>Select</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
-                    <th className={styles.articleColumn}>Article</th>
+                    <th
+                      className={styles.articleColumn}
+                      onClick={() => handleSort("articleId")}
+                    >
+                      <div className={styles.flexContainer}>
+                        Article Id
+                        <button className={styles.sortButton}>
+                          {sortField === "articleId"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
+                    <th
+                      className={styles.articleColumn}
+                      onClick={() => handleSort("articleName")}
+                    >
+                      <div className={styles.flexContainer}>
+                        Article Name
+                        <button className={styles.sortButton}>
+                          {sortField === "articleName"
+                            ? sortDirection === "asc"
+                              ? "↓"
+                              : "↑"
+                            : "↕"}
+                        </button>
+                      </div>
+                    </th>
+                    <th className={styles.articleColumn}>Animal</th>
+                    <th className={styles.articleColumn}>Color</th>
+                    <th className={styles.articleColumn}>Gender</th>
+                    <th className={styles.articleColumn}>Sole Type</th>
+                    <th className={styles.articleColumn}>Toe Shape</th>
+                    <th className={styles.articleColumn}>Category</th>
+                    <th className={styles.articleColumn}>Platform Type</th>
+                    <th className={styles.articleColumn}>Platform No</th>
+                    <th className={styles.articleColumn}>Heel Type</th>
+                    <th className={styles.articleColumn}>Heel No</th>
+                    <th className={styles.articleColumn}>Heel Height</th>
+                    <th className={styles.articleColumn}>Last No</th>
+                    <th className={styles.articleColumn}>Lining Material</th>
+                    <th className={styles.articleColumn}>Socks Material</th>
+                    <th className={styles.articleColumn}>Comment</th>
+                    <th className={styles.articleColumn}>Username</th>
+                    <th className={styles.articleColumn}>Entry Date</th>
                   </tr>
                 </thead>
                 <tbody>{renderTableRows()}</tbody>
               </table>
             </div>
           </div>
-          {totalRows > 5 && renderPaginationControls()}
-          <div className={styles.bottomArticleButtonContainer}>
-            <h3>Couldn't find the article ?</h3>
+          {renderPaginationControls()}
+          <div className={styles.bottomarticleButtonContainer}>
+            <h3>Couldn't find the Buyer ?</h3>
             <button
               className={styles.articlePopupButton}
               onClick={() => navigate("/articledirectory")}
             >
-              Add New Article
+              Add New Buyer
+            </button>
+            <button
+              disabled={selectedArticle == null}
+              className={styles.articleSelectPopupButton}
+              onClick={() => {
+                onSubmitArticleData(selectedArticle);
+              }}
+            >
+              Select
             </button>
           </div>
         </div>

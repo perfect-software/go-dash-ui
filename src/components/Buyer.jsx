@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { postApiService } from "../service/apiService";
 import ViewBuyer from "./ViewBuyer";
+import Downshift from "downshift";
 
 const Buyer = () => {
   const navigate = useNavigate();
@@ -227,7 +228,145 @@ const Buyer = () => {
       setLoading(false);
     }
   };
+  const downshiftCountry = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setBuyerForm({
+            ...buyerForm,
+            buyerCountry: selectedItem.name,
+          });
+          toggleSuggestVisibility("buyerCountry", false);
+          setLocation({
+            ...location,
+            country: selectedItem.isoCode,
+          });
+        }
+      }}
+      selectedItem={buyerForm.buyerCountry}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleLocationChange,
+              name: "buyerCountry",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={buyerForm.buyerCountry}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.buyerCountry &&
+              tempList.countryList.map((country, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: country })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {country.name}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
 
+  const downshiftState = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setBuyerForm({
+            ...buyerForm,
+            buyerState: selectedItem.name,
+          });
+          toggleSuggestVisibility("buyerState", false);
+          setLocation({ ...location, state: selectedItem.isoCode });
+        }
+      }}
+      selectedItem={buyerForm.buyerState}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleLocationChange,
+              name: "buyerState",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={buyerForm.buyerState}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.buyerState &&
+              tempList.stateList.map((state, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: state })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {state.name}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftCity = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setBuyerForm({
+            ...buyerForm,
+            buyerCity: selectedItem.name,
+          });
+          toggleSuggestVisibility("buyerCity", false);
+        }
+      }}
+      selectedItem={buyerForm.buyerCity}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleLocationChange,
+              name: "buyerCity",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={buyerForm.buyerCity}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.buyerCity &&
+              tempList.cityList.map((city, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: city })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {city.name}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
 
@@ -376,108 +515,19 @@ const Buyer = () => {
                 <label className={styles.sampleLabel} htmlFor="country">
                   Country
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Enter here "
-                    value={buyerForm.buyerCountry}
-                    name="buyerCountry"
-                    onChange={handleLocationChange}
-                  />
-                  {showSuggestions.buyerCountry && (
-                    <div className={styles.suggestions}>
-                      {tempList.countryList.map((country, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setBuyerForm({
-                              ...buyerForm,
-                              buyerCountry: country.name,
-                            });
-                            toggleSuggestVisibility("buyerCountry", false);
-                            setLocation({
-                              ...location,
-                              country: country.isoCode,
-                            });
-                          }}
-                        >
-                          {country.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftCountry}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">
                   State
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Enter here "
-                    value={buyerForm.buyerState}
-                    name="buyerState"
-                    onChange={handleLocationChange}
-                  />
-                  {showSuggestions.buyerState && (
-                    <div className={styles.suggestions}>
-                      {tempList.stateList.map((state, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setBuyerForm({
-                              ...buyerForm,
-                              buyerState: state.name,
-                            });
-                            toggleSuggestVisibility("buyerState", false);
-                            setLocation({ ...location, state: state.isoCode });
-                          }}
-                        >
-                          {state.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftState}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">
                   City
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Enter here "
-                    value={buyerForm.buyerCity}
-                    name="buyerCity"
-                    onChange={handleLocationChange}
-                  />
-                  {showSuggestions.buyerCity && (
-                    <div className={styles.suggestions}>
-                      {tempList.cityList.map((city, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setBuyerForm({
-                              ...buyerForm,
-                              buyerCity: city.name,
-                            });
-                            toggleSuggestVisibility("buyerCity", false);
-                          }}
-                        >
-                          {city.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {downshiftCity}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="city">

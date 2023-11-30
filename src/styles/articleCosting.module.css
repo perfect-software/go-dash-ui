@@ -3,17 +3,19 @@
   height: calc(100vh - 4rem);
 }
 .headContiner {
-  @apply flex flex-col gap-3;
+  @apply flex flex-col;
 }
 .subHeadContainer {
-  @apply flex items-center;
+  @apply flex sm:justify-center items-center;
 }
 .subHeadContainerTwo h2 {
-  @apply text-[0.875rem];
+  @apply text-[1rem] m-0 p-0;
 }
 .itemHeadContainer {
-  @apply flex-col w-full items-center max-h-[300px] mt-6 overflow-y-auto;
+  @apply flex-col w-full max-h-[450px] sm:h-full mt-6 overflow-auto;
 }
+
+
 .bottomParent {
   @apply flex w-full my-2 items-center;
 }
@@ -36,6 +38,10 @@
   @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
   min-width: 5.8rem;
 }
+.sampleLabel2 {
+  display:none;
+}
+
 .minus {
   background-image: url("../assets/newMinus.svg");
   width: 22px;
@@ -167,9 +173,20 @@ select {
   @apply flex gap-1 right-[1rem];
 }
 .parentButtonContainer {
-  @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+  @apply flex justify-end mt-5  items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+}
+.subHeadContainerThree h2
+{
+  @apply p-0 m-0;
+}
+.subHeadContainerThree {
+  @apply flex items-end justify-between;
 }
 
+.headButton {
+  @apply w-[5rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
+  leading-4 bg-[#00A5AD] rounded-[0.3125rem];
+}
 .popupOverlay {
   position: fixed;
   top: 0;
@@ -250,4 +267,49 @@ select {
 }
 .highlighted {
   @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out bg-blue-100 text-blue-600 truncate;
+}
+
+.customTable tbody tr.totalRow {
+  background-color: #f2f2f2;
+  position: sticky;
+  bottom: 0;
+}
+.customTable tbody tr.totalRow2 {
+  background-color: #f2f2f2;
+  position: sticky;
+  bottom: 0;
+}
+.totalRow2{
+  display:none;
+}
+@media (max-width: 695px) {
+  .itemHeadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .totalRow{
+    display:none;
+  }
+  .totalRow2{
+    display:block;
+    @apply bg-slate-100;
+  }
+  .customTable {
+    width: 100%; 
+  }
+
+  .customTable th{
+    display:none;
+  }
+  .customTable td {
+    @apply items-center justify-center;
+    display: flex;
+    width: 100%; 
+    box-sizing: border-box;
+  }
+  .sampleLabel2 {
+    @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+    min-width: 5.8rem;
+  }
 }
