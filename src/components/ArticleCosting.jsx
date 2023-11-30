@@ -2,8 +2,36 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/articleCosting.module.css";
 import Downshift from "downshift";
 import { getApiService } from "../service/apiService";
+import generatePDF from "../features/generatePDF";
+const BottomGrid = ({
+  index,
+  removeGrid,
+  addGrid,
+  articleCostForm,
+  setArticleCostForm,
+}) => {
+  const handleItemGridChange = (e, data) => {
+    const { name, value } = e.target;
+    const updatedItems = [...articleCostForm.items];
+    updatedItems[index] = updatedItems[index] || {};
+    updatedItems[index][data] = value;
+    if (data === "quantity" || data === "rate") {
+      const quantity = parseFloat(updatedItems[index].quantity) || 0;
+      const rate = parseFloat(updatedItems[index].rate) || 0;
+      updatedItems[index].cost = (quantity * rate).toFixed(2);
+    }
+    const totalCost = updatedItems.reduce(
+      (total, item) => total + parseFloat(item.cost) || 0,
+      0
+    );
 
-const BottomGrid = ({ index, removeGrid , addGrid }) => {
+    setArticleCostForm((prevState) => ({
+      ...prevState,
+      items: updatedItems,
+      totalCost: totalCost.toFixed(2),
+    }));
+  };
+
   return (
     <tr>
       <td style={{ textAlign: "center" }}>
@@ -17,31 +45,57 @@ const BottomGrid = ({ index, removeGrid , addGrid }) => {
         )}
       </td>
       <td>
+        <label className={styles.sampleLabel2} htmlFor="itemName">
+          Item Name
+        </label>
         <input
+          onChange={(e) => handleItemGridChange(e, "itemName")}
           type="text"
           className={styles.basicInput}
           placeholder="Enter Item Name"
+          value={articleCostForm.items[index]?.itemName || ""}
         />
       </td>
       <td>
+        <label className={styles.sampleLabel2} htmlFor="quantity">
+          Quantity
+        </label>
         <input
-          type="text"
+          onChange={(e) => handleItemGridChange(e, "quantity")}
+          type="number"
           className={styles.basicInput}
           placeholder="Enter Quantity"
+          value={articleCostForm.items[index]?.quantity || ""}
         />
       </td>
       <td>
+        <label className={styles.sampleLabel2} htmlFor="rate">
+          Rate
+        </label>
         <input
-          type="text"
+          onChange={(e) => handleItemGridChange(e, "rate")}
+          type="number"
           className={styles.basicInput}
-          placeholder="Enter Finish"
+          placeholder="Enter Rate"
+          value={articleCostForm.items[index]?.rate || ""}
         />
       </td>
       <td>
+        <label className={styles.sampleLabel2} htmlFor="cost">
+          Cost
+        </label>
         <input
-          type="text"
+          onChange={(e) => handleItemGridChange(e, "cost")}
           className={styles.basicInput}
-          placeholder="Enter Finish"
+          placeholder="Press Enter : Add table"
+          readOnly
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addGrid();
+            }
+          }}
+          value={articleCostForm.items[index]?.cost || ""}
         />
       </td>
     </tr>
@@ -54,26 +108,21 @@ const ArticleCosting = () => {
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const containerRef = useRef(null);
   const [colors, setColors] = useState([]);
-  const [articleNos , setArticleNos]  = useState([]);
+  const [articleNos, setArticleNos] = useState([]);
   const [buyers, setBuyers] = useState([]);
+  const [pdfContent, setPdfContent] = useState(null);
+
   const [articleCostForm, setArticleCostForm] = useState({
     buyerName: "",
-    color: "",
     articleNo: "",
-    size: "",
-    leather: "",
-    socks: "",
-    lining: "",
-    last: "",
-    remark: "",
-    sole: "",
-    heel: "",
+    items: [{ itemName: "", rate: "", quantity: "", cost: "" }],
+    totalCost: "",
   });
 
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
     color: false,
-    articleNo:false,
+    articleNo: false,
   });
 
   const addGrid = () => {
@@ -98,7 +147,11 @@ const ArticleCosting = () => {
       [name]: value,
     });
   };
-  const articleNoFetch = async ()=>{
+
+  const handleViewPDF = async () => {
+    generatePDF(articleCostForm);
+  };
+  const articleNoFetch = async () => {
     articleNoRef.current?.focus();
     const BASE_URL = "article/getArticleNo";
     try {
@@ -109,7 +162,8 @@ const ArticleCosting = () => {
     } catch (error) {
       console.error("Failed to Article No:", error);
     }
-  }
+  };
+
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setArticleCostForm({ ...articleCostForm, [name]: value });
@@ -138,7 +192,7 @@ const ArticleCosting = () => {
   };
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
-    setArticleCostForm({ ...articleCostForm, bsName: value });
+    setArticleCostForm({ ...articleCostForm, buyerName: value });
 
     if (value.length >= 3) {
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -160,24 +214,25 @@ const ArticleCosting = () => {
         if (selectedItem) {
           setArticleCostForm({
             ...articleCostForm,
-            bsName: selectedItem.bsName,
+            buyerName: selectedItem.bsName,
           });
           toggleSuggestVisibility("buyer", false);
         }
       }}
-      selectedItem={articleCostForm.bsName}
+      selectedItem={articleCostForm.buyerName}
+      itemToString={(item) => (item ? item.buyerName : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
               onChange: handleBuyerInputChange,
-              name: "bsName",
+              name: "buyerName",
             })}
             type="text"
             className={styles.basicInput}
             placeholder="Click on Search"
-            value={articleCostForm.bsName}
+            value={articleCostForm.buyerName}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
@@ -248,62 +303,55 @@ const ArticleCosting = () => {
   const articleNoRef = useRef(null);
   const downshiftArticleNo = (
     <Downshift
-    onChange={(selectedItem) => {
-      if (selectedItem) {
-        setArticleCostForm({
-          ...articleCostForm,
-          articleNo:selectedItem
-        });
-        toggleSuggestVisibility("articleNo", false);
-      }
-    }}
-    
-    selectedItem={articleCostForm.articleNo}
-  >
-    {({
-      getInputProps,
-      getItemProps,
-      getMenuProps,
-      highlightedIndex,
-    }) => (
-      <div className={styles.inputWithIcon}>
-       <input
-        {...getInputProps({
-          onChange: handleArticleCostingChange,
-          name: "articleNo", 
-        })}
-        type="text"
-        ref={articleNoRef}
-        className={styles.basicInput}
-        placeholder="Type any word"
-        value={articleCostForm.articleNo}
-        />
-        <button
-          onClick={()=>articleNoFetch()}
-          className={styles.searchBtn}
-          aria-label="Search"
-        ></button>
-  
-        <div {...getMenuProps()} className={styles.suggestions}>
-          {
-            showSuggestions.articleNo &&
-            articleNos.map((article, index) => (
-              <div
-                {...getItemProps({ key: index, index, item: article })}
-                className={
-                  highlightedIndex === index
-                    ? styles.highlighted
-                    : styles.suggestionItem
-                }
-              >
-                {article}
-              </div>
-            ))}
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setArticleCostForm({
+            ...articleCostForm,
+            articleNo: selectedItem,
+          });
+          toggleSuggestVisibility("articleNo", false);
+        }
+      }}
+      selectedItem={articleCostForm.articleNo}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleArticleCostingChange,
+              name: "articleNo",
+            })}
+            type="text"
+            ref={articleNoRef}
+            className={styles.basicInput}
+            placeholder="Type any word"
+            value={articleCostForm.articleNo}
+          />
+          <button
+            onClick={() => articleNoFetch()}
+            className={styles.searchBtn}
+            aria-label="Search"
+          ></button>
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.articleNo &&
+              articleNos.map((article, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: article })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {article}
+                </div>
+              ))}
+          </div>
         </div>
-      </div>
-    )}
-  </Downshift>
-   );
+      )}
+    </Downshift>
+  );
   return (
     <div className={styles.articleCostingContainer}>
       <div className={styles.articleSubCostingContainer}>
@@ -312,7 +360,10 @@ const ArticleCosting = () => {
             <h1 className={styles.headText}>Article Costing</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
-            <h2>Article Details</h2>
+            <div className={styles.subHeadContainerThree}>
+              <h2>Article Details</h2>
+              <button className={styles.headButton} onClick={handleViewPDF}>Print</button>
+            </div>
             <div className={styles.headBorder}></div>
           </div>
         </div>
@@ -323,20 +374,20 @@ const ArticleCosting = () => {
             </label>
             {downshiftBuyer}
           </div>
-          <div className={styles.colSpan}>
+          {/* <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
               Color
             </label>
             {downshiftColor}
-          </div>
+          </div> */}
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Article No.
             </label>
-             {downshiftArticleNo}
+            {downshiftArticleNo}
           </div>
-          <div className={styles.colSpan}>
+          {/* <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="size">
               Size
             </label>
@@ -432,7 +483,7 @@ const ArticleCosting = () => {
               name="heel"
               placeholder="Enter Here"
             />
-          </div>
+          </div> */}
         </div>
         <div className={styles.middleContainerBottom}>
           <span>Add Items Here</span>
@@ -441,7 +492,7 @@ const ArticleCosting = () => {
         <div className={styles.headBorder}></div>
         <div className={styles.itemHeadContainer} ref={containerRef}>
           <table className={styles.customTable}>
-            <thead>
+            <thead className={styles.stickyHeader}>
               <tr>
                 <th>Action</th>
                 <th>Item Name</th>
@@ -452,8 +503,26 @@ const ArticleCosting = () => {
             </thead>
             <tbody>
               {bottomGrids.map((_, index) => (
-                <BottomGrid key={index} index={index} removeGrid={removeGrid} addGrid={addGrid} />
+                <BottomGrid
+                  key={index}
+                  index={index}
+                  removeGrid={removeGrid}
+                  addGrid={addGrid}
+                  articleCostForm={articleCostForm}
+                  setArticleCostForm={setArticleCostForm}
+                />
               ))}
+
+              <tr className={styles.totalRow}>
+                <td className={styles.totalColumn}></td>
+                <td className={styles.totalColumn}></td>
+                <td className={styles.totalColumn}></td>
+                <td className={styles.totalColumn}></td>
+                <td>Total Cost: {articleCostForm.totalCost}</td>
+              </tr>
+              <tr className={styles.totalRow2}>
+                <td>Total Cost: {articleCostForm.totalCost}</td>
+              </tr>
             </tbody>
           </table>
         </div>

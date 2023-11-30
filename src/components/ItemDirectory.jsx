@@ -205,17 +205,16 @@ const ItemDirectory = () => {
   const animalInputRef = useRef(null);
   const downshiftAnimal = (
     <Downshift
-    onChange={(selectedItem) => {
-      if(selectedItem){
-       setItemForm({
-         ...itemForm,
-         animal: selectedItem.name,
-       });
-       toggleSuggestVisibility("animal", false);
-      }
-   }}
-  
-   selectedItem={itemForm.animal}
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            animal: selectedItem.name,
+          });
+          toggleSuggestVisibility("animal", false);
+        }
+      }}
+      selectedItem={itemForm.animal}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -260,6 +259,515 @@ const ItemDirectory = () => {
       )}
     </Downshift>
   );
+
+  const seasonInputRef = useRef(null);
+  const downshiftSeason = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            season: selectedItem.name,
+          });
+          toggleSuggestVisibility("season", false);
+        }
+      }}
+      selectedItem={itemForm.season}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "season",
+            })}
+            type="text"
+            ref={seasonInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.season}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("season");
+              seasonInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.season && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.seasonList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const substanceInputRef = useRef(null);
+  const downshiftSubstance = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            substance: selectedItem.name,
+          });
+          toggleSuggestVisibility("substance", false);
+        }
+      }}
+      selectedItem={itemForm.substance}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "substance",
+            })}
+            type="text"
+            ref={substanceInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.substance}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("substance");
+              substanceInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.substance && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.substanceList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const textureInputRef = useRef(null);
+  const downshiftTexture = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            texture: selectedItem.name,
+          });
+          toggleSuggestVisibility("texture", false);
+        }
+      }}
+      selectedItem={itemForm.texture}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "texture",
+            })}
+            type="text"
+            ref={textureInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.texture}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("texture");
+              textureInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.texture && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.textureList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const characteristicsInputRef = useRef(null);
+  const downshiftCharacteristics = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          handleSuggestionClick(selectedItem.name, "characteristics")
+        }
+      }}
+      selectedItem={itemForm.characteristics}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemMultipleChange,
+              name: "characteristics",
+            })}
+            type="text"
+            ref={characteristicsInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.characteristics}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("characteristics");
+              characteristicsInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.characteristics && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.characteristicsList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+
+  const tanningInputRef = useRef(null);
+  const downshiftTanning = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            tanning: selectedItem.name,
+          });
+          toggleSuggestVisibility("tanning", false);
+        }
+      }}
+      selectedItem={itemForm.tanning}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "tanning",
+            })}
+            type="text"
+            ref={tanningInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.tanning}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("tanning");
+              tanningInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.tanning && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.tanningList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const originInputRef = useRef(null);
+  const downshiftOrigin = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            origin: selectedItem.name,
+          });
+          toggleSuggestVisibility("origin", false);
+        }
+      }}
+      selectedItem={itemForm.origin}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "origin",
+            })}
+            type="text"
+            ref={originInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.origin}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("origin");
+              originInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.origin && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.originList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const tanneryInputRef = useRef(null);
+  const downshiftTannery = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            tannery: selectedItem.name,
+          });
+          toggleSuggestVisibility("tannery", false);
+        }
+      }}
+      selectedItem={itemForm.tannery}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "tannery",
+            })}
+            type="text"
+            ref={tanneryInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.tannery}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("tannery");
+              tanneryInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.tannery && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.tanneryList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const downshiftColor = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            color: selectedItem,
+          });
+          toggleSuggestVisibility("color", false);
+        }
+      }}
+      selectedItem={itemForm.color}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateColorChange,
+              name: "color",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={itemForm.color}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.color &&
+              colors.map((color, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: color })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {color}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const skintypeInputRef = useRef(null);
+  const downshiftSkinType = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            skintype: selectedItem.name,
+          });
+          toggleSuggestVisibility("skintype", false);
+        }
+      }}
+      selectedItem={itemForm.skintype}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemChange,
+              name: "skintype",
+            })}
+            type="text"
+            ref={skintypeInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.skintype}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("skintype");
+              skintypeInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.skintype && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.skintypeList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+
+
 
   const handleSubmitItemClick = async (e) => {
     e.preventDefault();
@@ -408,120 +916,21 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="season">
               Season
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.season}
-                name="season"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("season")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.season && (
-                <div className={styles.suggestions}>
-                  {filteredList.seasonList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          season: item.name,
-                        });
-                        toggleSuggestVisibility("season", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftSeason}
           </div>
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="substance">
               Substance
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.substance}
-                name="substance"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("substance")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.substance && (
-                <div className={styles.suggestions}>
-                  {filteredList.substanceList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          substance: item.name,
-                        });
-                        toggleSuggestVisibility("substance", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftSubstance}
           </div>
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="substance">
               Texture
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.texture}
-                name="texture"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("texture")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.texture && (
-                <div className={styles.suggestions}>
-                  {filteredList.textureList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          texture: item.name,
-                        });
-                        toggleSuggestVisibility("texture", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftTexture}
           </div>
 
           <div className={styles.colSpan2}>
@@ -529,188 +938,32 @@ const ItemDirectory = () => {
               Character -<br />
               istics
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Multiple Entry Using Comma"
-                value={itemForm.characteristics}
-                name="characteristics"
-                onChange={handleItemMultipleChange}
-              />
-              <button
-                onClick={() => handleButtonClick("characteristics")}
-                className={styles.searchBtn}
-                aria-label="dropDown"
-              ></button>
-              {showSuggestions.characteristics && (
-                <div className={styles.suggestions}>
-                  {filteredList.characteristicsList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() =>
-                        handleSuggestionClick(item.name, "characteristics")
-                      }
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftCharacteristics}
           </div>
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="tanning">
               Tanning
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.tanning}
-                name="tanning"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("tanning")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.tanning && (
-                <div className={styles.suggestions}>
-                  {filteredList.tanningList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          tanning: item.name,
-                        });
-                        toggleSuggestVisibility("tanning", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftTanning}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="origin">
               Origin
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.origin}
-                name="origin"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("origin")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.origin && (
-                <div className={styles.suggestions}>
-                  {filteredList.originList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          origin: item.name,
-                        });
-                        toggleSuggestVisibility("origin", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+           {downshiftOrigin}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="tannery">
               Tannery
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.tannery}
-                name="tannery"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("tannery")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.tannery && (
-                <div className={styles.suggestions}>
-                  {filteredList.tanneryList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          tannery: item.name,
-                        });
-                        toggleSuggestVisibility("tannery", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {downshiftTannery}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="color">
               Color
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert Two Letter"
-                value={itemForm.color}
-                name="color"
-                onChange={handleCreateColorChange}
-              />
-              {showSuggestions.color && (
-                <div className={styles.suggestions}>
-                  {colors.map((color, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          color: color,
-                        });
-                        toggleSuggestVisibility("color", false);
-                      }}
-                    >
-                      {color}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          {downshiftColor}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="uniqueCode">
@@ -731,40 +984,7 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="skinType">
               Skin Type
             </label>
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                value={itemForm.skintype}
-                name="skintype"
-                onChange={handleItemChange}
-              />
-              <button
-                onClick={() => handleButtonClick("skintype")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {showSuggestions.skintype && (
-                <div className={styles.suggestions}>
-                  {filteredList.skintypeList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          skintype: item.name,
-                        });
-                        toggleSuggestVisibility("skintype", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              {downshiftSkinType}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
