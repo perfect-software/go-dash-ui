@@ -1,9 +1,9 @@
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfMake from 'pdfmake/build/pdfmake';
+import 'pdfmake/build/vfs_fonts';
 import Logo from "../assets/logo.png";
 import NotFound from "../assets/notFound.png";
 import QRCode from "qrcode";
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = pdfFonts.pdfMake.vfs; 
 
 const convertImageToBase64 = (imgUrl) => {
   return new Promise((resolve, reject) => {
@@ -165,9 +165,9 @@ const generatePDF = async (sampleDetailsForm, imageUrl) => {
         },
         layout: "headerLineOnly",
       },
-      // Signature boxes at the bottom
+    
       {
-        margin: [0, 10, 0, 0], // Add space before the signatures
+        margin: [0, 10, 0, 0], 
         columns: [
           {
             width: "50%",
@@ -203,9 +203,9 @@ const generatePDF = async (sampleDetailsForm, imageUrl) => {
                 canvas: [
                   {
                     type: "rect",
-                    x: 200, // Align to right edge of column
+                    x: 200, 
                     y: 5,
-                    w: 180, // Match width of the left signature box
+                    w: 180,
                     h: 40,
                     lineWidth: 1,
                     lineColor: "#000",
