@@ -5,7 +5,7 @@ import BlueCheck from "../assets/blueTick.svg";
 import axios from "axios";
 import Cross from "../assets/cross.svg";
 import { useNavigate } from "react-router-dom";
-import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import {formatToLocalDDMMYYYY, formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 
 const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       </td>
       <td className={styles.sampleContent}>{sample.sampleRef}</td>
       <td className={styles.sampleContent}>
-        {formatDDMMYYYYDate(sample.buyer.entDate)}
+        {formatToLocalDDMMYYYY(sample.buyer.entDate)}
       </td>
       <td className={styles.sampleContent}>{sample.season}</td>
       <td className={styles.sampleContent}>{sample.articleNo}</td>
