@@ -1,52 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
-import styles from "../styles/viewSr.module.css";
+import React, { useState, useEffect , useMemo } from "react";
 import axios from "axios";
-
+import { AgGridReact } from 'ag-grid-react'; 
+import "ag-grid-community/styles/ag-grid.css"; 
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import styles from "../styles/viewSr.module.css";
 
 const ViewSr = () => {
   const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(false);
-  const [samples, setSamples] = useState([]);
   const { isCollapsed } = useSidebar();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [samples, setSamples] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const generateGridItem = (sample, index, fieldName, formatFunction) => (
-    <div key={`${fieldName}-${index}`} className={styles.gridRow}>
-      {formatFunction ? formatFunction(sample[fieldName]) : sample[fieldName]}
-    </div>
-  );
-  const getNestedValue = (obj, path) => {
-    return path.split(".").reduce((acc, part) => acc && acc[part], obj);
-  };
-
-  const handleSort = (fieldName) => {
-    const direction =
-      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
-    setSortField(fieldName);
-    setSortDirection(direction);
-
-    const sortedSamples = [...samples].sort((a, b) => {
-      const aValue = getNestedValue(a, fieldName);
-      const bValue = getNestedValue(b, fieldName);
-
-      if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setSamples(sortedSamples);
-  };
-
-  const callApi = async (page = 1) => {
+  const columnDefs = [
+    { headerName: 'SR No.', field: 'sampleRef', sortable: true, filter: true  },
+    { headerName: 'Date of Order', field: 'dateOfOrder',sortable: true, valueFormatter: (params) => formatDDMMYYYYDate(params.value) , filter: true  },
+    { headerName: 'Season', field: 'season', sortable: true , filter: true },
+    { headerName: 'Article No', field: 'articleNo', sortable: true , filter: true },
+    { headerName: 'Buyer', field: 'buyer.bsName', sortable: true, filter: true  },
+    { headerName: 'Sample Type', field: 'sampleType', sortable: true , filter: true  },
+    { headerName: 'Buyer Article', field: 'buyerArticle', sortable: true  , filter: true },
+    { headerName: 'Upper Color', field: 'upperColor', sortable: true  , filter: true },
+    { headerName: 'Lining Color', field: 'liningColor', sortable: true  , filter: true },
+    { headerName: 'Last', field: 'last', sortable: true  , filter: true },
+    { headerName: 'Insole', field: 'insole', sortable: true  , filter: true },
+  ];
+  const callApi = async () => {
     setLoading(true);
-    const adjustedPage = page - 1;
-    const BASE_URL = `http://localhost:8081/api/sample/view/{page_num}?page_num=${adjustedPage}`;
+    const BASE_URL = `http://localhost:8081/api/sample/viewAllSample`;
     try {
       const response = await axios.get(BASE_URL);
       const fetchedSample = response.data;
@@ -57,274 +40,38 @@ const ViewSr = () => {
       setLoading(false);
     }
   };
-
-  const renderGridRows = () => {
-    return samples.map((sample, index) => (
-      <React.Fragment key={index}>
-        {generateGridItem(sample, index, "sampleRef")}
-        {generateGridItem(sample.buyer, index, "entDate", formatDDMMYYYYDate)}
-        {generateGridItem(sample, index, "season")}
-        {generateGridItem(sample, index, "articleNo")}
-        {generateGridItem(sample.buyer, index, "bsName")}
-        {generateGridItem(sample, index, "sampleType")}
-        {generateGridItem(sample, index, "buyerArticle")}
-        {generateGridItem(sample.buyer, index, "deliveryAddress")}
-        {generateGridItem(sample, index, "size")}
-        {generateGridItem(sample, index, "quantity")}
-        {generateGridItem(sample, index, "pair")}
-        {generateGridItem(sample, index, "upperColor")}
-        {generateGridItem(sample, index, "liningColor")}
-        {generateGridItem(sample, index, "last")}
-        {generateGridItem(sample, index, "insole")}
-        {generateGridItem(sample, index, "soleLabel")}
-        {generateGridItem(sample, index, "socks")}
-        {generateGridItem(sample, index, "heel")}
-        {generateGridItem(sample, index, "pattern")}
-        {generateGridItem(sample, index, "buyerRef")}
-        {generateGridItem(sample, index, "inUpperLeather")}
-        {generateGridItem(sample, index, "inLining")}
-        {generateGridItem(sample, index, "inSocks")}
-        {generateGridItem(sample, index, "inQuantity")}
-        {generateGridItem(sample, index, "comments")}
-        {generateGridItem(sample, index, "deliveryDate", formatDDMMYYYYDate)}
-        {generateGridItem(sample, index, "prodExDate", formatDDMMYYYYDate)}
-      </React.Fragment>
-    ));
-  };
-
   useEffect(() => {
-    callApi(1);
+    callApi();
+    
   }, []);
 
-  const paginationRef = useRef(null);
-
-  const renderPaginationControls = () => {
-    const navigateTo = (page) => {
-      if (page >= 1) {
-        callApi(page);
-        setCurrentPage(page);
-      }
-    };
-
-    return (
-      <div className={styles.parentPaginationControls}>
-        <button
-          onClick={() => navigateTo(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </button>
-        <button className={styles.activePage}>{currentPage}</button>
-
-        <button
-          onClick={() => navigateTo(currentPage + 1)}
-          disabled={samples.length < 10}
-        >
-          &gt;
-        </button>
-
-        <input
-          type="number"
-          placeholder="Go to page"
-          style={{ width: "80px" }}
-          min="1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.target.value) {
-              navigateTo(Number(e.target.value));
-            }
-          }}
-        />
-      </div>
-    );
-  };
+ 
 
   return (
-   
-      <div
-        className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-      >
-        <div className={styles.viewSrDropGrid}>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
-              User Name
-            </label>
-            <div className={styles.selectWrapper}>
-              <select className={styles.selectInput} name="size">
-                <option value="" selected disabled hidden>
-                  Select Name
-                </option>
-                <option value="11">11</option>
-                <option value="22">22</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
-              SR Type
-            </label>
-            <div className={styles.selectWrapper}>
-              <select className={styles.selectInput} name="size">
-                <option value="" selected disabled hidden>
-                  SR Type
-                </option>
-                <option value="11">11</option>
-                <option value="22">22</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-              </select>
-            </div>
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
-              Date
-            </label>
-            <div className={styles.selectWrapper}>
-              <select className={styles.selectInput} name="size">
-                <option value="" selected disabled hidden>
-                  Select Date
-                </option>
-                <option value="11">11</option>
-                <option value="22">22</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-              </select>
-            </div>
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
-              SR No.
-            </label>
-            <div className={styles.selectWrapper}>
-              <select className={styles.selectInput} name="size">
-                <option value="" selected disabled hidden>
-                  Select SR No.
-                </option>
-                <option value="11">11</option>
-                <option value="22">22</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        {loading ? (
-          <div className={styles.viewSrDropGrid}>
-            <div className={styles.colSpan4}>
-              <div className={styles.loader}></div>
-              <h2>Loading Requests..</h2>
-            </div>
-          </div>
-        ) : samples.length === 0 ? (
-          <div className={styles.viewSrDropGrid}>
-            <div className={styles.colSpan4}>
-              <h2>No Data Available</h2>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className={styles.gridTableWrapper}>
-              <div className={styles.gridTable}>
-                <div className={styles.gridHeader}>SR No.</div>
-                <div
-                  className={styles.gridHeader}
-                  onClick={() => handleSort("buyer.entDate")}
-                >
-                  Date of Order
-                  <button className={styles.sortButton}>
-                    {sortField === "buyer.entDate"
-                      ? sortDirection === "asc"
-                        ? "↓"
-                        : "↑"
-                      : "↕"}
-                  </button>
-                </div>
-                <div
-                  className={styles.gridHeader}
-                  onClick={() => handleSort("season")}
-                >
-                  Season
-                  <button className={styles.sortButton}>
-                    {sortField === "season"
-                      ? sortDirection === "asc"
-                        ? "↓"
-                        : "↑"
-                      : "↕"}
-                  </button>
-                </div>
-                <div className={styles.gridHeader}>Article No</div>
-                <div
-                  className={styles.gridHeader}
-                  onClick={() => handleSort("buyer.bsName")}
-                >
-                  Buyer
-                  <button className={styles.sortButton}>
-                    {sortField === "buyer.bsName"
-                      ? sortDirection === "asc"
-                        ? "↓"
-                        : "↑"
-                      : "↕"}
-                  </button>
-                </div>
-                <div className={styles.gridHeader}>Sample Type</div>
-                <div className={styles.gridHeader}>Buyer Article</div>
-                <div
-                  className={styles.gridHeader}
-                  onClick={() => handleSort("buyer.deliveryAddress")}
-                >
-                  Delivery Address
-                  <button className={styles.sortButton}>
-                    {sortField === "buyer.deliveryAddress"
-                      ? sortDirection === "asc"
-                        ? "↓"
-                        : "↑"
-                      : "↕"}
-                  </button>
-                </div>
-                <div
-                  className={styles.gridHeader}
-                  onClick={() => handleSort("size")}
-                >
-                  Size
-                  <button className={styles.sortButton}>
-                    {sortField === "size"
-                      ? sortDirection === "asc"
-                        ? "↓"
-                        : "↑"
-                      : "↕"}
-                  </button>
-                </div>
-                <div className={styles.gridHeader}>Quantity</div>
-                <div className={styles.gridHeader}>Pair</div>
-                <div className={styles.gridHeader}>Upper Color</div>
-                <div className={styles.gridHeader}>Lining Color</div>
-                <div className={styles.gridHeader}>Last</div>
-                <div className={styles.gridHeader}>Insole</div>
-                <div className={styles.gridHeader}>Sole Label</div>
-                <div className={styles.gridHeader}>Socks</div>
-                <div className={styles.gridHeader}>Heel</div>
-                <div className={styles.gridHeader}>Pattern</div>
-                <div className={styles.gridHeader}>Buyer Reference</div>
-                <div className={styles.gridHeader}>In Upper Leather</div>
-                <div className={styles.gridHeader}>In Lining</div>
-                <div className={styles.gridHeader}>In Socks</div>
-                <div className={styles.gridHeader}>In Quantity</div>
-                <div className={styles.gridHeader}>Comments</div>
-                <div className={styles.gridHeader}>Delivery Date</div>
-                <div className={styles.gridHeader}>Production Ex Date</div>
-
-                {renderGridRows()}
-              </div>
-            </div>
-            <div style={{ marginTop: "20px" }}>
-              {renderPaginationControls()}
-            </div>
+    <div className={styles.popupOverlay}>
+      {loading ? (
+      <>
+          <div className={styles.loader}></div>
+          <h2>Loading Requests..</h2>
           </>
-        )}
-      </div>
-  
+      ) : (
+    <div className={styles.topContainer}>
+      
+        <div className={`ag-theme-quartz ${styles.agThemeQuartz}`} style={{ height: 600, width: "100%" }}>
+          <AgGridReact
+           columnDefs={columnDefs}
+           rowData={samples}
+           pagination={true}
+           paginationPageSize={10}
+           sideBar={true}
+           animateRows={true}
+           filter={true}
+          />
+        </div>
+     
+    </div>
+     )}
+    </div>
   );
 };
 

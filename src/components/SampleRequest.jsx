@@ -9,12 +9,10 @@ import ViewSr from "./ViewSr";
 import SampleDirPopup from "../popups/SampleDirPopup";
 import { getApiService, postApiService } from "../service/apiService";
 import {
-  formatDate,
-  getCurrentYearLastTwoDigits,
-} from "../features/convertDate";
+  getformatDate} from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
 import Downshift from "downshift";
-import generatePDF from "../features/generatePDF";
+import {generatePDF} from "../features/generatePDF";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -124,9 +122,8 @@ const SampleRequest = () => {
   };
 
   const handleViewPDF = async () => {
-    generatePDF(sampleDetailsForm,imagePreview);
+    await generatePDF(sampleDetailsForm, imagePreview);
   };
-
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -200,8 +197,8 @@ const SampleRequest = () => {
         ...selectedSample,
         bsName: selectedSample.buyer.bsName,
         deliveryAddress: selectedSample.buyer.billingAddress,
-        deliveryDate: formatDate(selectedSample.deliveryDate),
-        prodExDate: formatDate(selectedSample.prodExDate),
+        deliveryDate: getformatDate(selectedSample.deliveryDate),
+        prodExDate: getformatDate(selectedSample.prodExDate),
       });
       setIsSampleDirPopup(false);
     }
@@ -286,7 +283,6 @@ const SampleRequest = () => {
     const BASE_URL = "article/getArticleNo";
     try {
       const fetchedArticle = await getApiService(BASE_URL);
-      console.log(fetchedArticle);
       setArticleNos(fetchedArticle);
       toggleSuggestVisibility("articleNo", true);
     } catch (error) {
@@ -1124,6 +1120,20 @@ const SampleRequest = () => {
                 isGridVisible.delivery ? "" : styles.hide
               }`}
             >
+                 <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="prodExDate">
+                  Prod-Ex Date
+                </label>
+                <input
+                  type="date"
+                  className={`${styles.basicInput} ${styles.dateInput}`}
+                  name="prodExDate"
+                  value={sampleDetailsForm.prodExDate}
+                  onChange={handleCreateSampleChange}
+                
+                  required
+                />
+              </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="deliveryDate">
                   Delivery Date
@@ -1134,22 +1144,13 @@ const SampleRequest = () => {
                   name="deliveryDate"
                   value={sampleDetailsForm.deliveryDate}
                   onChange={handleCreateSampleChange}
+                  disabled={!sampleDetailsForm.prodExDate}
+                  min={sampleDetailsForm.prodExDate} 
                   required
                 />
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="prodExDate">
-                  Prod-Ex Date
-                </label>
-                <input
-                  type="date"
-                  className={`${styles.basicInput} ${styles.dateInput}`}
-                  name="prodExDate"
-                  value={sampleDetailsForm.prodExDate}
-                  onChange={handleCreateSampleChange}
-                  required
-                />
-              </div>
+            
+           
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="deliveryAddress">
                   Delivery Address

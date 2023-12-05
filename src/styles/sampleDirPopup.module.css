@@ -147,7 +147,13 @@
     height: 1rem;
     border: 2px solid rgba(238, 238, 238, 0.8);
   }
-
+  .table td.selectColumn {
+    @apply w-[4rem];
+  }
+  .table td.sampleContent {
+    @apply max-w-[20rem];
+    @apply overflow-x-auto;
+  }
 
   tr{
     @apply cursor-pointer;
