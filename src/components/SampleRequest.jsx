@@ -283,7 +283,6 @@ const SampleRequest = () => {
     const BASE_URL = "article/getArticleNo";
     try {
       const fetchedArticle = await getApiService(BASE_URL);
-      console.log(fetchedArticle);
       setArticleNos(fetchedArticle);
       toggleSuggestVisibility("articleNo", true);
     } catch (error) {
