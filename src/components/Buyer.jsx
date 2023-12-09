@@ -299,6 +299,7 @@ const Buyer = () => {
               name: "buyerState",
             })}
             type="text"
+            disabled={!buyerForm.buyerCountry}
             className={styles.basicInput}
             placeholder="Insert Two Letter"
             value={buyerForm.buyerState}
@@ -344,6 +345,7 @@ const Buyer = () => {
               name: "buyerCity",
             })}
             type="text"
+            disabled={!buyerForm.buyerCountry || !buyerForm.buyerState }
             className={styles.basicInput}
             placeholder="Insert Two Letter"
             value={buyerForm.buyerCity}
@@ -367,6 +369,52 @@ const Buyer = () => {
       )}
     </Downshift>
   );
+
+  const downshiftCurrency = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setBuyerForm({
+            ...buyerForm,
+            currency: selectedItem.code,
+          });
+          toggleSuggestVisibility("currency", false);
+        }
+      }}
+      selectedItem={buyerForm.currency}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleLocationChange,
+              name: "currency",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Insert Two Letter"
+            value={buyerForm.currency}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.currency &&
+              tempList.currencyList.map((curr, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: curr })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {curr.name}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
   const handleBuyerFormChange = (e) => {
     const { name, value } = e.target;
 
@@ -632,35 +680,7 @@ const Buyer = () => {
                 <label className={styles.sampleLabel} htmlFor="currency">
                   Currency
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    className={styles.basicInput}
-                    placeholder="Enter here "
-                    value={buyerForm.currency}
-                    name="currency"
-                    onChange={handleLocationChange}
-                  />
-                  {showSuggestions.currency && (
-                    <div className={styles.suggestions}>
-                      {tempList.currencyList.map((curr, index) => (
-                        <div
-                          key={index}
-                          className={styles.suggestionItem}
-                          onClick={() => {
-                            setBuyerForm({
-                              ...buyerForm,
-                              currency: curr.code,
-                            });
-                            toggleSuggestVisibility("currency", false);
-                          }}
-                        >
-                          {curr.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+               {downshiftCurrency}
               </div>
             </div>
           </div>

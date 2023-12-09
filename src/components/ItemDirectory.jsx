@@ -7,6 +7,7 @@ import Downshift from "downshift";
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
+  const [itemsGrpData, setItemsGrpData] = useState([]);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
@@ -21,11 +22,14 @@ const ItemDirectory = () => {
     originList: [],
     tanningList: [],
     skintypeList: [],
-    itemnameList: [],
+    itemGrpList: [],
+    itemSubGrpList: [],
   });
   const [showSuggestions, setShowSuggestions] = useState({
     animal: false,
     season: false,
+    itemgrp: false,
+    itemsubgrp: false,
     substance: false,
     texture: false,
     characteristics: false,
@@ -34,10 +38,11 @@ const ItemDirectory = () => {
     tanning: false,
     color: false,
     skintype: false,
-    itemname: false,
   });
   const [itemForm, setItemForm] = useState({
     animal: "",
+    itemgrp: "",
+    itemsubgrp: "",
     season: "",
     characteristics: "",
     texture: "",
@@ -49,7 +54,6 @@ const ItemDirectory = () => {
     uniquecode: "",
     skintype: "",
     size: "",
-    itemname: "",
   });
   const resetItem = () => {
     setItemForm({
@@ -59,13 +63,14 @@ const ItemDirectory = () => {
       texture: "",
       substance: "",
       tanning: "",
+      itemgrp: "",
+      itemsubgrp: "",
       origin: "",
       tannery: "",
       color: "",
       uniquecode: "",
       skintype: "",
       size: "",
-      itemname: "",
     });
   };
 
@@ -79,7 +84,21 @@ const ItemDirectory = () => {
     if (itemsData.length === 0) {
       getItems();
     }
+    if (itemsGrpData.length === 0) {
+      getGrpItems();
+    }
   }, []);
+
+  const getGrpItems = async () => {
+    const BASE_URL = "item/getItemGrpAndSubGrp";
+    try {
+      const response = await getApiService(BASE_URL);
+      setItemsGrpData(response);
+    } catch (error) {
+      console.error("Failed to fetch Group Items:", error);
+    }
+  };
+
   const getItems = async () => {
     const BASE_URL = "item/getItemHead";
     try {
@@ -169,6 +188,47 @@ const ItemDirectory = () => {
       toggleSuggestVisibility(`${name}`, false);
     }
   };
+
+  const handleGrpItemChange = (e) => {
+    const { name, value } = e.target;
+    setItemForm({ ...itemForm, [name]: value });
+
+    if (name === "itemgrp") {
+      const filtered = itemsGrpData
+        .filter((item) =>
+          item.itemGrpName.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((item) => ({
+          name: item.itemGrpName,
+          number: item.itemGrp,
+        }));
+      setFilteredList({ ...filteredList, itemGrpList: filtered });
+      toggleSuggestVisibility(name, !showSuggestions[name]);
+      if (value.length > 0) {
+        toggleSuggestVisibility(`${name}`, true);
+      } else {
+        toggleSuggestVisibility(`${name}`, false);
+      }
+    }
+    if (name === "itemsubgrp") {
+      const filtered = itemsGrpData
+        .filter((item) =>
+          item.itemSubGrpName.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((item) => ({
+          name: item.itemSubGrpName,
+          number: item.itemSubGrp,
+        }));
+      setFilteredList({ ...filteredList, itemSubGrpList: filtered });
+      toggleSuggestVisibility(name, !showSuggestions[name]);
+      if (value.length > 0) {
+        toggleSuggestVisibility(`${name}`, true);
+      } else {
+        toggleSuggestVisibility(`${name}`, false);
+      }
+    }
+  };
+
   const handleButtonClick = (name) => {
     const concatenatedString = `${name}List`;
 
@@ -185,6 +245,26 @@ const ItemDirectory = () => {
     setFilteredList(updatedFilteredList);
 
     toggleSuggestVisibility(name, !showSuggestions[name]);
+  };
+
+  const handleGrpButtonClick = (name) => {
+    if (name === "itemgrp") {
+      const filtered = itemsGrpData.map((item) => ({
+        name: item.itemGrpName,
+        number: item.itemGrp,
+      }));
+      setFilteredList({ ...filteredList, itemGrpList: filtered });
+      toggleSuggestVisibility(name, !showSuggestions[name]);
+    }
+
+    if (name === "itemsubgrp") {
+      const filtered = itemsGrpData.map((item) => ({
+        name: item.itemSubGrpName,
+        number: item.itemSubGrp,
+      }));
+      setFilteredList({ ...filteredList, itemSubGrpList: filtered });
+      toggleSuggestVisibility(name, !showSuggestions[name]);
+    }
   };
 
   const handleSuggestionClick = (selectedValue, fieldName) => {
@@ -215,6 +295,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.animal}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -273,6 +354,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.season}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -331,6 +413,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.substance}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -389,6 +472,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.texture}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -439,10 +523,11 @@ const ItemDirectory = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          handleSuggestionClick(selectedItem.name, "characteristics")
+          handleSuggestionClick(selectedItem.name, "characteristics");
         }
       }}
       selectedItem={itemForm.characteristics}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -488,7 +573,6 @@ const ItemDirectory = () => {
     </Downshift>
   );
 
-
   const tanningInputRef = useRef(null);
   const downshiftTanning = (
     <Downshift
@@ -502,6 +586,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.tanning}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -560,6 +645,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.origin}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -618,6 +704,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.tannery}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -721,6 +808,7 @@ const ItemDirectory = () => {
         }
       }}
       selectedItem={itemForm.skintype}
+      itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -766,8 +854,122 @@ const ItemDirectory = () => {
     </Downshift>
   );
 
+  const itemGrpRef = useRef(null);
+  const downshiftItemGrp = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            itemgrp: selectedItem.number,
+          });
+          toggleSuggestVisibility("itemgrp", false);
+        }
+      }}
+      selectedItem={itemForm.itemgrp}
+      itemToString={(item) => (item ? item.name : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleGrpItemChange,
+              name: "itemgrp",
+            })}
+            type="text"
+            ref={itemGrpRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.itemgrp}
+          />
 
+          <button
+            onClick={() => {
+              handleGrpButtonClick("itemgrp");
+              itemGrpRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
 
+          {showSuggestions.itemgrp && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.itemGrpList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+  const itemSubGrpRef = useRef(null);
+  const downshiftItemSubGrp = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setItemForm({
+            ...itemForm,
+            itemsubgrp: selectedItem.number,
+          });
+          toggleSuggestVisibility("itemsubgrp", false);
+        }
+      }}
+      selectedItem={itemForm.itemsubgrp}
+      itemToString={(item) => (item ? item.name : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleGrpItemChange,
+              name: "itemsubgrp",
+            })}
+            type="text"
+            ref={itemSubGrpRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={itemForm.itemsubgrp}
+          />
+
+          <button
+            onClick={() => {
+              handleGrpButtonClick("itemsubgrp");
+              itemSubGrpRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.itemsubgrp && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.itemSubGrpList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
 
   const handleSubmitItemClick = async (e) => {
     e.preventDefault();
@@ -779,7 +981,7 @@ const ItemDirectory = () => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-
+    
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);
@@ -830,80 +1032,13 @@ const ItemDirectory = () => {
               Item Group
             </label>
 
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                // value={itemForm.animal}
-                // name="animal"
-                onChange={handleItemChange}
-              />
-              <button
-                // onClick={() => handleButtonClick("animal")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {/* {showSuggestions.animal && (
-                <div className={styles.suggestions}>
-                  {filteredList.animalList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          animal: item.name,
-                        });
-                        toggleSuggestVisibility("animal", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )} */}
-            </div>
+            {downshiftItemGrp}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
               Item <br /> Sub Group
             </label>
-
-            <div className={styles.inputWithIcon}>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Insert First Letter"
-                // value={itemForm.animal}
-                // name="animal"
-                onChange={handleItemChange}
-              />
-              <button
-                // onClick={() => handleButtonClick("animal")}
-                className={styles.searchBtn}
-                aria-label="dropDorn"
-              ></button>
-              {/* {showSuggestions.animal && (
-                <div className={styles.suggestions}>
-                  {filteredList.animalList.map((item, index) => (
-                    <div
-                      key={index}
-                      className={styles.suggestionItem}
-                      onClick={() => {
-                        setItemForm({
-                          ...itemForm,
-                          animal: item.name,
-                        });
-                        toggleSuggestVisibility("animal", false);
-                      }}
-                    >
-                      {item.name}
-                    </div>
-                  ))}
-                </div>
-              )} */}
-            </div>
+            {downshiftItemSubGrp}
           </div>
 
           <div className={styles.colSpan}>
@@ -951,7 +1086,7 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="origin">
               Origin
             </label>
-           {downshiftOrigin}
+            {downshiftOrigin}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="tannery">
@@ -963,7 +1098,7 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="color">
               Color
             </label>
-          {downshiftColor}
+            {downshiftColor}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="uniqueCode">
@@ -984,7 +1119,7 @@ const ItemDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="skinType">
               Skin Type
             </label>
-              {downshiftSkinType}
+            {downshiftSkinType}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
@@ -1011,11 +1146,7 @@ const ItemDirectory = () => {
               type="text"
               className={styles.basicInput}
               placeholder="Write here"
-              value={itemForm.itemname}
               name="itemname"
-              onChange={(e) =>
-                setItemForm({ ...itemForm, itemname: e.target.value })
-              }
             />
           </div>
           <div className={styles.colSpan}>

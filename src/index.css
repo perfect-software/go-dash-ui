@@ -26,3 +26,23 @@ body {
   display: none;
 }
 
+@media only screen and (max-width: 695px) {
+ 
+  .ag-theme-quartz .ag-paging-panel {
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .ag-theme-quartz .ag-paging-page-size {
+    display: none; 
+  }
+
+  .ag-theme-quartz .ag-paging-button,
+  .ag-theme-quartz .ag-paging-page-summary-panel {
+    margin: 2px;
+    min-width: 20px; 
+    font-size: 12px; 
+  }
+}

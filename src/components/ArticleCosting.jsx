@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/articleCosting.module.css";
 import Downshift from "downshift";
+import ReactDOM from "react-dom";
 import { getApiService } from "../service/apiService";
-import generatePDF from "../features/generatePDF";
+import { generatePDF } from "../features/generateArticleCostPDF";
 const BottomGrid = ({
   index,
   removeGrid,
@@ -10,6 +11,9 @@ const BottomGrid = ({
   articleCostForm,
   setArticleCostForm,
 }) => {
+  const [localItemNames, setLocalItemNames] = useState([]);
+  const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
+
   const handleItemGridChange = (e, data) => {
     const { name, value } = e.target;
     const updatedItems = [...articleCostForm.items];
@@ -31,6 +35,81 @@ const BottomGrid = ({
       totalCost: totalCost.toFixed(2),
     }));
   };
+  const handleItemNameChange = async (e) => {
+    const { value } = e.target;
+    const updatedItems = [...articleCostForm.items];
+    updatedItems[index] = updatedItems[index] || {};
+    updatedItems[index].itemName = value;
+    setArticleCostForm({
+      ...articleCostForm,
+      items: updatedItems,
+    });
+
+    if (value.length >= 1) {
+      const BASE_URL = `item/getItemName?input=${encodeURIComponent(value)}`;
+      try {
+        const fetchedItemName = await getApiService(BASE_URL);
+        setLocalItemNames(fetchedItemName);
+        setShowLocalSuggestions(true);
+      } catch (error) {
+        console.error("Failed to fetch Item Names:", error);
+      }
+    } else {
+      setShowLocalSuggestions(false);
+    }
+  };
+
+  const downshiftItemName = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          const updatedItems = [...articleCostForm.items];
+          updatedItems[index] = {
+            ...updatedItems[index],
+            itemName: selectedItem,
+          };
+          setArticleCostForm({
+            ...articleCostForm,
+            items: updatedItems,
+          });
+
+          setShowLocalSuggestions(false);
+        }
+      }}
+      itemToString={(item) => (item ? item : "")}
+      selectedItem={articleCostForm.items[index]?.itemName || ""}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleItemNameChange,
+              name: "itemName",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Type a word"
+            value={articleCostForm.items[index]?.itemName || ""}
+          />
+          <div {...getMenuProps()} className={styles.suggestions2}>
+            {showLocalSuggestions &&
+              localItemNames.map((name, idx) => (
+                <div
+                  {...getItemProps({ key: idx, index: idx, item: name })}
+                  className={
+                    highlightedIndex === idx
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {name}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
 
   return (
     <tr>
@@ -48,13 +127,7 @@ const BottomGrid = ({
         <label className={styles.sampleLabel2} htmlFor="itemName">
           Item Name
         </label>
-        <input
-          onChange={(e) => handleItemGridChange(e, "itemName")}
-          type="text"
-          className={styles.basicInput}
-          placeholder="Enter Item Name"
-          value={articleCostForm.items[index]?.itemName || ""}
-        />
+        {downshiftItemName}
       </td>
       <td>
         <label className={styles.sampleLabel2} htmlFor="quantity">
@@ -123,6 +196,7 @@ const ArticleCosting = () => {
     buyer: false,
     color: false,
     articleNo: false,
+    itemName: false,
   });
 
   const addGrid = () => {
@@ -149,7 +223,7 @@ const ArticleCosting = () => {
   };
 
   const handleViewPDF = async () => {
-    generatePDF(articleCostForm);
+    await generatePDF(articleCostForm);
   };
   const articleNoFetch = async () => {
     articleNoRef.current?.focus();
@@ -362,7 +436,9 @@ const ArticleCosting = () => {
           <div className={styles.subHeadContainerTwo}>
             <div className={styles.subHeadContainerThree}>
               <h2>Article Details</h2>
-              <button className={styles.headButton} onClick={handleViewPDF}>Print</button>
+              <button className={styles.headButton} onClick={handleViewPDF}>
+                Print
+              </button>
             </div>
             <div className={styles.headBorder}></div>
           </div>
@@ -374,120 +450,16 @@ const ArticleCosting = () => {
             </label>
             {downshiftBuyer}
           </div>
-          {/* <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleName">
-              Color
-            </label>
-            {downshiftColor}
-          </div> */}
-
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Article No.
             </label>
             {downshiftArticleNo}
           </div>
-          {/* <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="size">
-              Size
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.size}
-              name="size"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="leather">
-              Leather
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.leather}
-              name="leather"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="socks">
-              Socks
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.socks}
-              name="socks"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="lining">
-              Lining
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.lining}
-              name="lining"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="last">
-              Last
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.last}
-              name="last"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="remark">
-              Remark
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.remark}
-              name="remark"
-              placeholder="Enter Here"
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="sole">
-              Sole
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.sole}
-              name="sole"
-              placeholder="Enter Here"
-            />
-          </div>
-
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="heel">
-              Heel
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              value={articleCostForm.heel}
-              name="heel"
-              placeholder="Enter Here"
-            />
-          </div> */}
         </div>
         <div className={styles.middleContainerBottom}>
           <span>Add Items Here</span>
-          <button className={styles.plus} onClick={addGrid}></button>
+          <button className={styles.plus2} onClick={addGrid}></button>
         </div>
         <div className={styles.headBorder}></div>
         <div className={styles.itemHeadContainer} ref={containerRef}>

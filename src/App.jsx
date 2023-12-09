@@ -15,8 +15,8 @@ import ViewSr from "./components/ViewSr";
 import { SidebarProvider } from "./context/SidebarContext";
 import ViewBuyer from "./components/ViewBuyer";
 import ArticleCosting from "./components/ArticleCosting";
-// import { Provider } from 'react-redux';
-// import { store } from './helper/store';
+import { Provider } from 'react-redux';
+import { store } from './helper/store';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -28,7 +28,7 @@ function App() {
 
   return (
     <>
-      {/* <Provider store={store}> */}
+      <Provider store={store}>
       <SidebarProvider>
         {!isLoginPage && <Header toggleSidebar={toggleSidebar} />}
 
@@ -60,7 +60,7 @@ function App() {
         </div>
         {!isLoginPage && <Footer />}
       </SidebarProvider>
-      {/* </Provider> */}
+      </Provider>
     </>
   );
 }

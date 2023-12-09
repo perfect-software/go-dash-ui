@@ -43,7 +43,7 @@
 }
 
 .minus {
-  background-image: url("../assets/newMinus.svg");
+  background-image: url("../assets/minus.svg");
   width: 22px;
   height: 22px;
   @apply rounded-[50%];
@@ -52,7 +52,7 @@
   cursor: pointer;
 }
 .plus {
-  background-image: url("../assets/newPlus.svg");
+  background-image: url("../assets/plus.svg");
   width: 22px;
   @apply rounded-[50%];
   height: 22px;
@@ -60,11 +60,17 @@
   border: none;
   cursor: pointer;
 }
-.plus:focus {
-  @apply outline-[#00A5AD];
+.plus2 {
+ display:none;
 }
+
+.plus:focus,
 .minus:focus {
-  @apply outline-[#00A5AD];
+  outline: 2px solid #00A5AD; 
+}
+.plus:hover,
+.minus:hover {
+  outline: 2px solid #00A5AD; 
 }
 .headSmallBorder {
   @apply w-52 border-t-[3px]  mb-0 mt-3 rounded;
@@ -81,20 +87,37 @@
   @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
 }
 .customTable {
-  border-collapse: collapse;
+  border-spacing: 0;
   width: 100%;
 }
+.customTable th:first-child {
+  border-top-left-radius: 10px; 
+}
 
+.customTable th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.customTable tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.customTable tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
 .customTable th,
 .customTable td {
-  border: 2px solid rgba(238, 238, 238, 1);
+ 
   padding: 3px;
   text-align: left;
 }
+
 .customTable th {
+  @apply bg-[#FAFAFB] font-light;
   text-align: center;
   color: rgba(91, 91, 91, 1);
 }
+
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
@@ -173,7 +196,7 @@ select {
   @apply flex gap-1 right-[1rem];
 }
 .parentButtonContainer {
-  @apply flex justify-end mt-5  items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+  @apply absolute sml:static sml:mt-2 flex justify-end bottom-7 right-2 items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
 }
 .subHeadContainerThree h2
 {
@@ -225,9 +248,7 @@ select {
   outline: none;
   border: 1px solid #00a5ad;
 }
-.suggestions::-webkit-scrollbar {
-  @apply h-1 block w-0;
-}
+
 .searchBtn {
   @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
   background-image: url("../assets/dropDown2.svg");
@@ -242,9 +263,7 @@ select {
   opacity: 0.8;
 }
 
-.suggestions::-webkit-scrollbar-track {
-  @apply bg-gray-200;
-}
+
 .inputWithIcon {
   @apply relative w-full inline-block;
 }
@@ -262,20 +281,51 @@ select {
   @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
 }
 
+
+.suggestions::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+.suggestions::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+
+.suggestions2::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-500;
+}
+
+.suggestions2 {
+  @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto;
+  z-index: 1000; 
+}
+
+
+.suggestions2::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+.suggestions2::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+
+
+
 .suggestionItem {
   @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
 }
+
+
 .highlighted {
   @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out bg-blue-100 text-blue-600 truncate;
 }
 
 .customTable tbody tr.totalRow {
-  background-color: #f2f2f2;
+  background-color: #FAFAFB;
   position: sticky;
   bottom: 0;
 }
 .customTable tbody tr.totalRow2 {
-  background-color: #f2f2f2;
+  background-color: #FAFAFB;
   position: sticky;
   bottom: 0;
 }
@@ -291,9 +341,19 @@ select {
   .totalRow{
     display:none;
   }
+  .plus2 {
+    display:block;
+    background-image: url("../assets/plus.svg");
+    width: 22px;
+    @apply rounded-[50%];
+    height: 22px;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+  }
   .totalRow2{
     display:block;
-    @apply bg-slate-100;
+    @apply bg-[#FAFAFB];
   }
   .customTable {
     width: 100%; 
