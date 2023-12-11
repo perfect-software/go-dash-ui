@@ -79,6 +79,12 @@ const Buyer = () => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
   };
+  const validatePhoneNumber = (number) => {
+    if (number) {
+      return /^\d{10}$/.test(number);
+    }
+    return true;
+  };
   const [isGridVisible, setIsGridVisible] = useState({
     bank: true,
     financials: true,
@@ -345,7 +351,7 @@ const Buyer = () => {
               name: "buyerCity",
             })}
             type="text"
-            disabled={!buyerForm.buyerCountry || !buyerForm.buyerState }
+            disabled={!buyerForm.buyerCountry || !buyerForm.buyerState}
             className={styles.basicInput}
             placeholder="Insert Two Letter"
             value={buyerForm.buyerCity}
@@ -648,6 +654,11 @@ const Buyer = () => {
                   value={buyerForm.buyerMobile}
                   name="buyerMobile"
                   onChange={handleBuyerFormChange}
+                  style={
+                    !validatePhoneNumber(buyerForm.buyerMobile)
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                 />
               </div>
               <div className={styles.colSpan2}>
@@ -674,13 +685,18 @@ const Buyer = () => {
                   value={buyerForm.buyerPhone}
                   name="buyerPhone"
                   onChange={handleBuyerFormChange}
+                  style={
+                    !validatePhoneNumber(buyerForm.buyerPhone)
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                 />
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="currency">
                   Currency
                 </label>
-               {downshiftCurrency}
+                {downshiftCurrency}
               </div>
             </div>
           </div>

@@ -18,7 +18,6 @@ export const generatePDF = async (sampleDetailsForm, imagePreview) => {
     sampleDetailsForm.sampleRef || "No Reference"
   );
 
-
   const now = new Date();
   const dateOptions = { year: "numeric", month: "long", day: "numeric" };
   const timeOptions = {
@@ -76,7 +75,7 @@ export const generatePDF = async (sampleDetailsForm, imagePreview) => {
       sampleDetailsForm.inQuantity,
     ],
   ];
-  
+
   const invoiceElement = document.createElement("div");
   invoiceElement.style.position = "absolute";
   invoiceElement.style.left = "-9999px";
@@ -86,7 +85,7 @@ export const generatePDF = async (sampleDetailsForm, imagePreview) => {
 
   invoiceElement.innerHTML = `
   <div style="display: flex; flex-direction: column; padding:14px;  color: #000;">
-  <div style="display: flex; justify-content: space-between;">
+       <div style="display: flex; justify-content: space-between;">
     <h2>GUPTA H.C. OVERSEAS (I) PVT. LTD</h2>
     <h2>SAMPLE ORDER/SPECIFICATION SHEET</h2>
     <strong>${sampleDetailsForm.season || "Not Available"}</strong>
@@ -104,19 +103,29 @@ export const generatePDF = async (sampleDetailsForm, imagePreview) => {
       <strong>Buyer:</strong> ${sampleDetailsForm.bsName || "Not Available"}
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
-      <strong>Address:</strong> ${sampleDetailsForm.deliveryAddress || "Not Available"}
+      <strong>Address:</strong> ${
+        sampleDetailsForm.deliveryAddress || "Not Available"
+      }
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
-      <strong>Article No:</strong> ${sampleDetailsForm.articleNo || "Not Available"}
+      <strong>Article No:</strong> ${
+        sampleDetailsForm.articleNo || "Not Available"
+      }
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
-      <strong>Sample Reference No:</strong> ${sampleDetailsForm.sampleRef || "Not Available"}
+      <strong>Sample Reference No:</strong> ${
+        sampleDetailsForm.sampleRef || "Not Available"
+      }
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
-    <strong>Delivery Date:</strong> ${formatDate(sampleDetailsForm.deliveryDate) || "Not Available"}
+    <strong>Delivery Date:</strong> ${
+      formatDate(sampleDetailsForm.deliveryDate) || "Not Available"
+    }
   </p>
   <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
-  <strong>ProdExDate:</strong> ${formatDate(sampleDetailsForm.prodExDate) || "Not Available"}
+  <strong>ProdExDate:</strong> ${
+    formatDate(sampleDetailsForm.prodExDate) || "Not Available"
+  }
 </p>
   </div>
 
@@ -157,7 +166,9 @@ export const generatePDF = async (sampleDetailsForm, imagePreview) => {
      
   <div style="width:100%">
   <p style="color: #000; font: bold 13px Arial; word-wrap: break-word; margin: 0;">
-  <strong style="font: bold 13px Arial">Comment:</strong> ${sampleDetailsForm.comments || "Not Available"}
+  <strong style="font: bold 13px Arial">Comment:</strong> ${
+    sampleDetailsForm.comments || "Not Available"
+  }
 </p>
   </div>
     <div style="display: flex; justify-content: space-between; margin-top:30px">

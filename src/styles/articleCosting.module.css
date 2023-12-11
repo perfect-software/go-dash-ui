@@ -12,7 +12,8 @@
   @apply text-[1rem] m-0 p-0;
 }
 .itemHeadContainer {
-  @apply flex-col w-full max-h-[450px] sm:h-full mt-6 overflow-auto;
+  border: 1px solid #E5E7EB;
+  @apply flex-col w-full h-full mt-6 rounded-[10px];
 }
 
 
@@ -115,7 +116,7 @@
 .customTable th {
   @apply bg-[#FAFAFB] font-light;
   text-align: center;
-  color: rgba(91, 91, 91, 1);
+  color: '#181D1F';
 }
 
 .colSpan {
@@ -196,7 +197,7 @@ select {
   @apply flex gap-1 right-[1rem];
 }
 .parentButtonContainer {
-  @apply absolute sml:static sml:mt-2 flex justify-end bottom-7 right-2 items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+  @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
 }
 .subHeadContainerThree h2
 {
