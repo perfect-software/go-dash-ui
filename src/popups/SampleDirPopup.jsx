@@ -1,159 +1,123 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles/sampleDirPopup.module.css";
-import TickCheck from "../assets/tickCheck.svg";
-import BlueCheck from "../assets/blueTick.svg";
-import axios from "axios";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import Cross from "../assets/cross.svg";
 import { useNavigate } from "react-router-dom";
-import {formatToLocalDDMMYYYY, formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import { formatDDMMYYYYDate } from "../features/convertDate";
+import { fetchAllSamples } from "../reducer/sampleSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const [samples, setSamples] = useState([]);
-  const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
   const [selectedSample, setSelectedSample] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const generateRow = (sample, rowIndex) => (
-    <tr
-      key={rowIndex}
-      onClick={() => {
-        setSelectedRowIndex(rowIndex);
-        setSelectedSample(sample);
-      }}
-    >
-      <td className={styles.selectColumn} style={{ textAlign: 'center' }}>
-        <button className={styles.selectButton}>
-          <img
-            src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck}
-            alt="Select Icon"
-            className={styles.icon}
-          />
-        </button>
-      </td>
-      <td className={styles.sampleContent}>{sample.sampleRef}</td>
-      <td className={styles.sampleContent}>
-        {formatToLocalDDMMYYYY(sample.buyer.entDate)}
-      </td>
-      <td className={styles.sampleContent}>{sample.season}</td>
-      <td className={styles.sampleContent}>{sample.articleNo}</td>
-      <td className={styles.sampleContent}>{sample.buyer.bsName}</td>
-      <td className={styles.sampleContent}>{sample.sampleType}</td>
-      <td className={styles.sampleContent}>{sample.buyerArticle}</td>
-      <td className={styles.sampleContent}>{sample.buyer.deliveryAddress}</td>
-      <td className={styles.sampleContent}>{sample.size}</td>
-      <td className={styles.sampleContent}>{sample.quantity}</td>
-      <td className={styles.sampleContent}>{sample.pair}</td>
-      <td className={styles.sampleContent}>{sample.upperColor}</td>
-      <td className={styles.sampleContent}>{sample.liningColor}</td>
-      <td className={styles.sampleContent}>{sample.last}</td>
-      <td className={styles.sampleContent}>{sample.insole}</td>
-      <td className={styles.sampleContent}>{sample.soleLabel}</td>
-      <td className={styles.sampleContent}>{sample.socks}</td>
-      <td className={styles.sampleContent}>{sample.heel}</td>
-      <td className={styles.sampleContent}>{sample.pattern}</td>
-      <td className={styles.sampleContent}>{sample.buyerRef}</td>
-      <td className={styles.sampleContent}>{sample.inUpperLeather}</td>
-      <td className={styles.sampleContent}>{sample.inLining}</td>
-      <td className={styles.sampleContent}>{sample.inSocks}</td>
-      <td className={styles.sampleContent}>{sample.inQuantity}</td>
-      <td className={styles.sampleContent}>{sample.comments}</td>
-      <td className={styles.sampleContent}>
-        {formatDDMMYYYYDate(sample.deliveryDate)}
-      </td>
-      <td className={styles.sampleContent}>
-        {formatDDMMYYYYDate(sample.prodExDate)}
-      </td>
-
-      {/* Add more columns as needed */}
-    </tr>
+  const [rowSelect , setRowSelect]= useState(false);
+  const dispatch = useDispatch();
+  const { samples, loaded, loading, error } = useSelector(
+    (state) => state.sample
   );
-  const getNestedValue = (obj, path) => {
-    return path.split(".").reduce((acc, part) => acc && acc[part], obj);
-  };
 
-  const handleSort = (fieldName) => {
-    const direction =
-      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
-    setSortField(fieldName);
-    setSortDirection(direction);
+  const [gridApi, setGridApi] = useState(null);
 
-    const sortedSamples = [...samples].sort((a, b) => {
-      const aValue = getNestedValue(a, fieldName);
-      const bValue = getNestedValue(b, fieldName);
-
-      if (aValue < bValue) return direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setSamples(sortedSamples);
-  };
-  const callApi = async (page = 1) => {
-    const adjustedPage = page - 1;
-    const BASE_URL = `http://localhost:8081/api/sample/view/{page_num}?page_num=${adjustedPage}`;
-    try {
-      const response = await axios.get(BASE_URL);
-      const fetchedSample = response.data;
-      setSamples(fetchedSample);
-      setSelectedRowIndex(null);
-      setSelectedSample(null);
-    } catch (error) {
-      console.error("Failed to fetch All buyers:", error);
+  const onGridReady = useCallback((params) => {
+    setGridApi(params.api);
+    if (!loaded && !loading) {
+      dispatch(fetchAllSamples());
     }
-  };
-
-  const renderTableRows = () => {
-    return samples.map(generateRow);
-  };
-
-  useEffect(() => {
-    callApi(1);
   }, []);
 
-  const paginationRef = useRef(null);
+  const onRowDataChanged = useCallback(() => {
+    if (gridApi) {
+      gridApi.hideOverlay();
+    }
+  }, [gridApi]);
 
-  const renderPaginationControls = () => {
-    const navigateTo = (page) => {
-      if (page >= 1) {
-        callApi(page);
-        setCurrentPage(page);
+  useEffect(() => {
+    if (gridApi && !loaded && loading) {
+      gridApi.showLoadingOverlay();
+    }
+  }, [loaded, loading, gridApi]);
+
+  const dateFilterParams = {
+    comparator: function (filterLocalDateAtMidnight, cellValue) {
+      if (!cellValue) return -1;
+      const formattedCellValue = formatDDMMYYYYDate(cellValue);
+      const formattedFilterDate = filterLocalDateAtMidnight
+        .toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-");
+      console.log(formattedFilterDate);
+      console.log(formattedCellValue);
+      if (formattedCellValue < formattedFilterDate) {
+        return -1;
+      } else if (formattedCellValue > formattedFilterDate) {
+        return 1;
       }
-    };
+      return 0;
+    },
+  };
 
-    return (
-      <div className={styles.parentPaginationControls}>
-        <button
-          onClick={() => navigateTo(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </button>
-        <button className={styles.activePage}>{currentPage}</button>
+  const columnDefs = [
+    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
+    { headerName: "SR No.", field: "sampleRef", sortable: true, filter: true },
+    {
+      headerName: "Date of Order",
+      field: "dateOfOrder",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    { headerName: "Season", field: "season", sortable: true, filter: true },
+    {
+      headerName: "Article No",
+      field: "articleNo",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer",
+      field: "buyer.bsName",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Sample Type",
+      field: "sampleType",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer Article",
+      field: "buyerArticle",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Upper Color",
+      field: "upperColor",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Lining Color",
+      field: "liningColor",
+      sortable: true,
+      filter: true,
+    },
+    { headerName: "Last", field: "last", sortable: true, filter: true },
+    { headerName: "Insole", field: "insole", sortable: true, filter: true },
+  ];
 
-        <button
-          onClick={() => navigateTo(currentPage + 1)}
-          disabled={samples.length < 10}
-        >
-          &gt;
-        </button>
-
-        <input
-          type="number"
-          placeholder="Go to page"
-          style={{ width: "80px" }}
-          min="1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.target.value) {
-              navigateTo(Number(e.target.value));
-            }
-          }}
-        />
-      </div>
-    );
+  const onRowSelected = (event) => {
+    setRowSelect(!rowSelect);
+    const selectedData = event.api.getSelectedRows();
+    setSelectedSample(selectedData);
   };
 
   return (
@@ -173,199 +137,29 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
                 className={styles.crossIcon}
               />
             </div>
-            <div className={styles.sampleDirDropGrid}>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Sample No.
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Sample Name
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Sample No.
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Sample No.
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Sample No.
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Select Sample
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <div className={styles.bottomsampleDirPopupContainer}>
-            <div className={styles.tablecontainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th className={styles.selectColumn}>Select</th>
-                    <th
-                      className={styles.SampleColumn}
-                      onClick={() => handleSort("sampleRef")}
-                    >
-                      <div className={styles.flexContainer}>
-                        SR No.
-                        <button className={styles.sortButton}>
-                          {sortField === "sampleRef"
-                            ? sortDirection === "asc"
-                              ? "↓"
-                              : "↑"
-                            : "↕"}
-                        </button>
-                      </div>
-                    </th>
-                    <th
-                      className={styles.SampleColumn}
-                      onClick={() => handleSort("buyer.entDate")}
-                    >
-                      <div className={styles.flexContainer}>
-                        Date Of Order
-                        <button className={styles.sortButton}>
-                          {sortField === "buyer.entDate"
-                            ? sortDirection === "asc"
-                              ? "↓"
-                              : "↑"
-                            : "↕"}
-                        </button>
-                      </div>
-                    </th>
-                    <th
-                      className={styles.SampleColumn}
-                      onClick={() => handleSort("season")}
-                    >
-                      <div className={styles.flexContainer}>
-                        Season
-                        <button className={styles.sortButton}>
-                          {sortField === "season"
-                            ? sortDirection === "asc"
-                              ? "↓"
-                              : "↑"
-                            : "↕"}
-                        </button>
-                      </div>
-                    </th>
-                    <th className={styles.SampleColumn}>Article No</th>
-                    <th className={styles.SampleColumn} onClick={() => handleSort("buyer.bsName")}
-                    >
-                      <div className={styles.flexContainer}>
-                      Buyer
-                        <button className={styles.sortButton}>
-                        {sortField === "buyer.bsName"
-                          ? sortDirection === "asc"
-                            ? "↓"
-                            : "↑"
-                          : "↕"}
-                        </button>
-                      </div></th>
-                    <th className={styles.SampleColumn}>Sample Type</th>
-                    <th className={styles.SampleColumn}>Buyer Article</th>
-                    <th className={styles.SampleColumn} onClick={() => handleSort("buyer.deliveryAddress")}
-                    >
-                      <div className={styles.flexContainer}>
-                       Delivery Address
-                        <button className={styles.sortButton}>
-                        {sortField === "buyer.deliveryAddress"
-                          ? sortDirection === "asc"
-                            ? "↓"
-                            : "↑"
-                          : "↕"}
-                        </button>
-                      </div></th>
-                    <th className={styles.SampleColumn} onClick={() => handleSort("size")}
-                    >
-                      <div className={styles.flexContainer}>
-                       Size
-                        <button className={styles.sortButton}>
-                        {sortField === "size"
-                          ? sortDirection === "asc"
-                            ? "↓"
-                            : "↑"
-                          : "↕"}
-                        </button>
-                      </div></th>
-                    <th className={styles.SampleColumn}>Quantity</th>
-                    <th className={styles.SampleColumn}>Pair</th>
-                    <th className={styles.SampleColumn}>Upper Color</th>
-                    <th className={styles.SampleColumn}>Lining Color</th>
-                    <th className={styles.SampleColumn}>Last</th>
-                    <th className={styles.SampleColumn}>Insole</th>
-                    <th className={styles.SampleColumn}>Sole Label</th>
-                    <th className={styles.SampleColumn}>Socks</th>
-                    <th className={styles.SampleColumn}>Heel</th>
-                    <th className={styles.SampleColumn}>Pattern</th>
-                    <th className={styles.SampleColumn}>Buyer Reference</th>
-                    <th className={styles.SampleColumn}>In Upper Leather</th>
-                    <th className={styles.SampleColumn}>In Lining</th>
-                    <th className={styles.SampleColumn}>In Socks</th>
-                    <th className={styles.SampleColumn}>In Quantity</th>
-                    <th className={styles.SampleColumn}>Comments</th>
-                    <th className={styles.SampleColumn} onClick={() => handleSort("deliveryDate")}
-                    >
-                      <div className={styles.flexContainer}>
-                      Delivery Date
-                        <button className={styles.sortButton}>
-                        {sortField === "deliveryDate"
-                          ? sortDirection === "asc"
-                            ? "↓"
-                            : "↑"
-                          : "↕"}
-                        </button>
-                      </div></th>
-                    <th className={styles.SampleColumn} onClick={() => handleSort("prodExDate")}
-                    >
-                      <div className={styles.flexContainer}>
-                      Production Ex Date
-                        <button className={styles.sortButton}>
-                        {sortField === "prodExDate"
-                          ? sortDirection === "asc"
-                            ? "↓"
-                            : "↑"
-                          : "↕"}
-                        </button>
-                      </div></th>
-                  </tr>
-                </thead>
-                <tbody>{renderTableRows()}</tbody>
-              </table>
-            </div>
+          <div
+            className={`ag-theme-quartz ${styles.agThemeQuartz}`}
+            style={{ height: 600, width: "100%", marginTop: "10px" }}
+          >
+            <AgGridReact
+              columnDefs={columnDefs}
+              rowData={samples}
+              pagination={true}
+              paginationPageSize={12}
+              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+              animateRows={true}
+              filter={true}
+              onGridReady={onGridReady}
+              onSelectionChanged={onRowSelected}
+              onRowDataChanged={onRowDataChanged}
+            />
           </div>
-          {renderPaginationControls()}
+
           <div className={styles.bottomSampleButtonContainer}>
             <button
-              disabled={selectedSample == null}
+              disabled={!rowSelect}
               className={styles.selectPopupButton}
               onClick={() => {
                 onSubmitSampleData(selectedSample);

@@ -7,12 +7,11 @@ import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import ViewSr from "./ViewSr";
 import SampleDirPopup from "../popups/SampleDirPopup";
-import { getApiService, postApiService } from "../service/apiService";
-import {
-  getformatDate} from "../features/convertDate";
+import { getApiService, postApiService, putApiService } from "../service/apiService";
+import { getformatDate } from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
 import Downshift from "downshift";
-import {generatePDF} from "../features/generatePDF";
+import { generatePDF } from "../features/generatePDF";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -26,6 +25,7 @@ const SampleRequest = () => {
     soleLabel: false,
     sampleRef: false,
     articleNo: false,
+    sampleType: false,
   });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
@@ -35,12 +35,15 @@ const SampleRequest = () => {
   const [articleNos, setArticleNos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bsId, setBsID] = useState("");
+  const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
-
+  const [isEditSelected, setIsEditSelected] = useState(false);
+  const [isEditClicked, setIsEditClicked] = useState(false);
+  const [editSample, setEditSample] = useState(null);
   const [sampleDetailsForm, setSampleDetailsForm] = useState({
     season: "",
     sampleRef: "",
@@ -58,6 +61,7 @@ const SampleRequest = () => {
     insole: "",
     soleLabel: "",
     socks: "",
+    dateOfOrder: "",
     heel: "",
     pattern: "",
     buyerRef: "",
@@ -82,6 +86,32 @@ const SampleRequest = () => {
       [name]: value,
     });
   };
+  const handleSampleEdit = (sample) => {
+    setEditSample(sample);
+    setIsEditSelected(sample !== null);
+  };
+
+  const handleEditClick = () => {
+    setIsEditClicked(true);
+    setActiveButton("details");
+    const bsName = editSample.buyer && editSample.buyer.bsName;
+    const billingAddress = editSample.buyer && editSample.buyer.billingAddress;
+    const deliveryDate = editSample.deliveryDate
+      ? getformatDate(editSample.deliveryDate)
+      : "";
+    const prodExDate = editSample.prodExDate
+      ? getformatDate(editSample.prodExDate)
+      : "";
+
+    setSampleDetailsForm({
+      ...sampleDetailsForm,
+      ...editSample,
+      bsName: bsName,
+      deliveryAddress: billingAddress,
+      deliveryDate: deliveryDate,
+      prodExDate: prodExDate,
+    });
+  };
   const areAllFieldsFilled = (form) => {
     const fieldsToExclude = [
       "comments",
@@ -89,6 +119,7 @@ const SampleRequest = () => {
       "sampleRef",
       "articleNo",
       "buyerRef",
+      "dateOfOrder",
     ];
     return !Object.entries(form)
       .filter(([key]) => !fieldsToExclude.includes(key))
@@ -168,17 +199,18 @@ const SampleRequest = () => {
     }
   };
 
-  const handleArticleNoSubmit = (selectedArticle)=>{
+  const handleArticleNoSubmit = (selectedArticle) => {
     if (selectedArticle) {
       setSampleDetailsForm({
         ...sampleDetailsForm,
-        articleNo:selectedArticle
+        articleNo: selectedArticle,
       });
       setIsArticlePopup(false);
     }
-  }
-  const handleBuyerSubmit = (selectedBuyer) => {
-    if (selectedBuyer) {
+  };
+  const handleBuyerSubmit = (selectedBuyers) => {
+    if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
+      const selectedBuyer = selectedBuyers[0];
       setBsID(selectedBuyer.bsId);
       setSampleDetailsForm({
         ...sampleDetailsForm,
@@ -190,16 +222,28 @@ const SampleRequest = () => {
     }
   };
 
-  const handleSampleSubmit = (selectedSample) => {
-    if (selectedSample) {
+  const handleSampleSubmit = (selectedSamples) => {
+    if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
+      const selectedSample = selectedSamples[0];
+      const bsName = selectedSample.buyer && selectedSample.buyer.bsName;
+      const billingAddress =
+        selectedSample.buyer && selectedSample.buyer.billingAddress;
+      const deliveryDate = selectedSample.deliveryDate
+        ? getformatDate(selectedSample.deliveryDate)
+        : "";
+      const prodExDate = selectedSample.prodExDate
+        ? getformatDate(selectedSample.prodExDate)
+        : "";
+
       setSampleDetailsForm({
         ...sampleDetailsForm,
         ...selectedSample,
-        bsName: selectedSample.buyer.bsName,
-        deliveryAddress: selectedSample.buyer.billingAddress,
-        deliveryDate: getformatDate(selectedSample.deliveryDate),
-        prodExDate: getformatDate(selectedSample.prodExDate),
+        bsName: bsName,
+        deliveryAddress: billingAddress,
+        deliveryDate: deliveryDate,
+        prodExDate: prodExDate,
       });
+
       setIsSampleDirPopup(false);
     }
   };
@@ -238,9 +282,17 @@ const SampleRequest = () => {
   const handleCreateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const updatedSampleDetailsForm = {
+      ...sampleDetailsForm,
+      dateOfOrder: formattedDate,
+    };
+  
     const BASE_URL = "sample/create";
     try {
-      const responseData = await postApiService(sampleDetailsForm, BASE_URL);
+      const responseData = await postApiService(
+        updatedSampleDetailsForm,
+        BASE_URL
+      );
       togglePopup(responseData.message);
     } catch (error) {
       if (error.response) {
@@ -257,12 +309,47 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
+  const handleUpdateSampleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const updatedSampleDetailsForm = {
+      ...sampleDetailsForm,
+      dateOfOrder: formattedDate,
+      sample_id:editSample.sampleId
 
+    };
+    const BASE_URL = "sample/update";
+    try {
+      const responseData = await putApiService(
+        updatedSampleDetailsForm,
+        BASE_URL
+      );
+      togglePopup(responseData.message);
+      resetAllFields();
+      setIsEditClicked(false);
+      setIsEditSelected(false);
+    } catch (error) {
+      if (error.response) {
+        togglePopup(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        togglePopup("No response received from the server.");
+      } else {
+        togglePopup(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSampleType = async () => {
+    sampleTypeRef.current?.focus();
     const BASE_URL = "sample/getSampleType";
     try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
+      toggleSuggestVisibility("sampleType", true);
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
     }
@@ -301,9 +388,11 @@ const SampleRequest = () => {
       [grid]: !prevState[grid],
     }));
   };
-  const today = new Date();
-
-  const formattedDate = today.toISOString().split("T")[0];
+  useEffect(() => {
+    const today = new Date();
+    const currentDate = today.toISOString().split("T")[0];
+    setFormattedDate(currentDate);
+  }, []);
 
   // Suggestions here
   const downshiftBuyer = (
@@ -319,9 +408,8 @@ const SampleRequest = () => {
           toggleSuggestVisibility("buyer", false);
         }
       }}
-     
       selectedItem={sampleDetailsForm.bsName}
-      itemToString={(item) => item ? item.bsName : ''}
+      itemToString={(item) => (item ? item.bsName : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -569,20 +657,20 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.articleNo}
           />
-           <div>
-             <button
-            onClick={() => {
-              setIsArticlePopup(true);
-            }}
-            className={styles.searchBtn}
-            aria-label="Search"
-          ></button>
-          <button
-            onClick={() => articleNoFetch()}
-            className={styles.searchBtn2}
-            aria-label="Search"
-          ></button>
-           </div>
+          <div>
+            <button
+              onClick={() => {
+                setIsArticlePopup(true);
+              }}
+              className={styles.searchBtn}
+              aria-label="Search"
+            ></button>
+            <button
+              onClick={() => articleNoFetch()}
+              className={styles.searchBtn2}
+              aria-label="Search"
+            ></button>
+          </div>
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.articleNo &&
@@ -596,6 +684,64 @@ const SampleRequest = () => {
                   }
                 >
                   {article}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
+
+  const sampleTypeRef = useRef(null);
+  const downshiftSampleType = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            sampleType: selectedItem,
+          });
+          toggleSuggestVisibility("sampleType", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.sampleType}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateSampleChange,
+              name: "sampleType",
+            })}
+            type="text"
+            ref={sampleTypeRef}
+            className={styles.basicInput2}
+            placeholder="Click on Search"
+            value={sampleDetailsForm.sampleType}
+            readOnly
+          />
+          <div>
+            <button
+              onClick={() => {
+                handleSampleType();
+              }}
+              className={styles.searchBtn3}
+              aria-label="Search"
+            ></button>
+          </div>
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.sampleType &&
+              sampleType.map((type, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: type })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {type}
                 </div>
               ))}
           </div>
@@ -618,9 +764,11 @@ const SampleRequest = () => {
                 : {}
             }
           >
-            {activeButton === "view"
-              ? "Sample Request Search"
-              : "Sample Request"}
+            {activeButton === "details"
+              ? isEditClicked
+                ? "Update Sample Request"
+                : "Sample Request"
+              : "Sample Request Search"}
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
@@ -648,29 +796,43 @@ const SampleRequest = () => {
         </div>
         <div className={styles.subHeadContainerTwo}>
           {/* <h2>Sample Order Details</h2> */}
-          <div className={styles.topButtons}>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "details" ? styles.active : ""
-              }`}
-              onClick={() => setActiveButton("details")}
-            >
-              Sample Order Details
-            </button>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "view" ? styles.active : ""
-              }`}
-              onClick={() => {
-                setActiveButton("view");
-                {
-                  !isCollapsed && toggleNavbar();
-                }
-              }}
-            >
-              View SRs
-            </button>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className={styles.topButtons}>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "details" ? styles.active : ""
+                }`}
+                onClick={() => setActiveButton("details")}
+              >
+                Sample Order Details
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "view" ? styles.active : ""
+                }`}
+                onClick={() => {
+                  setActiveButton("view");
+                  {
+                    !isCollapsed && toggleNavbar();
+                  }
+                }}
+              >
+                View SRs
+              </button>
+            </div>
+            {activeButton === "view" && (
+              <div className={styles.editContainer}>
+                <button
+                  disabled={!isEditSelected}
+                  className={styles.headButton}
+                  onClick={handleEditClick}
+                >
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
+
           <div className={styles.headBorder}></div>
         </div>
       </div>
@@ -718,25 +880,7 @@ const SampleRequest = () => {
                 <label className={styles.impsampleLabel} htmlFor="sampleType">
                   Type of Sample
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="sampleType"
-                    value={sampleDetailsForm.sampleType}
-                    onChange={handleCreateSampleChange}
-                    onClick={() => handleSampleType()}
-                    required
-                  >
-                    <option value="" disabled hidden>
-                      Select Type
-                    </option>
-                    {sampleType.map((type, index) => (
-                      <option key={index} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {downshiftSampleType}
               </div>
 
               <div className={styles.imgColSpan}>
@@ -859,6 +1003,7 @@ const SampleRequest = () => {
                   className={`${styles.basicInput} ${styles.dateInput}`}
                   readOnly
                   defaultValue={formattedDate}
+                  name="dateOfOrder"
                   style={{ backgroundColor: "#F7F7F7" }}
                 />
               </div>
@@ -1120,7 +1265,7 @@ const SampleRequest = () => {
                 isGridVisible.delivery ? "" : styles.hide
               }`}
             >
-                 <div className={styles.colSpan}>
+              <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="prodExDate">
                   Prod-Ex Date
                 </label>
@@ -1130,7 +1275,6 @@ const SampleRequest = () => {
                   name="prodExDate"
                   value={sampleDetailsForm.prodExDate}
                   onChange={handleCreateSampleChange}
-                
                   required
                 />
               </div>
@@ -1145,12 +1289,11 @@ const SampleRequest = () => {
                   value={sampleDetailsForm.deliveryDate}
                   onChange={handleCreateSampleChange}
                   disabled={!sampleDetailsForm.prodExDate}
-                  min={sampleDetailsForm.prodExDate} 
+                  min={sampleDetailsForm.prodExDate}
                   required
                 />
               </div>
-            
-           
+
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="deliveryAddress">
                   Delivery Address
@@ -1176,16 +1319,43 @@ const SampleRequest = () => {
                 <button className={styles.resetButton} onClick={resetAllFields}>
                   Reset
                 </button>
-                <button
-                  onClick={handleCreateSampleSubmit}
-                  className={styles.submitButton}
-                  disabled={!areAllFieldsFilled(sampleDetailsForm)}
-                >
-                  Submit
-                </button>
-                <button className={styles.resetButton} onClick={handleViewPDF}>
-                  Print
-                </button>
+                {isEditClicked ? (
+                  <>
+                    <button
+                      onClick={handleUpdateSampleSubmit}
+                      className={styles.submitButton}
+                      disabled={!areAllFieldsFilled(sampleDetailsForm)}
+                    >
+                      Update
+                    </button>{" "}
+                    <button
+                      className={styles.resetButton}
+                      onClick={() => {
+                        resetAllFields();
+                        setIsEditClicked(false);
+                        setIsEditSelected(false);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleCreateSampleSubmit}
+                      className={styles.submitButton}
+                      disabled={!areAllFieldsFilled(sampleDetailsForm)}
+                    >
+                      Submit
+                    </button>
+                    <button
+                      className={styles.resetButton}
+                      onClick={handleViewPDF}
+                    >
+                      Print
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -1246,7 +1416,7 @@ const SampleRequest = () => {
           )}
         </>
       ) : (
-        <ViewSr />
+        <ViewSr onSampleSelect={handleSampleEdit} />
       )}
     </div>
   );

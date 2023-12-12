@@ -1,18 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchAllBuyers = createAsyncThunk(
-  'buyer/fetchAllBuyers',
+export const fetchAllSamples = createAsyncThunk(
+  'sample/fetchAllSamples',
   async () => {
-    const response = await axios.get(`http://localhost:8081/api/sample/getAllBuyer`);
+    const response = await axios.get(`http://localhost:8081/api/sample/viewAllSample`);
     return response.data; 
   }
 );
 
-const buyersSlice = createSlice({
-  name: 'buyer',
+const sampleSlice = createSlice({
+  name: 'sample',
   initialState: {
-    buyers: [],
+    samples: [],
     loaded: false,
     loading: false,
     error: null
@@ -20,20 +20,20 @@ const buyersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllBuyers.pending, (state) => {
+      .addCase(fetchAllSamples.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllBuyers.fulfilled, (state, action) => {
-        state.buyers = action.payload;
+      .addCase(fetchAllSamples.fulfilled, (state, action) => {
+        state.samples = action.payload;
         state.loaded = true;
         state.loading = false;
       })
-      .addCase(fetchAllBuyers.rejected, (state, action) => {
+      .addCase(fetchAllSamples.rejected, (state, action) => {
         state.error = action.error.message;
         state.loading = false;
       });
   }
 });
 
-export default buyersSlice.reducer;
+export default sampleSlice.reducer;

@@ -1,169 +1,110 @@
-import React, { useState, useEffect, useRef } from "react";
-import styles from "../styles/buyerPopup.module.css";
-import TickCheck from "../assets/tickCheck.svg";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import BlueCheck from "../assets/blueTick.svg";
-import Cross from "../assets/cross.svg";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
+import { useSidebar } from "../context/SidebarContext";
+import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import styles from "../styles/buyerPopup.module.css";
+import Cross from "../assets/cross.svg";
+import { fetchAllBuyers } from "../reducer/buyersSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-import { getApiService } from "../service/apiService";
-const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
+const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const navigate = useNavigate();
+  const { isCollapsed } = useSidebar();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc"); // or 'desc'
-  const [buyers, setBuyers] = useState([]);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
-
-  const callApi = async (page = 1) => {
-    const adjustedPage = page - 1;
-    const BASE_URL = `http://localhost:8081/api/sample/getAllBuyer/{page_num}?page_num=${adjustedPage}`;
-    try {
-      const response = await axios.get(BASE_URL);
-      const fetchedBuyers = response.data;
-
-      const extractedData = fetchedBuyers.map((item) => ({
-        bsName: item.bsName,
-        billingAddress: item.billingAddress,
-        bsId: item.bs_id,
-      }));
-      setBuyers(extractedData);
-      setSelectedRowIndex(null);
-      setSelectedBuyer(null);
-    } catch (error) {
-      console.error("Failed to fetch All buyers:", error);
-    }
-  };
-  const handleSort = (fieldName) => {
-    const direction =
-      fieldName === sortField && sortDirection === "asc" ? "desc" : "asc";
-    setSortField(fieldName);
-    setSortDirection(direction);
-
-    const sortedBuyers = [...buyers].sort((a, b) => {
-      if (a[fieldName] < b[fieldName]) return direction === "asc" ? -1 : 1;
-      if (a[fieldName] > b[fieldName]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setBuyers(sortedBuyers);
-  };
-  const handleBuyerInputChange = async (e) => {
-    const value = e.target.value;
-
-    if (value.length === 0) {
-      callApi(1);
-    } else if (value.length >= 3) {
-      const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-
-      try {
-        const fetchedBuyers = await getApiService(BASE_URL);
-        const extractedData = await fetchedBuyers.map((item) => ({
-          bsName: item.bsName,
-          billingAddress: item.deliveryAddress,
-          bsId: item.bsId,
-        }));
-
-        setBuyers(extractedData);
-        setSelectedRowIndex(null);
-        setSelectedBuyer(null);
-      } catch (error) {
-        console.error("Failed to fetch buyers:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    callApi(1);
-  }, []);
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const generateRow = (buyer, rowIndex) => (
-    <tr
-      key={rowIndex}
-      onClick={() => {
-        setSelectedRowIndex(rowIndex);
-
-        setSelectedBuyer(buyer);
-      }}
-    >
-      <td className={styles.selectColumn} style={{ textAlign: 'center' }}>
-        <button className={styles.selectButton}>
-          <img
-            src={selectedRowIndex === rowIndex ? BlueCheck : TickCheck}
-            alt="Select Icon"
-            className={styles.icon}
-          />
-        </button>
-      </td>
-      <td className={styles.buyerContent}>{buyer.bsName}</td>
-      <td className={styles.buyerContent}>{buyer.billingAddress}</td>
-      {/* Add more columns as needed */}
-    </tr>
+  const [rowSelect , setRowSelect]= useState(false);
+  const dispatch = useDispatch();
+  const { buyers, loaded, loading, error } = useSelector(
+    (state) => state.buyer
   );
 
-  const renderTableRows = () => {
-    return buyers.map(generateRow);
-  };
+  const [gridApi, setGridApi] = useState(null);
 
-  const paginationRef = useRef(null);
+  const onGridReady = useCallback((params) => {
+    setGridApi(params.api);
+    if (!loaded && !loading) {
+      dispatch(fetchAllBuyers());
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   if (paginationRef.current) {
-  //     const activePage = paginationRef.current.querySelector(
-  //       `.${styles.activePage}`
-  //     );
-  //     if (activePage) {
-  //       const containerLeft =
-  //         paginationRef.current.getBoundingClientRect().left;
-  //       const activeButtonLeft = activePage.getBoundingClientRect().left;
-  //       const offset = activeButtonLeft - containerLeft;
+  const onRowDataChanged = useCallback(() => {
+    if (gridApi) {
+      gridApi.hideOverlay();
+    }
+  }, [gridApi]);
 
-  //       paginationRef.current.scrollLeft += offset;
-  //     }
-  //   }
-  // }, [currentPage]);
+  useEffect(() => {
+    if (gridApi && !loaded && loading) {
+      gridApi.showLoadingOverlay();
+    }
+  }, [ loaded, loading, gridApi]);
 
-  const renderPaginationControls = () => {
-    const navigateTo = (page) => {
-      if (page >= 1) {
-        callApi(page);
-        setCurrentPage(page);
+  const dateFilterParams = {
+    comparator: function (filterLocalDateAtMidnight, cellValue) {
+      if (!cellValue) return -1;
+      console.log(filterLocalDateAtMidnight);
+      const formattedCellValue = formatDDMMYYYYDate(cellValue);
+      const formattedFilterDate = filterLocalDateAtMidnight
+        .toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-");
+      if (formattedCellValue < formattedFilterDate) {
+        return -1;
+      } else if (formattedCellValue > formattedFilterDate) {
+        return 1;
       }
-    };
+      return 0;
+    },
+  };
+  const columnDefs = [
+    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
+    { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
+    {
+      headerName: "Code",
+      field: "code",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Entry Date",
+      field: "entDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "User Name",
+      field: "username",
+      sortable: true,
+      filter: true,
+    },
+    { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
+    {
+      headerName: "Delivery Address",
+      field: "deliveryAddress",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Billing Address",
+      field: "billingAddress",
+      sortable: true,
+      filter: true,
+    },
+  ];
 
-    return (
-      <div className={styles.parentPaginationControls}>
-        <button
-          onClick={() => navigateTo(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </button>
-        <button className={styles.activePage}>{currentPage}</button>
-
-        <button
-          onClick={() => navigateTo(currentPage + 1)}
-          disabled={buyers.length < 10}
-        >
-          &gt;
-        </button>
-
-        <input
-          type="number"
-          placeholder="Go to page"
-          style={{ width: "80px" }}
-          min="1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.target.value) {
-              navigateTo(Number(e.target.value));
-            }
-          }}
-        />
-      </div>
-    );
+  const onRowSelected = (event) => {
+    setRowSelect(!rowSelect);
+    const selectedData = event.api.getSelectedRows();
+    setSelectedBuyer(selectedData);
   };
 
   return (
@@ -183,105 +124,25 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                 className={styles.crossIcon}
               />
             </div>
-            <div className={styles.buyerDropGrid}>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Buyer Name
-                </label>
-
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Type three letters"
-                    className={styles.basicInput2}
-                    onChange={handleBuyerInputChange}
-                    name="buyername"
-                  />
-                  <button
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                </div>
-              </div>
-
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Buyer No.
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Buyer No.
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input4">
-                  Buyer No.
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select className={styles.selectInput} name="size">
-                    <option value="" selected disabled hidden>
-                      Select Buyer
-                    </option>
-                    <option value="11">11</option>
-                    <option value="22">22</option>
-                    <option value="32">32</option>
-                    <option value="33">33</option>
-                  </select>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <div className={styles.bottombuyerPopupContainer}>
-            <div className={styles.tablecontainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th className={styles.selectColumn}>Select</th>
-                    <th
-                      className={styles.buyerColumn}
-                      onClick={() => handleSort("bsName")}
-                    >
-                      <div className={styles.flexContainer}  >
-                        Buyer Name.
-                        <button className={styles.sortButton}>
-                          {sortField === "bsName"
-                            ? sortDirection === "asc"
-                              ? "↓"
-                              : "↑"
-                            : "↕"}
-                        </button>
-                      </div>
-                    </th>
-                    <th
-                      className={styles.buyerColumn} 
-                      onClick={() => handleSort("billingAddress")}
-                    >
-                      <div className={styles.flexContainer}>
-                        Delivery Address
-                        <button className={styles.sortButton}>
-                          {sortField === "billingAddress"
-                            ? sortDirection === "asc"
-                              ? "↓"
-                              : "↑"
-                            : "↕"}
-                        </button>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>{renderTableRows()}</tbody>
-              </table>
-            </div>
+          <div
+            className={`ag-theme-quartz ${styles.agThemeQuartz}`}
+            style={{ height: 600, width: "100%", marginTop: "10px" }}
+          >
+            <AgGridReact
+              columnDefs={columnDefs}
+              rowData={buyers}
+              pagination={true}
+              paginationPageSize={12}
+              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+              animateRows={true}
+              filter={true}
+              onGridReady={onGridReady}
+              onSelectionChanged={onRowSelected}
+              onRowDataChanged={onRowDataChanged}
+            />
           </div>
-          {renderPaginationControls()}
           <div className={styles.bottombuyerButtonContainer}>
             <h3>Couldn't find the Buyer ?</h3>
             <button
@@ -291,7 +152,7 @@ const BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               Add New Buyer
             </button>
             <button
-              disabled={selectedBuyer == null}
+              disabled={!rowSelect}
               className={styles.buyerSelectPopupButton}
               onClick={() => {
                 onSubmitBuyerData(selectedBuyer);

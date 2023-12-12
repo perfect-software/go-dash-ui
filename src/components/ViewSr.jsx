@@ -1,76 +1,142 @@
-import React, { useState, useEffect , useMemo } from "react";
-import axios from "axios";
-import { AgGridReact } from 'ag-grid-react'; 
-import "ag-grid-community/styles/ag-grid.css"; 
+import React, { useState, useEffect , useCallback} from "react";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import {  formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewSr.module.css";
+import { fetchAllSamples } from "../reducer/sampleSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-const ViewSr = () => {
+
+const ViewSr = ({ onSampleSelect }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
-  const [samples, setSamples] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { samples, loaded, loading, error } = useSelector(
+    (state) => state.sample
+  );
 
-  const columnDefs = [
-    { headerName: 'SR No.', field: 'sampleRef', sortable: true, filter: true  },
-    { headerName: 'Date of Order', field: 'dateOfOrder',sortable: true, valueFormatter: (params) => formatDDMMYYYYDate(params.value) , filter: true  },
-    { headerName: 'Season', field: 'season', sortable: true , filter: true },
-    { headerName: 'Article No', field: 'articleNo', sortable: true , filter: true },
-    { headerName: 'Buyer', field: 'buyer.bsName', sortable: true, filter: true  },
-    { headerName: 'Sample Type', field: 'sampleType', sortable: true , filter: true  },
-    { headerName: 'Buyer Article', field: 'buyerArticle', sortable: true  , filter: true },
-    { headerName: 'Upper Color', field: 'upperColor', sortable: true  , filter: true },
-    { headerName: 'Lining Color', field: 'liningColor', sortable: true  , filter: true },
-    { headerName: 'Last', field: 'last', sortable: true  , filter: true },
-    { headerName: 'Insole', field: 'insole', sortable: true  , filter: true },
-  ];
-  const callApi = async () => {
-    setLoading(true);
-    const BASE_URL = `http://localhost:8081/api/sample/viewAllSample`;
-    try {
-      const response = await axios.get(BASE_URL);
-      const fetchedSample = response.data;
-      setSamples(fetchedSample);
-    } catch (error) {
-      console.error("Failed to fetch All Sample:", error);
-    } finally {
-      setLoading(false);
+  const [gridApi, setGridApi] = useState(null);
+  const onGridReady = useCallback((params) => {
+    setGridApi(params.api);
+    if (!loaded && !loading) {
+      dispatch(fetchAllSamples());
     }
-  };
-  useEffect(() => {
-    callApi();
-    
   }, []);
 
- 
+  const onRowDataChanged = useCallback(() => {
+    if (gridApi) {
+      gridApi.hideOverlay();
+    }
+  }, [gridApi]);
+
+  useEffect(() => {
+    if (gridApi && !loaded && loading) {
+      gridApi.showLoadingOverlay();
+    }
+  }, [ loaded, loading, gridApi]);
+
+  const dateFilterParams = {
+    comparator: function(filterLocalDateAtMidnight, cellValue) {
+      if (!cellValue) return -1;
+      const formattedCellValue = formatDDMMYYYYDate(cellValue);
+      const formattedFilterDate = filterLocalDateAtMidnight.toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).replace(/\//g, '-');
+      console.log(formattedFilterDate);
+      console.log(formattedCellValue);
+      if (formattedCellValue < formattedFilterDate) {
+        return -1;
+      } else if (formattedCellValue > formattedFilterDate) {
+        return 1;
+      }
+      return 0;
+    }
+  };
+  const onRowSelected = (event) => {
+    const selectedData = event.api.getSelectedRows();
+    onSampleSelect(selectedData.length > 0 ? selectedData[0] : null);
+  };
+
+  const columnDefs = [
+    { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
+    { headerName: "SR No.", field: "sampleRef", sortable: true, filter: true },
+    {
+      headerName: "Date of Order",
+      field: "dateOfOrder",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    { headerName: "Season", field: "season", sortable: true, filter: true },
+    {
+      headerName: "Article No",
+      field: "articleNo",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer",
+      field: "buyer.bsName",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Sample Type",
+      field: "sampleType",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer Article",
+      field: "buyerArticle",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Upper Color",
+      field: "upperColor",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Lining Color",
+      field: "liningColor",
+      sortable: true,
+      filter: true,
+    },
+    { headerName: "Last", field: "last", sortable: true, filter: true },
+    { headerName: "Insole", field: "insole", sortable: true, filter: true },
+  ];
+
 
   return (
-    <div className={styles.popupOverlay}>
-      {loading ? (
-      <>
-          <div className={styles.loader}></div>
-          <h2>Loading Requests..</h2>
-          </>
-      ) : (
-    <div className={styles.topContainer}>
-      
-        <div className={`ag-theme-quartz ${styles.agThemeQuartz}`} style={{ height: 600, width: "100%" }}>
+    <div
+      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
+    >
+    
+        <div
+          className={`ag-theme-quartz ${styles.agThemeQuartz}`}
+          style={{ height: 600, width: "100%", marginTop: "10px" }}
+        >
           <AgGridReact
-           columnDefs={columnDefs}
-           rowData={samples}
-           pagination={true}
-           paginationPageSize={10}
-           sideBar={true}
-           animateRows={true}
-           filter={true}
+            columnDefs={columnDefs}
+            rowData={samples}
+            pagination={true}
+            paginationPageSize={12}
+            paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+            animateRows={true}
+            filter={true}
+            onGridReady={onGridReady}
+            onSelectionChanged={onRowSelected}
+            onRowDataChanged={onRowDataChanged}
           />
         </div>
-     
-    </div>
-     )}
     </div>
   );
 };
