@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import styles from "../styles/articleCosting.module.css";
+import styles from "../styles/bom.module.css";
 import Downshift from "downshift";
 import ReactDOM from "react-dom";
 import { getApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateArticleCostPDF";
+import MaterialTable from "./MaterialTable";
 const BottomGrid = ({
   index,
   removeGrid,
@@ -175,7 +176,7 @@ const BottomGrid = ({
   );
 };
 
-const ArticleCosting = () => {
+const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
@@ -202,13 +203,10 @@ const ArticleCosting = () => {
   const addGrid = () => {
     setBottomGrids([...bottomGrids, {}]);
   };
-  const bottomButtonRef = useRef(null);
+
   useEffect(() => {
-    if (bottomButtonRef.current) {
-      bottomButtonRef.current.scrollTop = window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth', // Optional: for smooth scrolling
-      });;
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [bottomGrids]);
 
@@ -311,6 +309,11 @@ const ArticleCosting = () => {
             placeholder="Click on Search"
             value={articleCostForm.buyerName}
           />
+          <button
+            // onClick={() => articleNoFetch()}
+            className={styles.searchBtn}
+            aria-label="Search"
+          ></button>
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
               buyers.map((buyer, index) => (
@@ -331,114 +334,19 @@ const ArticleCosting = () => {
     </Downshift>
   );
 
-  const downshiftColor = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleCostForm({
-            ...articleCostForm,
-            color: selectedItem,
-          });
-          toggleSuggestVisibility("color", false);
-        }
-      }}
-      itemToString={(item) => (item ? item : "")}
-      selectedItem={articleCostForm.color}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleCreateColorChange,
-              name: "color",
-            })}
-            type="text"
-            className={styles.basicInput}
-            placeholder="Type "
-            value={articleCostForm.color}
-          />
-          <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.color &&
-              colors.map((color, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item: color })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {color}
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-    </Downshift>
-  );
 
-  const articleNoRef = useRef(null);
-  const downshiftArticleNo = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleCostForm({
-            ...articleCostForm,
-            articleNo: selectedItem,
-          });
-          toggleSuggestVisibility("articleNo", false);
-        }
-      }}
-      selectedItem={articleCostForm.articleNo}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleCostingChange,
-              name: "articleNo",
-            })}
-            type="text"
-            ref={articleNoRef}
-            className={styles.basicInput}
-            placeholder="Type any word"
-            value={articleCostForm.articleNo}
-          />
-          <button
-            onClick={() => articleNoFetch()}
-            className={styles.searchBtn}
-            aria-label="Search"
-          ></button>
 
-          <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.articleNo &&
-              articleNos.map((article, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item: article })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {article}
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-    </Downshift>
-  );
+
   return (
-    <div className={styles.articleCostingContainer}>
-      <div className={styles.articleSubCostingContainer}>
+    <div className={styles.bomContainer}>
+      <div className={styles.bomSubContainer}>
         <div className={styles.headContiner}>
           <div className={styles.subHeadContainer}>
-            <h1 className={styles.headText}>Article Costing</h1>
+            <h1 className={styles.headText}>BOM</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
             <div className={styles.subHeadContainerThree}>
-              <h2>Article Details</h2>
+              <h2>Sample Details</h2>
               <button className={styles.headButton} onClick={handleViewPDF}>
                 Print
               </button>
@@ -447,62 +355,105 @@ const ArticleCosting = () => {
           </div>
         </div>
         <div className={styles.topGrid}>
-          <div className={styles.colSpan2}>
+          <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
-              Buyer Name
+              Sample No
             </label>
             {downshiftBuyer}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
-              Article No.
+              Article No
             </label>
-            {downshiftArticleNo}
+            <input
+            type="text"
+            name="articleNo"
+            className={styles.basicInput}
+            placeholder="Article No"
+            readOnly
+            value={articleCostForm.articleNo}
+          />
+          </div>
+
+          <div className={styles.colSpan2}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+              Buyer Name
+            </label>
+            <input
+            type="text"
+            name="buyerName"
+            className={styles.basicInput}
+            placeholder="Buyer Name"
+            readOnly
+            value={articleCostForm.buyerName}
+          />
+          </div>
+
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+              Article Name
+            </label>
+            <input
+            type="text"
+            name="articleName"
+            className={styles.basicInput}
+            placeholder="Article Name"
+            readOnly
+            value={articleCostForm.articleName}
+          />
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+              Color
+            </label>
+            <input
+            type="text"
+            name="color"
+            className={styles.basicInput}
+            placeholder="Color"
+            readOnly
+            value={articleCostForm.color}
+          />
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+             Animal
+            </label>
+            <input
+            type="text"
+            name="animal"
+            className={styles.basicInput}
+            placeholder="Animal"
+            readOnly
+            value={articleCostForm.animal}
+          />
+          </div>
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+              Sole
+            </label>
+            <input
+            type="text"
+            name="sole"
+            className={styles.basicInput}
+            placeholder="Sole"
+            readOnly
+            value={articleCostForm.sole}
+          />
           </div>
         </div>
         <div className={styles.middleContainerBottom}>
-          <span>Add Items Here</span>
+          <span>Add Group Here</span>
           <button className={styles.plus2} onClick={addGrid}></button>
         </div>
         <div className={styles.headBorder}></div>
-        <div className={styles.itemHeadContainer} ref={containerRef}>
-          <table className={styles.customTable}>
-            <thead className={styles.stickyHeader}>
-              <tr>
-                <th>Action</th>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Rate</th>
-                <th>Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bottomGrids.map((_, index) => (
-                <BottomGrid
-                  key={index}
-                  index={index}
-                  removeGrid={removeGrid}
-                  addGrid={addGrid}
-                  articleCostForm={articleCostForm}
-                  setArticleCostForm={setArticleCostForm}
-                />
-              ))}
-
-              <tr className={styles.totalRow}>
-                <td className={styles.totalColumn}></td>
-                <td className={styles.totalColumn}></td>
-                <td className={styles.totalColumn}></td>
-                <td className={styles.totalColumn}></td>
-                <td>Total Cost: {articleCostForm.totalCost}</td>
-              </tr>
-              <tr className={styles.totalRow2}>
-                <td>Total Cost: {articleCostForm.totalCost}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+       
+        <div className={styles.materialTableContainer}>
+        <MaterialTable
+        />
       </div>
-      <div ref={bottomButtonRef} className={styles.parentButtonContainer}>
+      </div>
+      <div className={styles.parentButtonContainer}>
         {loading ? (
           <div className={styles.buttonContainer}>
             <div className={styles.loader}></div>
@@ -533,4 +484,4 @@ const ArticleCosting = () => {
   );
 };
 
-export default ArticleCosting;
+export default Bom;

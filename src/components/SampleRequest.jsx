@@ -11,6 +11,8 @@ import { getApiService, postApiService, putApiService } from "../service/apiServ
 import { getformatDate } from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
 import Downshift from "downshift";
+import { fetchAllSamples } from "../reducer/sampleSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 
 const SampleRequest = () => {
@@ -18,6 +20,7 @@ const SampleRequest = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
     upperColor: false,
@@ -325,6 +328,7 @@ const SampleRequest = () => {
         BASE_URL
       );
       togglePopup(responseData.message);
+      dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
       setIsEditSelected(false);
@@ -827,7 +831,7 @@ const SampleRequest = () => {
                   className={styles.headButton}
                   onClick={handleEditClick}
                 >
-                  Edit
+                  Update
                 </button>
               </div>
             )}
@@ -973,7 +977,6 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="text"
-                  id="input3"
                   className={styles.basicInput}
                   placeholder="Input 3"
                   name="buyerArticle"
