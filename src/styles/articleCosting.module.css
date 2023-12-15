@@ -13,7 +13,7 @@
 }
 .itemHeadContainer {
   border: 1px solid #E5E7EB;
-  @apply flex-col w-full h-full mt-6 rounded-[10px];
+  @apply flex-col w-full h-full mt-6 mb-5 rounded-[10px];
 }
 
 

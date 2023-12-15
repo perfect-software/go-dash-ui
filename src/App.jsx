@@ -17,6 +17,7 @@ import ViewBuyer from "./components/ViewBuyer";
 import ArticleCosting from "./components/ArticleCosting";
 import { Provider } from 'react-redux';
 import { store } from './helper/store';
+import Bom from "./components/Bom";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -53,6 +54,7 @@ function App() {
               </Route>
               <Route path="/articlecosting" element={<ArticleCosting />} />
               <Route path="/supplier" element={<Supplier />} />
+              <Route path="/bom" element={<Bom/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/login" element={<LoginRegister />} />
             </Routes>
