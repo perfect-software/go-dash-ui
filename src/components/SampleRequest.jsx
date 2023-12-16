@@ -7,7 +7,11 @@ import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import ViewSr from "./ViewSr";
 import SampleDirPopup from "../popups/SampleDirPopup";
-import { getApiService, postApiService, putApiService } from "../service/apiService";
+import {
+  getApiService,
+  postApiService,
+  putApiService,
+} from "../service/apiService";
 import { getformatDate } from "../features/convertDate";
 import { useSidebar } from "../context/SidebarContext";
 import Downshift from "downshift";
@@ -105,6 +109,30 @@ const SampleRequest = () => {
     const prodExDate = editSample.prodExDate
       ? getformatDate(editSample.prodExDate)
       : "";
+      const dateOfOrder = editSample.dateOfOrder
+      ? getformatDate(editSample.dateOfOrder)
+      : "";
+
+    setSampleDetailsForm({
+      ...sampleDetailsForm,
+      ...editSample,
+      bsName: bsName,
+      deliveryAddress: billingAddress,
+      deliveryDate: deliveryDate,
+      prodExDate: prodExDate,
+      dateOfOrder: dateOfOrder,
+    });
+  };
+
+  const handlePrintClick = async () => {
+    const bsName = editSample.buyer && editSample.buyer.bsName;
+    const billingAddress = editSample.buyer && editSample.buyer.billingAddress;
+    const deliveryDate = editSample.deliveryDate
+      ? getformatDate(editSample.deliveryDate)
+      : "";
+    const prodExDate = editSample.prodExDate
+      ? getformatDate(editSample.prodExDate)
+      : "";
 
     setSampleDetailsForm({
       ...sampleDetailsForm,
@@ -114,6 +142,7 @@ const SampleRequest = () => {
       deliveryDate: deliveryDate,
       prodExDate: prodExDate,
     });
+    await generatePDF(sampleDetailsForm, imagePreview);
   };
   const areAllFieldsFilled = (form) => {
     const fieldsToExclude = [
@@ -202,12 +231,15 @@ const SampleRequest = () => {
     }
   };
 
-  const handleArticleNoSubmit = (selectedArticle) => {
-    if (selectedArticle) {
+  const handleArticleNoSubmit = (selectedArticles) => {
+  
+    if (Array.isArray(selectedArticles) && selectedArticles.length > 0) {
+      const selectedArticle = selectedArticles[0];
       setSampleDetailsForm({
         ...sampleDetailsForm,
-        articleNo: selectedArticle,
+        articleNo: selectedArticle.articleId,
       });
+      toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
   };
@@ -289,7 +321,7 @@ const SampleRequest = () => {
       ...sampleDetailsForm,
       dateOfOrder: formattedDate,
     };
-  
+
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
@@ -317,9 +349,7 @@ const SampleRequest = () => {
     setLoading(true);
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
-      dateOfOrder: formattedDate,
-      sample_id:editSample.sampleId
-
+      sample_id: editSample.sampleId,
     };
     const BASE_URL = "sample/update";
     try {
@@ -754,8 +784,6 @@ const SampleRequest = () => {
     </Downshift>
   );
 
-  //
-
   return (
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContainer}>
@@ -832,6 +860,14 @@ const SampleRequest = () => {
                   onClick={handleEditClick}
                 >
                   Update
+                </button>
+
+                <button
+                  disabled={!isEditSelected}
+                  className={styles.headButtonPrint}
+                  onClick={handlePrintClick}
+                >
+                  Print
                 </button>
               </div>
             )}
@@ -997,19 +1033,41 @@ const SampleRequest = () => {
                   onChange={handleCreateSampleChange}
                 />
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="dateOfOrder">
-                  Date Of Order
-                </label>
-                <input
-                  type="date"
-                  className={`${styles.basicInput} ${styles.dateInput}`}
-                  readOnly
-                  defaultValue={formattedDate}
-                  name="dateOfOrder"
-                  style={{ backgroundColor: "#F7F7F7" }}
-                />
-              </div>
+              {isEditClicked ? (
+                <div className={styles.colSpan}>
+                  <label
+                    className={styles.impsampleLabel}
+                    htmlFor="dateOfOrder"
+                  >
+                    Date Of Order
+                  </label>
+                  <input
+                    type="date"
+                    className={`${styles.basicInput} ${styles.dateInput}`}
+                    readOnly
+                    value={sampleDetailsForm.dateOfOrder}
+                    name="dateOfOrder"
+                    style={{ backgroundColor: "#F7F7F7" }}
+                  />
+                </div>
+              ) : (
+                <div className={styles.colSpan}>
+                  <label
+                    className={styles.impsampleLabel}
+                    htmlFor="dateOfOrder"
+                  >
+                    Date Of Order
+                  </label>
+                  <input
+                    type="date"
+                    className={`${styles.basicInput} ${styles.dateInput}`}
+                    readOnly
+                    defaultValue={formattedDate}
+                    name="dateOfOrder"
+                    style={{ backgroundColor: "#F7F7F7" }}
+                  />
+                </div>
+              )}
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="size">
                   Size
@@ -1351,12 +1409,6 @@ const SampleRequest = () => {
                     >
                       Submit
                     </button>
-                    <button
-                      className={styles.resetButton}
-                      onClick={handleViewPDF}
-                    >
-                      Print
-                    </button>
                   </>
                 )}
               </div>
@@ -1369,6 +1421,12 @@ const SampleRequest = () => {
                 <h2>{popupMessage}</h2>
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
+                </button>
+                <button
+                  className={styles.popupButtonPrint}
+                  onClick={handleViewPDF}
+                >
+                  Print
                 </button>
               </div>
             </div>

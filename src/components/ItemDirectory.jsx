@@ -7,6 +7,8 @@ import Downshift from "downshift";
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
+  const [itemGroupNumber, setItemGroupNumber] = useState("");
+  const [itemSubGroupNumber, setItemSubGroupNumber] = useState("");
   const [itemsGrpData, setItemsGrpData] = useState([]);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [colors, setColors] = useState([]);
@@ -861,8 +863,9 @@ const ItemDirectory = () => {
         if (selectedItem) {
           setItemForm({
             ...itemForm,
-            itemgrp: selectedItem.number,
+            itemgrp: selectedItem.name,
           });
+          setItemGroupNumber(selectedItem.number);
           toggleSuggestVisibility("itemgrp", false);
         }
       }}
@@ -919,8 +922,9 @@ const ItemDirectory = () => {
         if (selectedItem) {
           setItemForm({
             ...itemForm,
-            itemsubgrp: selectedItem.number,
+            itemsubgrp: selectedItem.name,
           });
+          setItemSubGroupNumber(selectedItem.number);
           toggleSuggestVisibility("itemsubgrp", false);
         }
       }}
@@ -977,11 +981,18 @@ const ItemDirectory = () => {
     if (itemForm.characteristics) {
       itemForm.characteristics = itemForm.characteristics.replace(/,\s*/g, " ");
     }
+    setItemForm(prevItem => ({
+      ...prevItem,
+      itemgrp: itemGroupNumber,
+      itemsubgrp:itemSubGroupNumber
+    }));
     const formData = Object.entries(itemForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-    
+
+   console.log(formData);
+
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);

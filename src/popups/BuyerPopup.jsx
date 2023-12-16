@@ -105,6 +105,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
     setSelectedBuyer(selectedData);
+  
   };
 
   return (
