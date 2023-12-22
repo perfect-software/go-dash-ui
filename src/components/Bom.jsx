@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/bom.module.css";
 import Downshift from "downshift";
 import ReactDOM from "react-dom";
-import { getApiService } from "../service/apiService";
-import { generatePDF } from "../features/generateArticleCostPDF";
+import { getApiService, postApiService } from "../service/apiService";
+import { generatePDF } from "../features/generateBomPDF";
 import MaterialTable from "./MaterialTable";
 
 const Bom = () => {
@@ -11,17 +11,27 @@ const Bom = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const containerRef = useRef(null);
+  const [popupMessage, setPopupMessage] = useState("");
   const [colors, setColors] = useState([]);
   const [articleNos, setArticleNos] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [pdfContent, setPdfContent] = useState(null);
 
-  const [articleCostForm, setArticleCostForm] = useState({
-    buyerName: "",
+  const [bomData, setBomData] = useState({
+    sampleNo: "",
     articleNo: "",
-    items: [{ itemName: "", rate: "", quantity: "", cost: "" }],
-    totalCost: "",
+    buyerName: "",
+    articleName: "",
+    color: "",
+    animal: "",
+    sole: "",
+    totalCost:"",
+    groups: [],
   });
+  const togglePopup = (message) => {
+    setIsPopupVisible(!isPopupVisible);
+    setPopupMessage(message);
+  };
 
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
@@ -34,27 +44,19 @@ const Bom = () => {
     setBottomGrids([...bottomGrids, {}]);
   };
 
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [bottomGrids]);
-
-  const removeGrid = (index) => {
-    const updatedGrids = bottomGrids.filter((_, idx) => idx !== index);
-    setBottomGrids(updatedGrids);
-  };
-
-  const handleArticleCostingChange = (e) => {
+  const handleBomChange = (e) => {
     const { name, value } = e.target;
-    setArticleCostForm({
-      ...articleCostForm,
+    setBomData({
+      ...bomData,
       [name]: value,
     });
   };
 
   const handleViewPDF = async () => {
-    await generatePDF(articleCostForm);
+    const jsonData = JSON.stringify(bomData);
+    console.log(jsonData);
+    await generatePDF(bomData);
+    
   };
   const articleNoFetch = async () => {
     articleNoRef.current?.focus();
@@ -113,58 +115,29 @@ const Bom = () => {
       toggleSuggestVisibility("buyer", false);
     }
   };
-  const downshiftBuyer = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleCostForm({
-            ...articleCostForm,
-            buyerName: selectedItem.bsName,
-          });
-          toggleSuggestVisibility("buyer", false);
-        }
-      }}
-      selectedItem={articleCostForm.buyerName}
-      itemToString={(item) => (item ? item.buyerName : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleBuyerInputChange,
-              name: "buyerName",
-            })}
-            type="text"
-            className={styles.basicInput}
-            placeholder="Click on Search"
-            value={articleCostForm.buyerName}
-          />
-          <button
-            // onClick={() => articleNoFetch()}
-            className={styles.searchBtn}
-            aria-label="Search"
-          ></button>
-          <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.buyer &&
-              buyers.map((buyer, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item: buyer })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {buyer.bsName}
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-    </Downshift>
-  );
 
-
+  const handleSubmitBomClick = async (e)=>{
+    e.preventDefault();
+    setLoading(true);
+    const BASE_URL = 'sample/bom';
+    try {
+       const responseData = await postApiService(bomData,BASE_URL);
+       togglePopup(responseData.message);
+    } catch (error) {
+      if (error.response) {
+        togglePopup(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        togglePopup("No response received from the server.");
+      } else {
+        togglePopup(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   return (
@@ -189,20 +162,27 @@ const Bom = () => {
             <label className={styles.sampleLabel} htmlFor="articleName">
               Sample No
             </label>
-            {downshiftBuyer}
+            <input
+              type="text"
+              name="sampleNo"
+              className={styles.basicInput}
+              placeholder="Sample No"
+              onChange={handleBomChange}
+              value={bomData.sampleNo}
+            />
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Article No
             </label>
             <input
-            type="text"
-            name="articleNo"
-            className={styles.basicInput}
-            placeholder="Article No"
-            readOnly
-            value={articleCostForm.articleNo}
-          />
+              type="text"
+              name="articleNo"
+              className={styles.basicInput}
+              placeholder="Article No"
+              onChange={handleBomChange}
+              value={bomData.articleNo}
+            />
           </div>
 
           <div className={styles.colSpan2}>
@@ -210,13 +190,13 @@ const Bom = () => {
               Buyer Name
             </label>
             <input
-            type="text"
-            name="buyerName"
-            className={styles.basicInput}
-            placeholder="Buyer Name"
-            readOnly
-            value={articleCostForm.buyerName}
-          />
+              type="text"
+              name="buyerName"
+              className={styles.basicInput}
+              placeholder="Buyer Name"
+              onChange={handleBomChange}
+              value={bomData.buyerName}
+            />
           </div>
 
           <div className={styles.colSpan}>
@@ -224,52 +204,52 @@ const Bom = () => {
               Article Name
             </label>
             <input
-            type="text"
-            name="articleName"
-            className={styles.basicInput}
-            placeholder="Article Name"
-            readOnly
-            value={articleCostForm.articleName}
-          />
+              type="text"
+              name="articleName"
+              className={styles.basicInput}
+              placeholder="Article Name"
+              onChange={handleBomChange}
+              value={bomData.articleName}
+            />
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Color
             </label>
             <input
-            type="text"
-            name="color"
-            className={styles.basicInput}
-            placeholder="Color"
-            readOnly
-            value={articleCostForm.color}
-          />
+              type="text"
+              name="color"
+              className={styles.basicInput}
+              placeholder="Color"
+              onChange={handleBomChange}
+              value={bomData.color}
+            />
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
-             Animal
+              Animal
             </label>
             <input
-            type="text"
-            name="animal"
-            className={styles.basicInput}
-            placeholder="Animal"
-            readOnly
-            value={articleCostForm.animal}
-          />
+              type="text"
+              name="animal"
+              className={styles.basicInput}
+              placeholder="Animal"
+              onChange={handleBomChange}
+              value={bomData.animal}
+            />
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Sole
             </label>
             <input
-            type="text"
-            name="sole"
-            className={styles.basicInput}
-            placeholder="Sole"
-            readOnly
-            value={articleCostForm.sole}
-          />
+              type="text"
+              name="sole"
+              className={styles.basicInput}
+              placeholder="Sole"
+              onChange={handleBomChange}
+              value={bomData.sole}
+            />
           </div>
         </div>
         <div className={styles.middleContainerBottom}>
@@ -277,11 +257,10 @@ const Bom = () => {
           <button className={styles.plus2} onClick={addGrid}></button>
         </div>
         <div className={styles.headBorder}></div>
-       
+
         <div className={styles.materialTableContainer}>
-        <MaterialTable
-        />
-      </div>
+          <MaterialTable bomData={bomData} setBomData={setBomData} />
+        </div>
       </div>
       <div className={styles.parentButtonContainer}>
         {loading ? (
@@ -293,7 +272,7 @@ const Bom = () => {
             <button className={styles.resetButton}>Reset</button>
             <button
               className={styles.submitButton}
-              // onClick={handleSubmitArticleClick}
+               onClick={handleSubmitBomClick}
             >
               Submit
             </button>

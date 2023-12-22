@@ -44,6 +44,7 @@ const SampleRequest = () => {
   const [bsId, setBsID] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
+  const [tempArticleNo,setTempArticeNo] = useState("");
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -51,36 +52,41 @@ const SampleRequest = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [editSample, setEditSample] = useState(null);
-  const [sampleDetailsForm, setSampleDetailsForm] = useState({
-    season: "",
-    sampleRef: "",
-    sampleType: "",
-    bsName: "",
-    deliveryAddress: "",
-    articleNo: "",
-    buyerArticle: "",
-    size: "",
-    quantity: "",
-    pair: "",
-    upperColor: "",
-    liningColor: "",
-    last: "",
-    insole: "",
-    soleLabel: "",
-    socks: "",
-    dateOfOrder: "",
-    heel: "",
-    pattern: "",
-    buyerRef: "",
-    inUpperLeather: "",
-    inLining: "",
-    inSocks: "",
-    inQuantity: "",
-    comments: "",
-    deliveryDate: "",
-    prodExDate: "",
+  const [sampleDetailsForm, setSampleDetailsForm] = useState(() => {
+    const savedForm = localStorage.getItem('sampleDetailsForm');
+    return savedForm ? JSON.parse(savedForm) : {
+      season: "",
+      sampleRef: "",
+      sampleType: "",
+      bsName: "",
+      deliveryAddress: "",
+      articleNo: "",
+      buyerArticle: "",
+      size: "",
+      quantity: "",
+      pair: "",
+      upperColor: "",
+      liningColor: "",
+      last: "",
+      insole: "",
+      soleLabel: "",
+      socks: "",
+      dateOfOrder: "",
+      heel: "",
+      pattern: "",
+      buyerRef: "",
+      inUpperLeather: "",
+      inLining: "",
+      inSocks: "",
+      inQuantity: "",
+      comments: "",
+      deliveryDate: "",
+      prodExDate: "",
+    };
   });
-
+  useEffect(() => {
+    localStorage.setItem('sampleDetailsForm', JSON.stringify(sampleDetailsForm));
+  }, [sampleDetailsForm]);
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
@@ -237,8 +243,10 @@ const SampleRequest = () => {
       const selectedArticle = selectedArticles[0];
       setSampleDetailsForm({
         ...sampleDetailsForm,
-        articleNo: selectedArticle.articleId,
+        articleNo: selectedArticle.articleName,
       });
+      setTempArticeNo(selectedArticle.articleId)
+
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
@@ -317,11 +325,15 @@ const SampleRequest = () => {
   const handleCreateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       dateOfOrder: formattedDate,
+      articleNo:tempArticleNo
     };
 
+   
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
@@ -399,17 +411,7 @@ const SampleRequest = () => {
       reader.readAsDataURL(file);
     }
   };
-  const articleNoFetch = async () => {
-    articleNoRef.current?.focus();
-    const BASE_URL = "article/getArticleNo";
-    try {
-      const fetchedArticle = await getApiService(BASE_URL);
-      setArticleNos(fetchedArticle);
-      toggleSuggestVisibility("articleNo", true);
-    } catch (error) {
-      console.error("Failed to Article No:", error);
-    }
-  };
+
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -699,11 +701,7 @@ const SampleRequest = () => {
               className={styles.searchBtn}
               aria-label="Search"
             ></button>
-            <button
-              onClick={() => articleNoFetch()}
-              className={styles.searchBtn2}
-              aria-label="Search"
-            ></button>
+           
           </div>
 
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -1326,6 +1324,7 @@ const SampleRequest = () => {
                 isGridVisible.delivery ? "" : styles.hide
               }`}
             >
+              
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="prodExDate">
                   Prod-Ex Date
@@ -1336,6 +1335,7 @@ const SampleRequest = () => {
                   name="prodExDate"
                   value={sampleDetailsForm.prodExDate}
                   onChange={handleCreateSampleChange}
+                  min={isEditClicked ? sampleDetailsForm.dateOfOrder:formattedDate }
                   required
                 />
               </div>

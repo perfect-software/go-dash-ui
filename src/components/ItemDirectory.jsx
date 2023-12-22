@@ -41,22 +41,32 @@ const ItemDirectory = () => {
     color: false,
     skintype: false,
   });
-  const [itemForm, setItemForm] = useState({
-    animal: "",
-    itemgrp: "",
-    itemsubgrp: "",
-    season: "",
-    characteristics: "",
-    texture: "",
-    substance: "",
-    tanning: "",
-    origin: "",
-    tannery: "",
-    color: "",
-    uniquecode: "",
-    skintype: "",
-    size: "",
+
+  const [itemForm, setItemForm] = useState(() => {
+    const savedForm = localStorage.getItem('itemForm');
+    return savedForm ? JSON.parse(savedForm) : {
+      animal: "",
+      itemgrp: "",
+      itemsubgrp: "",
+      season: "",
+      characteristics: "",
+      texture: "",
+      substance: "",
+      tanning: "",
+      origin: "",
+      tannery: "",
+      color: "",
+      uniquecode: "",
+      skintype: "",
+      size: "",
+    };
   });
+
+  
+  useEffect(() => {
+    localStorage.setItem('itemForm', JSON.stringify(itemForm));
+  }, [itemForm]);
+
   const resetItem = () => {
     setItemForm({
       animal: "",

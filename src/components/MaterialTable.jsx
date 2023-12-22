@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/bom.module.css";
 import Downshift from "downshift";
 import { useSidebar } from "../context/SidebarContext";
-
 import { getApiService } from "../service/apiService";
-const MaterialTable = () => {
+const MaterialTable = ({ bomData, setBomData }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [filteredList, setFilteredList] = useState({
@@ -16,13 +15,6 @@ const MaterialTable = () => {
     itemName: false,
     itemgrp: false,
     itemsubgrp: false,
-  });
-
-  const [bomData, setBomData] = useState({
-    sampleNo: "",
-    articleNo: "",
-    sole: "",
-    groups: [],
   });
 
   const [newItem, setNewItem] = useState({
@@ -39,10 +31,25 @@ const MaterialTable = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewItem((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setNewItem((prev) => {
+      let newCost = prev.cost;
+      if (name === "rate" || name === "requiredQty") {
+        const newRate =
+          name === "rate" ? parseFloat(value) || 0 : parseFloat(prev.rate) || 0;
+        const newRequiredQty =
+          name === "requiredQty"
+            ? parseFloat(value) || 0
+            : parseFloat(prev.requiredQty) || 0;
+        newCost = (newRate * newRequiredQty).toFixed(2);
+      }
+      return {
+        ...prev,
+        [name]: value,
+        ...(name === "rate" || name === "requiredQty"
+          ? { cost: newCost }
+          : null),
+      };
+    });
   };
 
   const toggleSuggestVisibility = (key, value) => {
@@ -151,6 +158,17 @@ const MaterialTable = () => {
         rate: "",
         cost: "",
       });
+
+      let totalCost = 0;
+      newData.groups.forEach((group) =>
+        group.subgroups.forEach((subgroup) =>
+          subgroup.items.forEach(
+            (item) => (totalCost += parseFloat(item.cost) || 0)
+          )
+        )
+      );
+      newData.totalCost = totalCost.toFixed(2);
+
       return newData;
     });
   };
@@ -159,6 +177,7 @@ const MaterialTable = () => {
     setBomData((prevData) => {
       let groupFound = false;
       let subgroupFound = false;
+      let removedItemCost = 0;
 
       const groups = prevData.groups
         .map((group) => {
@@ -168,9 +187,13 @@ const MaterialTable = () => {
               .map((subgroup) => {
                 if (subgroup.itemsubgrp === itemsubgrp) {
                   subgroupFound = true;
-                  const items = subgroup.items.filter(
-                    (item) => item.itemName !== itemName
-                  );
+                  const items = subgroup.items.filter((item) => {
+                    if (item.itemName === itemName) {
+                      removedItemCost = parseFloat(item.cost) || 0;
+                      return false;
+                    }
+                    return true;
+                  });
                   return { ...subgroup, items };
                 }
                 return subgroup;
@@ -181,11 +204,18 @@ const MaterialTable = () => {
           return group;
         })
         .filter((group) => group.subgroups.length > 0);
+
       if (!groupFound || !subgroupFound) {
         return prevData;
       }
 
-      return { ...prevData, groups };
+      const newTotalCost = prevData.totalCost - removedItemCost;
+
+      return {
+        ...prevData,
+        groups,
+        totalCost: newTotalCost.toFixed(2),
+      };
     });
   };
 
@@ -257,7 +287,7 @@ const MaterialTable = () => {
               <td>{item.requiredQty}</td>
               <td>{item.rate}</td>
               <td>{item.cost}</td>
-              <td>
+              <td style={{ textAlign: "center" }}>
                 <button
                   onClick={() =>
                     handleRemoveItem(
@@ -267,9 +297,7 @@ const MaterialTable = () => {
                     )
                   }
                   className={styles.minus}
-                >
-               
-                </button>
+                ></button>
               </td>
             </tr>
           );
@@ -313,14 +341,7 @@ const MaterialTable = () => {
             placeholder="Type a word"
             value={newItem.itemName}
           />
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleAddMaterial();
-            }}
-            className={styles.addBtn}
-            aria-label="Search"
-          ></button>
+
           <div {...getMenuProps()} className={styles.suggestions}>
             {isOpen &&
               itemNames.map((name, idx) => (
@@ -426,6 +447,12 @@ const MaterialTable = () => {
             className={styles.basicInput}
             placeholder="Insert First Letter"
             value={newItem.itemsubgrp}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddMaterial();
+              }
+            }}
           />
 
           <button
@@ -540,6 +567,7 @@ const MaterialTable = () => {
             name="cost"
             type="number"
             value={newItem.cost}
+            readOnly
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Add Cost"
@@ -557,15 +585,27 @@ const MaterialTable = () => {
           </label>
           {downshiftItemSubGrp}
         </div>
+        <div className={styles.colSpan}>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleAddMaterial();
+            }}
+            className={styles.addBtn}
+            aria-label="Search"
+          >
+            {" "}
+            ADD{" "}
+          </button>
+        </div>
       </div>
 
       <div
         className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
       >
-      <table className={styles.customTable}>
+        <table className={styles.customTable}>
           <thead>
             <tr>
-              
               <th>Group</th>
               <th>Subgroup</th>
               <th>Item Name</th>
@@ -575,10 +615,21 @@ const MaterialTable = () => {
               <th>Required Qty</th>
               <th>Rate</th>
               <th>Cost</th>
-              <th>Action</th>
+              <th style={{ textAlign: "center" }}>Action</th>
             </tr>
           </thead>
           <tbody>{renderTableBody()}</tbody>
+          {bomData.groups.length > 0 && (
+            <tfoot>
+              <tr>
+                <td colspan="8"></td>
+                <td>
+                  <strong>Total: {bomData.totalCost}</strong>
+                </td>
+                <td></td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </>

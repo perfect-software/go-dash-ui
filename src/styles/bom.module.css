@@ -86,32 +86,52 @@
 .bottomGrid {
   @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
 }
-.tableContainer {
-  max-width: 100%;
-  overflow-x: auto; 
-}
 
 .customTable {
-  width: max-content; 
   border-spacing: 0;
+  border-collapse: separate;
+  width: 100%;
+  @apply overflow-x-auto mt-2;
+  border-radius: 8px; 
+ 
 }
 
 .customTable th,
 .customTable td {
-  padding: 9px;
+  padding: 2px;
   text-align: left;
   border: 1px solid #E5E7EB;
-  white-space: nowrap; 
-}
+  @apply overflow-x-auto text-sm;
+  white-space: nowrap;
+  max-width: 100px;
 
+}
+.customTable tfoot {
+  background-color: #FAFAFB;
+  font-weight: lighter;
+  color: #181D1F;
+}
 .customTable th {
   background-color: #FAFAFB;
   font-weight: lighter;
   color: #181D1F;
 }
-.customTable td {
- @apply px-5;
+.customTable th:first-child {
+  border-top-left-radius: 8px;
 }
+
+.customTable th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.customTable tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.customTable tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
 .topContainer {
   @apply mt-3;
   width: calc(100vw - 100px);
@@ -298,13 +318,9 @@ select {
   opacity: 0.8;
 }
 .addBtn {
-  @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
-  background-image: url("../assets/plus.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  transform: translateY(-50%);
-  background-size: 16px 16px;
-  border: none;
+  @apply w-[5.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+  leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }
 
 .addBtn:hover {
@@ -366,33 +382,7 @@ select {
     align-items: flex-start;
   }
 
-  .plus2 {
-    display: block;
-    background-image: url("../assets/plus.svg");
-    width: 22px;
-    @apply rounded-[50%];
-    height: 22px;
-    background-size: cover;
-    border: none;
-    cursor: pointer;
-  }
-  .totalRow2 {
-    display: block;
-    @apply bg-[#FAFAFB];
-  }
-  .customTable {
-    width: 100%;
-  }
-
-  .customTable th {
-    display: none;
-  }
-  .customTable td {
-    @apply items-center justify-center;
-    display: flex;
-    width: 100%;
-    box-sizing: border-box;
-  }
+ 
   .sampleLabel2 {
     @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
     min-width: 5.8rem;
