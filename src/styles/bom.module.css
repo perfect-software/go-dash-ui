@@ -1,373 +1,394 @@
 .bomContainer {
-    @apply relative  px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
-    height: calc(100vh - 4rem);
-  }
-  .headContiner {
-    @apply flex flex-col;
-  }
-  .subHeadContainer {
-    @apply flex sm:justify-center items-center;
-  }
-  .subHeadContainerTwo h2 {
-    @apply text-[1rem] m-0 p-0;
-  }
-  .itemHeadContainer {
-    @apply flex-col w-full h-full mt-6 mb-5 rounded-[10px];
-  }
-  .middleGrid
-  {
-    @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
-  }
+  @apply relative  px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
+  height: calc(100vh - 4rem);
+}
+.headContiner {
+  @apply flex flex-col;
+}
+.subHeadContainer {
+  @apply flex sm:justify-center items-center;
+}
+.subHeadContainerTwo h2 {
+  @apply text-[1rem] m-0 p-0;
+}
+
+.middleGrid {
+  @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
+}
+
+.bottomParent {
+  @apply flex w-full my-2 items-center;
+}
+.colSpan2 {
+  @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
+}
+.colSpanExtra {
+  @apply flex items-center py-2 gap-2 justify-center w-[150px];
+}
+.headBorder {
+  @apply border-t-[3px] my-1 rounded;
+  stroke-width: 3px;
+  stroke: rgba(58, 71, 80, 0.13);
+}
+.basicInput {
+  @apply border p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+}
+.sampleLabel {
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+  min-width: 5.8rem;
+}
+.sampleLabel2 {
+  display: none;
+}
+
+.minus {
+  background-image: url("../assets/minus.svg");
+  width: 22px;
+  height: 22px;
+  @apply rounded-[50%];
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+.plus {
+  background-image: url("../assets/plus.svg");
+  width: 22px;
+  @apply rounded-[50%];
+  height: 22px;
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+.plus2 {
+  display: none;
+}
+
+.plus:focus,
+.minus:focus {
+  outline: 2px solid #00a5ad;
+}
+.plus:hover,
+.minus:hover {
+  outline: 2px solid #00a5ad;
+}
+.headSmallBorder {
+  @apply w-52 border-t-[3px]  mb-0 mt-3 rounded;
+  stroke-width: 3px;
+  stroke: rgba(58, 71, 80, 0.13);
+}
+.headText {
+  @apply text-[#00ADB5] mt-3 text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
+}
+.topGrid {
+  @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
+}
+.bottomGrid {
+  @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
+}
+
+.customTable {
+  border-spacing: 0;
+  border-collapse: separate;
+  width: 100%;
+  @apply overflow-x-auto mt-2;
+  border-radius: 8px; 
+ 
+}
+
+.customTable th,
+.customTable td {
+  padding: 2px;
+  text-align: left;
+  border: 1px solid #E5E7EB;
+  @apply overflow-x-auto text-sm;
+  white-space: nowrap;
+  max-width: 100px;
+
+}
+.customTable tfoot {
+  background-color: #FAFAFB;
+  font-weight: lighter;
+  color: #181D1F;
+}
+.customTable th {
+  background-color: #FAFAFB;
+  font-weight: lighter;
+  color: #181D1F;
+}
+.customTable th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.customTable th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.customTable tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.customTable tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.topContainer {
+  @apply mt-3;
+  width: calc(100vw - 100px);
+  overflow-x: auto; 
+}
+
+.topContainerOpen {
+  @apply mt-3;
+  width: calc(100vw - 290px);
+  overflow-x: auto; 
+}
+.topContainer::-webkit-scrollbar {
+  display:block;
   
-  .bottomParent {
-    @apply flex w-full my-2 items-center;
+  height:5px;
+}
+.topContainer::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+.topContainer::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+.topContainer::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+.topContainerOpen::-webkit-scrollbar {
+  display:block;
+  height:5px;
+}
+.topContainerOpen::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+.topContainerOpen::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+.topContainerOpen::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+
+.colSpan {
+  @apply col-span-1 flex flex-row items-center gap-1;
+}
+.largeColSpan {
+  @apply col-span-3 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1;
+}
+.basicInput2 {
+  @apply border p-2 w-full rounded-[0.3125rem];
+  resize: none;
+  height: 6rem;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+.middleContainerBottom {
+  @apply mt-5 flex items-center cursor-pointer  w-fit;
+}
+.middleContainerBottom span {
+  @apply mr-2 text-[0.875rem];
+}
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  @apply w-full;
+}
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.selectInput {
+  @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
+  height: 2.5rem;
+  color: rgba(0, 0, 0, 0.66);
+}
+
+.selectWrapper::after {
+  content: url("../assets/dropDown.svg");
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.resetButton {
+  @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+      leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
+      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
+.submitButton {
+  @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+      leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
+
+.loader {
+  @apply mr-14 mt-2 sm:mr-0;
+  border: 7px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  .colSpan2 {
-    @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
+  100% {
+    transform: rotate(360deg);
   }
-  .colSpanExtra {
-    @apply flex items-center py-2 gap-2 justify-center w-[150px];
+}
+.buttonContainer {
+  @apply flex gap-1 right-[1rem];
+}
+.parentButtonContainer {
+  @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
+}
+.subHeadContainerThree h2 {
+  @apply p-0 m-0;
+}
+.subHeadContainerThree {
+  @apply flex items-end justify-between;
+}
+
+.headButton {
+  @apply w-[5rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
+    leading-4 bg-[#00A5AD] rounded-[0.3125rem];
+}
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #3a475066;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popupContent {
+  @apply bg-[#ffffff] flex flex-col justify-center items-center rounded-[0.625rem] h-[25vh] w-[20vw] sm:h-[10rem] sm:w-[10rem] text-center;
+}
+.popupContent h2 {
+  @apply text-[#00ADB5] font-bold;
+}
+
+.popupButton {
+  background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    ),
+    var(--Color-2, #00adb5);
+
+  @apply w-[8.375vw] mt-4 h-[5vh] text-white font-bold rounded-[0.4375rem] text-[1rem] sm:h-[2rem] sm:w-[4rem];
+}
+.basicInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.basicInput2:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+
+.searchBtn {
+  @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+  background-image: url("../assets/dropDown2.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translateY(-50%);
+  background-size: 16px 16px;
+  border: none;
+}
+
+.searchBtn:hover {
+  opacity: 0.8;
+}
+.addBtn {
+  @apply w-[5.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+  leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
+
+.addBtn:hover {
+  opacity: 0.8;
+}
+
+.inputWithIcon {
+  @apply relative w-full inline-block;
+}
+.inputWithIcon input {
+  @apply pr-[3rem];
+}
+.inputWithIcon-active {
+  @apply bg-blue-600 text-white;
+}
+.suggestions::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-500;
+}
+
+.suggestions {
+  @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+}
+
+.suggestions::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+.suggestions::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+.suggestions2::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-500;
+}
+
+.suggestions2 {
+  @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto;
+  z-index: 1000;
+}
+
+.suggestions2::-webkit-scrollbar {
+  @apply h-1 block w-0;
+}
+.suggestions2::-webkit-scrollbar-track {
+  @apply bg-gray-200;
+}
+
+.suggestionItem {
+  @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+}
+
+.highlighted {
+  @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out bg-blue-100 text-blue-600 truncate;
+}
+
+@media (max-width: 695px) {
+  .itemHeadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .headBorder {
-    @apply border-t-[3px] my-1 rounded;
-    stroke-width: 3px;
-    stroke: rgba(58, 71, 80, 0.13);
-  }
-  .basicInput {
-    @apply border p-2 w-full rounded-[0.3125rem];
-    height: 2.5rem;
-  }
-  .sampleLabel {
+
+ 
+  .sampleLabel2 {
     @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
     min-width: 5.8rem;
   }
-  .sampleLabel2 {
-    display:none;
-  }
-  
-  .minus {
-    background-image: url("../assets/minus.svg");
-    width: 22px;
-    height: 22px;
-    @apply rounded-[50%];
-    background-size: cover;
-    border: none;
-    cursor: pointer;
-  }
-  .plus {
-    background-image: url("../assets/plus.svg");
-    width: 22px;
-    @apply rounded-[50%];
-    height: 22px;
-    background-size: cover;
-    border: none;
-    cursor: pointer;
-  }
-  .plus2 {
-   display:none;
-  }
-  
-  .plus:focus,
-  .minus:focus {
-    outline: 2px solid #00A5AD; 
-  }
-  .plus:hover,
-  .minus:hover {
-    outline: 2px solid #00A5AD; 
-  }
-  .headSmallBorder {
-    @apply w-52 border-t-[3px]  mb-0 mt-3 rounded;
-    stroke-width: 3px;
-    stroke: rgba(58, 71, 80, 0.13);
-  }
-  .headText {
-    @apply text-[#00ADB5] mt-3 text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
-  }
-  .topGrid {
-    @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
-  }
-  .bottomGrid {
-    @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
-  }
-  .customTable {
-    border-spacing: 0;
-    width: 100%;
-  
-  }
-  .customTable th,
-  .customTable td {
-    padding: 3px;
-    text-align: left;
-    border: 1px solid #E5E7EB;
-  }
-  .customTable th {
-    @apply bg-[#FAFAFB] font-light;
-    color: '#181D1F';
-  }
-  .colSpan {
-    @apply col-span-1 flex flex-row items-center gap-1;
-  }
-  .largeColSpan {
-    @apply col-span-3 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1;
-  }
-  .basicInput2 {
-    @apply border p-2 w-full rounded-[0.3125rem];
-    resize: none;
-    height: 6rem;
-  }
-  
-  select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-  }
-  .middleContainerBottom {
-    @apply mt-5 flex items-center cursor-pointer  w-fit;
-  }
-  .middleContainerBottom span {
-    @apply mr-2 text-[0.875rem];
-  }
-  .selectWrapper {
-    position: relative;
-    display: inline-block;
-    @apply w-full;
-  }
-  .selectInput:focus {
-    outline: none;
-    border: 1px solid #00a5ad;
-  }
-  .selectInput {
-    @apply border sml:text-sm p-2 w-full rounded-[0.3125rem];
-    height: 2.5rem;
-    color: rgba(0, 0, 0, 0.66);
-  }
-  .selectWrapper::after {
-    content: url("../assets/dropDown.svg");
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
-  .resetButton {
-    @apply w-[8.3125vw]  h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-      leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
-      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
-  }
-  .submitButton {
-    @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
-      leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
-      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
-  }
-  
-  .loader {
-    @apply mr-14 mt-2 sm:mr-0;
-    border: 7px solid #f3f3f3;
-    border-top: 5px solid #3498db;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  .buttonContainer {
-    @apply flex gap-1 right-[1rem];
-  }
-  .parentButtonContainer {
-    @apply flex mt-7 justify-end items-center sm:my-2 sm:mt-4 sm:ml-8 sm:justify-center;
-  }
-  .subHeadContainerThree h2
-  {
-    @apply p-0 m-0;
-  }
-  .subHeadContainerThree {
-    @apply flex items-end justify-between;
-  }
-  
-  .headButton {
-    @apply w-[5rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
-    leading-4 bg-[#00A5AD] rounded-[0.3125rem];
-  }
-  .popupOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #3a475066;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .popupContent {
-    @apply bg-[#ffffff] flex flex-col justify-center items-center rounded-[0.625rem] h-[25vh] w-[20vw] sm:h-[10rem] sm:w-[10rem] text-center;
-  }
-  .popupContent h2 {
-    @apply text-[#00ADB5] font-bold;
-  }
-  
-  .popupButton {
-    background: linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.2) 0%,
-        rgba(0, 0, 0, 0.2) 100%
-      ),
-      var(--Color-2, #00adb5);
-  
-    @apply w-[8.375vw] mt-4 h-[5vh] text-white font-bold rounded-[0.4375rem] text-[1rem] sm:h-[2rem] sm:w-[4rem];
-  }
-  .basicInput:focus {
-    outline: none;
-    border: 1px solid #00a5ad;
-  }
-  .basicInput2:focus {
-    outline: none;
-    border: 1px solid #00a5ad;
-  }
-  
-  .searchBtn {
-    @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
-    background-image: url("../assets/dropDown2.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    transform: translateY(-50%);
-    background-size: 16px 16px;
-    border: none;
-  }
-  
-  .searchBtn:hover {
-    opacity: 0.8;
-  }
-  .addBtn {
-    @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
-    background-image: url("../assets/plus.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    transform: translateY(-50%);
-    background-size: 16px 16px;
-    border: none;
-  }
-  
-  .addBtn:hover {
-    opacity: 0.8;
-  }
-  
-  .inputWithIcon {
-    @apply relative w-full inline-block;
-  }
-  .inputWithIcon input {
-    @apply pr-[3rem];
-  }
-  .inputWithIcon-active {
-    @apply bg-blue-600 text-white;
-  }
-  .suggestions::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-gray-500;
-  }
-  
-  .suggestions {
-    @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
-  }
-  
-  
-  .suggestions::-webkit-scrollbar {
-    @apply h-1 block w-0;
-  }
-  .suggestions::-webkit-scrollbar-track {
-    @apply bg-gray-200;
-  }
-  
-  
-  .suggestions2::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-gray-500;
-  }
-  
-  .suggestions2 {
-    @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto;
-    z-index: 1000; 
-  }
-  
-  
-  .suggestions2::-webkit-scrollbar {
-    @apply h-1 block w-0;
-  }
-  .suggestions2::-webkit-scrollbar-track {
-    @apply bg-gray-200;
-  }
-  
-  
-  
-  
-  .suggestionItem {
-    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
-  }
-  
-  
-  .highlighted {
-    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out bg-blue-100 text-blue-600 truncate;
-  }
-  
-  .customTable tbody tr.totalRow {
-    background-color: #FAFAFB;
-    position: sticky;
-    bottom: 0;
-  }
-  .customTable tbody tr.totalRow2 {
-    background-color: #FAFAFB;
-    position: sticky;
-    bottom: 0;
-  }
-  .totalRow2{
-    display:none;
-  }
-  @media (max-width: 695px) {
-    .itemHeadContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .totalRow{
-      display:none;
-    }
-    .plus2 {
-      display:block;
-      background-image: url("../assets/plus.svg");
-      width: 22px;
-      @apply rounded-[50%];
-      height: 22px;
-      background-size: cover;
-      border: none;
-      cursor: pointer;
-    }
-    .totalRow2{
-      display:block;
-      @apply bg-[#FAFAFB];
-    }
-    .customTable {
-      width: 100%; 
-    }
-  
-    .customTable th{
-      display:none;
-    }
-    .customTable td {
-      @apply items-center justify-center;
-      display: flex;
-      width: 100%; 
-      box-sizing: border-box;
-    }
-    .sampleLabel2 {
-      @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
-      min-width: 5.8rem;
-    }
-  }
+}
+
+
+
+

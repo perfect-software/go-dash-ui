@@ -9,25 +9,34 @@ const ArticleDirectory = () => {
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [articleForm , setArticleForm] = useState({
-    articleName: "",
-    animal: "",
-    color: "",
-    gender: "",
-    soleType: "",
-    toeShape: "",
-    category: "",
-    platformType: "",
-    platformNo: "",
-    heelType: "",
-    heelNo: "",
-    heelHeight: "",
-    lastNo: "",
-    liningMaterial: "",
-    socksMaterial: "",
-    comment: "",
-    username: "",
-  })
+
+  const [articleForm , setArticleForm] = useState(() => {
+    const savedForm = localStorage.getItem('articleForm');
+    return savedForm ? JSON.parse(savedForm) : {
+      articleName: "",
+      animal: "",
+      color: "",
+      gender: "",
+      soleType: "",
+      toeShape: "",
+      category: "",
+      platformType: "",
+      platformNo: "",
+      heelType: "",
+      heelNo: "",
+      heelHeight: "",
+      lastNo: "",
+      liningMaterial: "",
+      socksMaterial: "",
+      comment: "",
+      username: "",
+    };
+  });
+
+  
+  useEffect(() => {
+    localStorage.setItem('articleForm', JSON.stringify(articleForm));
+  }, [articleForm]);
   const [filteredList, setFilteredList] = useState({
     animalList: [],
     soleTypeList:[],

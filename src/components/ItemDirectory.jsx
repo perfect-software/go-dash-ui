@@ -7,6 +7,8 @@ import Downshift from "downshift";
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
+  const [itemGroupNumber, setItemGroupNumber] = useState("");
+  const [itemSubGroupNumber, setItemSubGroupNumber] = useState("");
   const [itemsGrpData, setItemsGrpData] = useState([]);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [colors, setColors] = useState([]);
@@ -39,22 +41,32 @@ const ItemDirectory = () => {
     color: false,
     skintype: false,
   });
-  const [itemForm, setItemForm] = useState({
-    animal: "",
-    itemgrp: "",
-    itemsubgrp: "",
-    season: "",
-    characteristics: "",
-    texture: "",
-    substance: "",
-    tanning: "",
-    origin: "",
-    tannery: "",
-    color: "",
-    uniquecode: "",
-    skintype: "",
-    size: "",
+
+  const [itemForm, setItemForm] = useState(() => {
+    const savedForm = localStorage.getItem('itemForm');
+    return savedForm ? JSON.parse(savedForm) : {
+      animal: "",
+      itemgrp: "",
+      itemsubgrp: "",
+      season: "",
+      characteristics: "",
+      texture: "",
+      substance: "",
+      tanning: "",
+      origin: "",
+      tannery: "",
+      color: "",
+      uniquecode: "",
+      skintype: "",
+      size: "",
+    };
   });
+
+  
+  useEffect(() => {
+    localStorage.setItem('itemForm', JSON.stringify(itemForm));
+  }, [itemForm]);
+
   const resetItem = () => {
     setItemForm({
       animal: "",
@@ -861,8 +873,9 @@ const ItemDirectory = () => {
         if (selectedItem) {
           setItemForm({
             ...itemForm,
-            itemgrp: selectedItem.number,
+            itemgrp: selectedItem.name,
           });
+          setItemGroupNumber(selectedItem.number);
           toggleSuggestVisibility("itemgrp", false);
         }
       }}
@@ -919,8 +932,9 @@ const ItemDirectory = () => {
         if (selectedItem) {
           setItemForm({
             ...itemForm,
-            itemsubgrp: selectedItem.number,
+            itemsubgrp: selectedItem.name,
           });
+          setItemSubGroupNumber(selectedItem.number);
           toggleSuggestVisibility("itemsubgrp", false);
         }
       }}
@@ -977,11 +991,18 @@ const ItemDirectory = () => {
     if (itemForm.characteristics) {
       itemForm.characteristics = itemForm.characteristics.replace(/,\s*/g, " ");
     }
+    setItemForm(prevItem => ({
+      ...prevItem,
+      itemgrp: itemGroupNumber,
+      itemsubgrp:itemSubGroupNumber
+    }));
     const formData = Object.entries(itemForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-    
+
+   console.log(formData);
+
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);

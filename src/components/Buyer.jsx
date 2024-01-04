@@ -44,37 +44,46 @@ const Buyer = () => {
   const [loading, setLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const { isCollapsed, toggleNavbar } = useSidebar();
-  const [buyerForm, setBuyerForm] = useState({
-    buyerName: "",
-    buyerAbbriviation: "",
-    buyerBillingAddress: "",
-    buyerShippingAddress: "",
-    buyerPhone: "",
-    buyerMobile: "",
-    buyerEmail: "",
-    buyerCity: "",
-    buyerState: "",
-    buyerCountry: "",
-    buyerPincode: "",
-    buyerType: "",
-    buyerContactPerson: "",
-    merchendiser: "",
-    currency: "",
-    bsAccountRequest: {
-      bankName: "",
-      bankBranch: "",
-      bankAccountNo: "",
-      bankIFSC: "",
-      bankAccountType: "",
-      bankCity: "",
-      bankAddress: "",
-      bankSwiftCode: "",
-    },
-    discount: "",
-    paymentTerms: "",
-    splDiscount: "",
-    comments: "",
+  const [buyerForm, setBuyerForm] = useState(() => {
+    const savedForm = localStorage.getItem("buyerForm");
+    return savedForm
+      ? JSON.parse(savedForm)
+      : {
+          buyerName: "",
+          buyerAbbriviation: "",
+          buyerBillingAddress: "",
+          buyerShippingAddress: "",
+          buyerPhone: "",
+          buyerMobile: "",
+          buyerEmail: "",
+          buyerCity: "",
+          buyerState: "",
+          buyerCountry: "",
+          buyerPincode: "",
+          buyerType: "",
+          buyerContactPerson: "",
+          merchendiser: "",
+          currency: "",
+          bsAccountRequest: {
+            bankName: "",
+            bankBranch: "",
+            bankAccountNo: "",
+            bankIFSC: "",
+            bankAccountType: "",
+            bankCity: "",
+            bankAddress: "",
+            bankSwiftCode: "",
+          },
+          discount: "",
+          paymentTerms: "",
+          splDiscount: "",
+          comments: "",
+        };
   });
+  useEffect(() => {
+    localStorage.setItem("buyerForm", JSON.stringify(buyerForm));
+  }, [buyerForm]);
+
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
@@ -512,7 +521,7 @@ const Buyer = () => {
         <>
           <div className={styles.topContainer}>
             <div className={styles.topGrid}>
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Buyer Name
                 </label>
@@ -692,7 +701,7 @@ const Buyer = () => {
                   }
                 />
               </div>
-              <div className={styles.colSpan2}>
+              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="currency">
                   Currency
                 </label>

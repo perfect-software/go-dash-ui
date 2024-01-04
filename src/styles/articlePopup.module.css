@@ -209,3 +209,25 @@ tr{
   @apply sml:text-[0.8rem];
   color: rgba(91, 91, 91, 1);
 }
+.agThemeQuartz ::-webkit-scrollbar {
+  display: block; /* or 'auto' */
+  height:8px;
+  width:4px;
+}
+.agThemeQuartz {
+  /* bright green, 10% opacity */
+  @apply text-left;
+  --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
+}
+
+.agThemeQuartz ::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
+}
