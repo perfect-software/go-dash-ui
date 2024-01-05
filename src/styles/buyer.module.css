@@ -21,7 +21,13 @@
     transform: translateY(-50%);
     cursor: pointer;
   }
-  
+  .headButtonPrint {
+    @apply w-[4rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] py-[0.2rem] text-white 
+    leading-4 bg-[#001314] rounded-[0.3125rem];
+  }
+  .editContainer{
+    @apply flex gap-1;
+  }
   .eyeIcon{
     @apply h-[1.3rem] w-[1.3rem];
   }
@@ -68,7 +74,9 @@
   .screenChangeButton {
     position: relative;
   }
-  
+  .headButtonPrint:disabled{
+    @apply cursor-not-allowed;
+  }
   .screenChangeButton::before {
     @apply rounded;
     content: "";

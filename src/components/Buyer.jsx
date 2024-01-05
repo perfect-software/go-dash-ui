@@ -10,6 +10,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { postApiService } from "../service/apiService";
 import ViewBuyer from "./ViewBuyer";
 import Downshift from "downshift";
+import { generatePDF } from "../features/generateBuyerPDF";
 
 const Buyer = () => {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ const Buyer = () => {
   const [allCountries, setAllCountires] = useState([]);
   const [allStates, setAllStates] = useState([]);
   const [allCities, setAllCities] = useState([]);
+  const [printBuyer, setPrintBuyer] = useState(null);
+  const [isPrintSelected, setIsPrintSelected] = useState(false);
   const [tempList, setTempList] = useState({
     countryList: [],
     stateList: [],
@@ -83,6 +86,11 @@ const Buyer = () => {
   useEffect(() => {
     localStorage.setItem("buyerForm", JSON.stringify(buyerForm));
   }, [buyerForm]);
+
+  const handleBuyerPrint = (buyer) => {
+    setPrintBuyer(buyer);
+    setIsPrintSelected(buyer !== null);
+  };
 
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
@@ -197,6 +205,11 @@ const Buyer = () => {
       toggleSuggestVisibility("currency", true);
     }
   };
+
+  const handlePrintClick = async ()=>{
+  
+     await generatePDF(printBuyer);
+  }
 
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
@@ -490,6 +503,7 @@ const Buyer = () => {
 
         <div className={styles.subHeadContainerTwo}>
           {/* <h2>Sample Order Details</h2> */}
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div className={styles.topButtons}>
             <button
               className={`${styles.screenChangeButton} ${
@@ -513,7 +527,20 @@ const Buyer = () => {
               View all buyers
             </button>
           </div>
-          <div className={styles.headBorder}></div>
+          {activeButton === "view" && (
+              <div className={styles.editContainer}>
+                <button
+                 disabled={!isPrintSelected}
+                  className={styles.headButtonPrint}
+                  onClick={handlePrintClick}
+                >
+                  Print
+                </button>
+              </div>
+            )}
+          
+        </div>
+        <div className={styles.headBorder}></div>
         </div>
       </div>
 
@@ -984,7 +1011,7 @@ const Buyer = () => {
           )}
         </>
       ) : (
-        <ViewBuyer />
+        <ViewBuyer onBuyerSelect={handleBuyerPrint} />
       )}
     </div>
   );

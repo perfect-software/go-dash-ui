@@ -210,12 +210,12 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
          
        
           <div className={styles.bottomarticleButtonContainer}>
-            <h3>Couldn't find the Buyer ?</h3>
+            <h3>Couldn't find the Article ?</h3>
             <button
               className={styles.articlePopupButton}
               onClick={() => navigate("/articledirectory")}
             >
-              Add New Buyer
+              Add New Article
             </button>
             <button
            disabled={!rowSelect}

@@ -44,52 +44,59 @@ const SampleRequest = () => {
   const [bsId, setBsID] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
-  const [tempArticleNo,setTempArticeNo] = useState("");
+  const [tempArticleNo, setTempArticeNo] = useState("");
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
+  const [allowPrint, setAllowPrint] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [editSample, setEditSample] = useState(null);
   const [sampleDetailsForm, setSampleDetailsForm] = useState(() => {
-    const savedForm = localStorage.getItem('sampleDetailsForm');
-    return savedForm ? JSON.parse(savedForm) : {
-      season: "",
-      sampleRef: "",
-      sampleType: "",
-      bsName: "",
-      deliveryAddress: "",
-      articleNo: "",
-      buyerArticle: "",
-      size: "",
-      quantity: "",
-      pair: "",
-      upperColor: "",
-      liningColor: "",
-      last: "",
-      insole: "",
-      soleLabel: "",
-      socks: "",
-      dateOfOrder: "",
-      heel: "",
-      pattern: "",
-      buyerRef: "",
-      inUpperLeather: "",
-      inLining: "",
-      inSocks: "",
-      inQuantity: "",
-      comments: "",
-      deliveryDate: "",
-      prodExDate: "",
-    };
+    const savedForm = localStorage.getItem("sampleDetailsForm");
+    return savedForm
+      ? JSON.parse(savedForm)
+      : {
+          season: "",
+          sampleRef: "",
+          sampleType: "",
+          bsName: "",
+          deliveryAddress: "",
+          articleNo: "",
+          buyerArticle: "",
+          size: "",
+          quantity: "",
+          pair: "",
+          upperColor: "",
+          liningColor: "",
+          last: "",
+          insole: "",
+          soleLabel: "",
+          socks: "",
+          dateOfOrder: "",
+          heel: "",
+          pattern: "",
+          buyerRef: "",
+          inUpperLeather: "",
+          inLining: "",
+          inSocks: "",
+          inQuantity: "",
+          comments: "",
+          deliveryDate: "",
+          prodExDate: "",
+        };
   });
   useEffect(() => {
-    localStorage.setItem('sampleDetailsForm', JSON.stringify(sampleDetailsForm));
+    localStorage.setItem(
+      "sampleDetailsForm",
+      JSON.stringify(sampleDetailsForm)
+    );
   }, [sampleDetailsForm]);
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
+  setAllowPrint(false);
   };
 
   const handleCreateSampleChange = (e) => {
@@ -115,7 +122,7 @@ const SampleRequest = () => {
     const prodExDate = editSample.prodExDate
       ? getformatDate(editSample.prodExDate)
       : "";
-      const dateOfOrder = editSample.dateOfOrder
+    const dateOfOrder = editSample.dateOfOrder
       ? getformatDate(editSample.dateOfOrder)
       : "";
 
@@ -238,14 +245,13 @@ const SampleRequest = () => {
   };
 
   const handleArticleNoSubmit = (selectedArticles) => {
-  
     if (Array.isArray(selectedArticles) && selectedArticles.length > 0) {
       const selectedArticle = selectedArticles[0];
       setSampleDetailsForm({
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
-      setTempArticeNo(selectedArticle.articleId)
+      setTempArticeNo(selectedArticle.articleId);
 
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
@@ -326,14 +332,12 @@ const SampleRequest = () => {
     e.preventDefault();
     setLoading(true);
 
-    
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       dateOfOrder: formattedDate,
-      articleNo:tempArticleNo
+      articleNo: tempArticleNo,
     };
 
-   
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
@@ -341,6 +345,7 @@ const SampleRequest = () => {
         BASE_URL
       );
       togglePopup(responseData.message);
+      setAllowPrint(true);
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -701,7 +706,6 @@ const SampleRequest = () => {
               className={styles.searchBtn}
               aria-label="Search"
             ></button>
-           
           </div>
 
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -1110,9 +1114,9 @@ const SampleRequest = () => {
                     <option value="" selected disabled hidden>
                       Select Pair
                     </option>
-                    <option value="L">L</option>
-                    <option value="R">R</option>
-                    <option value="B">B</option>
+                    <option value="L">Left</option>
+                    <option value="R">Right</option>
+                    <option value="B">Both</option>
                   </select>
                 </div>
               </div>
@@ -1324,7 +1328,6 @@ const SampleRequest = () => {
                 isGridVisible.delivery ? "" : styles.hide
               }`}
             >
-              
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="prodExDate">
                   Prod-Ex Date
@@ -1335,7 +1338,11 @@ const SampleRequest = () => {
                   name="prodExDate"
                   value={sampleDetailsForm.prodExDate}
                   onChange={handleCreateSampleChange}
-                  min={isEditClicked ? sampleDetailsForm.dateOfOrder:formattedDate }
+                  min={
+                    isEditClicked
+                      ? sampleDetailsForm.dateOfOrder
+                      : formattedDate
+                  }
                   required
                 />
               </div>
@@ -1422,12 +1429,14 @@ const SampleRequest = () => {
                 <button className={styles.popupButton} onClick={togglePopup}>
                   OK
                 </button>
-                <button
-                  className={styles.popupButtonPrint}
-                  onClick={handleViewPDF}
-                >
-                  Print
-                </button>
+                {allowPrint && (
+                  <button
+                    className={styles.popupButtonPrint}
+                    onClick={handleViewPDF}
+                  >
+                    Print
+                  </button>
+                )}
               </div>
             </div>
           )}

@@ -1,49 +1,53 @@
-import React, { useState , useEffect , useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/articleDirectory.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 
 import Downshift from "downshift";
+import ItemHeadPopup from "../popups/ItemHeadPopup";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [colors, setColors] = useState([]);
+  const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [articleForm , setArticleForm] = useState(() => {
-    const savedForm = localStorage.getItem('articleForm');
-    return savedForm ? JSON.parse(savedForm) : {
-      articleName: "",
-      animal: "",
-      color: "",
-      gender: "",
-      soleType: "",
-      toeShape: "",
-      category: "",
-      platformType: "",
-      platformNo: "",
-      heelType: "",
-      heelNo: "",
-      heelHeight: "",
-      lastNo: "",
-      liningMaterial: "",
-      socksMaterial: "",
-      comment: "",
-      username: "",
-    };
+  const [articleForm, setArticleForm] = useState(() => {
+    const savedForm = localStorage.getItem("articleForm");
+    return savedForm
+      ? JSON.parse(savedForm)
+      : {
+          articleName: "",
+          animal: "",
+          color: "",
+          gender: "",
+          soleType: "",
+          toeShape: "",
+          category: "",
+          platformType: "",
+          platformNo: "",
+          heelType: "",
+          heelNo: "",
+          heelHeight: "",
+          lastNo: "",
+          liningMaterial: "",
+          socksMaterial: "",
+          comment: "",
+          username: "",
+        };
   });
 
-  
   useEffect(() => {
-    localStorage.setItem('articleForm', JSON.stringify(articleForm));
+    localStorage.setItem("articleForm", JSON.stringify(articleForm));
   }, [articleForm]);
   const [filteredList, setFilteredList] = useState({
     animalList: [],
-    soleTypeList:[],
-    toeShapeList:[],
-    heelTypeList:[],
-    liningMaterialList:[],
-    socksMaterialList:[],
+    soleTypeList: [],
+    toeShapeList: [],
+    heelTypeList: [],
+    categoryList:[],
+    liningMaterialList: [],
+    socksMaterialList: [],
   });
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
@@ -82,7 +86,7 @@ const ArticleDirectory = () => {
     const concatenatedString = `${name}List`;
 
     const filtered = itemsData
-    .filter((item) => item.head.toLowerCase() === name.toLowerCase())
+      .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
         name: item.value,
       }));
@@ -124,7 +128,7 @@ const ArticleDirectory = () => {
       toggleSuggestVisibility(`${name}`, false);
     }
   };
- 
+
   useEffect(() => {
     if (itemsData.length === 0) {
       getItems();
@@ -142,9 +146,10 @@ const ArticleDirectory = () => {
 
   const [showSuggestions, setShowSuggestions] = useState({
     animal: false,
-    soleType:false,
-    toeShape:false,
-    heelType:false,
+    soleType: false,
+    toeShape: false,
+    category:false,
+    heelType: false,
     color: false,
     liningMaterial: false,
     socksMaterial: false,
@@ -152,54 +157,51 @@ const ArticleDirectory = () => {
   const resetArticle = () => {
     setArticleForm({
       articleName: "",
-    animal: "",
-    color: "",
-    gender: "",
-    soleType: "",
-    toeShape: "",
-    category: "",
-    platformType: "",
-    platformNo: "",
-    heelType: "",
-    heelNo: "",
-    heelHeight: "",
-    lastNo: "",
-    liningMaterial: "",
-    socksMaterial: "",
-    comment: "",
-    username: "",
+      animal: "",
+      color: "",
+      gender: "",
+      soleType: "",
+      toeShape: "",
+      category: "",
+      platformType: "",
+      platformNo: "",
+      heelType: "",
+      heelNo: "",
+      heelHeight: "",
+      lastNo: "",
+      liningMaterial: "",
+      socksMaterial: "",
+      comment: "",
+      username: "",
     });
   };
 
-
- const handleSubmitArticleClick = async (e) =>{
-  e.preventDefault();
-  setLoading(true);
-  const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
-    acc[key] = value === "" ? null : value;
-    return acc;
-  }, {});
-  const BASE_URL = "article/create";
-  try {
-    const responseData = await postApiService(formData, BASE_URL);
-  togglePopup(responseData.message);
-  } catch (error) {
-    if (error.response) {
-      togglePopup(
-        error.response.data.message ||
-          `Server error: ${error.response.status}`
-      );
-    } else if (error.request) {
-      togglePopup("No response received from the server.");
-    } else {
-      togglePopup(error.message);
+  const handleSubmitArticleClick = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
+      acc[key] = value === "" ? null : value;
+      return acc;
+    }, {});
+    const BASE_URL = "article/create";
+    try {
+      const responseData = await postApiService(formData, BASE_URL);
+      togglePopup(responseData.message);
+    } catch (error) {
+      if (error.response) {
+        togglePopup(
+          error.response.data.message ||
+            `Server error: ${error.response.status}`
+        );
+      } else if (error.request) {
+        togglePopup("No response received from the server.");
+      } else {
+        togglePopup(error.message);
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
- }
-
-
+  };
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -212,15 +214,17 @@ const ArticleDirectory = () => {
   const downshiftAnimal = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             animal: selectedItem.name,
           });
           toggleSuggestVisibility("animal", false);
-         }
+        }
       }}
       selectedItem={articleForm.animal}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -266,71 +270,69 @@ const ArticleDirectory = () => {
     </Downshift>
   );
 
-  const downshiftColor =(
+  const downshiftColor = (
     <Downshift
-    onChange={(selectedItem) => {
-      if (selectedItem) {
-        setArticleForm({
-          ...articleForm,
-         color: selectedItem,
-        });
-        toggleSuggestVisibility("color", false);
-      }
-    }}
-    itemToString={(item) => (item ? item : "")}
-    selectedItem={articleForm.color}
-  >
-    {({
-      getInputProps,
-      getItemProps,
-      getMenuProps,
-      highlightedIndex,
-    }) => (
-      <div className={styles.inputWithIcon}>
-       <input
-        {...getInputProps({
-          onChange: handleCreateColorChange,
-          name: "color", 
-        })}
-        type="text"
-        className={styles.basicInput}
-        placeholder="Type "
-        value={articleForm.color}
-        />
-        <div {...getMenuProps()} className={styles.suggestions}>
-          {
-            showSuggestions.color &&
-            colors.map((color, index) => (
-              <div
-                {...getItemProps({ key: index, index, item: color })}
-                className={
-                  highlightedIndex === index
-                    ? styles.highlighted
-                    : styles.suggestionItem
-                }
-              >
-                {color}
-              </div>
-            ))}
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setArticleForm({
+            ...articleForm,
+            color: selectedItem,
+          });
+          toggleSuggestVisibility("color", false);
+        }
+      }}
+      itemToString={(item) => (item ? item : "")}
+      selectedItem={articleForm.color}
+     
+
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleCreateColorChange,
+              name: "color",
+            })}
+            type="text"
+            className={styles.basicInput}
+            placeholder="Type "
+            value={articleForm.color}
+          />
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.color &&
+              colors.map((color, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: color })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {color}
+                </div>
+              ))}
+          </div>
         </div>
-      </div>
-    )}
-  </Downshift>
+      )}
+    </Downshift>
   );
- 
+
   const soleTypeInputRef = useRef(null);
   const downshiftSoleType = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             soleType: selectedItem.name,
           });
           toggleSuggestVisibility("soleType", false);
-         }
+        }
       }}
       selectedItem={articleForm.soleType}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -375,20 +377,22 @@ const ArticleDirectory = () => {
       )}
     </Downshift>
   );
- 
+
   const toeShapeInputRef = useRef(null);
   const downshiftToeShape = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             toeShape: selectedItem.name,
           });
           toggleSuggestVisibility("toeShape", false);
-         }
+        }
       }}
       selectedItem={articleForm.toeShape}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -437,15 +441,17 @@ const ArticleDirectory = () => {
   const downshiftLiningMaterial = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             liningMaterial: selectedItem.name,
           });
           toggleSuggestVisibility("liningMaterial", false);
-         }
+        }
       }}
       selectedItem={articleForm.liningMaterial}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -495,15 +501,17 @@ const ArticleDirectory = () => {
   const downshiftSocksMaterial = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             socksMaterial: selectedItem.name,
           });
           toggleSuggestVisibility("socksMaterial", false);
-         }
+        }
       }}
       selectedItem={articleForm.socksMaterial}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -552,15 +560,17 @@ const ArticleDirectory = () => {
   const downshiftHeelType = (
     <Downshift
       onChange={(selectedItem) => {
-         if(selectedItem){
+        if (selectedItem) {
           setArticleForm({
             ...articleForm,
             heelType: selectedItem.name,
           });
           toggleSuggestVisibility("heelType", false);
-         }
+        }
       }}
       selectedItem={articleForm.heelType}
+      itemToString={(item) => (item ? item.name : "")}
+
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -606,7 +616,69 @@ const ArticleDirectory = () => {
     </Downshift>
   );
 
- 
+  const categoryInputRef = useRef(null);
+  const downshiftCategory = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setArticleForm({
+            ...articleForm,
+            category: selectedItem.name,
+          });
+          toggleSuggestVisibility("category", false);
+        }
+      }}
+      selectedItem={articleForm.category}
+      itemToString={(item) => (item ? item.name : "")}
+
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleArticleChange,
+              name: "category",
+            })}
+            type="text"
+            ref={categoryInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={articleForm.category}
+          />
+
+          <button
+            onClick={() => {
+              handleButtonClick("category");
+              categoryInputRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.category && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.categoryList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+
+
+
   return (
     <div className={styles.articlePageContainer}>
       <div className={styles.articleDirectoryContainer}>
@@ -615,7 +687,16 @@ const ArticleDirectory = () => {
             <h1 className={styles.headText}>Article Directory</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
-            <h2>Article Details</h2>
+            <div className={styles.subHeadContainerThree}>
+              <h2>Article Details</h2>
+              <button
+                className={styles.headButton}
+                onClick={() => setIsItemHeadPopup(true)}
+              >
+                Insert New Value
+              </button>
+            </div>
+
             <div className={styles.headBorder}></div>
           </div>
         </div>
@@ -638,14 +719,14 @@ const ArticleDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="color">
               Article Color
             </label>
-             {downshiftColor}
+            {downshiftColor}
           </div>
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="animal">
               Animal
             </label>
-             {downshiftAnimal}
+            {downshiftAnimal}
           </div>
 
           <div className={styles.colSpan}>
@@ -653,11 +734,12 @@ const ArticleDirectory = () => {
               Gender
             </label>
             <div className={styles.selectWrapper}>
-              <select className={styles.selectInput} 
-              name="gender"
-              onChange={handleNormalArticleChange}
-              value={articleForm.gender}
-               >
+              <select
+                className={styles.selectInput}
+                name="gender"
+                onChange={handleNormalArticleChange}
+                value={articleForm.gender}
+              >
                 <option value="" selected disabled hidden>
                   Select Gender
                 </option>
@@ -671,7 +753,7 @@ const ArticleDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="soleType">
               Sole Type
             </label>
-             {downshiftSoleType}
+            {downshiftSoleType}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="toeShape">
@@ -679,24 +761,12 @@ const ArticleDirectory = () => {
             </label>
             {downshiftToeShape}
           </div>
-    
+
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="category">
               Category
             </label>
-            <div className={styles.selectWrapper}>
-              <select className={styles.selectInput}
-               name="category"
-               onChange={handleNormalArticleChange}
-               value={articleForm.category}
-              >
-                <option value="" selected disabled hidden>
-                  Select Category
-                </option>
-                <option value="Boot">Boot</option>
-                <option value="Snekers">Snekers</option>
-              </select>
-            </div>
+            {downshiftCategory}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
@@ -715,7 +785,7 @@ const ArticleDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="input4">
               Heel Type
             </label>
-           {downshiftHeelType}
+            {downshiftHeelType}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
@@ -748,14 +818,14 @@ const ArticleDirectory = () => {
             <label className={styles.sampleLabel} htmlFor="input1">
               Lining Material
             </label>
-           {downshiftLiningMaterial}
+            {downshiftLiningMaterial}
           </div>
 
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
               Socks Material
             </label>
-           {downshiftSocksMaterial}
+            {downshiftSocksMaterial}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
@@ -794,11 +864,8 @@ const ArticleDirectory = () => {
               name="username"
               value={articleForm.username}
               onChange={handleNormalArticleChange}
-
             />
           </div>
-
-         
 
           <div className={styles.largeColSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
@@ -814,7 +881,6 @@ const ArticleDirectory = () => {
             ></textarea>
           </div>
         </div>
-       
       </div>
       <div className={styles.parentButtonContainer}>
         {loading ? (
@@ -823,7 +889,10 @@ const ArticleDirectory = () => {
           </div>
         ) : (
           <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} onClick={() => resetArticle()}>
+            <button
+              className={styles.resetButton}
+              onClick={() => resetArticle()}
+            >
               Reset
             </button>
             <button
@@ -844,6 +913,15 @@ const ArticleDirectory = () => {
             </button>
           </div>
         </div>
+      )}
+        {isItemHeadPopup && (
+        <ItemHeadPopup
+          onCancel={() => {
+            setIsItemHeadPopup(false);
+            getItems();
+          }}
+          itemForm={articleForm}
+        />
       )}
     </div>
   );

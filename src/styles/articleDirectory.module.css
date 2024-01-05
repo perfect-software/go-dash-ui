@@ -3,7 +3,7 @@
   height: calc(100vh - 4rem);
 }
 .headContiner {
-  @apply flex flex-col gap-3;
+  @apply flex flex-col sm:gap-2;
 }
 
 .subHeadContainer {
@@ -12,7 +12,13 @@
 .subHeadContainerTwo h2 {
   @apply text-[0.875rem];
 }
-
+.headButton {
+  @apply w-[9rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
+  leading-4 bg-[#00A5AD] rounded-[0.3125rem];
+}
+.subHeadContainerThree {
+  @apply flex sm:flex-col sm:gap-2 sm:items-center sm:justify-center justify-between items-end;
+}
 .headBorder {
   @apply border-t-[3px] my-1 rounded;
   stroke-width: 3px;

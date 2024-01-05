@@ -10,7 +10,7 @@ import styles from "../styles/viewBuyer.module.css";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-const ViewBuyer = () => {
+const ViewBuyer = ({onBuyerSelect}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const ViewBuyer = () => {
     if (gridApi && !loaded && loading) {
       gridApi.showLoadingOverlay();
     }
-  }, [ loaded, loading, gridApi]);
+  }, [loaded, loading, gridApi]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -59,7 +59,21 @@ const ViewBuyer = () => {
       return 0;
     },
   };
+
+  const onRowSelected = (event) => {
+    const selectedData = event.api.getSelectedRows();
+    onBuyerSelect(selectedData.length > 0 ? selectedData : null);
+  };
   const columnDefs = [
+    {
+      headerName: "Print",
+      field: "print",
+      maxWidth: 50,
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      showDisabledCheckboxes: true,
+    },
+
     { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
     {
       headerName: "Code",
@@ -113,6 +127,8 @@ const ViewBuyer = () => {
           animateRows={true}
           filter={true}
           onGridReady={onGridReady}
+          rowSelection={"multiple"}
+          onSelectionChanged={onRowSelected}
           onRowDataChanged={onRowDataChanged}
         />
       </div>
