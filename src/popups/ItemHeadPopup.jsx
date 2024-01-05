@@ -60,7 +60,9 @@ const ItemHeadPopup = ({ onCancel, itemForm }) => {
                 className={styles.basicInput}
                 placeholder="Click Dropdown"
                 value={itemHeadForm.head}
-                readOnly
+                onChange={(e) =>
+                  setItemHeadForm({ ...itemHeadForm, head: e.target.value })
+                }
               />
               <button
                 onClick={() => setIsHeadDropdown(!isheadDropDown)}
@@ -89,7 +91,7 @@ const ItemHeadPopup = ({ onCancel, itemForm }) => {
             </div>
           </div>
           <div className={styles.itemsDiv}>
-            <label className={styles.sampleLabel2} htmlFor="head">
+            <label className={styles.sampleLabel2} htmlFor="value">
               Value
             </label>
             <input

@@ -64,7 +64,7 @@ const ViewSr = ({ onSampleSelect }) => {
 
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
-    { headerName: "SR No.", field: "sampleRef", sortable: true, filter: true },
+    { headerName: "SR No.", field: "sr_no", sortable: true, filter: true },
     {
       headerName: "Date of Order",
       field: "dateOfOrder",
@@ -76,7 +76,7 @@ const ViewSr = ({ onSampleSelect }) => {
     { headerName: "Season", field: "season", sortable: true, filter: true },
     {
       headerName: "Article No",
-      field: "articleNo",
+      field: "article_no",
       sortable: true,
       filter: true,
     },
