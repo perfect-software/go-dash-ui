@@ -2,18 +2,18 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/itemDirectory.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
-
+import { useSelector, useDispatch } from "react-redux";
+import { fetchItemGroupsAndSubGroups } from "../reducer/grpSubgrpSlice";
 import Downshift from "downshift";
 const ItemDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const [itemSubGroupNumber, setItemSubGroupNumber] = useState("");
-  const [itemsGrpData, setItemsGrpData] = useState([]);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [filteredList, setFilteredList] = useState({
     animalList: [],
     seasonList: [],
@@ -43,29 +43,41 @@ const ItemDirectory = () => {
   });
 
   const [itemForm, setItemForm] = useState(() => {
-    const savedForm = localStorage.getItem('itemForm');
-    return savedForm ? JSON.parse(savedForm) : {
-      animal: "",
-      itemgrp: "",
-      itemsubgrp: "",
-      season: "",
-      characteristics: "",
-      texture: "",
-      substance: "",
-      tanning: "",
-      origin: "",
-      tannery: "",
-      color: "",
-      uniquecode: "",
-      skintype: "",
-      size: "",
-    };
+    const savedForm = localStorage.getItem("itemForm");
+    return savedForm
+      ? JSON.parse(savedForm)
+      : {
+          animal: "",
+          itemgrp: "",
+          itemsubgrp: "",
+          season: "",
+          characteristics: "",
+          texture: "",
+          substance: "",
+          tanning: "",
+          origin: "",
+          tannery: "",
+          color: "",
+          uniquecode: "",
+          skintype: "",
+          size: "",
+        };
   });
 
-  
   useEffect(() => {
-    localStorage.setItem('itemForm', JSON.stringify(itemForm));
+    localStorage.setItem("itemForm", JSON.stringify(itemForm));
   }, [itemForm]);
+
+  const dispatch = useDispatch();
+  const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
+    (state) => state.data
+  );
+
+  useEffect(() => {
+    if (!loaded && !loading) {
+      dispatch(fetchItemGroupsAndSubGroups());
+    }
+  }, [loaded, loading, dispatch]);
 
   const resetItem = () => {
     setItemForm({
@@ -96,20 +108,9 @@ const ItemDirectory = () => {
     if (itemsData.length === 0) {
       getItems();
     }
-    if (itemsGrpData.length === 0) {
-      getGrpItems();
-    }
-  }, []);
 
-  const getGrpItems = async () => {
-    const BASE_URL = "item/getItemGrpAndSubGrp";
-    try {
-      const response = await getApiService(BASE_URL);
-      setItemsGrpData(response);
-    } catch (error) {
-      console.error("Failed to fetch Group Items:", error);
-    }
-  };
+   
+  }, []);
 
   const getItems = async () => {
     const BASE_URL = "item/getItemHead";
@@ -200,44 +201,39 @@ const ItemDirectory = () => {
       toggleSuggestVisibility(`${name}`, false);
     }
   };
-
   const handleGrpItemChange = (e) => {
     const { name, value } = e.target;
     setItemForm({ ...itemForm, [name]: value });
 
     if (name === "itemgrp") {
-      const filtered = itemsGrpData
-        .filter((item) =>
-          item.itemGrpName.toLowerCase().includes(value.toLowerCase())
+      const filtered = Object.entries(itemGroups)
+        .filter(([key, groupName]) =>
+          groupName.toLowerCase().includes(value.toLowerCase())
         )
-        .map((item) => ({
-          name: item.itemGrpName,
-          number: item.itemGrp,
-        }));
+        .reduce((acc, [key, groupName]) => {
+          acc[key] = groupName;
+          return acc;
+        }, {});
+
       setFilteredList({ ...filteredList, itemGrpList: filtered });
-      toggleSuggestVisibility(name, !showSuggestions[name]);
-      if (value.length > 0) {
-        toggleSuggestVisibility(`${name}`, true);
-      } else {
-        toggleSuggestVisibility(`${name}`, false);
-      }
+      toggleSuggestVisibility(name, value.length > 0);
     }
     if (name === "itemsubgrp") {
-      const filtered = itemsGrpData
-        .filter((item) =>
-          item.itemSubGrpName.toLowerCase().includes(value.toLowerCase())
+      const filtered = Object.entries(itemSubGroups)
+        .filter(
+          ([key, subGroupDetails]) =>
+            subGroupDetails.name.toLowerCase().includes(value.toLowerCase()) &&
+            subGroupDetails.groupNumber.toLowerCase() ===
+              itemGroupNumber.toLowerCase()
         )
-        .map((item) => ({
-          name: item.itemSubGrpName,
-          number: item.itemSubGrp,
-        }));
+        .reduce((acc, [key, subGroupDetails]) => {
+          acc[key] = subGroupDetails.name;
+          return acc;
+        }, {});
+        
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
-      toggleSuggestVisibility(name, !showSuggestions[name]);
-      if (value.length > 0) {
-        toggleSuggestVisibility(`${name}`, true);
-      } else {
-        toggleSuggestVisibility(`${name}`, false);
-      }
+   
+      toggleSuggestVisibility(name, value.length > 0);
     }
   };
 
@@ -261,22 +257,24 @@ const ItemDirectory = () => {
 
   const handleGrpButtonClick = (name) => {
     if (name === "itemgrp") {
-      const filtered = itemsGrpData.map((item) => ({
-        name: item.itemGrpName,
-        number: item.itemGrp,
-      }));
-      setFilteredList({ ...filteredList, itemGrpList: filtered });
+      setFilteredList({ ...filteredList, itemGrpList: itemGroups });
       toggleSuggestVisibility(name, !showSuggestions[name]);
     }
 
     if (name === "itemsubgrp") {
-      const filtered = itemsGrpData.map((item) => ({
-        name: item.itemSubGrpName,
-        number: item.itemSubGrp,
-      }));
+      const filtered = Object.entries(itemSubGroups)
+        .filter(([key, subGroupDetails]) => 
+          subGroupDetails.groupNumber.toLowerCase() === itemGroupNumber.toLowerCase()
+        )
+        .reduce((acc, [key, subGroupDetails]) => {
+          acc[key] = subGroupDetails.name; 
+          return acc;
+        }, {});
+    
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
       toggleSuggestVisibility(name, !showSuggestions[name]);
     }
+    
   };
 
   const handleSuggestionClick = (selectedValue, fieldName) => {
@@ -875,7 +873,7 @@ const ItemDirectory = () => {
             ...itemForm,
             itemgrp: selectedItem.name,
           });
-          setItemGroupNumber(selectedItem.number);
+          setItemGroupNumber(selectedItem.id);
           toggleSuggestVisibility("itemgrp", false);
         }
       }}
@@ -907,18 +905,24 @@ const ItemDirectory = () => {
 
           {showSuggestions.itemgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.itemGrpList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
+              {Object.entries(filteredList.itemGrpList).map(
+                ([key, name], index) => (
+                  <div
+                    key={key}
+                    {...getItemProps({
+                      item: { id: key, name: name },
+                      index: index,
+                    })}
+                    className={
+                      highlightedIndex === index
+                        ? styles.highlighted
+                        : styles.suggestionItem
+                    }
+                  >
+                    {name}
+                  </div>
+                )
+              )}
             </div>
           )}
         </div>
@@ -934,7 +938,7 @@ const ItemDirectory = () => {
             ...itemForm,
             itemsubgrp: selectedItem.name,
           });
-          setItemSubGroupNumber(selectedItem.number);
+          setItemSubGroupNumber(selectedItem.id);
           toggleSuggestVisibility("itemsubgrp", false);
         }
       }}
@@ -952,6 +956,7 @@ const ItemDirectory = () => {
             ref={itemSubGrpRef}
             className={styles.basicInput}
             placeholder="Insert First Letter"
+            disabled={!itemForm.itemgrp}
             value={itemForm.itemsubgrp}
           />
 
@@ -961,23 +966,30 @@ const ItemDirectory = () => {
               itemSubGrpRef.current?.focus();
             }}
             className={styles.searchBtn}
+            disabled={!itemForm.itemgrp}
             aria-label="dropDorn"
           ></button>
 
-          {showSuggestions.itemsubgrp && (
+{showSuggestions.itemsubgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.itemSubGrpList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
+              {Object.entries(filteredList.itemSubGrpList).map(
+                ([key, name], index) => (
+                  <div
+                    key={key}
+                    {...getItemProps({
+                      item: { id: key, name: name },
+                      index: index,
+                    })}
+                    className={
+                      highlightedIndex === index
+                        ? styles.highlighted
+                        : styles.suggestionItem
+                    }
+                  >
+                    {name}
+                  </div>
+                )
+              )}
             </div>
           )}
         </div>
@@ -987,26 +999,29 @@ const ItemDirectory = () => {
 
   const handleSubmitItemClick = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    if (itemForm.characteristics) {
-      itemForm.characteristics = itemForm.characteristics.replace(/,\s*/g, " ");
-    }
-    setItemForm(prevItem => ({
-      ...prevItem,
+    setSubmitLoading(true);
+    const updatedItemForm = {
+      ...itemForm,
       itemgrp: itemGroupNumber,
-      itemsubgrp:itemSubGroupNumber
-    }));
-    const formData = Object.entries(itemForm).reduce((acc, [key, value]) => {
-      acc[key] = value === "" ? null : value;
-      return acc;
-    }, {});
-
-   console.log(formData);
-
+      itemsubgrp: itemSubGroupNumber,
+      characteristics: itemForm.characteristics
+        ? itemForm.characteristics.replace(/,\s*/g, " ")
+        : itemForm.characteristics,
+    };
+    setItemForm(updatedItemForm);
+    const formData = Object.entries(updatedItemForm).reduce(
+      (acc, [key, value]) => {
+        acc[key] = value === "" ? null : value;
+        return acc;
+      },
+      {}
+    );
+ 
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);
       togglePopup(responseData.message);
+      resetItem();
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -1019,9 +1034,10 @@ const ItemDirectory = () => {
         togglePopup(error.message);
       }
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
+
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
@@ -1183,7 +1199,7 @@ const ItemDirectory = () => {
         </div>
       </div>
       <div className={styles.parentButtonContainer}>
-        {loading ? (
+        {submitLoading ? (
           <div className={styles.buttonContainer}>
             <div className={styles.loader}></div>
           </div>

@@ -15,6 +15,13 @@
 .editContainer{
   @apply flex gap-1;
 }
+.ibutton {
+  @apply h-[30px] w-[30px] cursor-pointer sm:h-[24px] sm:w-[24px];
+  transition: transform 0.3s ease-out;
+}
+.ibutton:hover {
+  animation: shake 0.5s ease-in-out;
+}
 .inputWithIcon {
   @apply relative w-full inline-block;
 }

@@ -13,7 +13,8 @@ const generateQR = async (text) => {
   }
 };
 
-export const generatePDF = async (sampleDetailsForm, imagePreview) => {
+export const generatePDF = async (sampleDetailsForm) => {
+  const imagePreview="";
   const qrCodeBase64 = await generateQR(
     sampleDetailsForm.sampleRef || "No Reference"
   );

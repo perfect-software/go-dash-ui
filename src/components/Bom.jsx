@@ -119,7 +119,7 @@ const Bom = () => {
   const handleSubmitBomClick = async (e)=>{
     e.preventDefault();
     setLoading(true);
-    const BASE_URL = 'sample/bom';
+    const BASE_URL = 'bom/create';
     try {
        const responseData = await postApiService(bomData,BASE_URL);
        togglePopup(responseData.message);
