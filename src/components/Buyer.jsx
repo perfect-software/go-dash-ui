@@ -7,6 +7,8 @@ import EyeOpenIcon from "../assets/openEye.svg";
 import UpIcon from "../assets/up.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
+import { fetchAllBuyers } from "../reducer/buyersSlice";
+import { useDispatch } from "react-redux";
 import { postApiService } from "../service/apiService";
 import ViewBuyer from "./ViewBuyer";
 import Downshift from "downshift";
@@ -22,6 +24,7 @@ const Buyer = () => {
   const [activeButton, setActiveButton] = useState("details");
   const [confirmAccountNo, setConfirmAccountNo] = useState("");
   const [allCountries, setAllCountires] = useState([]);
+  const dispatch = useDispatch();
   const [allStates, setAllStates] = useState([]);
   const [allCities, setAllCities] = useState([]);
   const [printBuyer, setPrintBuyer] = useState(null);
@@ -139,6 +142,10 @@ const Buyer = () => {
       comments: "",
     });
     setConfirmAccountNo("");
+    localStorage.setItem(
+      "buyerForm",
+      JSON.stringify(buyerForm)
+    );
   };
 
   const handleLocationChange = (e) => {
@@ -241,6 +248,7 @@ const Buyer = () => {
     try {
       const responseData = await postApiService(buyerForm, BASE_URL);
       togglePopup(responseData.message);
+      dispatch(fetchAllBuyers());
     } catch (error) {
       if (error.response) {
         togglePopup(

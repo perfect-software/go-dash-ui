@@ -75,12 +75,7 @@ const ViewBuyer = ({onBuyerSelect}) => {
     },
 
     { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
-    {
-      headerName: "Code",
-      field: "code",
-      sortable: true,
-      filter: true,
-    },
+   
     {
       headerName: "Entry Date",
       field: "entDate",

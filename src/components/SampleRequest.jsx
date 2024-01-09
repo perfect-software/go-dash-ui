@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/sampleRequest.module.css";
 import UpIcon from "../assets/up.svg";
+import IButtonIcon from "../assets/iButton.svg";
 import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
@@ -49,6 +50,8 @@ const SampleRequest = () => {
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [allowPrint, setAllowPrint] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const initialValidationState = {};
+  const [validation, setValidation] = useState(initialValidationState);
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
@@ -96,15 +99,55 @@ const SampleRequest = () => {
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
-  setAllowPrint(false);
+    setAllowPrint(false);
   };
+  const validateForm = () => {
+    let isValid = true;
+    let newValidation = {};
 
+    const requiredFields = [
+      "sampleType",
+      "bsName",
+      "buyerArticle",
+      "size",
+      "quantity",
+      "pair",
+      "upperColor",
+      "liningColor",
+      "last",
+      "insole",
+      "soleLabel",
+      "socks",
+      "dateOfOrder",
+      "heel",
+      "pattern",
+      "inUpperLeather",
+      "inLining",
+      "inSocks",
+      "inQuantity",
+      "deliveryDate",
+      "prodExDate",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!sampleDetailsForm[field] || sampleDetailsForm[field].trim() === "") {
+        isValid = false;
+        newValidation[field] = "invalid";
+      } else {
+        newValidation[field] = "valid"; 
+      }
+    });
+
+    setValidation(newValidation);
+    return isValid;
+  };
   const handleCreateSampleChange = (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({
       ...sampleDetailsForm,
       [name]: value,
     });
+    setValidation(prev => ({ ...prev, [name]: 'valid' }));
   };
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
@@ -138,38 +181,19 @@ const SampleRequest = () => {
   };
 
   const handlePrintClick = async () => {
-    const bsName = editSample.buyer && editSample.buyer.bsName;
-    const billingAddress = editSample.buyer && editSample.buyer.billingAddress;
-    const deliveryDate = editSample.deliveryDate
-      ? getformatDate(editSample.deliveryDate)
-      : "";
-    const prodExDate = editSample.prodExDate
-      ? getformatDate(editSample.prodExDate)
-      : "";
-
-    setSampleDetailsForm({
+    const updatedSampleDetails = {
       ...sampleDetailsForm,
       ...editSample,
-      bsName: bsName,
-      deliveryAddress: billingAddress,
-      deliveryDate: deliveryDate,
-      prodExDate: prodExDate,
-    });
-    await generatePDF(sampleDetailsForm, imagePreview);
+      bsName: editSample.buyer ? editSample.buyer.bsName : '',
+      deliveryAddress: editSample.buyer ? editSample.buyer.billingAddress : '',
+      deliveryDate: editSample.deliveryDate ? getformatDate(editSample.deliveryDate) : '',
+      prodExDate: editSample.prodExDate ? getformatDate(editSample.prodExDate) : '',
+    };
+    await generatePDF(updatedSampleDetails);
+ 
   };
-  const areAllFieldsFilled = (form) => {
-    const fieldsToExclude = [
-      "comments",
-      "season",
-      "sampleRef",
-      "articleNo",
-      "buyerRef",
-      "dateOfOrder",
-    ];
-    return !Object.entries(form)
-      .filter(([key]) => !fieldsToExclude.includes(key))
-      .some(([, value]) => value === "");
-  };
+  
+
   const [isGridVisible, setIsGridVisible] = useState({
     basic: true,
     internal: true,
@@ -179,7 +203,7 @@ const SampleRequest = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleBuyerInputChange = async (e) => {
-    const value = e.target.value;
+    const {name,value} = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
 
     if (value.length >= 3) {
@@ -195,11 +219,9 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility("buyer", false);
     }
+    setValidation(prev => ({ ...prev, [name]: 'valid' }));
   };
 
-  const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm, imagePreview);
-  };
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -219,14 +241,14 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
+    setValidation(prev => ({ ...prev, [name]: 'valid' }));
   };
 
   const handleSampleRefChange = async (e) => {
-    const value = e.target.value;
+    const {name,value} = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
-
-    const encodedBsId = encodeURIComponent(bsId);
     const encodedInput = encodeURIComponent(value);
+    console.log(bsId);
 
     if (value.length >= 1) {
       const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
@@ -234,7 +256,7 @@ const SampleRequest = () => {
       try {
         const fetchedRef = await getApiService(BASE_URL);
         setSampleRefrences(fetchedRef);
-
+        console.log(fetchedRef);
         toggleSuggestVisibility("sampleRef", true);
       } catch (error) {
         console.error("Failed to fetch SampleRefs:", error);
@@ -242,6 +264,7 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility("sampleRef", false);
     }
+    
   };
 
   const handleArticleNoSubmit = (selectedArticles) => {
@@ -256,6 +279,7 @@ const SampleRequest = () => {
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
+    setValidation(prev => ({ ...prev, 'articleNo': 'valid' }));
   };
   const handleBuyerSubmit = (selectedBuyers) => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
@@ -269,6 +293,7 @@ const SampleRequest = () => {
       toggleSuggestVisibility("buyer", false);
       setIsBuyerPopup(false);
     }
+    setValidation(prev => ({ ...prev,'bsName': 'valid' }));
   };
 
   const handleSampleSubmit = (selectedSamples) => {
@@ -326,12 +351,20 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+    setValidation(initialValidationState);
+    localStorage.setItem(
+      "sampleDetailsForm",
+      JSON.stringify(sampleDetailsForm)
+    );
+
   };
 
   const handleCreateSampleSubmit = async (e) => {
-    e.preventDefault();
     setLoading(true);
-
+    if (!validateForm()) {
+      setLoading(false);
+      return; 
+    }
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       dateOfOrder: formattedDate,
@@ -339,6 +372,7 @@ const SampleRequest = () => {
     };
 
     const BASE_URL = "sample/create";
+
     try {
       const responseData = await postApiService(
         updatedSampleDetailsForm,
@@ -346,24 +380,34 @@ const SampleRequest = () => {
       );
       togglePopup(responseData.message);
       setAllowPrint(true);
+      resetAllFields();
+      dispatch(fetchAllSamples());
     } catch (error) {
+      let errorMessage = "An error occurred";
+
       if (error.response) {
-        togglePopup(
+        errorMessage =
           error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
+        errorMessage = "No response received from the server.";
       } else {
-        togglePopup(error.message);
+        errorMessage = error.message;
       }
+
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return; 
+    }
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
@@ -445,7 +489,8 @@ const SampleRequest = () => {
             bsName: selectedItem.bsName,
             deliveryAddress: selectedItem.deliveryAddress,
           });
-          setBsID(selectedItem.bsId);
+          setBsID(selectedItem.bsId); 
+          console.log(selectedItem);
           toggleSuggestVisibility("buyer", false);
         }
       }}
@@ -460,6 +505,7 @@ const SampleRequest = () => {
               name: "bsName",
             })}
             type="text"
+            style={validation.bsName === 'invalid' ? { border: "2px solid red" } : {}}
             className={styles.basicInput2}
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
@@ -559,6 +605,7 @@ const SampleRequest = () => {
             })}
             type="text"
             className={styles.basicInput}
+            style={validation.upperColor === 'invalid' ? { border: "2px solid red" } : {}}
             placeholder="Insert Two Letter"
             value={sampleDetailsForm.upperColor}
           />
@@ -605,6 +652,7 @@ const SampleRequest = () => {
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
+            style={validation.liningColor === 'invalid' ? { border: "2px solid red" } : {}}
             value={sampleDetailsForm.liningColor}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -650,6 +698,7 @@ const SampleRequest = () => {
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
+            style={validation.soleLabel === 'invalid' ? { border: "2px solid red" } : {}}
             value={sampleDetailsForm.soleLabel}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -737,6 +786,7 @@ const SampleRequest = () => {
             ...sampleDetailsForm,
             sampleType: selectedItem,
           });
+          setValidation(prev => ({ ...prev, 'sampleType': 'valid' }));
           toggleSuggestVisibility("sampleType", false);
         }
       }}
@@ -753,6 +803,7 @@ const SampleRequest = () => {
             ref={sampleTypeRef}
             className={styles.basicInput2}
             placeholder="Click on Search"
+            style={validation.sampleType === 'invalid' ? { border: "2px solid red" } : {}}
             value={sampleDetailsForm.sampleType}
             readOnly
           />
@@ -825,7 +876,12 @@ const SampleRequest = () => {
                   aria-label="Search"
                 ></button>
               </div>
+
+              <div>
+                <img src={IButtonIcon} className={styles.ibutton} alt="iButton" />
+              </div>
             </div>
+            
           )}
         </div>
         <div className={styles.subHeadContainerTwo}>
@@ -990,13 +1046,14 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="articleNo">
                   Article No
                 </label>
-                {/* <div className={styles.inputWithIcon}>
+                <div className={styles.inputWithIcon}>
                   <input
                     type="text"
                     placeholder="Click on Search"
                     className={styles.basicInput2}
                     name="articleNo"
                     value={sampleDetailsForm.articleNo}
+                    readOnly
                     onChange={handleCreateSampleChange}
                   />
                   <button
@@ -1006,8 +1063,8 @@ const SampleRequest = () => {
                     className={styles.searchBtn}
                     aria-label="Search"
                   ></button>
-                </div> */}
-                {downshiftArticleNo}
+                </div>
+                {/* {downshiftArticleNo} */}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="buyerArticle">
@@ -1018,6 +1075,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input 3"
                   name="buyerArticle"
+                  style={validation.buyerArticle === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.buyerArticle}
                   onChange={handleCreateSampleChange}
                 />
@@ -1078,6 +1136,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  style={validation.size === 'invalid' ? { border: "2px solid red" } : {}}
                   name="size"
                   value={sampleDetailsForm.size}
                   onChange={handleCreateSampleChange}
@@ -1091,6 +1150,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  style={validation.quantity === 'invalid' ? { border: "2px solid red" } : {}}
                   name="quantity"
                   value={sampleDetailsForm.quantity}
                   onChange={handleCreateSampleChange}
@@ -1109,6 +1169,7 @@ const SampleRequest = () => {
                     className={styles.selectInput}
                     name="pair"
                     value={sampleDetailsForm.pair}
+                    style={validation.pair === 'invalid' ? { border: "2px solid red" } : {}}
                     onChange={handleCreateSampleChange}
                   >
                     <option value="" selected disabled hidden>
@@ -1141,6 +1202,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
+                  style={validation.last === 'invalid' ? { border: "2px solid red" } : {}}
                   name="last"
                   value={sampleDetailsForm.last}
                   onChange={handleCreateSampleChange}
@@ -1155,6 +1217,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="insole"
+                  style={validation.insole === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.insole}
                   onChange={handleCreateSampleChange}
                 />
@@ -1174,6 +1237,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="socks"
+                  style={validation.socks === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.socks}
                   onChange={handleCreateSampleChange}
                   required
@@ -1188,6 +1252,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="heel"
+                  style={validation.heel === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.heel}
                   onChange={handleCreateSampleChange}
                   required
@@ -1202,6 +1267,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="pattern"
+                  style={validation.pattern === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.pattern}
                   onChange={handleCreateSampleChange}
                   required
@@ -1245,6 +1311,7 @@ const SampleRequest = () => {
                   name="inUpperLeather"
                   value={sampleDetailsForm.inUpperLeather}
                   onChange={handleCreateSampleChange}
+                  style={validation.inUpperLeather === 'invalid' ? { border: "2px solid red" } : {}}
                   placeholder="Enter.."
                   required
                 />
@@ -1259,6 +1326,7 @@ const SampleRequest = () => {
                   placeholder="Enter.."
                   name="inLining"
                   value={sampleDetailsForm.inLining}
+                  style={validation.inLining === 'invalid' ? { border: "2px solid red" } : {}}
                   onChange={handleCreateSampleChange}
                   required
                 />
@@ -1272,6 +1340,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inSocks"
+                  style={validation.inSocks === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.inSocks}
                   onChange={handleCreateSampleChange}
                   required
@@ -1286,6 +1355,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inQuantity"
+                  style={validation.inQuantity === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.inQuantity}
                   onChange={handleCreateSampleChange}
                   required
@@ -1336,6 +1406,7 @@ const SampleRequest = () => {
                   type="date"
                   className={`${styles.basicInput} ${styles.dateInput}`}
                   name="prodExDate"
+                  style={validation.prodExDate === 'invalid' ? { border: "2px solid red" } : {}}
                   value={sampleDetailsForm.prodExDate}
                   onChange={handleCreateSampleChange}
                   min={
@@ -1356,6 +1427,7 @@ const SampleRequest = () => {
                   name="deliveryDate"
                   value={sampleDetailsForm.deliveryDate}
                   onChange={handleCreateSampleChange}
+                  style={validation.deliveryDate === 'invalid' ? { border: "2px solid red" } : {}}
                   disabled={!sampleDetailsForm.prodExDate}
                   min={sampleDetailsForm.prodExDate}
                   required
@@ -1392,7 +1464,7 @@ const SampleRequest = () => {
                     <button
                       onClick={handleUpdateSampleSubmit}
                       className={styles.submitButton}
-                      disabled={!areAllFieldsFilled(sampleDetailsForm)}
+                     
                     >
                       Update
                     </button>{" "}
@@ -1412,7 +1484,6 @@ const SampleRequest = () => {
                     <button
                       onClick={handleCreateSampleSubmit}
                       className={styles.submitButton}
-                      disabled={!areAllFieldsFilled(sampleDetailsForm)}
                     >
                       Submit
                     </button>

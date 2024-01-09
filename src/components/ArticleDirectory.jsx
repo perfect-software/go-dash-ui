@@ -33,7 +33,6 @@ const ArticleDirectory = () => {
           liningMaterial: "",
           socksMaterial: "",
           comment: "",
-          username: "",
         };
   });
 
@@ -172,7 +171,7 @@ const ArticleDirectory = () => {
       liningMaterial: "",
       socksMaterial: "",
       comment: "",
-      username: "",
+    
     });
   };
 
@@ -853,19 +852,7 @@ const ArticleDirectory = () => {
               onChange={handleNormalArticleChange}
             />
           </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
-              Username
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              name="username"
-              value={articleForm.username}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
+         
 
           <div className={styles.largeColSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">

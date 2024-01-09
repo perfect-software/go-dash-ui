@@ -9,9 +9,7 @@
   .subHeadContainerTwo h2 {
     @apply text-[0.875rem];
   }
-  .headInputContainer {
-    @apply flex items-center gap-2 sm:mb-2;
-  }
+ 
   .eyeButton {
     background: none;
     border: none;
@@ -135,10 +133,7 @@
   .inputWithIcon-active {
     @apply bg-blue-600 text-white;
   }
-  .headInputWithIcon {
-    position: relative;
-    @apply w-[25.875vw] sm:w-[9rem] h-[5vh];
-  }
+
   .basicInput2 {
     @apply border w-full rounded-[0.3125rem] h-[2.5rem] bg-[#F7F7F7];
     padding: 4px 50px 9px 9px;

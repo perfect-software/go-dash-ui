@@ -5,12 +5,11 @@
 }
 
 .subHeadContainer {
-  @apply flex justify-between items-center mt-[1rem] sml:flex-col sml:gap-4;
+  @apply flex justify-between items-center mt-1 mb-[16px] sml:flex-col sml:gap-4;
 }
 .headText {
-  @apply text-[#00ADB5] text-[1.5625rem] leading-4 font-[400];
+  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
 }
-
 .headBorder {
   @apply border-t-[3px] rounded my-1;
   stroke-width: 3px;
@@ -19,9 +18,7 @@
 .subHeadContainerTwo h2 {
   @apply text-[0.875rem];
 }
-.subHeadContainerTwo {
-  @apply mt-[1.5rem];
-}
+
 .topButtons {
   @apply flex gap-[3.12rem] ;
 }
@@ -65,18 +62,22 @@ select {
   border: 1px solid #00a5ad;
 }
 .topGrid {
-  @apply grid sm:grid-cols-2 smp:grid-cols-1 grid-cols-3 gap-2;
+  @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
 }
+
 .sampleLabel {
-  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem] ;
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
   min-width: 5.6rem;
 }
 
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
+.colSpan2 {
+  @apply col-span-2 sm:col-span-1 flex flex-row items-center gap-1;
+}
 .topContainer {
-  @apply flex flex-col mt-3;
+  @apply flex flex-col;
 }
 .screenChangeButton {
     position: relative; 
@@ -113,4 +114,36 @@ select {
   .buttonContainer {
     @apply flex mt-4 justify-end items-center gap-1 right-[1rem] sm:justify-center sm:mb-2 sm:mt-4 sm:ml-8;
   }
- 
+  
+  .suggestions::-webkit-scrollbar {
+    @apply h-1 block w-0;
+  }
+  
+  .suggestions::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  
+  .suggestions::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-500;
+  }
+  
+  .highlighted {
+    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out bg-blue-100 text-blue-600 truncate;
+  }
+  
+  .inputWithIcon {
+    @apply relative w-full inline-block;
+  }
+  
+  
+  .inputWithIcon-active {
+    @apply bg-blue-600 text-white;
+  }
+
+  .suggestions {
+    @apply absolute w-full rounded-b bg-white shadow-lg max-h-60 overflow-y-auto overflow-x-auto z-10;
+  }
+  
+  .suggestionItem {
+    @apply py-2 px-4 min-w-fit cursor-pointer transition duration-200 ease-in-out hover:bg-blue-100 hover:text-blue-600 truncate;
+  }
