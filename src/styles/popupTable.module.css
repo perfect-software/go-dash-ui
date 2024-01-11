@@ -1,0 +1,112 @@
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #3a475066;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  @apply py-4;
+}
+
+.popupContainer {
+  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
+}
+.sampleLabel {
+  @apply text-[#5b5b5b]  flex items-center text-[0.84rem] mr-6;
+ 
+}
+.topPopupContainer {
+  @apply flex flex-col w-full p-1;
+}
+.basicInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.srInput{
+  @apply flex self-center sml:mt-5;
+  }
+.basicInput {
+  @apply border p-2 w-[11rem] rounded-[0.3125rem];
+  height: 2.5rem;
+}
+.topBarContainer h1 {
+  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400];
+}
+
+
+.crossIcon {
+  @apply h-[1rem] w-[1rem] cursor-pointer;
+  transition: transform 1s ease-in;
+}
+
+.crossIcon:hover {
+  transform: rotate(90deg);
+}
+
+.topBarContainer {
+  @apply flex w-full justify-between;
+}
+
+.bottomPopupContainer {
+  @apply flex justify-center w-full mt-3;
+}
+
+.popupButton {
+  @apply flex bg-[#001314] items-center justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
+
+.selectPopupButton {
+  @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
+.bottomButtonContainer {
+  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-3;
+}
+.bottomInventoryButtonContainer
+{
+  @apply flex sm:flex-col justify-between sm:justify-center items-center gap-2 w-full mt-3;
+
+}
+.selectPopupButton:disabled{
+  @apply cursor-not-allowed;
+}
+
+.popupButton::after {
+  @apply ml-2 sml:hidden;
+  content: "+";
+  color: white;
+}
+.bottomInventoryButtonContainer h3
+{
+  @apply sml:text-[0.8rem];
+  color: rgba(91, 91, 91, 1);
+}
+.bottomButtonContainer h3 {
+  @apply sml:text-[0.8rem];
+  color: rgba(91, 91, 91, 1);
+}
+.agThemeQuartz ::-webkit-scrollbar {
+  display: block; /* or 'auto' */
+  height:8px;
+  width:4px;
+}
+.agThemeQuartz {
+  /* bright green, 10% opacity */
+  @apply text-left;
+  --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
+}
+
+.agThemeQuartz ::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
+}

@@ -18,14 +18,14 @@ const Bom = () => {
   const [pdfContent, setPdfContent] = useState(null);
 
   const [bomData, setBomData] = useState({
-    sampleNo: "",
-    articleNo: "",
-    buyerName: "",
-    articleName: "",
-    color: "",
-    animal: "",
-    sole: "",
-    totalCost:"",
+    // sampleNo: "",
+    // articleNo: "",
+    // buyerName: "",
+    // articleName: "",
+    // color: "",
+    // animal: "",
+    // sole: "",
+    // totalCost:"",
     groups: [],
   });
   const togglePopup = (message) => {
@@ -119,6 +119,7 @@ const Bom = () => {
   const handleSubmitBomClick = async (e)=>{
     e.preventDefault();
     setLoading(true);
+    console.log(bomData);
     const BASE_URL = 'bom/create';
     try {
        const responseData = await postApiService(bomData,BASE_URL);
@@ -157,7 +158,7 @@ const Bom = () => {
             <div className={styles.headBorder}></div>
           </div>
         </div>
-        <div className={styles.topGrid}>
+        {/* <div className={styles.topGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
               Sample No
@@ -251,7 +252,7 @@ const Bom = () => {
               value={bomData.sole}
             />
           </div>
-        </div>
+        </div> */}
         <div className={styles.middleContainerBottom}>
           <span>Add Group Here</span>
           <button className={styles.plus2} onClick={addGrid}></button>

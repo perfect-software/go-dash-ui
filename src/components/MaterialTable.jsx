@@ -683,13 +683,31 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           <label className={styles.sampleLabel} htmlFor="itemgrp">
             Group
           </label>
-          {downshiftItemGrp}
+          <input
+            name="itemgrp"
+            type="text"
+            value={newItem.itemgrp}
+          
+            onChange={handleInputChange}
+            className={styles.basicInput}
+           
+          />
+          {/* {downshiftItemGrp} */}
         </div>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemsubgrp">
             Sub Group
           </label>
-          {downshiftItemSubGrp}
+          <input
+            name="itemsubgrp"
+            type="text"
+            value={newItem.itemsubgrp}
+      
+            onChange={handleInputChange}
+            className={styles.basicInput}
+          
+          />
+          {/* {downshiftItemSubGrp} */}
         </div>
         <div className={styles.colSpan}>
           <button

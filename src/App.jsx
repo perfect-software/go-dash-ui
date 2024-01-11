@@ -18,6 +18,7 @@ import ArticleCosting from "./components/ArticleCosting";
 import { Provider } from 'react-redux';
 import { store } from './helper/store';
 import Bom from "./components/Bom";
+import ItemQuotation from "./components/ItemQuotation";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -57,6 +58,7 @@ function App() {
               <Route path="/bom" element={<Bom/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/login" element={<LoginRegister />} />
+              <Route path="/itemquotation" element={<ItemQuotation/>}/>
             </Routes>
           </div>
         </div>

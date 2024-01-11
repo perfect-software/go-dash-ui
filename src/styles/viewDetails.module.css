@@ -19,9 +19,6 @@
   @apply w-[5rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
   leading-4 bg-[#00A5AD] rounded-[0.3125rem];
 }
-.viewSrDropGrid {
-  @apply grid sml:grid-cols-2 sm:grid-cols-1 grid-cols-4 gap-2 mt-2;
-}
 
 .basicInput {
   @apply border p-2 w-full rounded-[0.3125rem];

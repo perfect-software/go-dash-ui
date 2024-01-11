@@ -5,18 +5,16 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
+const  InventoryCheckPopup = ({ onCancel }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const [selectedBuyer, setSelectedBuyer] = useState(null);
-  const [rowSelect , setRowSelect]= useState(false);
+
   const dispatch = useDispatch();
   const { buyers, loaded, loading, error } = useSelector(
     (state) => state.buyer
@@ -43,64 +41,32 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     }
   }, [ loaded, loading, gridApi]);
 
-  const dateFilterParams = {
-    comparator: function (filterLocalDateAtMidnight, cellValue) {
-      if (!cellValue) return -1;
-      console.log(filterLocalDateAtMidnight);
-      const formattedCellValue = formatDDMMYYYYDate(cellValue);
-      const formattedFilterDate = filterLocalDateAtMidnight
-        .toLocaleDateString("en-GB", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
-        .replace(/\//g, "-");
-      if (formattedCellValue < formattedFilterDate) {
-        return -1;
-      } else if (formattedCellValue > formattedFilterDate) {
-        return 1;
-      }
-      return 0;
-    },
-  };
+
   const columnDefs = [
-    { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
-    { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
+  
+    { headerName: "Item Name", field: "bsName", sortable: true, filter: true },
     {
-      headerName: "Entry Date",
-      field: "entDate",
-      sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
-    {
-      headerName: "User Name",
+      headerName: "BOM Qty",
       field: "username",
       sortable: true,
       filter: true,
     },
-    { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
+    { headerName: "Unallocated stock", field: "bsCode", sortable: true, filter: true },
     {
-      headerName: "Delivery Address",
+      headerName: "Stock consumed",
       field: "deliveryAddress",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Billing Address",
+      headerName: "Required Qty",
       field: "billingAddress",
       sortable: true,
       filter: true,
     },
   ];
 
-  const onRowSelected = (event) => {
-    setRowSelect(!rowSelect);
-    const selectedData = event.api.getSelectedRows();
-    setSelectedBuyer(selectedData);
-  
-  };
+ 
 
   return (
     isPopupVisible && (
@@ -108,7 +74,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
         <div className={styles.popupContainer}>
           <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
-              <h1>Buyer Directory</h1>
+              <h1>Inventory check</h1>
               <img
                 onClick={() => {
                   setIsPopupVisible(false);
@@ -119,6 +85,18 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                 className={styles.crossIcon}
               />
             </div>
+            <div className={styles.srInput}>
+                <label className={styles.sampleLabel} htmlFor="srId">
+                  SR ID
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="srId"
+                />
+              </div>
+
           </div>
 
           <div
@@ -134,26 +112,18 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               animateRows={true}
               filter={true}
               onGridReady={onGridReady}
-              onSelectionChanged={onRowSelected}
-              onRowDataChanged={onRowDataChanged}
             />
           </div>
-          <div className={styles.bottomButtonContainer}>
-            <h3>Couldn't find the Buyer ?</h3>
+          <div className={styles.bottomInventoryButtonContainer}>
+          <h3>SR BOM(autofill)  |  Item invent(autofill) | Stock Consumed = Unallocated stock - bom Qty | Required Qty = Bom qty - stock consumed </h3>
             <button
-              className={styles.popupButton}
-              onClick={() => navigate("/buyer")}
-            >
-              Add New Buyer
-            </button>
-            <button
-              disabled={!rowSelect}
+            
               className={styles.selectPopupButton}
               onClick={() => {
-                onSubmitBuyerData(selectedBuyer);
+                // onSubmitBuyerData(selectedBuyer);
               }}
             >
-              Select
+              Next
             </button>
           </div>
         </div>
@@ -161,4 +131,4 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     )
   );
 };
-export default BuyerPopup;
+export default InventoryCheckPopup;
