@@ -45,16 +45,16 @@ export const generatePDF = async (bomData) => {
             .map((item, itemIndex) => {
               const groupCell =
                 subgroupIndex === 0 && itemIndex === 0
-                  ? `<td rowspan="${groupRowSpan}" style="border: 1px solid #E5E7EB; font-size: 13px; text-align: center; padding: 8px;">${group.itemgrp}</td>`
+                  ? `<td rowspan="${groupRowSpan}" style="border: 1px solid #E5E7EB; font-size: 13px; text-align: center; padding: 8px;">${group.name}</td>`
                   : "";
               const subgroupCell =
                 itemIndex === 0
-                  ? `<td rowspan="${subgroupRowSpan}" style="border: 1px solid #E5E7EB; font-size: 13px; text-align: center; padding: 8px;">${subgroup.itemsubgrp}</td>`
+                  ? `<td rowspan="${subgroupRowSpan}" style="border: 1px solid #E5E7EB; font-size: 13px; text-align: center; padding: 8px;">${subgroup.name}</td>`
                   : "";
               return `<tr>
           ${groupCell}
           ${subgroupCell}
-          <td style="border:1px solid #E5E7EB; text-align: center; font-size: 13px; padding: 4px;">${item.itemName}</td>
+          <td style="border:1px solid #E5E7EB; text-align: center; font-size: 13px; padding: 4px;">${item.itemId}</td>
           <td style="border:1px solid #E5E7EB; text-align: center; font-size: 13px; padding: 4px;">${item.usedIn}</td>
           <td style="border:1px solid #E5E7EB; text-align: center; font-size: 13px; padding: 4px;">${item.pair}</td>
           <td style="border:1px solid #E5E7EB; text-align: center; font-size: 13px; padding: 4px;">${item.bomQty}</td>

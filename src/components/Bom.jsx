@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/bom.module.css";
-import Downshift from "downshift";
-import ReactDOM from "react-dom";
 import { getApiService, postApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import MaterialTable from "./MaterialTable";
@@ -10,22 +8,11 @@ const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
-  const containerRef = useRef(null);
-  const [popupMessage, setPopupMessage] = useState("");
-  const [colors, setColors] = useState([]);
-  const [articleNos, setArticleNos] = useState([]);
-  const [buyers, setBuyers] = useState([]);
-  const [pdfContent, setPdfContent] = useState(null);
-
   const [bomData, setBomData] = useState({
-    // sampleNo: "",
-    // articleNo: "",
-    // buyerName: "",
-    // articleName: "",
-    // color: "",
-    // animal: "",
-    // sole: "",
-    // totalCost:"",
+    sampleNo: "",
+    articleNo: "",
+    buyerName: "",
+    totalCost:"",
     groups: [],
   });
   const togglePopup = (message) => {
@@ -115,14 +102,39 @@ const Bom = () => {
       toggleSuggestVisibility("buyer", false);
     }
   };
+  const prepareDataForSubmission = (bomData) => {
 
+    const transformedData = {
+      ...bomData,
+      groups: bomData.groups.map((group) => ({
+        itemgrp: group.id,
+        subgroups: group.subgroups.map((subgroup) => ({
+          itemsubgrp: subgroup.id,
+          items: subgroup.items.map(item => ({
+            itemId: item.itemId,
+            usedIn: item.usedIn,
+            pair: item.pair,
+            supplierId: item.supplierId,
+            stockConsumedQty: item.stockConsumedQty,
+            bomQty: item.bomQty,
+            unit: item.unit,
+            requiredQty: item.requiredQty,
+            rate: item.rate,
+          }))
+        }))
+      }))
+    };
+  
+    return transformedData;
+  };
+  
   const handleSubmitBomClick = async (e)=>{
     e.preventDefault();
     setLoading(true);
-    console.log(bomData);
+    const dataToSubmit = await prepareDataForSubmission(bomData);
     const BASE_URL = 'bom/create';
     try {
-       const responseData = await postApiService(bomData,BASE_URL);
+       const responseData = await postApiService(dataToSubmit,BASE_URL);
        togglePopup(responseData.message);
     } catch (error) {
       if (error.response) {
@@ -158,7 +170,7 @@ const Bom = () => {
             <div className={styles.headBorder}></div>
           </div>
         </div>
-        {/* <div className={styles.topGrid}>
+        <div className={styles.topGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
               Sample No
@@ -200,59 +212,8 @@ const Bom = () => {
             />
           </div>
 
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Article Name
-            </label>
-            <input
-              type="text"
-              name="articleName"
-              className={styles.basicInput}
-              placeholder="Article Name"
-              onChange={handleBomChange}
-              value={bomData.articleName}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Color
-            </label>
-            <input
-              type="text"
-              name="color"
-              className={styles.basicInput}
-              placeholder="Color"
-              onChange={handleBomChange}
-              value={bomData.color}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Animal
-            </label>
-            <input
-              type="text"
-              name="animal"
-              className={styles.basicInput}
-              placeholder="Animal"
-              onChange={handleBomChange}
-              value={bomData.animal}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Sole
-            </label>
-            <input
-              type="text"
-              name="sole"
-              className={styles.basicInput}
-              placeholder="Sole"
-              onChange={handleBomChange}
-              value={bomData.sole}
-            />
-          </div>
-        </div> */}
+        
+        </div>
         <div className={styles.middleContainerBottom}>
           <span>Add Group Here</span>
           <button className={styles.plus2} onClick={addGrid}></button>

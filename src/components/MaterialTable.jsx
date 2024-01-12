@@ -22,8 +22,8 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   });
 
   const [newItem, setNewItem] = useState({
-    itemgrp: "",
-    itemsubgrp: "",
+    itemgrp: { name: "", id: "" },
+    itemsubgrp: { name: "", id: "" },
     itemId: "",
     usedIn: "",
     pair: "",
@@ -38,19 +38,26 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
-
+  
     const requiredFields = [
-    "itemgrp",
-    "itemsubgrp",
-    "itemId",
-    "supplierId",
-    "stockConsumedQty",
-    "bomQty",
-    "unit",
-    "requiredQty",
-    "rate"
+      "itemId", "supplierId", "stockConsumedQty", "bomQty", "unit", "requiredQty", "rate"
     ];
 
+    if (!newItem.itemgrp.name.trim()) {
+      isValid = false;
+      newValidation['itemgrp'] = "invalid";
+    } else {
+      newValidation['itemgrp'] = "valid";
+    }
+  
+    if (!newItem.itemsubgrp.name.trim()) {
+      isValid = false;
+      newValidation['itemsubgrp'] = "invalid";
+    } else {
+      newValidation['itemsubgrp'] = "valid";
+    }
+  
+    // Validate other fields
     requiredFields.forEach((field) => {
       if (!newItem[field] || newItem[field].trim() === "") {
         isValid = false;
@@ -59,10 +66,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         newValidation[field] = "valid"; 
       }
     });
-
+  
     setValidation(newValidation);
     return isValid;
   };
+  
   const dispatch = useDispatch();
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
@@ -107,9 +115,8 @@ const MaterialTable = ({ bomData, setBomData  }) => {
 
   const handleGrpItemChange = (e) => {
     const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: value });
-  
     if (name === "itemgrp") {
+      setNewItem({ ...newItem, itemgrp: { ...newItem.itemgrp, name: value } });
       const filtered = Object.entries(itemGroups)
         .filter(([key, groupName]) => groupName.toLowerCase().includes(value.toLowerCase()))
         .reduce((acc, [key, groupName]) => {
@@ -121,6 +128,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
       toggleSuggestVisibility(name, value.length > 0);
     }
     if (name === "itemsubgrp") {
+      setNewItem({ ...newItem, itemsubgrp: { ...newItem.itemsubgrp, name: value } });
       const filtered = Object.entries(itemSubGroups)
         .filter(
           ([key, subGroupDetails]) =>
@@ -160,116 +168,117 @@ const MaterialTable = ({ bomData, setBomData  }) => {
 
   const handleAddMaterial = () => {
     if (!validateForm()) {
-      return; 
+      return;
     }
+  
     setBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-      let group = newData.groups.find((g) => g.itemgrp === newItem.itemgrp);
+      const newData = JSON.parse(JSON.stringify(prevData));
+      let group = newData.groups.find(g => g.id === newItem.itemgrp.id);
       if (!group) {
-        group = { itemgrp: newItem.itemgrp, subgroups: [] };
-        newData.groups = [...newData.groups, group];
+        group = {
+          id: newItem.itemgrp.id,
+          name: newItem.itemgrp.name, 
+          subgroups: []
+        };
+        newData.groups.push(group);
       }
-      let subgroup = group.subgroups.find(
-        (sg) => sg.itemsubgrp === newItem.itemsubgrp
-      );
+  
+     
+      let subgroup = group.subgroups.find(sg => sg.id === newItem.itemsubgrp.id);
       if (!subgroup) {
-        subgroup = { itemsubgrp: newItem.itemsubgrp, items: [] };
-        group.subgroups = [...group.subgroups, subgroup];
+        subgroup = {
+          id: newItem.itemsubgrp.id,
+          name: newItem.itemsubgrp.name, 
+          items: []
+        };
+        group.subgroups.push(subgroup);
       }
-      const itemExists = subgroup.items.some(
-        (i) => i.itemId === newItem.itemId
-      );
-      if (itemExists) {
-        console.warn("Item already exists");
-      } else {
-        subgroup.items.push({
-          itemId: newItem.itemId,
-          usedIn: newItem.usedIn,
-          pair: newItem.pair,
-          bomQty: newItem.bomQty,
-          supplierId:newItem.supplierId,
-          stockConsumedQty:newItem.stockConsumedQty,
-          unit:newItem.unit,
-          requiredQty: newItem.requiredQty,
-          cost: newItem.cost,
-          rate: newItem.rate,
-        });
+  
+    
+      const existingItemIndex = subgroup.items.findIndex(i => i.itemId === newItem.itemId);
+      if (existingItemIndex !== -1) {
+        console.warn("Item already exists in the subgroup");
+        return newData;
       }
-      setNewItem({
-        itemgrp: "",
-        itemsubgrp: "",
-        itemId: "",
-        usedIn: "",
-        supplierId:"",
-        unit:"",
-        stockConsumedQty:"",
-        pair: "",
-        bomQty: "",
-        requiredQty: "",
-        rate: "",
-        cost: "",
+  
+    
+      subgroup.items.push({
+        itemId: newItem.itemId,
+        usedIn: newItem.usedIn,
+        pair: newItem.pair,
+        bomQty: newItem.bomQty,
+        supplierId: newItem.supplierId,
+        stockConsumedQty: newItem.stockConsumedQty,
+        unit: newItem.unit,
+        requiredQty: newItem.requiredQty,
+        rate: newItem.rate,
+        cost: newItem.cost
       });
-
+  
+  
       let totalCost = 0;
-      newData.groups.forEach((group) =>
-        group.subgroups.forEach((subgroup) =>
-          subgroup.items.forEach(
-            (item) => (totalCost += parseFloat(item.cost) || 0)
+      newData.groups.forEach(group => 
+        group.subgroups.forEach(subgroup => 
+          subgroup.items.forEach(item => 
+            totalCost += parseFloat(item.cost) || 0
           )
         )
       );
       newData.totalCost = totalCost.toFixed(2);
-
+  
       return newData;
     });
-  };
-
-  const handleRemoveItem = (itemgrp, itemsubgrp, itemId) => {
-    setBomData((prevData) => {
-      let groupFound = false;
-      let subgroupFound = false;
-      let removedItemCost = 0;
-
-      const groups = prevData.groups
-        .map((group) => {
-          if (group.itemgrp === itemgrp) {
-            groupFound = true;
-            const subgroups = group.subgroups
-              .map((subgroup) => {
-                if (subgroup.itemsubgrp === itemsubgrp) {
-                  subgroupFound = true;
-                  const items = subgroup.items.filter((item) => {
-                    if (item.itemId === itemId) {
-                      removedItemCost = parseFloat(item.cost) || 0;
-                      return false;
-                    }
-                    return true;
-                  });
-                  return { ...subgroup, items };
-                }
-                return subgroup;
-              })
-              .filter((subgroup) => subgroup.items.length > 0);
-            return { ...group, subgroups };
-          }
-          return group;
-        })
-        .filter((group) => group.subgroups.length > 0);
-
-      if (!groupFound || !subgroupFound) {
-        return prevData;
-      }
-
-      const newTotalCost = prevData.totalCost - removedItemCost;
-
-      return {
-        ...prevData,
-        groups,
-        totalCost: newTotalCost.toFixed(2),
-      };
+  
+    
+    setNewItem({
+      itemgrp: { name: "", id: "" },
+      itemsubgrp: { name: "", id: "" },
+      itemId: "",
+      usedIn: "",
+      pair: "",
+      supplierId: "",
+      stockConsumedQty: "",
+      bomQty: "",
+      unit: "",
+      requiredQty: "",
+      rate: "",
+      cost: ""
     });
   };
+  
 
+  const handleRemoveItem = (groupId, subgroupId, itemId) => {
+    setBomData((prevData) => {
+      let newData = JSON.parse(JSON.stringify(prevData)); 
+  
+      newData.groups = newData.groups.map(group => {
+        if (group.id === groupId) {
+          group.subgroups = group.subgroups.map(subgroup => {
+            if (subgroup.id === subgroupId) {
+          
+              subgroup.items = subgroup.items.filter(item => item.itemId !== itemId);
+            }
+            return subgroup;
+          }).filter(subgroup => subgroup.items.length > 0); 
+        }
+        return group;
+      }).filter(group => group.subgroups.length > 0);
+  
+     
+      let totalCost = 0;
+      newData.groups.forEach(group => 
+        group.subgroups.forEach(subgroup => 
+          subgroup.items.forEach(item => 
+            totalCost += parseFloat(item.cost) || 0
+          )
+        )
+      );
+      newData.totalCost = totalCost.toFixed(2);
+  
+      return newData; 
+    });
+  };
+  
 
   const handleGrpButtonClick = (name) => {
     if (name === "itemgrp") {
@@ -303,18 +312,17 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         (sum, subgroup) => sum + subgroup.items.length,
         0
       );
-
       group.subgroups.forEach((subgroup, subgroupIndex) => {
         subgroup.items.forEach((item, itemIndex) => {
           rows.push(
             <tr
-              key={`${group.itemgrp}-${subgroup.itemsubgrp}-${item.itemId}`}
+              key={`${group.id}-${subgroup.id}-${item.itemId}`}
             >
               {subgroupIndex === 0 && itemIndex === 0 && (
-                <td rowSpan={totalItemsInGroup}>{group.itemgrp}</td>
+                <td rowSpan={totalItemsInGroup}>{group.name}</td>
               )}
               {itemIndex === 0 && (
-                <td rowSpan={subgroup.items.length}>{subgroup.itemsubgrp}</td>
+                <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
               )}
               <td>{item.itemId}</td>
 
@@ -333,11 +341,13 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               <td style={{ textAlign: "center" }}>
                 <button
                   onClick={() =>
+                
                     handleRemoveItem(
-                      group.itemgrp,
-                      subgroup.itemsubgrp,
+                      group.id,
+                      subgroup.id,
                       item.itemId
                     )
+                    
                   }
                   className={styles.minus}
                 ></button>
@@ -413,7 +423,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         if (selectedItem) {
           setNewItem((prevNewItem) => ({
             ...prevNewItem,
-            itemgrp: selectedItem.name,
+            itemgrp: { id: selectedItem.id, name: selectedItem.name },
           }));
           setItemGroupNumber(selectedItem.id);
           toggleSuggestVisibility("itemgrp", false);
@@ -434,7 +444,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             className={styles.basicInput}
             style={validation.itemgrp === 'invalid' ? { border: "2px solid red" } : {}}
             placeholder="Insert First Letter"
-            value={newItem.itemgrp}
+            value={newItem.itemgrp.name}
           />
 
           <button
@@ -479,7 +489,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         if (selectedItem) {
           setNewItem((prevNewItem) => ({
             ...prevNewItem,
-            itemsubgrp: selectedItem.name,
+            itemsubgrp: { id: selectedItem.id, name: selectedItem.name },
           }));
           toggleSuggestVisibility("itemsubgrp", false);
         }
@@ -499,8 +509,8 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             className={styles.basicInput}
             placeholder="Insert First Letter"
             style={validation.itemsubgrp === 'invalid' ? { border: "2px solid red" } : {}}
-            disabled={!newItem.itemgrp}
-            value={newItem.itemsubgrp}
+            disabled={!newItem.itemgrp.name}
+            value={newItem.itemsubgrp.name}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -683,31 +693,13 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           <label className={styles.sampleLabel} htmlFor="itemgrp">
             Group
           </label>
-          <input
-            name="itemgrp"
-            type="text"
-            value={newItem.itemgrp}
-          
-            onChange={handleInputChange}
-            className={styles.basicInput}
-           
-          />
-          {/* {downshiftItemGrp} */}
+          {downshiftItemGrp}
         </div>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemsubgrp">
             Sub Group
           </label>
-          <input
-            name="itemsubgrp"
-            type="text"
-            value={newItem.itemsubgrp}
-      
-            onChange={handleInputChange}
-            className={styles.basicInput}
-          
-          />
-          {/* {downshiftItemSubGrp} */}
+          {downshiftItemSubGrp}
         </div>
         <div className={styles.colSpan}>
           <button
