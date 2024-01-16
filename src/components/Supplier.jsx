@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from "../styles/supplier.module.css";
+import styles from "../styles/inputDetails.module.css";
 import SupplierProvidedDetails from "./SupplierProvidedDetails";
 import Currencydata from "currency-codes/data";
 import { Country, State, City } from "country-state-city";
@@ -15,6 +15,9 @@ const Supplier = () => {
   });
   const [allCountries, setAllCountires] = useState([]);
   const [allStates, setAllStates] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
   const [allCities, setAllCities] = useState([]);
   const [currencyList, setCurrencyList] = useState([]);
   const [location, setLocation] = useState({
@@ -22,9 +25,9 @@ const Supplier = () => {
     state: "",
   });
   const [showSuggestions, setShowSuggestions] = useState({
-    supplierCountry: false,
-    supplierState: false,
-    supplierCity: false,
+    country: false,
+    state: false,
+    city: false,
     currency: false,
   });
 
@@ -42,19 +45,17 @@ const Supplier = () => {
       ? JSON.parse(savedForm)
       : {
           supplierName: "",
-          supplierAbbriviation: "",
-          supplierBillingAddress: "",
-          supplierShippingAddress: "",
-          supplierPhone: "",
-          supplierMobile: "",
-          supplierEmail: "",
-          supplierCity: "",
-          supplierState: "",
-          supplierCountry: "",
-          supplierPincode: "",
-          supplierType: "",
-          supplierContactPerson: "",
-          merchendiser: "",
+          billingAddress: "",
+          deliveryAddress: "",
+          phone: "",
+          mobile: "",
+          email: "",
+          city: "",
+          state: "",
+          country: "",
+          pincode: "",
+          contactPerson: "",
+          mobileExt: "",
           currency: "",
         };
   });
@@ -87,26 +88,28 @@ const Supplier = () => {
       setCurrencyList(filteredCurrency);
     }
   };
+  const togglePopup = (message) => {
+    setIsPopupVisible(!isPopupVisible);
+    setPopupMessage(message);
+  };
   useEffect(() => {
     getCurrency();
   }, []);
 
   const resetAllFields = () => {
     setSupplierForm({
-      supplierName: "",
-          supplierAbbriviation: "",
-          supplierBillingAddress: "",
-          supplierShippingAddress: "",
-          supplierPhone: "",
-          supplierMobile: "",
-          supplierEmail: "",
-          supplierCity: "",
-          supplierState: "",
-          supplierCountry: "",
-          supplierPincode: "",
-          supplierType: "",
-          supplierContactPerson: "",
-          merchendiser: "",
+         supplierName: "",
+          billingAddress: "",
+          deliveryAddress: "",
+          phone: "",
+          mobile: "",
+          email: "",
+          city: "",
+          state: "",
+          country: "",
+          pincode: "",
+          contactPerson: "",
+          mobileExt: "",
           currency: "",
     });
    
@@ -117,7 +120,28 @@ const Supplier = () => {
   };
 
 
-
+  const handleSupplierSubmit = async (e)=>{
+       e.preventDefault();
+       setLoading(true);
+       const BASE_URL = 'supplier/create';
+       try {
+        const response = await postApiService(supplierForm,BASE_URL)
+        togglePopup(response.message);
+       } catch (error) {
+        if (error.response) {
+          togglePopup(
+            error.response.data.message ||
+              `Server error: ${error.response.status}`
+          );
+        } else if (error.request) {
+          togglePopup("No response received from the server.");
+        } else {
+          togglePopup(error.message);
+        }
+       } finally {
+        setLoading(false);
+       }
+  };
 
 
 
@@ -130,7 +154,7 @@ const Supplier = () => {
     if (value.length < 1) {
       toggleSuggestVisibility(`${name}`, false);
     }
-    if (name === "supplierCountry" && value.length >= 2) {
+    if (name === "country" && value.length >= 2) {
       if (allCountries.length === 0) {
         setAllCountires(Country.getAllCountries());
       }
@@ -145,8 +169,8 @@ const Supplier = () => {
 
       setTempList({ ...tempList, countryList: filteredCountries });
 
-      toggleSuggestVisibility("supplierCountry", true);
-    } else if (name === "supplierState" && value.length >= 2) {
+      toggleSuggestVisibility("country", true);
+    } else if (name === "state" && value.length >= 2) {
       if (allStates.length === 0) {
         setAllStates(State.getStatesOfCountry(location.country));
       }
@@ -160,8 +184,8 @@ const Supplier = () => {
         }));
       setTempList({ ...tempList, stateList: filteredStates });
 
-      toggleSuggestVisibility("supplierState", true);
-    } else if (name === "supplierCity" && value.length >= 2) {
+      toggleSuggestVisibility("state", true);
+    } else if (name === "city" && value.length >= 2) {
       if (allCities.length === 0) {
         setAllCities(City.getCitiesOfState(location.country, location.state));
       }
@@ -172,7 +196,7 @@ const Supplier = () => {
         }));
       setTempList({ ...tempList, cityList: filteredCity });
 
-      toggleSuggestVisibility("supplierCity", true);
+      toggleSuggestVisibility("city", true);
     } else if (name === "currency" && value.length >= 2) {
       const filteredCurrency = currencyList
         .filter((currency) =>
@@ -193,31 +217,31 @@ const Supplier = () => {
         if (selectedItem) {
           setSupplierForm({
             ...supplierForm,
-            supplierCountry: selectedItem.name,
+            country: selectedItem.name,
           });
-          toggleSuggestVisibility("supplierCountry", false);
+          toggleSuggestVisibility("country", false);
           setLocation({
             ...location,
             country: selectedItem.isoCode,
           });
         }
       }}
-      selectedItem={supplierForm.supplierCountry}
+      selectedItem={supplierForm.country}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
               onChange: handleLocationChange,
-              name: "supplierCountry",
+              name: "country",
             })}
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
-            value={supplierForm.supplierCountry}
+            value={supplierForm.country}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.supplierCountry &&
+            {showSuggestions.country &&
               tempList.countryList.map((country, index) => (
                 <div
                   {...getItemProps({ key: index, index, item: country })}
@@ -242,29 +266,29 @@ const Supplier = () => {
         if (selectedItem) {
           setSupplierForm({
             ...supplierForm,
-            supplierState: selectedItem.name,
+            state: selectedItem.name,
           });
-          toggleSuggestVisibility("supplierState", false);
+          toggleSuggestVisibility("state", false);
           setLocation({ ...location, state: selectedItem.isoCode });
         }
       }}
-      selectedItem={supplierForm.supplierState}
+      selectedItem={supplierForm.state}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
               onChange: handleLocationChange,
-              name: "supplierState",
+              name: "state",
             })}
             type="text"
-            disabled={!supplierForm.supplierCountry}
+            disabled={!supplierForm.country}
             className={styles.basicInput}
             placeholder="Insert Two Letter"
-            value={supplierForm.supplierState}
+            value={supplierForm.state}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.supplierState &&
+            {showSuggestions.state &&
               tempList.stateList.map((state, index) => (
                 <div
                   {...getItemProps({ key: index, index, item: state })}
@@ -289,30 +313,30 @@ const Supplier = () => {
         if (selectedItem) {
           setSupplierForm({
             ...supplierForm,
-            supplierCity: selectedItem.name,
+            city: selectedItem.name,
           });
-          toggleSuggestVisibility("supplierCity", false);
+          toggleSuggestVisibility("city", false);
         }
       }}
-      selectedItem={supplierForm.supplierCity}
+      selectedItem={supplierForm.city}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
               onChange: handleLocationChange,
-              name: "supplierCity",
+              name: "city",
             })}
             type="text"
             disabled={
-              !supplierForm.supplierCountry || !supplierForm.supplierState
+              !supplierForm.country || !supplierForm.state
             }
             className={styles.basicInput}
             placeholder="Insert Two Letter"
-            value={supplierForm.supplierCity}
+            value={supplierForm.city}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.supplierCity &&
+            {showSuggestions.city &&
               tempList.cityList.map((city, index) => (
                 <div
                   {...getItemProps({ key: index, index, item: city })}
@@ -423,19 +447,7 @@ const Supplier = () => {
                   onChange={handleSupplierFormChange}
                 />
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
-                  Abbreviation
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter here "
-                  value={supplierForm.supplierAbbriviation}
-                  name="supplierAbbriviation"
-                  onChange={handleSupplierFormChange}
-                />
-              </div>
+          
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="email">
                   Email Id
@@ -444,25 +456,12 @@ const Supplier = () => {
                   type="email"
                   className={styles.basicInput}
                   placeholder="Email"
-                  value={supplierForm.supplierEmail}
-                  name="supplierEmail"
+                  value={supplierForm.email}
+                  name="email"
                   onChange={handleSupplierFormChange}
                 />
               </div>
 
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="merchandiser">
-                  Merchandiser
-                </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Merchandiser"
-                  value={supplierForm.merchendiser}
-                  name="merchendiser"
-                  onChange={handleSupplierFormChange}
-                />
-              </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="country">
                   Country
@@ -481,25 +480,7 @@ const Supplier = () => {
                 </label>
                 {downshiftCity}
               </div>
-              <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
-                  Supplier Type
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    value={supplierForm.supplierType}
-                    name="supplierType"
-                    onChange={handleSupplierFormChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Type
-                    </option>
-                    <option value="Domestic">Domestic</option>
-                    <option value="International">International</option>
-                  </select>
-                </div>
-              </div>
+  
 
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="supplier">
@@ -509,8 +490,21 @@ const Supplier = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Pincode"
-                  value={supplierForm.supplierPincode}
-                  name="supplierPincode"
+                  value={supplierForm.pincode}
+                  name="pincode"
+                  onChange={handleSupplierFormChange}
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="supplier">
+                  Contact Person
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter Name"
+                  value={supplierForm.contactPerson}
+                  name="contactPerson"
                   onChange={handleSupplierFormChange}
                 />
               </div>
@@ -522,25 +516,26 @@ const Supplier = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
-                  value={supplierForm.supplierBillingAddress}
-                  name="supplierBillingAddress"
+                  value={supplierForm.billingAddress}
+                  name="billingAddress"
                   onChange={handleSupplierFormChange}
                 />
               </div>
+             
+
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="supplier">
-                  Contact Person
+                <label className={styles.sampleLabel} htmlFor="mobileExt">
+                  MobileExt
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
-                  placeholder="Address"
-                  value={supplierForm.supplierContactPerson}
-                  name="supplierContactPerson"
+                  placeholder="Mobile Ext"
+                  value={supplierForm.mobileExt}
+                  name="mobileExt"
                   onChange={handleSupplierFormChange}
                 />
               </div>
-
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="supplier">
                   Mobile Number
@@ -549,11 +544,11 @@ const Supplier = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Mobile Number"
-                  value={supplierForm.supplierMobile}
-                  name="supplierMobile"
+                  value={supplierForm.mobile}
+                  name="mobile"
                   onChange={handleSupplierFormChange}
                   style={
-                    !validatePhoneNumber(supplierForm.supplierMobile)
+                    !validatePhoneNumber(supplierForm.mobile)
                       ? { border: "2px solid red" }
                       : {}
                   }
@@ -567,8 +562,8 @@ const Supplier = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
-                  value={supplierForm.supplierShippingAddress}
-                  name="supplierShippingAddress"
+                  value={supplierForm.deliveryAddress}
+                  name="deliveryAddress"
                   onChange={handleSupplierFormChange}
                 />
               </div>
@@ -580,11 +575,11 @@ const Supplier = () => {
                   type="number"
                   className={styles.basicInput}
                   placeholder="Phone Number"
-                  value={supplierForm.supplierPhone}
-                  name="supplierPhone"
+                  value={supplierForm.phone}
+                  name="phone"
                   onChange={handleSupplierFormChange}
                   style={
-                    !validatePhoneNumber(supplierForm.supplierPhone)
+                    !validatePhoneNumber(supplierForm.phone)
                       ? { border: "2px solid red" }
                       : {}
                   }
@@ -598,10 +593,36 @@ const Supplier = () => {
               </div>
             </div>{" "}
           </div>
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} onClick={resetAllFields}>Reset</button>
-            <button className={styles.submitButton}>Submit</button>
+          <div className={styles.parentButtonContainer}>
+            {loading ? (
+              <div className={styles.buttonContainer}>
+                <div className={styles.loader}></div>
+              </div>
+            ) : (
+              <div className={styles.buttonContainer}>
+                <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
+                <button
+                  className={styles.submitButton}
+          
+                  onClick={handleSupplierSubmit}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
           </div>
+          {isPopupVisible && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.popupContent}>
+                <h2>{popupMessage}</h2>
+                <button className={styles.popupButton} onClick={togglePopup}>
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <SupplierProvidedDetails />

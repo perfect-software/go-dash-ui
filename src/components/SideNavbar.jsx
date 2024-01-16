@@ -50,7 +50,7 @@ const MENU_ITEMS = {
   stock: {
     title: "Stock",
     icon: StockIcon,
-    subItems: ["Article Directory", "Item Directory"],
+    subItems: ["Article Directory", "Item Directory" , "Item Quotation"],
   },
 };
 const SUBITEM_ICONS = {
@@ -67,6 +67,7 @@ const SUBITEM_ICONS = {
   BOM: BomIcon,
   "Article Directory": ArticleIcon,
   "Item Directory": ItemIcon,
+  "Item Quotation":GatePassIcon,
 };
 
 const SideNavbar = ({isOpen,toggleSidebar }) => {

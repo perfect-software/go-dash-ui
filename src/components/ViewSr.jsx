@@ -5,7 +5,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import {  formatDDMMYYYYDate } from "../features/convertDate";
-import styles from "../styles/viewSr.module.css";
+import styles from "../styles/viewDetails.module.css";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 

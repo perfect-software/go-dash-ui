@@ -19,10 +19,14 @@ import Downshift from "downshift";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
+import InfoPopup from "../popups/InfoPopup";
+import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isInfoPopup, setIsInfoPopup] = useState(false);
+  const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
   const dispatch = useDispatch();
@@ -31,14 +35,19 @@ const SampleRequest = () => {
     upperColor: false,
     liningColor: false,
     soleLabel: false,
+    season: false,
     sampleRef: false,
     articleNo: false,
     sampleType: false,
   });
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
+  const [filteredList, setFilteredList] = useState({
+    seasonList: [],
+  });
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [colors, setColors] = useState([]);
+  const [itemsData, setItemsData] = useState([]);
   const [sampleRefrences, setSampleRefrences] = useState([]);
   const [articleNos, setArticleNos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -134,7 +143,7 @@ const SampleRequest = () => {
         isValid = false;
         newValidation[field] = "invalid";
       } else {
-        newValidation[field] = "valid"; 
+        newValidation[field] = "valid";
       }
     });
 
@@ -147,7 +156,7 @@ const SampleRequest = () => {
       ...sampleDetailsForm,
       [name]: value,
     });
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
@@ -184,15 +193,17 @@ const SampleRequest = () => {
     const updatedSampleDetails = {
       ...sampleDetailsForm,
       ...editSample,
-      bsName: editSample.buyer ? editSample.buyer.bsName : '',
-      deliveryAddress: editSample.buyer ? editSample.buyer.billingAddress : '',
-      deliveryDate: editSample.deliveryDate ? getformatDate(editSample.deliveryDate) : '',
-      prodExDate: editSample.prodExDate ? getformatDate(editSample.prodExDate) : '',
+      bsName: editSample.buyer ? editSample.buyer.bsName : "",
+      deliveryAddress: editSample.buyer ? editSample.buyer.billingAddress : "",
+      deliveryDate: editSample.deliveryDate
+        ? getformatDate(editSample.deliveryDate)
+        : "",
+      prodExDate: editSample.prodExDate
+        ? getformatDate(editSample.prodExDate)
+        : "",
     };
     await generatePDF(updatedSampleDetails);
- 
   };
-  
 
   const [isGridVisible, setIsGridVisible] = useState({
     basic: true,
@@ -203,7 +214,7 @@ const SampleRequest = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleBuyerInputChange = async (e) => {
-    const {name,value} = e.target;
+    const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
 
     if (value.length >= 3) {
@@ -219,7 +230,7 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility("buyer", false);
     }
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleCreateColorChange = async (e) => {
@@ -241,11 +252,11 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleSampleRefChange = async (e) => {
-    const {name,value} = e.target;
+    const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
     const encodedInput = encodeURIComponent(value);
     console.log(bsId);
@@ -264,7 +275,6 @@ const SampleRequest = () => {
     } else {
       toggleSuggestVisibility("sampleRef", false);
     }
-    
   };
 
   const handleArticleNoSubmit = (selectedArticles) => {
@@ -279,7 +289,7 @@ const SampleRequest = () => {
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
-    setValidation(prev => ({ ...prev, 'articleNo': 'valid' }));
+    setValidation((prev) => ({ ...prev, articleNo: "valid" }));
   };
   const handleBuyerSubmit = (selectedBuyers) => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
@@ -293,7 +303,7 @@ const SampleRequest = () => {
       toggleSuggestVisibility("buyer", false);
       setIsBuyerPopup(false);
     }
-    setValidation(prev => ({ ...prev,'bsName': 'valid' }));
+    setValidation((prev) => ({ ...prev, bsName: "valid" }));
   };
 
   const handleSampleSubmit = (selectedSamples) => {
@@ -319,6 +329,50 @@ const SampleRequest = () => {
       });
 
       setIsSampleDirPopup(false);
+    }
+  };
+  const handleSeasonChange = (e) => {
+    const { name, value } = e.target;
+    setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
+
+    const concatenatedString = `${name}List`;
+
+    const filtered = itemsData
+      .filter(
+        (item) =>
+          item.head.toLowerCase() === name.toLowerCase() &&
+          item.value.toLowerCase().includes(value.toLowerCase())
+      )
+      .map((item) => ({
+        name: item.value,
+      }));
+
+    const updatedFilteredList = {
+      ...filteredList,
+      [concatenatedString]: filtered,
+    };
+
+    setFilteredList(updatedFilteredList);
+    if (value.length > 0) {
+      toggleSuggestVisibility(`${name}`, true);
+    } else {
+      toggleSuggestVisibility(`${name}`, false);
+    }
+  };
+
+  useEffect(() => {
+    if (itemsData.length === 0) {
+      getItems();
+    }
+  }, []);
+
+  const getItems = async () => {
+    const BASE_URL = "item/getItemHead";
+    try {
+      const response = await getApiService(BASE_URL);
+      setItemsData(response);
+    } catch (error) {
+      console.error("Failed to fetch Items:", error);
     }
   };
 
@@ -356,14 +410,13 @@ const SampleRequest = () => {
       "sampleDetailsForm",
       JSON.stringify(sampleDetailsForm)
     );
-
   };
 
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
-      return; 
+      return;
     }
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
@@ -406,7 +459,7 @@ const SampleRequest = () => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
-      return; 
+      return;
     }
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
@@ -438,16 +491,15 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
-  const handleSampleType = async () => {
-    sampleTypeRef.current?.focus();
+  const handleSampleType = async (name) => {
     const BASE_URL = "sample/getSampleType";
     try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
-      toggleSuggestVisibility("sampleType", true);
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
     }
+    toggleSuggestVisibility(name, !showSuggestions[name]);
   };
   const handleFileChange = (event) => {
     setRemoveImage(true);
@@ -478,6 +530,23 @@ const SampleRequest = () => {
     const currentDate = today.toISOString().split("T")[0];
     setFormattedDate(currentDate);
   }, []);
+  const handleSeasonButtonClick = () => {
+    const name = "season";
+    const concatenatedString = `${name}List`;
+    const filtered = itemsData
+      .filter((item) => item.head.toLowerCase() === name.toLowerCase())
+      .map((item) => ({
+        name: item.value,
+      }));
+
+    const updatedFilteredList = {
+      ...filteredList,
+      [name]: filtered,
+    };
+    setFilteredList(updatedFilteredList);
+
+    toggleSuggestVisibility(name, !showSuggestions[name]);
+  };
 
   // Suggestions here
   const downshiftBuyer = (
@@ -489,7 +558,7 @@ const SampleRequest = () => {
             bsName: selectedItem.bsName,
             deliveryAddress: selectedItem.deliveryAddress,
           });
-          setBsID(selectedItem.bsId); 
+          setBsID(selectedItem.bsId);
           console.log(selectedItem);
           toggleSuggestVisibility("buyer", false);
         }
@@ -505,7 +574,9 @@ const SampleRequest = () => {
               name: "bsName",
             })}
             type="text"
-            style={validation.bsName === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.bsName === "invalid" ? { border: "2px solid red" } : {}
+            }
             className={styles.basicInput2}
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
@@ -561,7 +632,9 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
           />
-          <button className={styles.searchBtn} aria-label="Search"></button>
+          <button className={styles.searchBtn} onClick={() => {
+                    setIsInventoryPopup(true);
+                  }} aria-label="Search"></button>
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleRef &&
@@ -605,7 +678,11 @@ const SampleRequest = () => {
             })}
             type="text"
             className={styles.basicInput}
-            style={validation.upperColor === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.upperColor === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert Two Letter"
             value={sampleDetailsForm.upperColor}
           />
@@ -652,7 +729,11 @@ const SampleRequest = () => {
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
-            style={validation.liningColor === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.liningColor === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             value={sampleDetailsForm.liningColor}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -698,7 +779,11 @@ const SampleRequest = () => {
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
-            style={validation.soleLabel === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.soleLabel === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             value={sampleDetailsForm.soleLabel}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -786,7 +871,7 @@ const SampleRequest = () => {
             ...sampleDetailsForm,
             sampleType: selectedItem,
           });
-          setValidation(prev => ({ ...prev, 'sampleType': 'valid' }));
+          setValidation((prev) => ({ ...prev, sampleType: "valid" }));
           toggleSuggestVisibility("sampleType", false);
         }
       }}
@@ -803,14 +888,19 @@ const SampleRequest = () => {
             ref={sampleTypeRef}
             className={styles.basicInput2}
             placeholder="Click on Search"
-            style={validation.sampleType === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.sampleType === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             value={sampleDetailsForm.sampleType}
             readOnly
           />
           <div>
             <button
               onClick={() => {
-                handleSampleType();
+                handleSampleType("sampleType");
+                sampleTypeRef.current?.focus();
               }}
               className={styles.searchBtn3}
               aria-label="Search"
@@ -836,7 +926,64 @@ const SampleRequest = () => {
       )}
     </Downshift>
   );
+  const seasonInputRef = useRef(null);
+  const downshiftSeason = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            season: selectedItem.name,
+          });
+          toggleSuggestVisibility("season", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.season}
+      itemToString={(item) => (item ? item.name : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleSeasonChange,
+              name: "season",
+            })}
+            type="text"
+            ref={seasonInputRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={sampleDetailsForm.season}
+          />
 
+          <button
+            onClick={() => {
+              handleSeasonButtonClick();
+              seasonInputRef.current?.focus();
+            }}
+            className={styles.searchBtn3}
+            aria-label="dropDorn"
+          ></button>
+
+          {showSuggestions.season && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.seasonList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
   return (
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContainer}>
@@ -878,10 +1025,16 @@ const SampleRequest = () => {
               </div>
 
               <div>
-                <img src={IButtonIcon} className={styles.ibutton} alt="iButton" />
+                <img
+                  src={IButtonIcon}
+                  onClick={() => {
+                    setIsInfoPopup(true);
+                  }}
+                  className={styles.ibutton}
+                  alt="iButton"
+                />
               </div>
             </div>
-            
           )}
         </div>
         <div className={styles.subHeadContainerTwo}>
@@ -943,22 +1096,7 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="season">
                   Season
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="season"
-                    value={sampleDetailsForm.season}
-                    onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Season
-                    </option>
-                    <option value={`SS`}>SS</option>
-                    <option value={`SW`}>SW</option>
-                    <option value={`SS`}>SR</option>
-                    <option value={`SW`}>SA</option>
-                  </select>
-                </div>
+                {downshiftSeason}
               </div>
 
               <div className={styles.colSpan2}>
@@ -1044,7 +1182,7 @@ const SampleRequest = () => {
             >
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="articleNo">
-                  Article No
+                  Article Name
                 </label>
                 <div className={styles.inputWithIcon}>
                   <input
@@ -1075,7 +1213,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input 3"
                   name="buyerArticle"
-                  style={validation.buyerArticle === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.buyerArticle === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.buyerArticle}
                   onChange={handleCreateSampleChange}
                 />
@@ -1136,7 +1278,11 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
-                  style={validation.size === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.size === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   name="size"
                   value={sampleDetailsForm.size}
                   onChange={handleCreateSampleChange}
@@ -1150,7 +1296,11 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
-                  style={validation.quantity === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.quantity === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   name="quantity"
                   value={sampleDetailsForm.quantity}
                   onChange={handleCreateSampleChange}
@@ -1169,7 +1319,11 @@ const SampleRequest = () => {
                     className={styles.selectInput}
                     name="pair"
                     value={sampleDetailsForm.pair}
-                    style={validation.pair === 'invalid' ? { border: "2px solid red" } : {}}
+                    style={
+                      validation.pair === "invalid"
+                        ? { border: "2px solid red" }
+                        : {}
+                    }
                     onChange={handleCreateSampleChange}
                   >
                     <option value="" selected disabled hidden>
@@ -1184,13 +1338,13 @@ const SampleRequest = () => {
 
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="upperColor">
-                  Upper <br /> Colour
+                  Upper <br /> Color
                 </label>
                 {downshiftUpperColor}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="liningColor">
-                  Lining Colour
+                  Lining Color
                 </label>
                 {downshiftLiningColor}
               </div>
@@ -1202,7 +1356,11 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input Here"
-                  style={validation.last === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.last === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   name="last"
                   value={sampleDetailsForm.last}
                   onChange={handleCreateSampleChange}
@@ -1217,14 +1375,18 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="insole"
-                  style={validation.insole === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.insole === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.insole}
                   onChange={handleCreateSampleChange}
                 />
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="soleLabel">
-                  Sole Label <br />& Colour
+                  Sole Label <br />& Color
                 </label>
                 {downshiftSoleLabel}
               </div>
@@ -1237,7 +1399,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="socks"
-                  style={validation.socks === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.socks === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.socks}
                   onChange={handleCreateSampleChange}
                   required
@@ -1252,7 +1418,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="heel"
-                  style={validation.heel === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.heel === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.heel}
                   onChange={handleCreateSampleChange}
                   required
@@ -1267,7 +1437,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="pattern"
-                  style={validation.pattern === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.pattern === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.pattern}
                   onChange={handleCreateSampleChange}
                   required
@@ -1311,7 +1485,11 @@ const SampleRequest = () => {
                   name="inUpperLeather"
                   value={sampleDetailsForm.inUpperLeather}
                   onChange={handleCreateSampleChange}
-                  style={validation.inUpperLeather === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.inUpperLeather === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   placeholder="Enter.."
                   required
                 />
@@ -1326,7 +1504,11 @@ const SampleRequest = () => {
                   placeholder="Enter.."
                   name="inLining"
                   value={sampleDetailsForm.inLining}
-                  style={validation.inLining === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.inLining === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   onChange={handleCreateSampleChange}
                   required
                 />
@@ -1340,7 +1522,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inSocks"
-                  style={validation.inSocks === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.inSocks === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.inSocks}
                   onChange={handleCreateSampleChange}
                   required
@@ -1355,7 +1541,11 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inQuantity"
-                  style={validation.inQuantity === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.inQuantity === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.inQuantity}
                   onChange={handleCreateSampleChange}
                   required
@@ -1406,7 +1596,11 @@ const SampleRequest = () => {
                   type="date"
                   className={`${styles.basicInput} ${styles.dateInput}`}
                   name="prodExDate"
-                  style={validation.prodExDate === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.prodExDate === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   value={sampleDetailsForm.prodExDate}
                   onChange={handleCreateSampleChange}
                   min={
@@ -1427,7 +1621,11 @@ const SampleRequest = () => {
                   name="deliveryDate"
                   value={sampleDetailsForm.deliveryDate}
                   onChange={handleCreateSampleChange}
-                  style={validation.deliveryDate === 'invalid' ? { border: "2px solid red" } : {}}
+                  style={
+                    validation.deliveryDate === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   disabled={!sampleDetailsForm.prodExDate}
                   min={sampleDetailsForm.prodExDate}
                   required
@@ -1464,7 +1662,6 @@ const SampleRequest = () => {
                     <button
                       onClick={handleUpdateSampleSubmit}
                       className={styles.submitButton}
-                     
                     >
                       Update
                     </button>{" "}
@@ -1537,6 +1734,21 @@ const SampleRequest = () => {
                 setIsArticlePopup(false);
               }}
               onSubmitArticleData={handleArticleNoSubmit}
+            />
+          )}
+          {isInventoryPopup && (
+            <InventoryCheckPopup
+              onCancel={() => {
+                setIsInventoryPopup(false);
+              }}
+            />
+          )}
+          {isInfoPopup && (
+            <InfoPopup
+              onCancel={() => {
+                setIsInfoPopup(false);
+              }}
+              infoName={"Sample Details"}
             />
           )}
           {isBuyerPopup && (
