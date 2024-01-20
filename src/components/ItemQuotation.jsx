@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
-import Downshift from "downshift";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import viewStyles from "../styles/viewDetails.module.css";
