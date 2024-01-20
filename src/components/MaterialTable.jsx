@@ -525,7 +525,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               itemSubGrpRef.current?.focus();
             }}
             className={styles.searchBtn}
-            disabled={!newItem.itemgrp}
+            disabled={!newItem.itemgrp.name}
             aria-label="dropDorn"
           ></button>
 

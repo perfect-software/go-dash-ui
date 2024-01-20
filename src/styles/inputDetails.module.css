@@ -9,7 +9,11 @@
   
     @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
   }
+  .samplePipelineContainer {
+    height: calc(100vh - 4rem);
   
+    @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
+  }
   .subHeadContainer {
     @apply flex justify-between items-center mt-1 mb-[16px] sml:flex-col sml:gap-4;
   }
@@ -80,12 +84,15 @@
   .topGrid {
     @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
   }
+  .topGridPipline {
+    @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
+  }
   
   .sampleLabel {
     @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
     min-width: 5.6rem;
   }
-  
+
   .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
   }
@@ -211,4 +218,10 @@
           rgba(0, 0, 0, 0.2) 100%
         ),
         var(--Color-2, #00adb5);
+    }
+
+    .loadAllButton {
+      @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+      leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
     }

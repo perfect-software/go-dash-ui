@@ -30,7 +30,7 @@ const MENU_ITEMS = {
   sample: {
     title: "Sample",
     icon: SampleIcon,
-    subItems: ["Sample Request", "Article Costing", "BOM"],
+    subItems: ["Sample Request", "Article Costing", "BOM","Sample Pipeline","Sample Progress"],
   },
   sales: {
     title: "Sales",
@@ -56,6 +56,8 @@ const MENU_ITEMS = {
 const SUBITEM_ICONS = {
   "Sample Request": SampleReq,
   "Article Costing": srIcon,
+  "Sample Pipeline":IcrIcon,
+  "Sample Progress":NewJobIcon,
   Buyer: BuyerIcon,
   "Buyer Order": BuyerOrder,
   Supplier: BuyerIcon,
