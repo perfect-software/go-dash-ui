@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
+import Downshift from "downshift";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import viewStyles from "../styles/viewDetails.module.css";
@@ -14,7 +15,10 @@ import { useDispatch, useSelector } from "react-redux";
 const ItemQuotation = () => {
   const [activeButton, setActiveButton] = useState("details");
   const [itemSelect,setItemSelect] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
   const { isCollapsed, toggleNavbar } = useSidebar();
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
 
   const dispatch = useDispatch();
@@ -35,8 +39,8 @@ const ItemQuotation = () => {
     return savedForm
       ? JSON.parse(savedForm)
       : {
-          itemName:"",
-          supplier:"",
+          itemId:"",
+          supplierId:"",
           rate:"",
           unit:"",
           validUntil:"",
@@ -74,8 +78,8 @@ const ItemQuotation = () => {
 
   const resetAllFields = () => {
     setItemQuotation({
-        itemName:"",
-        supplier:"",
+        itemId:"",
+        supplierId:"",
         rate:"",
         unit:"",
         validUnit:"",
@@ -87,7 +91,10 @@ const ItemQuotation = () => {
     );
   };
 
-
+  const togglePopup = (message) => {
+    setIsPopupVisible(!isPopupVisible);
+    setPopupMessage(message);
+  };
 
   const onRowSelected = (event) => {
     const selectedData = event.api.getSelectedRows();
@@ -119,6 +126,28 @@ const ItemQuotation = () => {
     }
     
   ];
+  const handleItemQuotationSubmit = async (e)=>{
+    e.preventDefault();
+    setSubmitLoading(true);
+    const BASE_URL = 'item/createItemQuotation';
+    try {
+     const response = await postApiService(itemQuotation,BASE_URL)
+     togglePopup(response.message);
+    } catch (error) {
+     if (error.response) {
+       togglePopup(
+         error.response.data.message ||
+           `Server error: ${error.response.status}`
+       );
+     } else if (error.request) {
+       togglePopup("No response received from the server.");
+     } else {
+       togglePopup(error.message);
+     }
+    } finally {
+     setSubmitLoading(false);
+    }
+};
 
 
   return (
@@ -181,8 +210,8 @@ const ItemQuotation = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Name"
-                  value={itemQuotation.itemName}
-                  name="itemName"
+                  value={itemQuotation.itemId}
+                  name="itemId"
                   onChange={handleItemQuotationChange}
                 />
               </div>
@@ -194,8 +223,8 @@ const ItemQuotation = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Name"
-                  value={itemQuotation.supplier}
-                  name="supplier"
+                  value={itemQuotation.supplierId}
+                  name="supplierId"
                   onChange={handleItemQuotationChange}
                 />
               </div>
@@ -240,10 +269,35 @@ const ItemQuotation = () => {
               </div>
             </div>{" "}
           </div>
+          <div className={styles.parentButtonContainer}>
+          {submitLoading ? (
           <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} onClick={resetAllFields}>Reset</button>
-            <button className={styles.submitButton}>Submit</button>
+            <div className={styles.loader}></div>
           </div>
+        ) : (
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton} onClick={resetAllFields}>
+              Reset
+            </button>
+            <button
+              className={styles.submitButton}
+              onClick={handleItemQuotationSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        )}    
+</div>
+        {isPopupVisible && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.popupContent}>
+                <h2>{popupMessage}</h2>
+                <button className={styles.popupButton} onClick={togglePopup}>
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         

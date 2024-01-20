@@ -19,6 +19,8 @@ import { Provider } from 'react-redux';
 import { store } from './helper/store';
 import Bom from "./components/Bom";
 import ItemQuotation from "./components/ItemQuotation";
+import SamplePipeline from "./components/SamplePipeline";
+import SamplePipelineProgressView from "./components/SamplePipelineProgressView";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,8 +57,10 @@ function App() {
               </Route>
               <Route path="/articlecosting" element={<ArticleCosting />} />
               <Route path="/supplier" element={<Supplier />} />
+              <Route path="/samplepipeline" element={<SamplePipeline />} />
               <Route path="/bom" element={<Bom/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
+              <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />
               <Route path="/login" element={<LoginRegister />} />
               <Route path="/itemquotation" element={<ItemQuotation/>}/>
             </Routes>
