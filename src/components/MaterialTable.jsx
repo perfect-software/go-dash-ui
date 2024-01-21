@@ -2,14 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/bom.module.css";
 import Downshift from "downshift";
 import { useSelector, useDispatch } from "react-redux";
+import { getformatDate } from "../features/convertDate";
 import { fetchItemGroupsAndSubGroups } from "../reducer/grpSubgrpSlice";
 import { useSidebar } from "../context/SidebarContext";
-import { getApiService } from "../service/apiService";
+import { getApiService } from "../service/apiService";;
+import { fetchAllItemRates } from "../reducer/itemRateSlice";
+import ItemRatesPopup from "../popups/ItemRatesPopup";
+
 const MaterialTable = ({ bomData, setBomData  }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const initialValidationState = {};
+  const [isRatePopup, setIsRatePopup] = useState(false);
   const [validation, setValidation] = useState(initialValidationState);
   const [filteredList, setFilteredList] = useState({
     itemGrpList: [],
@@ -24,10 +29,10 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   const [newItem, setNewItem] = useState({
     itemgrp: { name: "", id: "" },
     itemsubgrp: { name: "", id: "" },
-    itemId: "",
+    itemId: { name: "", id: "" },
     usedIn: "",
     pair: "",
-    supplierId:"",
+    supplierId:{ name: "", id: "" },
     stockConsumedQty:"",
     bomQty: "",
     unit:"",
@@ -56,10 +61,20 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     } else {
       newValidation['itemsubgrp'] = "valid";
     }
-  
-    // Validate other fields
+    if (!newItem.supplierId.name.trim()) {
+      isValid = false;
+      newValidation['supplierId'] = "invalid";
+    } else {
+      newValidation['supplierId'] = "valid";
+    }
+    if (!newItem.itemId.name.trim()) {
+      isValid = false;
+      newValidation['itemId'] = "invalid";
+    } else {
+      newValidation['itemId'] = "valid";
+    }
     requiredFields.forEach((field) => {
-      if (!newItem[field] || newItem[field].trim() === "") {
+      if (!newItem[field]) {
         isValid = false;
         newValidation[field] = "invalid";
       } else {
@@ -75,12 +90,22 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
   );
-
+  const { itemRates, loadedRate, loadingRate, errorRate } = useSelector(
+    (state) => state.itemRate
+  );
   useEffect(() => {
     if (!loaded && !loading) {
       dispatch(fetchItemGroupsAndSubGroups());
     }
   }, [loaded, loading, dispatch]);
+
+  useEffect(()=>{
+    if (!loadedRate && !loadingRate) {
+      dispatch(fetchAllItemRates());
+         }
+  },[loadedRate, loadingRate,dispatch])
+ 
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -105,7 +130,41 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     });
     setValidation(prev => ({ ...prev, [name]: 'valid' }));
   };
-
+  const handleOnSupplierChange =(e)=>{
+    const { name, value } = e.target;
+    setNewItem((prevItem) => ({
+      ...prevItem,
+      supplierId: {
+        ...prevItem.supplierId,
+        name: value,
+      },
+    }));
+    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+  }
+ const handleRateSubmit=(selectedRates)=>{
+  if (Array.isArray(selectedRates) && selectedRates.length > 0) {
+    const selectedRate = selectedRates[0];
+    setNewItem((prevItem) => ({
+      ...prevItem,
+      itemId: {
+        ...prevItem.itemId,
+        name: selectedRate.itemName,
+        id: selectedRate.itemId
+      },
+      supplierId: {
+        ...prevItem.supplierId,
+        name: selectedRate.supplierName,
+        id: selectedRate.supplierId
+      },
+     
+      unit:selectedRate.unit,
+      rate:selectedRate.rate
+    }));
+   
+    toggleSuggestVisibility("itemId", false);
+    setIsRatePopup(false);
+  }
+ }
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -149,20 +208,18 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   };
   const handleItemNameChange = async (e) => {
     const { name, value } = e.target;
-    setNewItem((prevItem) => ({ ...prevItem, itemId: value }));
+    setNewItem((prevItem) => ({
+      ...prevItem,
+      itemId: {
+        ...prevItem.itemId,
+        name: value,
+      },
+    }));
     toggleSuggestVisibility(name, value.length > 0);
-
-    if (value.length >= 1) {
-      const BASE_URL = `item/getItemName?input=${encodeURIComponent(value)}`;
-      try {
-        const fetchedItemName = await getApiService(BASE_URL);
-        setItemNames(fetchedItemName);
-      } catch (error) {
-        console.error("Failed to fetch Item Names:", error);
-      }
-    } else {
-      setItemNames([]);
-    }
+    const filteredItems = itemRates.filter((item) =>
+    item.itemName.toLowerCase().includes(value.toLowerCase())
+  ).map(item => ({ itemId: item.itemId, itemName: item.itemName,supplierId:item.supplierId,supplierName:item.supplierName , rate:item.rate,unit:item.unit  }));
+    setItemNames(filteredItems);
     setValidation(prev => ({ ...prev, [name]: 'valid' }));
   };
 
@@ -172,71 +229,58 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     }
   
     setBomData((prevData) => {
-      const newData = JSON.parse(JSON.stringify(prevData));
+      let newData = JSON.parse(JSON.stringify(prevData));
       let group = newData.groups.find(g => g.id === newItem.itemgrp.id);
       if (!group) {
-        group = {
-          id: newItem.itemgrp.id,
-          name: newItem.itemgrp.name, 
-          subgroups: []
-        };
+        group = { id: newItem.itemgrp.id, name: newItem.itemgrp.name, subgroups: [] };
         newData.groups.push(group);
       }
-  
-     
       let subgroup = group.subgroups.find(sg => sg.id === newItem.itemsubgrp.id);
       if (!subgroup) {
-        subgroup = {
-          id: newItem.itemsubgrp.id,
-          name: newItem.itemsubgrp.name, 
-          items: []
-        };
+        subgroup = { id: newItem.itemsubgrp.id, name: newItem.itemsubgrp.name, items: [] };
         group.subgroups.push(subgroup);
       }
-  
-    
-      const existingItemIndex = subgroup.items.findIndex(i => i.itemId === newItem.itemId);
-      if (existingItemIndex !== -1) {
-        console.warn("Item already exists in the subgroup");
+      const existingItem = subgroup.items.find(i => i.itemId.id === newItem.itemId.id);
+      if (existingItem) {
+        console.warn("Item already exists");
         return newData;
       }
   
-    
       subgroup.items.push({
-        itemId: newItem.itemId,
+        itemId: newItem.itemId.id,
+        itemName: newItem.itemId.name,
         usedIn: newItem.usedIn,
         pair: newItem.pair,
         bomQty: newItem.bomQty,
-        supplierId: newItem.supplierId,
+        supplierId: newItem.supplierId.id,
+        supplierName: newItem.supplierId.name,
         stockConsumedQty: newItem.stockConsumedQty,
         unit: newItem.unit,
         requiredQty: newItem.requiredQty,
         rate: newItem.rate,
         cost: newItem.cost
       });
-  
-  
-      let totalCost = 0;
-      newData.groups.forEach(group => 
-        group.subgroups.forEach(subgroup => 
-          subgroup.items.forEach(item => 
-            totalCost += parseFloat(item.cost) || 0
-          )
-        )
-      );
+      let totalCost = newData.groups.reduce((total, group) => 
+        total + group.subgroups.reduce((subTotal, subgroup) => 
+          subTotal + subgroup.items.reduce((itemTotal, item) => 
+            itemTotal + parseFloat(item.cost) || 0, 0), 0), 0);
+      
       newData.totalCost = totalCost.toFixed(2);
   
       return newData;
     });
   
-    
+    resetNewItemState();
+  };
+  
+  const resetNewItemState = () => {
     setNewItem({
       itemgrp: { name: "", id: "" },
       itemsubgrp: { name: "", id: "" },
-      itemId: "",
+      itemId: { name: "", id: "" },
       usedIn: "",
       pair: "",
-      supplierId: "",
+      supplierId: { name: "", id: "" },
       stockConsumedQty: "",
       bomQty: "",
       unit: "",
@@ -249,33 +293,26 @@ const MaterialTable = ({ bomData, setBomData  }) => {
 
   const handleRemoveItem = (groupId, subgroupId, itemId) => {
     setBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData)); 
-  
+      let newData = JSON.parse(JSON.stringify(prevData));
       newData.groups = newData.groups.map(group => {
         if (group.id === groupId) {
           group.subgroups = group.subgroups.map(subgroup => {
             if (subgroup.id === subgroupId) {
-          
               subgroup.items = subgroup.items.filter(item => item.itemId !== itemId);
             }
             return subgroup;
-          }).filter(subgroup => subgroup.items.length > 0); 
+          }).filter(subgroup => subgroup.items.length > 0);
         }
         return group;
       }).filter(group => group.subgroups.length > 0);
-  
-     
-      let totalCost = 0;
-      newData.groups.forEach(group => 
-        group.subgroups.forEach(subgroup => 
-          subgroup.items.forEach(item => 
-            totalCost += parseFloat(item.cost) || 0
-          )
-        )
-      );
+      let totalCost = newData.groups.reduce((total, group) => 
+        total + group.subgroups.reduce((subTotal, subgroup) => 
+          subTotal + subgroup.items.reduce((itemTotal, item) => 
+            itemTotal + parseFloat(item.cost) || 0, 0), 0), 0);
+      
       newData.totalCost = totalCost.toFixed(2);
   
-      return newData; 
+      return newData;
     });
   };
   
@@ -324,7 +361,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               {itemIndex === 0 && (
                 <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
               )}
-              <td>{item.itemId}</td>
+              <td>{item.itemName}</td>
 
               <td>{item.usedIn}</td>
 
@@ -336,7 +373,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               <td>{item.requiredQty}</td>
               <td>{item.rate}</td>
               <td>{item.unit}</td>
-              <td>{item.supplierId}</td>
+              <td>{item.supplierName}</td>
               <td>{item.cost}</td>
               <td style={{ textAlign: "center" }}>
                 <button
@@ -365,12 +402,24 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          setNewItem((prevNewItem) => ({
-            ...prevNewItem,
-            itemId: selectedItem,
+          setNewItem((prevItem) => ({
+            ...prevItem,
+            itemId: {
+              ...prevItem.itemId,
+              name: selectedItem.itemName,
+              id: selectedItem.itemId
+            },
+            supplierId: {
+              ...prevItem.supplierId,
+              name: selectedItem.supplierName,
+              id: selectedItem.supplierId
+            },
+            unit:selectedItem.unit,
+            rate:selectedItem.rate
           }));
+          console.log(newItem);
           toggleSuggestVisibility("itemId", false);
-          setItemNames([]);
+          
         }
       }}
       itemToString={(item) => (item ? item : "")}
@@ -393,11 +442,15 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             className={styles.basicInput}
             style={validation.itemId === 'invalid' ? { border: "2px solid red" } : {}}
             placeholder="Type a word"
-            value={newItem.itemId}
+            value={newItem.itemId.name}
           />
-
+           <button
+            onClick={() => setIsRatePopup(true)}
+            className={styles.searchBtn2}
+            aria-label="Search"
+          ></button>
           <div {...getMenuProps()} className={styles.suggestions}>
-            {isOpen &&
+          {showSuggestions.itemId &&
               itemNames.map((name, idx) => (
                 <div
                   {...getItemProps({ key: idx, index: idx, item: name })}
@@ -407,7 +460,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
                       : styles.suggestionItem
                   }
                 >
-                  {name}
+                  {name.itemName}
                 </div>
               ))}
           </div>
@@ -668,11 +721,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           <input
             name="supplierId"
             type="text"
-            onChange={handleInputChange}
+            onChange={handleOnSupplierChange}
             style={validation.supplierId === 'invalid' ? { border: "2px solid red" } : {}}
             className={styles.basicInput}
             placeholder="Enter supplier"
-            value={newItem.supplierId}
+            value={newItem.supplierId.name}
           />
         </div>
         <div className={styles.colSpan}>
@@ -751,6 +804,14 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           )}
         </table>
       </div>
+      {isRatePopup && (
+            <ItemRatesPopup
+              onCancel={() => {
+                setIsRatePopup(false);
+              }}
+              onSubmitRateData={handleRateSubmit}
+            />
+          )}
     </>
   );
 };

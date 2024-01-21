@@ -3,10 +3,13 @@ import styles from "../styles/bom.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import MaterialTable from "./MaterialTable";
+import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 
 const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const [bomData, setBomData] = useState({
     sampleNo: "",
@@ -84,6 +87,7 @@ const Bom = () => {
       [key]: value,
     }));
   };
+
   const handleBuyerInputChange = async (e) => {
     const value = e.target.value;
     setArticleCostForm({ ...articleCostForm, buyerName: value });
@@ -127,7 +131,7 @@ const Bom = () => {
   
     return transformedData;
   };
-  
+
   const handleSubmitBomClick = async (e)=>{
     e.preventDefault();
     setLoading(true);
@@ -163,9 +167,16 @@ const Bom = () => {
           <div className={styles.subHeadContainerTwo}>
             <div className={styles.subHeadContainerThree}>
               <h2>Sample Details</h2>
+              <div style={{display:"flex",gap:'6px'}}>
               <button className={styles.headButton} onClick={handleViewPDF}>
                 Print
               </button>
+              <button className={styles.headButton}  onClick={() => {
+                      setIsInventoryPopup(true);
+                    }}>
+                Inventory 
+              </button>
+              </div>
             </div>
             <div className={styles.headBorder}></div>
           </div>
@@ -231,7 +242,7 @@ const Bom = () => {
           </div>
         ) : (
           <div className={styles.buttonContainer}>
-            <button className={styles.resetButton}>Reset</button>
+            <button className={styles.resetButton} >Reset</button>
             <button
               className={styles.submitButton}
                onClick={handleSubmitBomClick}
@@ -244,13 +255,20 @@ const Bom = () => {
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>
-            <h2></h2>
+            <h2>{popupMessage}</h2>
             <button className={styles.popupButton} onClick={togglePopup}>
               OK
             </button>
           </div>
         </div>
       )}
+       {isInventoryPopup && (
+            <InventoryCheckPopup
+              onCancel={() => {
+                setIsInventoryPopup(false);
+              }}
+            />
+          )}
     </div>
   );
 };

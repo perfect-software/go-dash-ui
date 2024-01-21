@@ -92,7 +92,19 @@
     @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
     min-width: 5.6rem;
   }
-
+  .searchBtn {
+    @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+    background-image: url("../assets/dropDown2.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: translateY(-50%);
+    background-size: 16px 16px;
+    border: none;
+  }
+  
+  .searchBtn:hover {
+    opacity: 0.8;
+  }
   .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
   }

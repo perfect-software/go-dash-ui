@@ -1,18 +1,28 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback,useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import Downshift from "downshift";
+import {  formatDDMMYYYYDate } from "../features/convertDate";
 import viewStyles from "../styles/viewDetails.module.css";
-import { postApiService } from "../service/apiService";
+import { getApiService, postApiService } from "../service/apiService";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchAllItemRates } from "../reducer/itemRateSlice";
 
 const ItemQuotation = () => {
   const [activeButton, setActiveButton] = useState("details");
   const [itemSelect,setItemSelect] = useState(null);
+  const [itemNames, setItemNames] = useState([]);
+  const [filteredList, setFilteredList] = useState({
+    itemNameList: [],
+    suppplierList: [],
+  });
+  const [itemIds , setItemIds] = useState(null);
+  const [supplierId , setSupplierId] = useState(null);
+  const [supplierData, setSupplierData] = useState([]);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const { isCollapsed, toggleNavbar } = useSidebar();
@@ -20,9 +30,13 @@ const ItemQuotation = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
 
   const dispatch = useDispatch();
-  const { samples, loaded, loading, error } = useSelector(
-    (state) => state.sample
+  const { itemRates, loaded, loading, error } = useSelector(
+    (state) => state.itemRate
   );
+  const [showSuggestions, setShowSuggestions] = useState({
+    itemId: false,
+    supplierId:false
+  });
 
   const handleItemQuotationChange = (e) => {
     const { name, value } = e.target;
@@ -58,15 +72,9 @@ const ItemQuotation = () => {
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
- dispatch(fetchAllSamples());
+ dispatch(fetchAllItemRates());
     }
   }, []);
-
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
 
   useEffect(() => {
     if (gridApi && !loaded && loading) {
@@ -74,13 +82,45 @@ const ItemQuotation = () => {
     }
   }, [ loaded, loading, gridApi]);
 
+
+
+  const getSupplier = async () => {
+    const BASE_URL = "supplier/getSupplierList";
+    try {
+      const response = await getApiService(BASE_URL);
+      setSupplierData(response);
+    } catch (error) {
+      console.error("Failed to fetch Supplier:", error);
+    }
+  };
+  const getNames = async () => {
+    const BASE_URL = "item/getItemName";
+    try {
+      const response = await getApiService(BASE_URL);
+      setItemNames(response);
+    } catch (error) {
+      console.error("Failed to fetch Supplier:", error);
+    }
+  };
+
+ 
+    useEffect(() => {
+      if (supplierData.length === 0) {
+        getSupplier();
+      }
+      if (itemNames.length === 0) {
+        getNames();
+      }
+    }, []);
+ 
+
   const resetAllFields = () => {
     setItemQuotation({
         itemId:"",
         supplierId:"",
         rate:"",
         unit:"",
-        validUnit:"",
+        validUntil:"",
     });
    
     localStorage.setItem(
@@ -88,49 +128,95 @@ const ItemQuotation = () => {
       JSON.stringify(itemQuotation)
     );
   };
+  const handleItemNameChange = async (e) => {
+    const { name, value } = e.target;
+    setItemQuotation((prevItem) => ({ ...prevItem, itemId: value }));
 
+    const filteredItems = itemNames.filter((item) =>
+    item.itemName.toLowerCase().includes(value.toLowerCase())
+  ).map(item => ({ itemId: item.itemId, itemName: item.itemName }));
+    setFilteredList((prevState) => ({
+      ...prevState,
+      itemNameList: filteredItems,
+    }));
+    toggleSuggestVisibility(name, value.length > 0);
+  };
+  const handleSupplierChange = async (e) => {
+    const { name, value } = e.target;
+    setItemQuotation((prevItem) => ({ ...prevItem, supplierId: value }));
+    const filteredItems = supplierData.filter((supplier) =>
+    supplier.supplierName.toLowerCase().includes(value.toLowerCase())
+  ).map(supplier => ({ supplier_id: supplier.supplier_id, supplierName: supplier.supplierName }));
+
+    setFilteredList((prevState) => ({
+      ...prevState,
+      suppplierList: filteredItems,
+    }));
+    toggleSuggestVisibility(name, value.length > 0);
+  };
+  
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
   };
-
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    setItemSelect(selectedData.length > 0 ? selectedData[0] : null);
-    setIsEditSelected(!isEditSelected);
+  const dateFilterParams = {
+    comparator: function(filterLocalDateAtMidnight, cellValue) {
+      if (!cellValue) return -1;
+      const formattedCellValue = formatDDMMYYYYDate(cellValue);
+      const formattedFilterDate = filterLocalDateAtMidnight.toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).replace(/\//g, '-');
+      if (formattedCellValue < formattedFilterDate) {
+        return -1;
+      } else if (formattedCellValue > formattedFilterDate) {
+        return 1;
+      }
+      return 0;
+    }
   };
-
+ 
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
-    { headerName: "Item Name", field: "sr_no", sortable: true, filter: true },
-    { headerName: "Supplier", field: "season", sortable: true, filter: true },
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    { headerName: "Supplier", field: "supplierName", sortable: true, filter: true },
     {
       headerName: "Rate (INR)",
-      field: "article_no",
+      field: "rate",
       sortable: true,
       filter: true,
     },
     {
       headerName: "Unit",
-      field: "buyer.bsName",
+      field: "unit",
       sortable: true,
       filter: true,
     },
     {
       headerName: "Validity of Rate",
-      field: "sampleType",
+      field: "validUntil",
       sortable: true,
-      filter: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
     }
     
   ];
   const handleItemQuotationSubmit = async (e)=>{
     e.preventDefault();
     setSubmitLoading(true);
+    const updatedItemQuotation = {
+      ...itemQuotation,
+      itemId: itemIds,
+      supplierId: supplierId,
+    };
+    console.log(updatedItemQuotation);
     const BASE_URL = 'item/createItemQuotation';
     try {
-     const response = await postApiService(itemQuotation,BASE_URL)
+     const response = await postApiService(updatedItemQuotation,BASE_URL)
      togglePopup(response.message);
+     fetchAllItemRates();
     } catch (error) {
      if (error.response) {
        togglePopup(
@@ -146,8 +232,146 @@ const ItemQuotation = () => {
      setSubmitLoading(false);
     }
 };
+const handleButtonClick = (name) => {
+  if (name === "itemId") {
+    setFilteredList({ ...filteredList, itemNameList: itemNames });
+    toggleSuggestVisibility(name, !showSuggestions[name]);
+  }
+  if (name === "supplierId") {
+    setFilteredList({ ...filteredList, suppplierList: supplierData });
+    toggleSuggestVisibility(name, !showSuggestions[name]);
+  }
+};
+ const supplierNameRef = useRef(null);
+ const downshiftSupplierName = (
+  <Downshift
+    onChange={(selectedItem) => {
+      if (selectedItem) {
+        setItemQuotation((prevNewItem) => ({
+          ...prevNewItem,
+          supplierId: selectedItem.supplierName,
+        }));
+        setSupplierId(selectedItem.supplier_id);
+        toggleSuggestVisibility("supplierId", false);
+      }
+    }}
+    itemToString={(item) => (item ? item : "")}
+    selectedItem={itemQuotation.supplierId}
+  >
+    {({
+      getInputProps,
+      getItemProps,
+      getMenuProps,
+      isOpen,
+      highlightedIndex,
+    }) => (
+      <div className={styles.inputWithIcon}>
+        <input
+          {...getInputProps({
+            onChange: handleSupplierChange,
+            name: "supplierId",
+          })}
+          type="text"
+          className={styles.basicInput}
+          //style={validation.supplierId === 'invalid' ? { border: "2px solid red" } : {}}
+          placeholder="Type a word"
+          value={itemQuotation.supplierId}
+        />
+          <button
+            onClick={() => {
+              handleButtonClick("supplierId");
+              supplierNameRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+         <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.supplierId &&
+              filteredList.suppplierList.map((items, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: items })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {items.supplierName}
+                </div>
+              ))}
+          </div>
+      </div>
+    )}
+  </Downshift>
+);
 
 
+
+
+
+ const itemNameRef = useRef(null);
+const downshiftItemName = (
+  <Downshift
+    onChange={(selectedItem) => {
+      if (selectedItem) {
+        setItemQuotation((prevNewItem) => ({
+          ...prevNewItem,
+          itemId: selectedItem.itemName,
+        }));
+        setItemIds(selectedItem.itemId);
+        toggleSuggestVisibility("itemId", false);
+       
+      }
+    }}
+    itemToString={(item) => (item ? item : "")}
+    selectedItem={itemQuotation.itemId}
+  >
+    {({
+      getInputProps,
+      getItemProps,
+      getMenuProps,
+      isOpen,
+      highlightedIndex,
+    }) => (
+      <div className={styles.inputWithIcon}>
+        <input
+          {...getInputProps({
+            onChange: handleItemNameChange,
+            name: "itemId",
+          })}
+          type="text"
+          className={styles.basicInput}
+          //style={validation.itemId === 'invalid' ? { border: "2px solid red" } : {}}
+          placeholder="Type a word"
+          value={itemQuotation.itemId}
+        />
+          <button
+            onClick={() => {
+              handleButtonClick("itemId");
+              itemNameRef.current?.focus();
+            }}
+            className={styles.searchBtn}
+            aria-label="dropDorn"
+          ></button>
+         <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.itemId &&
+              filteredList.itemNameList.map((items, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: items })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {items.itemName}
+                </div>
+              ))}
+          </div>
+      </div>
+    )}
+  </Downshift>
+);
   return (
     <div className={styles.itemQuotationContainer}>
       <div className={styles.headContainer}>
@@ -204,27 +428,13 @@ const ItemQuotation = () => {
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Item Name
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Name"
-                  value={itemQuotation.itemId}
-                  name="itemId"
-                  onChange={handleItemQuotationChange}
-                />
+                 {downshiftItemName}
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="input1">
                   Supplier
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Name"
-                  value={itemQuotation.supplierId}
-                  name="supplierId"
-                  onChange={handleItemQuotationChange}
-                />
+               {downshiftSupplierName}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="input1">
@@ -309,15 +519,14 @@ const ItemQuotation = () => {
           >
             <AgGridReact
               columnDefs={columnDefs}
-              rowData={samples}
+              rowData={itemRates}
               pagination={true}
               paginationPageSize={12}
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
               onGridReady={onGridReady}
-              onSelectionChanged={onRowSelected}
-              onRowDataChanged={onRowDataChanged}
+
             />
           </div>
       </div>

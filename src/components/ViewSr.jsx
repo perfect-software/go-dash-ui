@@ -47,8 +47,6 @@ const ViewSr = ({ onSampleSelect }) => {
         month: '2-digit',
         day: '2-digit'
       }).replace(/\//g, '-');
-      console.log(formattedFilterDate);
-      console.log(formattedCellValue);
       if (formattedCellValue < formattedFilterDate) {
         return -1;
       } else if (formattedCellValue > formattedFilterDate) {

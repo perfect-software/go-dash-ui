@@ -20,13 +20,12 @@ import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 import InfoPopup from "../popups/InfoPopup";
-import InventoryCheckPopup from "../popups/InventoryCheckPopup";
+
 
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isInfoPopup, setIsInfoPopup] = useState(false);
-  const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
   const dispatch = useDispatch();
@@ -632,9 +631,7 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
           />
-          <button className={styles.searchBtn} onClick={() => {
-                    setIsInventoryPopup(true);
-                  }} aria-label="Search"></button>
+          <button className={styles.searchBtn} aria-label="Search"></button>
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleRef &&
@@ -1736,13 +1733,7 @@ const SampleRequest = () => {
               onSubmitArticleData={handleArticleNoSubmit}
             />
           )}
-          {isInventoryPopup && (
-            <InventoryCheckPopup
-              onCancel={() => {
-                setIsInventoryPopup(false);
-              }}
-            />
-          )}
+         
           {isInfoPopup && (
             <InfoPopup
               onCancel={() => {
