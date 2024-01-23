@@ -14,8 +14,16 @@
   
     @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
   }
+  .purchaseOrderContainer {
+    height: calc(100vh - 4rem);
+  
+    @apply px-4 pt-2 pb-5 w-full overflow-auto flex-grow;
+  }
   .subHeadContainer {
-    @apply flex justify-between items-center mt-1 mb-[16px] sml:flex-col sml:gap-4;
+    @apply flex justify-between  items-center mt-1 mb-[16px] sml:flex-col sml:gap-4;
+  }
+  .subHeadContainer2 {
+    @apply flex justify-between  items-center mt-1 mb-[6px] sml:flex-col sml:gap-4;
   }
   .editContainer{
     @apply flex gap-1;
@@ -25,6 +33,13 @@
     leading-4 bg-[#00A5AD] rounded-[0.3125rem];
   }
   .headButton:disabled{
+    @apply cursor-not-allowed;
+  }
+  .headButton2 {
+    @apply w-[6rem] h-[2.4rem] flex justify-center items-center text-[0.8rem] font-[700] py-[0.7rem] px-[0.3rem] text-white 
+    leading-4 bg-[#00A5AD] rounded-[0.3125rem] m-0;
+  }
+  .headButton2:disabled{
     @apply cursor-not-allowed;
   }
   .headText {
@@ -38,7 +53,9 @@
   .subHeadContainerTwo h2 {
     @apply text-[0.875rem];
   }
-  
+  .subHeadContainerThree {
+    @apply flex sm:flex-col sm:gap-2 sm:items-center sm:justify-center justify-between items-end;
+  }
   .topButtons {
     @apply flex gap-[3.12rem] ;
   }

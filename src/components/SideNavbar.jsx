@@ -40,7 +40,7 @@ const MENU_ITEMS = {
   purchase: {
     title: "Purchase",
     icon: PurchaseIcon,
-    subItems: ["Supplier", "New Purchase Order", "ICR Challan", "Gatepass"],
+    subItems: ["Supplier", "Purchase Order", "ICR Challan", "Gatepass"],
   },
   production: {
     title: "Production",
@@ -61,7 +61,7 @@ const SUBITEM_ICONS = {
   Buyer: BuyerIcon,
   "Buyer Order": BuyerOrder,
   Supplier: BuyerIcon,
-  "New Purchase Order": PurchaseOrder,
+  "Purchase Order": PurchaseOrder,
   "ICR Challan": IcrIcon,
   Gatepass: GatePassIcon,
   "New Work Order": NewWorkIcon,

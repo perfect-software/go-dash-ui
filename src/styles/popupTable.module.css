@@ -11,13 +11,18 @@
   z-index: 1000;
   @apply py-4;
 }
-
+.topGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
+}
+.colSpan {
+  @apply col-span-2 flex flex-row items-center gap-1;
+}
 .popupContainer {
   @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
 }
 .sampleLabel {
-  @apply text-[#5b5b5b]  flex items-center text-[0.84rem] mr-6;
- 
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
+  min-width: 5.6rem;
 }
 .topPopupContainer {
   @apply flex flex-col w-full p-1;
@@ -29,14 +34,13 @@
 .srInput{
   @apply flex self-center sml:mt-5;
   }
-.basicInput {
-  @apply border p-2 w-[11rem] rounded-[0.3125rem];
-  height: 2.5rem;
-}
+  .basicInput {
+    @apply border p-2 w-full rounded-[0.3125rem];
+    height: 2.5rem;
+  }
 .topBarContainer h1 {
   @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400];
 }
-
 
 .crossIcon {
   @apply h-[1rem] w-[1rem] cursor-pointer;
@@ -61,6 +65,10 @@
 
 .selectPopupButton {
   @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
+
+.viewButton {
+  @apply flex items-center bg-[#d8e9e1] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
 .bottomButtonContainer {
   @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-3;
