@@ -63,23 +63,24 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   };
 
   const columnDefs = [
-    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "SR No.", field: "sampleRef", sortable: true, filter: true },
-    {
-      headerName: "Date of Order",
-      field: "dateOfOrder",
-      sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
+    {headerName: "Select",field:'select', maxWidth: 80, checkboxSelection: true  },
+    { headerName: "SR No.", field: "sr_no", sortable: true, filter: true },
     { headerName: "Season", field: "season", sortable: true, filter: true },
+    { headerName: "Sample Refrence", field: "sampleRef", sortable: true, filter: true },
+    { headerName: "Sample Type", field: "sampleType", sortable: true, filter: true },
     {
       headerName: "Article No",
-      field: "articleNo",
+      field: "article_no",
       sortable: true,
       filter: true,
     },
+    {
+      headerName: "Buyer Article",
+      field: "buyerArticle",
+      sortable: true,
+      filter: true,
+    },
+    
     {
       headerName: "Buyer",
       field: "buyer.bsName",
@@ -87,14 +88,20 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       filter: true,
     },
     {
-      headerName: "Sample Type",
-      field: "sampleType",
+      headerName: "Size",
+      field: "size",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Buyer Article",
-      field: "buyerArticle",
+      headerName: "Quantity",
+      field: "quantity",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Pair",
+      field: "pair",
       sortable: true,
       filter: true,
     },
@@ -112,8 +119,86 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
     },
     { headerName: "Last", field: "last", sortable: true, filter: true },
     { headerName: "Insole", field: "insole", sortable: true, filter: true },
-  ];
+    {
+      headerName: "Sole Label",
+      field: "soleLabel",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Socks",
+      field: "socks",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Heel",
+      field: "heel",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Pattern",
+      field: "pattern",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer Refrence",
+      field: "buyerRef",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Upper Leather",
+      field: "inUpperLeather",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Socks",
+      field: "inSocks",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Quantity",
+      field: "inQuantity",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Lining",
+      field: "inLining",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Date of Order",
+      field: "dateOfOrder",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "Delivery Date",
+      field: "deliveryDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "ProdEx Date",
+      field: "prodExDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
 
+  ];
   const onRowSelected = (event) => {
     setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();

@@ -30,7 +30,7 @@ const MENU_ITEMS = {
   sample: {
     title: "Sample",
     icon: SampleIcon,
-    subItems: ["Sample Request", "Article Costing", "BOM","Sample Pipeline","Sample Progress"],
+    subItems: ["Sample Request", "BOM","Sample Pipeline","Sample Progress"],
   },
   sales: {
     title: "Sales",
@@ -40,7 +40,7 @@ const MENU_ITEMS = {
   purchase: {
     title: "Purchase",
     icon: PurchaseIcon,
-    subItems: ["Supplier", "New Purchase Order", "ICR Challan", "Gatepass"],
+    subItems: ["Supplier", "Purchase Order", "ICR Challan", "Gatepass"],
   },
   production: {
     title: "Production",
@@ -55,13 +55,12 @@ const MENU_ITEMS = {
 };
 const SUBITEM_ICONS = {
   "Sample Request": SampleReq,
-  "Article Costing": srIcon,
   "Sample Pipeline":IcrIcon,
   "Sample Progress":NewJobIcon,
   Buyer: BuyerIcon,
   "Buyer Order": BuyerOrder,
   Supplier: BuyerIcon,
-  "New Purchase Order": PurchaseOrder,
+  "Purchase Order": PurchaseOrder,
   "ICR Challan": IcrIcon,
   Gatepass: GatePassIcon,
   "New Work Order": NewWorkIcon,

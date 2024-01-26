@@ -32,11 +32,11 @@
 }
 .basicInput {
   @apply border p-2 w-full rounded-[0.3125rem];
-  height: 2.5rem;
+  height: 2.2rem;
 }
 .sampleLabel {
-  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
-  min-width: 5.8rem;
+  @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.2rem];
+  min-width: 5.6rem;
 }
 .sampleLabel2 {
   display: none;
@@ -79,12 +79,11 @@
 }
 .headText {
   @apply text-[#00ADB5] mt-3 text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
+
 }
 .topGrid {
-  @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
-}
-.bottomGrid {
-  @apply grid  smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2;
+  @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 mt-2;
+  grid-gap: 4px 10px;
 }
 
 .customTable {
@@ -191,7 +190,7 @@ select {
   -moz-appearance: none;
 }
 .middleContainerBottom {
-  @apply mt-5 flex items-center cursor-pointer  w-fit;
+  @apply mt-2 flex items-center cursor-pointer  w-fit;
 }
 .middleContainerBottom span {
   @apply mr-2 text-[0.875rem];
@@ -317,8 +316,21 @@ select {
 .searchBtn:hover {
   opacity: 0.8;
 }
+.searchBtn2 {
+  @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
+  background-image: url("../assets/search.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translateY(-50%);
+  background-size: 16px 16px;
+  border: none;
+}
+
+.searchBtn2:hover {
+  opacity: 0.8;
+}
 .addBtn {
-  @apply w-[5.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
+  @apply w-[5rem] h-[2.2rem] text-[1.125vw] sml:text-sm font-[700] p-[1rem] text-white 
   leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
   sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import styles from "../styles/sampleRequest.module.css";
+import styles from "../styles/inputDetails.module.css";
 import UpIcon from "../assets/up.svg";
 import IButtonIcon from "../assets/iButton.svg";
 import ArticlePopup from "../popups/ArticlePopup";
@@ -20,13 +20,12 @@ import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 import InfoPopup from "../popups/InfoPopup";
-import InventoryCheckPopup from "../popups/InventoryCheckPopup";
+
 
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isInfoPopup, setIsInfoPopup] = useState(false);
-  const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
   const dispatch = useDispatch();
@@ -127,7 +126,6 @@ const SampleRequest = () => {
       "insole",
       "soleLabel",
       "socks",
-      "dateOfOrder",
       "heel",
       "pattern",
       "inUpperLeather",
@@ -160,14 +158,16 @@ const SampleRequest = () => {
   };
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
+    console.log(sample);
     setIsEditSelected(sample !== null);
   };
 
   const handleEditClick = () => {
     setIsEditClicked(true);
     setActiveButton("details");
-    const bsName = editSample.buyer && editSample.buyer.bsName;
-    const billingAddress = editSample.buyer && editSample.buyer.billingAddress;
+    const { article_no, ...restOfEditSample } = editSample;
+    const bsName = editSample.buyer?.bsName;
+    const billingAddress = editSample.buyer?.billingAddress;
     const deliveryDate = editSample.deliveryDate
       ? getformatDate(editSample.deliveryDate)
       : "";
@@ -180,14 +180,17 @@ const SampleRequest = () => {
 
     setSampleDetailsForm({
       ...sampleDetailsForm,
-      ...editSample,
+      ...restOfEditSample,
+      articleNo: article_no,
       bsName: bsName,
       deliveryAddress: billingAddress,
       deliveryDate: deliveryDate,
       prodExDate: prodExDate,
       dateOfOrder: dateOfOrder,
     });
-  };
+    setTempArticeNo(article_no);
+};
+
 
   const handlePrintClick = async () => {
     const updatedSampleDetails = {
@@ -259,15 +262,12 @@ const SampleRequest = () => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, sampleRef: value });
     const encodedInput = encodeURIComponent(value);
-    console.log(bsId);
-
     if (value.length >= 1) {
       const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
 
       try {
         const fetchedRef = await getApiService(BASE_URL);
         setSampleRefrences(fetchedRef);
-        console.log(fetchedRef);
         toggleSuggestVisibility("sampleRef", true);
       } catch (error) {
         console.error("Failed to fetch SampleRefs:", error);
@@ -309,27 +309,23 @@ const SampleRequest = () => {
   const handleSampleSubmit = (selectedSamples) => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
-      const bsName = selectedSample.buyer && selectedSample.buyer.bsName;
-      const billingAddress =
-        selectedSample.buyer && selectedSample.buyer.billingAddress;
-      const deliveryDate = selectedSample.deliveryDate
-        ? getformatDate(selectedSample.deliveryDate)
-        : "";
-      const prodExDate = selectedSample.prodExDate
-        ? getformatDate(selectedSample.prodExDate)
-        : "";
-
+      const { article_no, ...restOfSelectedSample } = selectedSample;
       setSampleDetailsForm({
-        ...sampleDetailsForm,
-        ...selectedSample,
-        bsName: bsName,
-        deliveryAddress: billingAddress,
-        deliveryDate: deliveryDate,
-        prodExDate: prodExDate,
+          ...sampleDetailsForm,
+          ...restOfSelectedSample,
+          articleNo: article_no,
+          bsName: selectedSample.buyer?.bsName,
+          deliveryAddress: selectedSample.buyer?.billingAddress,
+          deliveryDate: selectedSample.deliveryDate ? getformatDate(selectedSample.deliveryDate) : "",
+          prodExDate: selectedSample.prodExDate ? getformatDate(selectedSample.prodExDate) : "",
       });
-
+      setTempArticeNo(article_no);
       setIsSampleDirPopup(false);
     }
+  };
+  const handleViewPDF = async () => {
+    await generatePDF(sampleDetailsForm);
+    
   };
   const handleSeasonChange = (e) => {
     const { name, value } = e.target;
@@ -423,7 +419,7 @@ const SampleRequest = () => {
       dateOfOrder: formattedDate,
       articleNo: tempArticleNo,
     };
-
+ console.log(updatedSampleDetailsForm);
     const BASE_URL = "sample/create";
 
     try {
@@ -530,9 +526,7 @@ const SampleRequest = () => {
     const currentDate = today.toISOString().split("T")[0];
     setFormattedDate(currentDate);
   }, []);
-  const handleSeasonButtonClick = () => {
-    const name = "season";
-    const concatenatedString = `${name}List`;
+  const handleSeasonButtonClick = (name) => {
     const filtered = itemsData
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
@@ -541,10 +535,9 @@ const SampleRequest = () => {
 
     const updatedFilteredList = {
       ...filteredList,
-      [name]: filtered,
+      seasonList: filtered,
     };
     setFilteredList(updatedFilteredList);
-
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
 
@@ -632,9 +625,7 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
           />
-          <button className={styles.searchBtn} onClick={() => {
-                    setIsInventoryPopup(true);
-                  }} aria-label="Search"></button>
+          <button className={styles.searchBtn} aria-label="Search"></button>
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleRef &&
@@ -686,6 +677,7 @@ const SampleRequest = () => {
             placeholder="Insert Two Letter"
             value={sampleDetailsForm.upperColor}
           />
+           {showSuggestions.upperColor && <div className={styles.dropLoader}></div>}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.upperColor &&
               colors.map((color, index) => (
@@ -736,6 +728,7 @@ const SampleRequest = () => {
             }
             value={sampleDetailsForm.liningColor}
           />
+          {showSuggestions.liningColor && <div className={styles.dropLoader}></div>}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.liningColor &&
               colors.map((color, index) => (
@@ -786,6 +779,7 @@ const SampleRequest = () => {
             }
             value={sampleDetailsForm.soleLabel}
           />
+          {showSuggestions.soleLabel && <div className={styles.dropLoader}></div>}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.soleLabel &&
               colors.map((color, index) => (
@@ -896,16 +890,17 @@ const SampleRequest = () => {
             value={sampleDetailsForm.sampleType}
             readOnly
           />
-          <div>
+           {showSuggestions.sampleType ? (<div className={styles.dropLoader}></div>):(  <div>
             <button
               onClick={() => {
                 handleSampleType("sampleType");
                 sampleTypeRef.current?.focus();
               }}
-              className={styles.searchBtn3}
+              className={styles.dropBtn}
               aria-label="Search"
             ></button>
-          </div>
+          </div>)}
+         
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleType &&
@@ -955,14 +950,14 @@ const SampleRequest = () => {
             value={sampleDetailsForm.season}
           />
 
-          <button
+           {showSuggestions.season ? (<div className={styles.dropLoader}></div>):(<div> <button
             onClick={() => {
-              handleSeasonButtonClick();
+              handleSeasonButtonClick('season');
               seasonInputRef.current?.focus();
             }}
-            className={styles.searchBtn3}
+            className={styles.dropBtn}
             aria-label="dropDorn"
-          ></button>
+          ></button> </div>)}
 
           {showSuggestions.season && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -987,12 +982,12 @@ const SampleRequest = () => {
   return (
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContainer}>
-        <div className={styles.subHeadContainer}>
+        <div className={styles.sampleRequestSubHeadContainer}>
           <h1
-            className={styles.headText}
+            className={styles.sampleRequestheadText}
             style={
               activeButton === "view"
-                ? { marginBottom: "11px", marginTop: "13px" }
+                ? {  marginTop: "2px" }
                 : {}
             }
           >
@@ -1091,7 +1086,7 @@ const SampleRequest = () => {
       {activeButton === "details" ? (
         <>
           <div className={styles.topContainer}>
-            <div className={styles.topGrid}>
+            <div className={styles.sampleRequestTopGrid}>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="season">
                   Season
@@ -1176,7 +1171,7 @@ const SampleRequest = () => {
               />
             </div>
             <div
-              className={`${styles.middleGrid} ${
+              className={`${styles.sampleRequestMiddleGrid} ${
                 isGridVisible.basic ? "" : styles.hide
               }`}
             >
@@ -1275,8 +1270,8 @@ const SampleRequest = () => {
                   Size
                 </label>
                 <input
-                  type="text"
-                  className={styles.basicInput}
+                  type="number"
+                  className={styles.numberBasicInput}
                   placeholder="Input Here"
                   style={
                     validation.size === "invalid"
@@ -1293,8 +1288,8 @@ const SampleRequest = () => {
                   Quantity
                 </label>
                 <input
-                  type="text"
-                  className={styles.basicInput}
+                  type="number"
+                  className={styles.numberBasicInput}
                   placeholder="Input Here"
                   style={
                     validation.quantity === "invalid"
@@ -1468,7 +1463,7 @@ const SampleRequest = () => {
             </div>
             <div
               id="detailsGrid"
-              className={`${styles.secondMiddleGrid} ${
+              className={`${styles.sampleRequestSecondMiddleGrid} ${
                 isGridVisible.internal ? "" : styles.hide
               }`}
             >
@@ -1534,11 +1529,11 @@ const SampleRequest = () => {
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="quantity">
-                  Qunatity
+                  Quantity
                 </label>
                 <input
-                  type="text"
-                  className={styles.basicInput}
+                  type="number"
+                  className={styles.numberBasicInput}
                   placeholder="Enter.."
                   name="inQuantity"
                   style={
@@ -1584,7 +1579,7 @@ const SampleRequest = () => {
             </div>
             <div
               id="detailsGrid"
-              className={`${styles.bottomGrid} ${
+              className={`${styles.sampleRequestBottomGrid} ${
                 isGridVisible.delivery ? "" : styles.hide
               }`}
             >
@@ -1736,13 +1731,7 @@ const SampleRequest = () => {
               onSubmitArticleData={handleArticleNoSubmit}
             />
           )}
-          {isInventoryPopup && (
-            <InventoryCheckPopup
-              onCancel={() => {
-                setIsInventoryPopup(false);
-              }}
-            />
-          )}
+         
           {isInfoPopup && (
             <InfoPopup
               onCancel={() => {

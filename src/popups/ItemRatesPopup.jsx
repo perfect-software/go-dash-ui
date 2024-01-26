@@ -8,18 +8,18 @@ import { useSidebar } from "../context/SidebarContext";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
-import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchAllItemRates } from "../reducer/itemRateSlice";
 
-const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
+const  ItemRatesPopup = ({ onCancel, onSubmitRateData }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const [selectedBuyer, setSelectedBuyer] = useState(null);
+  const [selectedRate, setSelectedRate] = useState(null);
   const [rowSelect , setRowSelect]= useState(false);
   const dispatch = useDispatch();
-  const { buyers, loaded, loading, error } = useSelector(
-    (state) => state.buyer
+  const { itemRates, loaded, loading, error } = useSelector(
+    (state) => state.itemRate
   );
 
   const [gridApi, setGridApi] = useState(null);
@@ -27,7 +27,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
-      dispatch(fetchAllBuyers());
+      dispatch(fetchAllItemRates());
     }
   }, []);
 
@@ -64,41 +64,35 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     },
   };
   const columnDefs = [
-    { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
-    { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
+    { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    { headerName: "Supplier", field: "supplierName", sortable: true, filter: true },
     {
-      headerName: "Entry Date",
-      field: "entDate",
+      headerName: "Rate (INR)",
+      field: "rate",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Unit",
+      field: "unit",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Validity of Rate",
+      field: "validUntil",
       sortable: true,
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
-    },
-    {
-      headerName: "User Name",
-      field: "username",
-      sortable: true,
-      filter: true,
-    },
-    { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
-    {
-      headerName: "Delivery Address",
-      field: "deliveryAddress",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Billing Address",
-      field: "billingAddress",
-      sortable: true,
-      filter: true,
-    },
+    }
+    
   ];
-
   const onRowSelected = (event) => {
+    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
-    setRowSelect(selectedData.length > 0);
-    setSelectedBuyer(selectedData);
+    setSelectedRate(selectedData);
   
   };
 
@@ -108,7 +102,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
         <div className={styles.popupContainer}>
           <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
-              <h1>Buyer Directory</h1>
+              <h1>Item Rates</h1>
               <img
                 onClick={() => {
                   setIsPopupVisible(false);
@@ -127,7 +121,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
           >
             <AgGridReact
               columnDefs={columnDefs}
-              rowData={buyers}
+              rowData={itemRates}
               pagination={true}
               paginationPageSize={12}
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -139,18 +133,18 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
             />
           </div>
           <div className={styles.bottomButtonContainer}>
-            <h3>Couldn't find the Buyer ?</h3>
+            <h3>Couldn't find the Rates ?</h3>
             <button
               className={styles.popupButton}
-              onClick={() => navigate("/buyer")}
+              onClick={() => navigate("/itemquotation")}
             >
-              Add New Buyer
+              Add New Rate
             </button>
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}
               onClick={() => {
-                onSubmitBuyerData(selectedBuyer);
+                onSubmitRateData(selectedRate);
               }}
             >
               Select
@@ -161,4 +155,4 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     )
   );
 };
-export default BuyerPopup;
+export default ItemRatesPopup;

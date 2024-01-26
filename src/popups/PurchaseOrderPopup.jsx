@@ -10,13 +10,16 @@ import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
+import SizePopup from "./SizePopup";
 
-const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
+const PurchaseOrderPopup = ({ onCancel, onSubmitBuyerData }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
+  const [sizePopup,setSizePopup] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
-  const [rowSelect , setRowSelect]= useState(false);
+  const [sizeData, setSizeData] = useState([]);
+  const [rowSelect, setRowSelect] = useState(false);
   const dispatch = useDispatch();
   const { buyers, loaded, loading, error } = useSelector(
     (state) => state.buyer
@@ -41,7 +44,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     if (gridApi && !loaded && loading) {
       gridApi.showLoadingOverlay();
     }
-  }, [ loaded, loading, gridApi]);
+  }, [loaded, loading, gridApi]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -63,8 +66,14 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       return 0;
     },
   };
+
   const columnDefs = [
-    { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
+    {
+      headerName: "Select",
+      field: "select",
+      maxWidth: 80,
+      checkboxSelection: true,
+    },
     { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
     {
       headerName: "Entry Date",
@@ -82,24 +91,36 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     },
     { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
     {
-      headerName: "Delivery Address",
-      field: "deliveryAddress",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Billing Address",
-      field: "billingAddress",
-      sortable: true,
-      filter: true,
+      headerName: "Size",
+      field:'bsCode',
+      cellRenderer: function (params) {
+        return (
+          <div style={{
+            height: '100%', 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center' 
+          }}>
+            <button className={styles.viewButton}
+              onClick={() => actionButton(params)}
+            >
+              View{" "}
+            </button>
+          </div>
+        );
+      },
+
+   
     },
   ];
-
+  const actionButton = (params) => {
+    setSizePopup(true);
+    setSizeData(params.data);
+  };
   const onRowSelected = (event) => {
+    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
-    setRowSelect(selectedData.length > 0);
     setSelectedBuyer(selectedData);
-  
   };
 
   return (
@@ -108,7 +129,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
         <div className={styles.popupContainer}>
           <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
-              <h1>Buyer Directory</h1>
+              <h1>Purchase Order</h1>
               <img
                 onClick={() => {
                   setIsPopupVisible(false);
@@ -118,6 +139,31 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
                 alt="Select Icon"
                 className={styles.crossIcon}
               />
+            </div>
+
+            <div className={styles.topGrid}>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="srId">
+                  PO Type
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="srId"
+                />
+              </div>
+              <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="srId">
+                  Supplier
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Input Here"
+                  name="srId"
+                />
+              </div>
             </div>
           </div>
 
@@ -139,26 +185,20 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
             />
           </div>
           <div className={styles.bottomButtonContainer}>
-            <h3>Couldn't find the Buyer ?</h3>
-            <button
-              className={styles.popupButton}
-              onClick={() => navigate("/buyer")}
-            >
-              Add New Buyer
-            </button>
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}
-              onClick={() => {
-                onSubmitBuyerData(selectedBuyer);
-              }}
+                onClick={() => {
+                  onSubmitBuyerData(selectedBuyer);
+                }}
             >
-              Select
+              Add
             </button>
           </div>
         </div>
+        {sizePopup && (<SizePopup sizeData={sizeData} onCancel={()=> setSizePopup(false)} />)}
       </div>
     )
   );
 };
-export default BuyerPopup;
+export default PurchaseOrderPopup;

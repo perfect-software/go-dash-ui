@@ -14,13 +14,13 @@ import ItemDirectory from "./components/ItemDirectory";
 import ViewSr from "./components/ViewSr";
 import { SidebarProvider } from "./context/SidebarContext";
 import ViewBuyer from "./components/ViewBuyer";
-import ArticleCosting from "./components/ArticleCosting";
 import { Provider } from 'react-redux';
 import { store } from './helper/store';
 import Bom from "./components/Bom";
 import ItemQuotation from "./components/ItemQuotation";
 import SamplePipeline from "./components/SamplePipeline";
 import SamplePipelineProgressView from "./components/SamplePipelineProgressView";
+import PurchaseOrder from "./components/PurchaseOrder";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,10 +55,10 @@ function App() {
               <Route path="/buyer" element={<Buyer />}>
                 <Route path="viewBuyer" element={<ViewBuyer />} />
               </Route>
-              <Route path="/articlecosting" element={<ArticleCosting />} />
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
               <Route path="/bom" element={<Bom/>}/>
+              <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />
               <Route path="/login" element={<LoginRegister />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../styles/buyer.module.css";
+import styles from "../styles/inputDetails.module.css";
 import { Country, State, City } from "country-state-city";
 import Currencydata from "currency-codes/data";
 import EyeClosedIcon from "../assets/closeEye.svg";
