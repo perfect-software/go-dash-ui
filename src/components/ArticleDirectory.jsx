@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import styles from "../styles/articleDirectory.module.css";
+import styles from "../styles/inputDetails.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 
 import Downshift from "downshift";
@@ -244,7 +244,7 @@ const ArticleDirectory = () => {
               handleButtonClick("animal");
               animalInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -352,7 +352,7 @@ const ArticleDirectory = () => {
               handleButtonClick("soleType");
               soleTypeInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -412,7 +412,7 @@ const ArticleDirectory = () => {
               handleButtonClick("toeShape");
               toeShapeInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -471,7 +471,7 @@ const ArticleDirectory = () => {
               handleButtonClick("liningMaterial");
               liningMaterialInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -531,7 +531,7 @@ const ArticleDirectory = () => {
               handleButtonClick("socksMaterial");
               socksMaterialInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -590,7 +590,7 @@ const ArticleDirectory = () => {
               handleButtonClick("heelType");
               heelTypeInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -650,7 +650,7 @@ const ArticleDirectory = () => {
               handleButtonClick("category");
               categoryInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -682,14 +682,14 @@ const ArticleDirectory = () => {
     <div className={styles.articlePageContainer}>
       <div className={styles.articleDirectoryContainer}>
         <div className={styles.headContiner}>
-          <div className={styles.subHeadContainer}>
+          <div className={styles.simpleSubHeadContainer}>
             <h1 className={styles.headText}>Article Directory</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
             <div className={styles.subHeadContainerThree}>
               <h2>Article Details</h2>
               <button
-                className={styles.headButton}
+                className={styles.headInsertValueButton}
                 onClick={() => setIsItemHeadPopup(true)}
               >
                 Insert New Value
@@ -699,7 +699,7 @@ const ArticleDirectory = () => {
             <div className={styles.headBorder}></div>
           </div>
         </div>
-        <div className={styles.topGrid}>
+        <div className={styles.articleTopGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
               Article Name
@@ -859,7 +859,7 @@ const ArticleDirectory = () => {
               Comment
             </label>
             <textarea
-              className={styles.basicInput2}
+              className={styles.commentInput}
               placeholder="Enter Here"
               name="comment"
               value={articleForm.comment}

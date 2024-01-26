@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import styles from "../styles/itemDirectory.module.css";
+import styles from "../styles/inputDetails.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 import { useSelector, useDispatch } from "react-redux";
@@ -326,7 +326,7 @@ const ItemDirectory = () => {
               handleButtonClick("animal");
               animalInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -385,7 +385,7 @@ const ItemDirectory = () => {
               handleButtonClick("season");
               seasonInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -444,7 +444,7 @@ const ItemDirectory = () => {
               handleButtonClick("substance");
               substanceInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -503,7 +503,7 @@ const ItemDirectory = () => {
               handleButtonClick("texture");
               textureInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -558,7 +558,7 @@ const ItemDirectory = () => {
               handleButtonClick("characteristics");
               characteristicsInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -617,7 +617,7 @@ const ItemDirectory = () => {
               handleButtonClick("tanning");
               tanningInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -676,7 +676,7 @@ const ItemDirectory = () => {
               handleButtonClick("origin");
               originInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -735,7 +735,7 @@ const ItemDirectory = () => {
               handleButtonClick("tannery");
               tanneryInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -839,7 +839,7 @@ const ItemDirectory = () => {
               handleButtonClick("skintype");
               skintypeInputRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -899,7 +899,7 @@ const ItemDirectory = () => {
               handleGrpButtonClick("itemgrp");
               itemGrpRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
 
@@ -965,7 +965,7 @@ const ItemDirectory = () => {
               handleGrpButtonClick("itemsubgrp");
               itemSubGrpRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             disabled={!itemForm.itemgrp}
             aria-label="dropDorn"
           ></button>
@@ -1046,14 +1046,14 @@ const ItemDirectory = () => {
     <div className={styles.itemPageContainer}>
       <div className={styles.itemDirectoryContainer}>
         <div className={styles.headContiner}>
-          <div className={styles.subHeadContainer}>
+          <div className={styles.simpleSubHeadContainer}>
             <h1 className={styles.headText}>Item Directory</h1>
           </div>
           <div className={styles.subHeadContainerTwo}>
             <div className={styles.subHeadContainerThree}>
               <h2>Create Item</h2>
               <button
-                className={styles.headButton}
+                className={styles.headInsertValueButton}
                 onClick={() => setIsItemHeadPopup(true)}
               >
                 Insert New Value
@@ -1063,7 +1063,7 @@ const ItemDirectory = () => {
           </div>
         </div>
 
-        <div className={styles.topGrid}>
+        <div className={styles.itemTopGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="skinSize">
               Item Group

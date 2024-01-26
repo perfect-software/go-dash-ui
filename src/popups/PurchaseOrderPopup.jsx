@@ -10,20 +10,16 @@ import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
-const ButtonRenderer = ({ value, data, onClick }) => {
-    return (
-      <button className={styles.viewButton} onClick={() => onClick(data)}>
-        {value}
-      </button>
-    );
-  };
-  
-const  PurchaseOrderPopup = ({ onCancel }) => {
+import SizePopup from "./SizePopup";
+
+const PurchaseOrderPopup = ({ onCancel, onSubmitBuyerData }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
+  const [sizePopup,setSizePopup] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
-  const [rowSelect , setRowSelect]= useState(false);
+  const [sizeData, setSizeData] = useState([]);
+  const [rowSelect, setRowSelect] = useState(false);
   const dispatch = useDispatch();
   const { buyers, loaded, loading, error } = useSelector(
     (state) => state.buyer
@@ -48,7 +44,7 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
     if (gridApi && !loaded && loading) {
       gridApi.showLoadingOverlay();
     }
-  }, [ loaded, loading, gridApi]);
+  }, [loaded, loading, gridApi]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -70,15 +66,14 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
       return 0;
     },
   };
- 
-  const handlesButtonClick = (rowData) => {
-   window.alert("Button clicked");
-  };
-  const frameworkComponents = {
-    buttonRenderer: ButtonRenderer,
-  };
+
   const columnDefs = [
-    { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
+    {
+      headerName: "Select",
+      field: "select",
+      maxWidth: 80,
+      checkboxSelection: true,
+    },
     { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
     {
       headerName: "Entry Date",
@@ -96,35 +91,43 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
     },
     { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
     {
-      headerName: "Delivery Address",
-      field: "deliveryAddress",
-      sortable: true,
-      filter: true,
-    },
-    {
-        headerName: 'View',
-        field: 'view',
-        cellRenderer: 'buttonRenderer',
-        cellRendererParams: {
-          onClick: handlesButtonClick,
-        },
+      headerName: "Size",
+      field:'bsCode',
+      cellRenderer: function (params) {
+        return (
+          <div style={{
+            height: '100%', 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center' 
+          }}>
+            <button className={styles.viewButton}
+              onClick={() => actionButton(params)}
+            >
+              View{" "}
+            </button>
+          </div>
+        );
       },
-      
-      
-  ];
 
+   
+    },
+  ];
+  const actionButton = (params) => {
+    setSizePopup(true);
+    setSizeData(params.data);
+  };
   const onRowSelected = (event) => {
     setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
     setSelectedBuyer(selectedData);
-  
   };
 
   return (
     isPopupVisible && (
       <div className={styles.popupOverlay}>
         <div className={styles.popupContainer}>
-        <div className={styles.topPopupContainer}>
+          <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
               <h1>Purchase Order</h1>
               <img
@@ -137,9 +140,9 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
                 className={styles.crossIcon}
               />
             </div>
-          
+
             <div className={styles.topGrid}>
-            <div className={styles.colSpan}>
+              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="srId">
                   PO Type
                 </label>
@@ -161,8 +164,7 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
                   name="srId"
                 />
               </div>
-              </div>
-            
+            </div>
           </div>
 
           <div
@@ -173,7 +175,6 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
               columnDefs={columnDefs}
               rowData={buyers}
               pagination={true}
-              frameworkComponents={frameworkComponents}
               paginationPageSize={12}
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
@@ -187,14 +188,15 @@ const  PurchaseOrderPopup = ({ onCancel }) => {
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}
-            //   onClick={() => {
-            //     onSubmitBuyerData(selectedBuyer);
-            //   }}
+                onClick={() => {
+                  onSubmitBuyerData(selectedBuyer);
+                }}
             >
               Add
             </button>
           </div>
         </div>
+        {sizePopup && (<SizePopup sizeData={sizeData} onCancel={()=> setSizePopup(false)} />)}
       </div>
     )
   );

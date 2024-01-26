@@ -13,6 +13,8 @@ import PurchaseOrderPopup from "../popups/PurchaseOrderPopup";
 const PurchaseOrder = () => {
   const [activeButton, setActiveButton] = useState("input");
   const [purchasePopup,setIsPurchasePopup]=useState(false);
+  const [addedPurchaseOrder,setAddedPurchaseOrder]= useState(false);
+  const [addedPurchaseData,setAddedPurchaseData]= useState(null);
   const handlePurchaseOrderChange = (e) => {
     const { name, value } = e.target;
 
@@ -66,7 +68,11 @@ const PurchaseOrder = () => {
       gridApi.showLoadingOverlay();
     }
   }, [loaded, loading, gridApi]);
-
+ const handleAddPurchaseOrder =(data)=>{
+   setIsPurchasePopup(false);
+    setAddedPurchaseOrder(true);
+    setAddedPurchaseData(data);
+ }
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -114,7 +120,7 @@ const PurchaseOrder = () => {
       showDisabledCheckboxes: true,
     },
 
-    { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
+    { headerName: "Buyer", field: "bsName", sortable: true, filter: true,  tooltipField: "bsName"  },
    
     {
       headerName: "Entry Date",
@@ -130,6 +136,7 @@ const PurchaseOrder = () => {
       field: "deliveryAddress",
       sortable: true,
       filter: true,
+      tooltipField: "deliveryAddress" 
     },
     {
       headerName: "Billing Address",
@@ -243,6 +250,26 @@ const PurchaseOrder = () => {
           onRowDataChanged={onRowDataChanged}
         />
           </div>
+
+          {addedPurchaseOrder && (<div
+            className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
+            style={{ height: 500, width: "100%", marginTop: "20px" }}
+          >
+            <AgGridReact
+          columnDefs={columnDefs}
+          rowData={addedPurchaseData}
+          pagination={true}
+          paginationPageSize={12}
+          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+          animateRows={true}
+          filter={true}
+          onGridReady={onGridReady}
+          rowSelection={"multiple"}
+          onSelectionChanged={onRowSelected}
+          onRowDataChanged={onRowDataChanged}
+        />
+          </div> )}
+          
       </div>
        
       {purchasePopup && (
@@ -250,7 +277,7 @@ const PurchaseOrder = () => {
               onCancel={() => {
                 setIsPurchasePopup(false);
               }}
-             // onSubmitBuyerData={handleBuyerSubmit}
+             onSubmitBuyerData={handleAddPurchaseOrder}
             />
           )}
     </div>

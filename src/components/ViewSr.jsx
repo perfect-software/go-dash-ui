@@ -63,15 +63,9 @@ const ViewSr = ({ onSampleSelect }) => {
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
     { headerName: "SR No.", field: "sr_no", sortable: true, filter: true },
-    {
-      headerName: "Date of Order",
-      field: "dateOfOrder",
-      sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
     { headerName: "Season", field: "season", sortable: true, filter: true },
+    { headerName: "Sample Refrence", field: "sampleRef", sortable: true, filter: true },
+    { headerName: "Sample Type", field: "sampleType", sortable: true, filter: true },
     {
       headerName: "Article No",
       field: "article_no",
@@ -79,20 +73,33 @@ const ViewSr = ({ onSampleSelect }) => {
       filter: true,
     },
     {
+      headerName: "Buyer Article",
+      field: "buyerArticle",
+      sortable: true,
+      filter: true,
+    },
+    
+    {
       headerName: "Buyer",
       field: "buyer.bsName",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Sample Type",
-      field: "sampleType",
+      headerName: "Size",
+      field: "size",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Buyer Article",
-      field: "buyerArticle",
+      headerName: "Quantity",
+      field: "quantity",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Pair",
+      field: "pair",
       sortable: true,
       filter: true,
     },
@@ -110,6 +117,85 @@ const ViewSr = ({ onSampleSelect }) => {
     },
     { headerName: "Last", field: "last", sortable: true, filter: true },
     { headerName: "Insole", field: "insole", sortable: true, filter: true },
+    {
+      headerName: "Sole Label",
+      field: "soleLabel",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Socks",
+      field: "socks",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Heel",
+      field: "heel",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Pattern",
+      field: "pattern",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Buyer Refrence",
+      field: "buyerRef",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Upper Leather",
+      field: "inUpperLeather",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Socks",
+      field: "inSocks",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Quantity",
+      field: "inQuantity",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Lining",
+      field: "inLining",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Date of Order",
+      field: "dateOfOrder",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "Delivery Date",
+      field: "deliveryDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "ProdEx Date",
+      field: "prodExDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+
   ];
 
 
@@ -120,7 +206,7 @@ const ViewSr = ({ onSampleSelect }) => {
     
         <div
           className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-          style={{ height: 600, width: "100%", marginTop: "10px" }}
+          style={{ height: 500, width: "100%", marginTop: "10px" }}
         >
           <AgGridReact
             columnDefs={columnDefs}
