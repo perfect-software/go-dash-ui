@@ -105,6 +105,13 @@ const Buyer = () => {
     }
     return true;
   };
+  const validateEmail = (email) => {
+    if (email) {
+        return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email);
+    }
+    return true;
+};
+
   const [isGridVisible, setIsGridVisible] = useState({
     bank: true,
     financials: true,
@@ -592,6 +599,11 @@ const Buyer = () => {
                   placeholder="Email"
                   value={buyerForm.buyerEmail}
                   name="buyerEmail"
+                  style={
+                    !validateEmail(buyerForm.buyerEmail)
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -929,7 +941,7 @@ const Buyer = () => {
                   Discount %
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="Discount"
                   className={styles.basicInput}
                   value={buyerForm.discount}
@@ -942,7 +954,7 @@ const Buyer = () => {
                   SP. Discount
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder=" SP. Discount"
                   className={styles.basicInput}
                   value={buyerForm.splDiscount}

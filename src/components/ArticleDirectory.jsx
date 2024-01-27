@@ -8,6 +8,16 @@ const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [colors, setColors] = useState([]);
+  const [showInputLoading, setShowInputLoading] = useState({
+    animal: false,
+    soleType: false,
+    toeShape: false,
+    category: false,
+    heelType: false,
+    color: false,
+    liningMaterial: false,
+    socksMaterial: false,
+  });
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,7 +54,7 @@ const ArticleDirectory = () => {
     soleTypeList: [],
     toeShapeList: [],
     heelTypeList: [],
-    categoryList:[],
+    categoryList: [],
     liningMaterialList: [],
     socksMaterialList: [],
   });
@@ -52,7 +62,12 @@ const ArticleDirectory = () => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
   };
-
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+  };
   const handleNormalArticleChange = (e) => {
     const { name, value } = e.target;
     setArticleForm({
@@ -64,6 +79,7 @@ const ArticleDirectory = () => {
     const { name, value } = e.target;
     setArticleForm({ ...articleForm, [name]: value });
     if (value.length >= 2) {
+      toggleInputLoaderVisibility(`${name}`, true);
       const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
         value
       )}`;
@@ -71,10 +87,12 @@ const ArticleDirectory = () => {
       try {
         const fetchedColors = await getApiService(BASE_URL);
         setColors(fetchedColors);
-
+        toggleInputLoaderVisibility(`${name}`, false);
         toggleSuggestVisibility(`${name}`, true);
       } catch (error) {
         console.error("Failed to fetch Colors:", error);
+      } finally {
+        toggleInputLoaderVisibility(`${name}`, false);
       }
     } else {
       toggleSuggestVisibility(`${name}`, false);
@@ -83,7 +101,7 @@ const ArticleDirectory = () => {
 
   const handleButtonClick = (name) => {
     const concatenatedString = `${name}List`;
-
+    toggleInputLoaderVisibility(`${name}`, true);
     const filtered = itemsData
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
@@ -95,12 +113,13 @@ const ArticleDirectory = () => {
       [concatenatedString]: filtered,
     };
     setFilteredList(updatedFilteredList);
-
+    toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
 
   const handleArticleChange = (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setArticleForm({ ...articleForm, [name]: value });
 
     const concatenatedString = `${name}List`;
@@ -121,6 +140,7 @@ const ArticleDirectory = () => {
     };
 
     setFilteredList(updatedFilteredList);
+    toggleInputLoaderVisibility(`${name}`, false);
     if (value.length > 0) {
       toggleSuggestVisibility(`${name}`, true);
     } else {
@@ -147,7 +167,7 @@ const ArticleDirectory = () => {
     animal: false,
     soleType: false,
     toeShape: false,
-    category:false,
+    category: false,
     heelType: false,
     color: false,
     liningMaterial: false,
@@ -171,7 +191,6 @@ const ArticleDirectory = () => {
       liningMaterial: "",
       socksMaterial: "",
       comment: "",
-    
     });
   };
 
@@ -223,7 +242,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.animal}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -239,14 +257,18 @@ const ArticleDirectory = () => {
             value={articleForm.animal}
           />
 
-          <button
-            onClick={() => {
-              handleButtonClick("animal");
-              animalInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.animal ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("animal");
+                animalInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.animal && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -282,8 +304,6 @@ const ArticleDirectory = () => {
       }}
       itemToString={(item) => (item ? item : "")}
       selectedItem={articleForm.color}
-     
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -293,10 +313,11 @@ const ArticleDirectory = () => {
               name: "color",
             })}
             type="text"
-            className={styles.basicInput}
+            className={styles.buttonBasicInput}
             placeholder="Type "
             value={articleForm.color}
           />
+          {showInputLoading.color && <div className={styles.dropLoader}></div>}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.color &&
               colors.map((color, index) => (
@@ -331,7 +352,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.soleType}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -346,15 +366,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.soleType}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("soleType");
-              soleTypeInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.soleType ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("soleType");
+                soleTypeInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.soleType && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -391,7 +414,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.toeShape}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -406,15 +428,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.toeShape}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("toeShape");
-              toeShapeInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.toeShape ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("toeShape");
+                toeShapeInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.toeShape && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -450,7 +475,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.liningMaterial}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -465,15 +489,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.liningMaterial}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("liningMaterial");
-              liningMaterialInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.liningMaterial ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("liningMaterial");
+                liningMaterialInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.liningMaterial && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -510,7 +537,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.socksMaterial}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -525,15 +551,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.socksMaterial}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("socksMaterial");
-              socksMaterialInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.socksMaterial ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("socksMaterial");
+                socksMaterialInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.socksMaterial && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -569,7 +598,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.heelType}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -584,15 +612,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.heelType}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("heelType");
-              heelTypeInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.heelType ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("heelType");
+                heelTypeInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.heelType && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -629,7 +660,6 @@ const ArticleDirectory = () => {
       }}
       selectedItem={articleForm.category}
       itemToString={(item) => (item ? item.name : "")}
-
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -644,15 +674,18 @@ const ArticleDirectory = () => {
             placeholder="Insert First Letter"
             value={articleForm.category}
           />
-
-          <button
-            onClick={() => {
-              handleButtonClick("category");
-              categoryInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.category ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("category");
+                categoryInputRef.current?.focus();
+              }}
+              className={styles.dropBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.category && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -674,9 +707,6 @@ const ArticleDirectory = () => {
       )}
     </Downshift>
   );
-
-
-
 
   return (
     <div className={styles.articlePageContainer}>
@@ -742,8 +772,8 @@ const ArticleDirectory = () => {
                 <option value="" selected disabled hidden>
                   Select Gender
                 </option>
-                <option value="M">M</option>
-                <option value="F">F</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
               </select>
             </div>
           </div>
@@ -852,7 +882,6 @@ const ArticleDirectory = () => {
               onChange={handleNormalArticleChange}
             />
           </div>
-         
 
           <div className={styles.largeColSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
@@ -901,7 +930,7 @@ const ArticleDirectory = () => {
           </div>
         </div>
       )}
-        {isItemHeadPopup && (
+      {isItemHeadPopup && (
         <ItemHeadPopup
           onCancel={() => {
             setIsItemHeadPopup(false);

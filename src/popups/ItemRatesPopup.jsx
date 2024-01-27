@@ -90,8 +90,8 @@ const  ItemRatesPopup = ({ onCancel, onSubmitRateData }) => {
     
   ];
   const onRowSelected = (event) => {
-    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
+    setRowSelect(selectedData.length > 0);
     setSelectedRate(selectedData);
   
   };
