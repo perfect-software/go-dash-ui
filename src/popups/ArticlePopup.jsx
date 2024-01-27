@@ -165,8 +165,8 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   ];
 
   const onRowSelected = (event) => {
-    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
+    setRowSelect(selectedData.length > 0);
     setSelectedArticle(selectedData);
 
   };

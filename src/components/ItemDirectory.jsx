@@ -14,6 +14,20 @@ const ItemDirectory = () => {
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [showInputLoading, setShowInputLoading] = useState({
+    animal: false,
+    season: false,
+    itemgrp: false,
+    itemsubgrp: false,
+    substance: false,
+    texture: false,
+    characteristics: false,
+    tannery: false,
+    origin: false,
+    tanning: false,
+    color: false,
+    skintype: false,
+  });
   const [filteredList, setFilteredList] = useState({
     animalList: [],
     seasonList: [],
@@ -72,7 +86,13 @@ const ItemDirectory = () => {
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
   );
-
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+    
+  };
   useEffect(() => {
     if (!loaded && !loading) {
       dispatch(fetchItemGroupsAndSubGroups());
@@ -124,6 +144,7 @@ const ItemDirectory = () => {
 
   const handleItemMultipleChange = (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setItemForm({ ...itemForm, [name]: value });
     const lastEnteredValue = value
       .split(",")
@@ -146,6 +167,7 @@ const ItemDirectory = () => {
       };
 
       setFilteredList(updatedFilteredList);
+      toggleInputLoaderVisibility(`${name}`, false);
     }
     if (value.length > 0) {
       toggleSuggestVisibility(`${name}`, true);
@@ -157,6 +179,7 @@ const ItemDirectory = () => {
     const { name, value } = e.target;
     setItemForm({ ...itemForm, [name]: value });
     if (value.length >= 2) {
+      toggleInputLoaderVisibility(`${name}`, true);
       const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
         value
       )}`;
@@ -164,10 +187,12 @@ const ItemDirectory = () => {
       try {
         const fetchedColors = await getApiService(BASE_URL);
         setColors(fetchedColors);
-
+        toggleInputLoaderVisibility(`${name}`, false);
         toggleSuggestVisibility(`${name}`, true);
       } catch (error) {
         console.error("Failed to fetch Colors:", error);
+      }finally{
+        toggleInputLoaderVisibility(`${name}`, false);
       }
     } else {
       toggleSuggestVisibility(`${name}`, false);
@@ -175,6 +200,7 @@ const ItemDirectory = () => {
   };
   const handleItemChange = (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setItemForm({ ...itemForm, [name]: value });
 
     const concatenatedString = `${name}List`;
@@ -195,6 +221,7 @@ const ItemDirectory = () => {
     };
 
     setFilteredList(updatedFilteredList);
+    toggleInputLoaderVisibility(`${name}`, false);
     if (value.length > 0) {
       toggleSuggestVisibility(`${name}`, true);
     } else {
@@ -204,7 +231,7 @@ const ItemDirectory = () => {
   const handleGrpItemChange = (e) => {
     const { name, value } = e.target;
     setItemForm({ ...itemForm, [name]: value });
-
+    toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
       const filtered = Object.entries(itemGroups)
         .filter(([key, groupName]) =>
@@ -232,14 +259,15 @@ const ItemDirectory = () => {
         }, {});
         
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
-   
+    
       toggleSuggestVisibility(name, value.length > 0);
     }
+    toggleInputLoaderVisibility(`${name}`, false);
   };
 
   const handleButtonClick = (name) => {
     const concatenatedString = `${name}List`;
-
+    toggleInputLoaderVisibility(`${name}`, true);
     const filtered = itemsData
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
@@ -251,11 +279,12 @@ const ItemDirectory = () => {
       [concatenatedString]: filtered,
     };
     setFilteredList(updatedFilteredList);
-
+    toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
 
   const handleGrpButtonClick = (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
       setFilteredList({ ...filteredList, itemGrpList: itemGroups });
       toggleSuggestVisibility(name, !showSuggestions[name]);
@@ -272,12 +301,14 @@ const ItemDirectory = () => {
         }, {});
     
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
+     
       toggleSuggestVisibility(name, !showSuggestions[name]);
     }
-    
+    toggleInputLoaderVisibility(`${name}`, false);
   };
 
   const handleSuggestionClick = (selectedValue, fieldName) => {
+    toggleInputLoaderVisibility(`${fieldName}`, true);
     let valuesArray = itemForm[fieldName]
       ? itemForm[fieldName].split(",").map((val) => val.trim())
       : [];
@@ -290,6 +321,7 @@ const ItemDirectory = () => {
     valuesArray = [...new Set(valuesArray)];
     const updatedValue = valuesArray.join(", ");
     setItemForm({ ...itemForm, [fieldName]: updatedValue });
+    toggleInputLoaderVisibility(`${fieldName}`, true);
     setShowSuggestions({ ...showSuggestions, [fieldName]: false });
   };
   const animalInputRef = useRef(null);
@@ -320,8 +352,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.animal}
           />
-
-          <button
+{showInputLoading.animal ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("animal");
               animalInputRef.current?.focus();
@@ -329,6 +363,9 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
+         
 
           {showSuggestions.animal && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -379,8 +416,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.season}
           />
-
-          <button
+{showInputLoading.season ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("season");
               seasonInputRef.current?.focus();
@@ -388,6 +427,8 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
 
           {showSuggestions.season && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -438,8 +479,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.substance}
           />
-
-          <button
+{showInputLoading.substance ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("substance");
               substanceInputRef.current?.focus();
@@ -447,6 +490,9 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
+       
 
           {showSuggestions.substance && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -497,8 +543,11 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.texture}
           />
-
-          <button
+{showInputLoading.texture ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+          
+            <button
             onClick={() => {
               handleButtonClick("texture");
               textureInputRef.current?.focus();
@@ -506,6 +555,8 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
 
           {showSuggestions.texture && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -552,8 +603,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.characteristics}
           />
-
-          <button
+{showInputLoading.characteristics ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("characteristics");
               characteristicsInputRef.current?.focus();
@@ -561,6 +614,9 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
+        
 
           {showSuggestions.characteristics && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -611,8 +667,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.tanning}
           />
-
-          <button
+{showInputLoading.tanning ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("tanning");
               tanningInputRef.current?.focus();
@@ -620,6 +678,9 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
+   
 
           {showSuggestions.tanning && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -670,8 +731,11 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.origin}
           />
-
-          <button
+{showInputLoading.origin ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+          
+            <button
             onClick={() => {
               handleButtonClick("origin");
               originInputRef.current?.focus();
@@ -679,6 +743,8 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
 
           {showSuggestions.origin && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -729,8 +795,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.tannery}
           />
-
-          <button
+{showInputLoading.tannery ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("tannery");
               tanneryInputRef.current?.focus();
@@ -738,6 +806,9 @@ const ItemDirectory = () => {
             className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+          )}
+     
+       
 
           {showSuggestions.tannery && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -785,6 +856,9 @@ const ItemDirectory = () => {
             placeholder="Insert Two Letter"
             value={itemForm.color}
           />
+           {showInputLoading.color && (
+            <div className={styles.dropLoader}></div>
+          )}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.color &&
               colors.map((color, index) => (
@@ -833,8 +907,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.skintype}
           />
-
-          <button
+{showInputLoading.skintype ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("skintype");
               skintypeInputRef.current?.focus();
@@ -843,6 +919,9 @@ const ItemDirectory = () => {
             aria-label="dropDorn"
           ></button>
 
+          )}
+     
+  
           {showSuggestions.skintype && (
             <div {...getMenuProps()} className={styles.suggestions}>
               {filteredList.skintypeList.map((item, index) => (
@@ -893,8 +972,10 @@ const ItemDirectory = () => {
             placeholder="Insert First Letter"
             value={itemForm.itemgrp}
           />
-
-          <button
+{showInputLoading.itemgrp ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleGrpButtonClick("itemgrp");
               itemGrpRef.current?.focus();
@@ -903,6 +984,10 @@ const ItemDirectory = () => {
             aria-label="dropDorn"
           ></button>
 
+
+          )}
+     
+   
           {showSuggestions.itemgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
               {Object.entries(filteredList.itemGrpList).map(
@@ -959,8 +1044,10 @@ const ItemDirectory = () => {
             disabled={!itemForm.itemgrp}
             value={itemForm.itemsubgrp}
           />
-
-          <button
+{showInputLoading.itemsubgrp ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleGrpButtonClick("itemsubgrp");
               itemSubGrpRef.current?.focus();
@@ -969,6 +1056,10 @@ const ItemDirectory = () => {
             disabled={!itemForm.itemgrp}
             aria-label="dropDorn"
           ></button>
+
+
+          )}
+     
 
 {showSuggestions.itemsubgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>

@@ -200,8 +200,8 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
 
   ];
   const onRowSelected = (event) => {
-    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
+    setRowSelect(selectedData.length > 0);
     setSelectedSample(selectedData);
   };
 

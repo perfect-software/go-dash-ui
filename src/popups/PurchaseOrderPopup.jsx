@@ -118,8 +118,8 @@ const PurchaseOrderPopup = ({ onCancel, onSubmitBuyerData }) => {
     setSizeData(params.data);
   };
   const onRowSelected = (event) => {
-    setRowSelect(!rowSelect);
     const selectedData = event.api.getSelectedRows();
+    setRowSelect(selectedData.length > 0);
     setSelectedBuyer(selectedData);
   };
 

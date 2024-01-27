@@ -5,11 +5,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { getformatDate } from "../features/convertDate";
 import { fetchItemGroupsAndSubGroups } from "../reducer/grpSubgrpSlice";
 import { useSidebar } from "../context/SidebarContext";
-import { getApiService } from "../service/apiService";;
+import { getApiService } from "../service/apiService";
 import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import ItemRatesPopup from "../popups/ItemRatesPopup";
 
-const MaterialTable = ({ bomData, setBomData  }) => {
+const MaterialTable = ({ bomData, setBomData }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
@@ -25,17 +25,21 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     itemgrp: false,
     itemsubgrp: false,
   });
-
+  const [showInputLoading, setShowInputLoading] = useState({
+    itemId: false,
+    itemgrp: false,
+    itemsubgrp: false,
+  });
   const [newItem, setNewItem] = useState({
     itemgrp: { name: "", id: "" },
     itemsubgrp: { name: "", id: "" },
     itemId: { name: "", id: "" },
     usedIn: "",
     pair: "",
-    supplierId:{ name: "", id: "" },
-    stockConsumedQty:"",
+    supplierId: { name: "", id: "" },
+    stockConsumedQty: "",
     bomQty: "",
-    unit:"",
+    unit: "",
     requiredQty: "",
     rate: "",
     cost: "",
@@ -43,49 +47,56 @@ const MaterialTable = ({ bomData, setBomData  }) => {
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
-  
+
     const requiredFields = [
-      "itemId", "supplierId", "stockConsumedQty", "bomQty", "unit", "requiredQty", "rate"
+      "itemId",
+      "supplierId",
+      "stockConsumedQty",
+      "bomQty",
+      "unit",
+      "requiredQty",
+      "rate",
     ];
 
     if (!newItem.itemgrp.name.trim()) {
       isValid = false;
-      newValidation['itemgrp'] = "invalid";
+      newValidation["itemgrp"] = "invalid";
     } else {
-      newValidation['itemgrp'] = "valid";
+      newValidation["itemgrp"] = "valid";
     }
-  
+
     if (!newItem.itemsubgrp.name.trim()) {
       isValid = false;
-      newValidation['itemsubgrp'] = "invalid";
+      newValidation["itemsubgrp"] = "invalid";
     } else {
-      newValidation['itemsubgrp'] = "valid";
+      newValidation["itemsubgrp"] = "valid";
     }
     if (!newItem.supplierId.name.trim()) {
       isValid = false;
-      newValidation['supplierId'] = "invalid";
+      newValidation["supplierId"] = "invalid";
     } else {
-      newValidation['supplierId'] = "valid";
+      newValidation["supplierId"] = "valid";
     }
     if (!newItem.itemId.name.trim()) {
       isValid = false;
-      newValidation['itemId'] = "invalid";
+      newValidation["itemId"] = "invalid";
     } else {
-      newValidation['itemId'] = "valid";
+      newValidation["itemId"] = "valid";
     }
     requiredFields.forEach((field) => {
       if (!newItem[field]) {
         isValid = false;
         newValidation[field] = "invalid";
       } else {
-        newValidation[field] = "valid"; 
+        newValidation[field] = "valid";
       }
     });
-  
+
     setValidation(newValidation);
     return isValid;
   };
-  
+
+    
   const dispatch = useDispatch();
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
@@ -99,14 +110,17 @@ const MaterialTable = ({ bomData, setBomData  }) => {
     }
   }, [loaded, loading, dispatch]);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (!loadedRate && !loadingRate) {
       dispatch(fetchAllItemRates());
-         }
-  },[loadedRate, loadingRate,dispatch])
- 
-
-
+    }
+  }, [loadedRate, loadingRate, dispatch]);
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+  }
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem((prev) => {
@@ -128,9 +142,9 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           : null),
       };
     });
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-  const handleOnSupplierChange =(e)=>{
+  const handleOnSupplierChange = (e) => {
     const { name, value } = e.target;
     setNewItem((prevItem) => ({
       ...prevItem,
@@ -139,32 +153,32 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         name: value,
       },
     }));
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
-  }
- const handleRateSubmit=(selectedRates)=>{
-  if (Array.isArray(selectedRates) && selectedRates.length > 0) {
-    const selectedRate = selectedRates[0];
-    setNewItem((prevItem) => ({
-      ...prevItem,
-      itemId: {
-        ...prevItem.itemId,
-        name: selectedRate.itemName,
-        id: selectedRate.itemId
-      },
-      supplierId: {
-        ...prevItem.supplierId,
-        name: selectedRate.supplierName,
-        id: selectedRate.supplierId
-      },
-     
-      unit:selectedRate.unit,
-      rate:selectedRate.rate
-    }));
-   
-    toggleSuggestVisibility("itemId", false);
-    setIsRatePopup(false);
-  }
- }
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
+  };
+  const handleRateSubmit = (selectedRates) => {
+    if (Array.isArray(selectedRates) && selectedRates.length > 0) {
+      const selectedRate = selectedRates[0];
+      setNewItem((prevItem) => ({
+        ...prevItem,
+        itemId: {
+          ...prevItem.itemId,
+          name: selectedRate.itemName,
+          id: selectedRate.itemId,
+        },
+        supplierId: {
+          ...prevItem.supplierId,
+          name: selectedRate.supplierName,
+          id: selectedRate.supplierId,
+        },
+
+        unit: selectedRate.unit,
+        rate: selectedRate.rate,
+      }));
+
+      toggleSuggestVisibility("itemId", false);
+      setIsRatePopup(false);
+    }
+  };
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -174,20 +188,26 @@ const MaterialTable = ({ bomData, setBomData  }) => {
 
   const handleGrpItemChange = (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
       setNewItem({ ...newItem, itemgrp: { ...newItem.itemgrp, name: value } });
       const filtered = Object.entries(itemGroups)
-        .filter(([key, groupName]) => groupName.toLowerCase().includes(value.toLowerCase()))
+        .filter(([key, groupName]) =>
+          groupName.toLowerCase().includes(value.toLowerCase())
+        )
         .reduce((acc, [key, groupName]) => {
           acc[key] = groupName;
           return acc;
         }, {});
-  
+
       setFilteredList({ ...filteredList, itemGrpList: filtered });
       toggleSuggestVisibility(name, value.length > 0);
     }
     if (name === "itemsubgrp") {
-      setNewItem({ ...newItem, itemsubgrp: { ...newItem.itemsubgrp, name: value } });
+      setNewItem({
+        ...newItem,
+        itemsubgrp: { ...newItem.itemsubgrp, name: value },
+      });
       const filtered = Object.entries(itemSubGroups)
         .filter(
           ([key, subGroupDetails]) =>
@@ -199,15 +219,17 @@ const MaterialTable = ({ bomData, setBomData  }) => {
           acc[key] = subGroupDetails.name;
           return acc;
         }, {});
-        
+
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
-   
+
       toggleSuggestVisibility(name, value.length > 0);
     }
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    toggleInputLoaderVisibility(`${name}`, false);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
   const handleItemNameChange = async (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setNewItem((prevItem) => ({
       ...prevItem,
       itemId: {
@@ -216,36 +238,58 @@ const MaterialTable = ({ bomData, setBomData  }) => {
       },
     }));
     toggleSuggestVisibility(name, value.length > 0);
-    const filteredItems = itemRates.filter((item) =>
-    item.itemName.toLowerCase().includes(value.toLowerCase())
-  ).map(item => ({ itemId: item.itemId, itemName: item.itemName,supplierId:item.supplierId,supplierName:item.supplierName , rate:item.rate,unit:item.unit  }));
+    const filteredItems = itemRates
+      .filter((item) =>
+        item.itemName.toLowerCase().includes(value.toLowerCase())
+      )
+      .map((item) => ({
+        itemId: item.itemId,
+        itemName: item.itemName,
+        supplierId: item.supplierId,
+        supplierName: item.supplierName,
+        rate: item.rate,
+        unit: item.unit,
+      }));
     setItemNames(filteredItems);
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    toggleInputLoaderVisibility(`${name}`, false);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleAddMaterial = () => {
     if (!validateForm()) {
       return;
     }
-  
+
     setBomData((prevData) => {
       let newData = JSON.parse(JSON.stringify(prevData));
-      let group = newData.groups.find(g => g.id === newItem.itemgrp.id);
+      let group = newData.groups.find((g) => g.id === newItem.itemgrp.id);
       if (!group) {
-        group = { id: newItem.itemgrp.id, name: newItem.itemgrp.name, subgroups: [] };
+        group = {
+          id: newItem.itemgrp.id,
+          name: newItem.itemgrp.name,
+          subgroups: [],
+        };
         newData.groups.push(group);
       }
-      let subgroup = group.subgroups.find(sg => sg.id === newItem.itemsubgrp.id);
+      let subgroup = group.subgroups.find(
+        (sg) => sg.id === newItem.itemsubgrp.id
+      );
       if (!subgroup) {
-        subgroup = { id: newItem.itemsubgrp.id, name: newItem.itemsubgrp.name, items: [] };
+        subgroup = {
+          id: newItem.itemsubgrp.id,
+          name: newItem.itemsubgrp.name,
+          items: [],
+        };
         group.subgroups.push(subgroup);
       }
-      const existingItem = subgroup.items.find(i => i.itemId.id === newItem.itemId.id);
+      const existingItem = subgroup.items.find(
+        (i) => i.itemId.id === newItem.itemId.id
+      );
       if (existingItem) {
         console.warn("Item already exists");
         return newData;
       }
-  
+
       subgroup.items.push({
         itemId: newItem.itemId.id,
         itemName: newItem.itemId.name,
@@ -258,21 +302,31 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         unit: newItem.unit,
         requiredQty: newItem.requiredQty,
         rate: newItem.rate,
-        cost: newItem.cost
+        cost: newItem.cost,
       });
-      let totalCost = newData.groups.reduce((total, group) => 
-        total + group.subgroups.reduce((subTotal, subgroup) => 
-          subTotal + subgroup.items.reduce((itemTotal, item) => 
-            itemTotal + parseFloat(item.cost) || 0, 0), 0), 0);
-      
+      let totalCost = newData.groups.reduce(
+        (total, group) =>
+          total +
+          group.subgroups.reduce(
+            (subTotal, subgroup) =>
+              subTotal +
+              subgroup.items.reduce(
+                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
+                0
+              ),
+            0
+          ),
+        0
+      );
+
       newData.totalCost = totalCost.toFixed(2);
-  
+
       return newData;
     });
-  
+
     resetNewItemState();
   };
-  
+
   const resetNewItemState = () => {
     setNewItem({
       itemgrp: { name: "", id: "" },
@@ -286,38 +340,53 @@ const MaterialTable = ({ bomData, setBomData  }) => {
       unit: "",
       requiredQty: "",
       rate: "",
-      cost: ""
+      cost: "",
     });
   };
-  
 
   const handleRemoveItem = (groupId, subgroupId, itemId) => {
     setBomData((prevData) => {
       let newData = JSON.parse(JSON.stringify(prevData));
-      newData.groups = newData.groups.map(group => {
-        if (group.id === groupId) {
-          group.subgroups = group.subgroups.map(subgroup => {
-            if (subgroup.id === subgroupId) {
-              subgroup.items = subgroup.items.filter(item => item.itemId !== itemId);
-            }
-            return subgroup;
-          }).filter(subgroup => subgroup.items.length > 0);
-        }
-        return group;
-      }).filter(group => group.subgroups.length > 0);
-      let totalCost = newData.groups.reduce((total, group) => 
-        total + group.subgroups.reduce((subTotal, subgroup) => 
-          subTotal + subgroup.items.reduce((itemTotal, item) => 
-            itemTotal + parseFloat(item.cost) || 0, 0), 0), 0);
-      
+      newData.groups = newData.groups
+        .map((group) => {
+          if (group.id === groupId) {
+            group.subgroups = group.subgroups
+              .map((subgroup) => {
+                if (subgroup.id === subgroupId) {
+                  subgroup.items = subgroup.items.filter(
+                    (item) => item.itemId !== itemId
+                  );
+                }
+                return subgroup;
+              })
+              .filter((subgroup) => subgroup.items.length > 0);
+          }
+          return group;
+        })
+        .filter((group) => group.subgroups.length > 0);
+      let totalCost = newData.groups.reduce(
+        (total, group) =>
+          total +
+          group.subgroups.reduce(
+            (subTotal, subgroup) =>
+              subTotal +
+              subgroup.items.reduce(
+                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
+                0
+              ),
+            0
+          ),
+        0
+      );
+
       newData.totalCost = totalCost.toFixed(2);
-  
+
       return newData;
     });
   };
-  
 
   const handleGrpButtonClick = (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
       setFilteredList({ ...filteredList, itemGrpList: itemGroups });
       toggleSuggestVisibility(name, !showSuggestions[name]);
@@ -325,21 +394,22 @@ const MaterialTable = ({ bomData, setBomData  }) => {
 
     if (name === "itemsubgrp") {
       const filtered = Object.entries(itemSubGroups)
-        .filter(([key, subGroupDetails]) => 
-          subGroupDetails.groupNumber.toLowerCase() === itemGroupNumber.toLowerCase()
+        .filter(
+          ([key, subGroupDetails]) =>
+            subGroupDetails.groupNumber.toLowerCase() ===
+            itemGroupNumber.toLowerCase()
         )
         .reduce((acc, [key, subGroupDetails]) => {
-          acc[key] = subGroupDetails.name; 
+          acc[key] = subGroupDetails.name;
           return acc;
         }, {});
-    
+
       setFilteredList({ ...filteredList, itemSubGrpList: filtered });
       toggleSuggestVisibility(name, !showSuggestions[name]);
     }
-    setValidation(prev => ({ ...prev, [name]: 'valid' }));
+    toggleInputLoaderVisibility(`${name}`, false);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
-
 
   const renderTableBody = () => {
     let rows = [];
@@ -352,9 +422,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
       group.subgroups.forEach((subgroup, subgroupIndex) => {
         subgroup.items.forEach((item, itemIndex) => {
           rows.push(
-            <tr
-              key={`${group.id}-${subgroup.id}-${item.itemId}`}
-            >
+            <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
               {subgroupIndex === 0 && itemIndex === 0 && (
                 <td rowSpan={totalItemsInGroup}>{group.name}</td>
               )}
@@ -368,7 +436,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               <td>{item.pair}</td>
 
               <td>{item.bomQty}</td>
-             <td>{item.stockConsumedQty}</td>
+              <td>{item.stockConsumedQty}</td>
 
               <td>{item.requiredQty}</td>
               <td>{item.rate}</td>
@@ -378,13 +446,7 @@ const MaterialTable = ({ bomData, setBomData  }) => {
               <td style={{ textAlign: "center" }}>
                 <button
                   onClick={() =>
-                
-                    handleRemoveItem(
-                      group.id,
-                      subgroup.id,
-                      item.itemId
-                    )
-                    
+                    handleRemoveItem(group.id, subgroup.id, item.itemId)
                   }
                   className={styles.minus}
                 ></button>
@@ -407,19 +469,18 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             itemId: {
               ...prevItem.itemId,
               name: selectedItem.itemName,
-              id: selectedItem.itemId
+              id: selectedItem.itemId,
             },
             supplierId: {
               ...prevItem.supplierId,
               name: selectedItem.supplierName,
-              id: selectedItem.supplierId
+              id: selectedItem.supplierId,
             },
-            unit:selectedItem.unit,
-            rate:selectedItem.rate
+            unit: selectedItem.unit,
+            rate: selectedItem.rate,
           }));
           console.log(newItem);
           toggleSuggestVisibility("itemId", false);
-          
         }
       }}
       itemToString={(item) => (item ? item : "")}
@@ -440,17 +501,24 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             })}
             type="text"
             className={styles.basicInput}
-            style={validation.itemId === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.itemId === "invalid" ? { border: "2px solid red" } : {}
+            }
             placeholder="Type a word"
             value={newItem.itemId.name}
           />
-           <button
+            {showInputLoading.itemId ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => setIsRatePopup(true)}
             className={styles.searchBtn2}
             aria-label="Search"
           ></button>
+          )}
+       
           <div {...getMenuProps()} className={styles.suggestions}>
-          {showSuggestions.itemId &&
+            {showSuggestions.itemId &&
               itemNames.map((name, idx) => (
                 <div
                   {...getItemProps({ key: idx, index: idx, item: name })}
@@ -495,23 +563,31 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             type="text"
             ref={itemGrpRef}
             className={styles.basicInput}
-            style={validation.itemgrp === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.itemgrp === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={newItem.itemgrp.name}
           />
 
-          <button
-            onClick={() => {
-              handleGrpButtonClick("itemgrp");
-              itemGrpRef.current?.focus();
-            }}
-            className={styles.searchBtn}
-            aria-label="dropDorn"
-          ></button>
+          {showInputLoading.itemgrp ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleGrpButtonClick("itemgrp");
+                itemGrpRef.current?.focus();
+              }}
+              className={styles.searchBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
 
           {showSuggestions.itemgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
-                {Object.entries(filteredList.itemGrpList).map(
+              {Object.entries(filteredList.itemGrpList).map(
                 ([key, name], index) => (
                   <div
                     key={key}
@@ -561,7 +637,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             ref={itemSubGrpRef}
             className={styles.basicInput}
             placeholder="Insert First Letter"
-            style={validation.itemsubgrp === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.itemsubgrp === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             disabled={!newItem.itemgrp.name}
             value={newItem.itemsubgrp.name}
             onKeyDown={(e) => {
@@ -572,7 +652,10 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             }}
           />
 
-          <button
+{showInputLoading.itemsubgrp ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleGrpButtonClick("itemsubgrp");
               itemSubGrpRef.current?.focus();
@@ -581,10 +664,12 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             disabled={!newItem.itemgrp.name}
             aria-label="dropDorn"
           ></button>
+          )}
+       
 
           {showSuggestions.itemsubgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
-                {Object.entries(filteredList.itemSubGrpList).map(
+              {Object.entries(filteredList.itemSubGrpList).map(
                 ([key, name], index) => (
                   <div
                     key={key}
@@ -653,7 +738,9 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             name="bomQty"
             value={newItem.bomQty}
             onChange={handleInputChange}
-            style={validation.bomQty === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.bomQty === "invalid" ? { border: "2px solid red" } : {}
+            }
             placeholder="BOM Qty"
             className={styles.basicInput}
           />
@@ -666,7 +753,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             type="text"
             name="stockConsumedQty"
             value={newItem.stockConsumedQty}
-            style={validation.stockConsumedQty === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.stockConsumedQty === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             onChange={handleInputChange}
             placeholder="Stock Consumed Qty"
             className={styles.basicInput}
@@ -680,7 +771,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             type="text"
             name="requiredQty"
             value={newItem.requiredQty}
-            style={validation.requiredQty === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.requiredQty === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             onChange={handleInputChange}
             placeholder="Required Qty"
             className={styles.basicInput}
@@ -694,7 +789,9 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             name="rate"
             type="number"
             onChange={handleInputChange}
-            style={validation.rate === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.rate === "invalid" ? { border: "2px solid red" } : {}
+            }
             className={styles.basicInput}
             placeholder="Enter Rate"
             value={newItem.rate}
@@ -708,7 +805,9 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             name="unit"
             type="text"
             onChange={handleInputChange}
-            style={validation.unit === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.unit === "invalid" ? { border: "2px solid red" } : {}
+            }
             className={styles.basicInput}
             placeholder="Enter unit"
             value={newItem.unit}
@@ -722,7 +821,11 @@ const MaterialTable = ({ bomData, setBomData  }) => {
             name="supplierId"
             type="text"
             onChange={handleOnSupplierChange}
-            style={validation.supplierId === 'invalid' ? { border: "2px solid red" } : {}}
+            style={
+              validation.supplierId === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             className={styles.basicInput}
             placeholder="Enter supplier"
             value={newItem.supplierId.name}
@@ -805,13 +908,13 @@ const MaterialTable = ({ bomData, setBomData  }) => {
         </table>
       </div>
       {isRatePopup && (
-            <ItemRatesPopup
-              onCancel={() => {
-                setIsRatePopup(false);
-              }}
-              onSubmitRateData={handleRateSubmit}
-            />
-          )}
+        <ItemRatesPopup
+          onCancel={() => {
+            setIsRatePopup(false);
+          }}
+          onSubmitRateData={handleRateSubmit}
+        />
+      )}
     </>
   );
 };

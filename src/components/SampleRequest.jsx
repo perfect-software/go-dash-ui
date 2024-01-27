@@ -21,7 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 import InfoPopup from "../popups/InfoPopup";
 
-
 const SampleRequest = () => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -30,6 +29,16 @@ const SampleRequest = () => {
   const [sampleType, setSampleType] = useState([]);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
+    buyer: false,
+    upperColor: false,
+    liningColor: false,
+    soleLabel: false,
+    season: false,
+    sampleRef: false,
+    articleNo: false,
+    sampleType: false,
+  });
+  const [showInputLoading, setShowInputLoading] = useState({
     buyer: false,
     upperColor: false,
     liningColor: false,
@@ -189,8 +198,7 @@ const SampleRequest = () => {
       dateOfOrder: dateOfOrder,
     });
     setTempArticeNo(article_no);
-};
-
+  };
 
   const handlePrintClick = async () => {
     const updatedSampleDetails = {
@@ -218,21 +226,25 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
+  
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
 
     if (value.length >= 3) {
+      toggleInputLoaderVisibility('buyer',true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-
       try {
         const fetchedBuyers = await getApiService(BASE_URL);
         setBuyers(fetchedBuyers);
         toggleSuggestVisibility("buyer", true);
+        toggleInputLoaderVisibility('buyer',false);
       } catch (error) {
         console.error("Failed to fetch buyers:", error);
+      } finally {
+        toggleInputLoaderVisibility('buyer',false);
       }
     } else {
       toggleSuggestVisibility("buyer", false);
-    }
+    } 
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
@@ -240,6 +252,7 @@ const SampleRequest = () => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
     if (value.length >= 2) {
+      toggleInputLoaderVisibility(`${name}`, true);
       const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
         value
       )}`;
@@ -247,10 +260,12 @@ const SampleRequest = () => {
       try {
         const fetchedColors = await getApiService(BASE_URL);
         setColors(fetchedColors);
-
         toggleSuggestVisibility(`${name}`, true);
+        toggleInputLoaderVisibility(`${name}`, false);
       } catch (error) {
         console.error("Failed to fetch Colors:", error);
+      } finally {
+        toggleInputLoaderVisibility(`${name}`, false);
       }
     } else {
       toggleSuggestVisibility(`${name}`, false);
@@ -264,13 +279,16 @@ const SampleRequest = () => {
     const encodedInput = encodeURIComponent(value);
     if (value.length >= 1) {
       const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
-
+      toggleInputLoaderVisibility('sampleRef',true);
       try {
         const fetchedRef = await getApiService(BASE_URL);
         setSampleRefrences(fetchedRef);
         toggleSuggestVisibility("sampleRef", true);
+        toggleInputLoaderVisibility('sampleRef',false);
       } catch (error) {
         console.error("Failed to fetch SampleRefs:", error);
+      } finally {
+        toggleInputLoaderVisibility('sampleRef',false);
       }
     } else {
       toggleSuggestVisibility("sampleRef", false);
@@ -311,44 +329,46 @@ const SampleRequest = () => {
       const selectedSample = selectedSamples[0];
       const { article_no, ...restOfSelectedSample } = selectedSample;
       setSampleDetailsForm({
-          ...sampleDetailsForm,
-          ...restOfSelectedSample,
-          articleNo: article_no,
-          bsName: selectedSample.buyer?.bsName,
-          deliveryAddress: selectedSample.buyer?.billingAddress,
-          deliveryDate: selectedSample.deliveryDate ? getformatDate(selectedSample.deliveryDate) : "",
-          prodExDate: selectedSample.prodExDate ? getformatDate(selectedSample.prodExDate) : "",
+        ...sampleDetailsForm,
+        ...restOfSelectedSample,
+        articleNo: article_no,
+        bsName: selectedSample.buyer?.bsName,
+        deliveryAddress: selectedSample.buyer?.billingAddress,
+        deliveryDate: selectedSample.deliveryDate
+          ? getformatDate(selectedSample.deliveryDate)
+          : "",
+        prodExDate: selectedSample.prodExDate
+          ? getformatDate(selectedSample.prodExDate)
+          : "",
       });
       setTempArticeNo(article_no);
       setIsSampleDirPopup(false);
+      setValidation((prev) => ({ ...prev, bsName: "valid" }));
     }
   };
   const handleViewPDF = async () => {
     await generatePDF(sampleDetailsForm);
-    
   };
   const handleSeasonChange = (e) => {
-    const { name, value } = e.target;
-    setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
-
-    const concatenatedString = `${name}List`;
-
-    const filtered = itemsData
-      .filter(
-        (item) =>
-          item.head.toLowerCase() === name.toLowerCase() &&
-          item.value.toLowerCase().includes(value.toLowerCase())
-      )
-      .map((item) => ({
-        name: item.value,
-      }));
-
-    const updatedFilteredList = {
-      ...filteredList,
-      [concatenatedString]: filtered,
-    };
-
-    setFilteredList(updatedFilteredList);
+      const { name, value } = e.target;
+      toggleInputLoaderVisibility(`${name}`, true);
+      setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
+      const concatenatedString = `${name}List`;
+      const filtered = itemsData
+        .filter(
+          (item) =>
+            item.head.toLowerCase() === name.toLowerCase() &&
+            item.value.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((item) => ({
+          name: item.value,
+        }));
+      const updatedFilteredList = {
+        ...filteredList,
+        [concatenatedString]: filtered,
+      };    
+     setFilteredList(updatedFilteredList);
+     toggleInputLoaderVisibility(`${name}`,false);
     if (value.length > 0) {
       toggleSuggestVisibility(`${name}`, true);
     } else {
@@ -419,7 +439,6 @@ const SampleRequest = () => {
       dateOfOrder: formattedDate,
       articleNo: tempArticleNo,
     };
- console.log(updatedSampleDetailsForm);
     const BASE_URL = "sample/create";
 
     try {
@@ -429,7 +448,6 @@ const SampleRequest = () => {
       );
       togglePopup(responseData.message);
       setAllowPrint(true);
-      resetAllFields();
       dispatch(fetchAllSamples());
     } catch (error) {
       let errorMessage = "An error occurred";
@@ -488,12 +506,16 @@ const SampleRequest = () => {
     }
   };
   const handleSampleType = async (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
     const BASE_URL = "sample/getSampleType";
     try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
+      toggleInputLoaderVisibility(`${name}`,false);
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
+    } finally {
+      toggleInputLoaderVisibility(`${name}`,false);
     }
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
@@ -514,6 +536,14 @@ const SampleRequest = () => {
       ...prevSuggestions,
       [key]: value,
     }));
+    
+  };
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+    
   };
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
@@ -527,6 +557,7 @@ const SampleRequest = () => {
     setFormattedDate(currentDate);
   }, []);
   const handleSeasonButtonClick = (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
     const filtered = itemsData
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
@@ -539,6 +570,7 @@ const SampleRequest = () => {
     };
     setFilteredList(updatedFilteredList);
     toggleSuggestVisibility(name, !showSuggestions[name]);
+    toggleInputLoaderVisibility(`${name}`,false);
   };
 
   // Suggestions here
@@ -574,11 +606,19 @@ const SampleRequest = () => {
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
           />
-          <button
+             {showInputLoading.buyer ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button
             onClick={() => setIsBuyerPopup(true)}
             className={styles.searchBtn}
             aria-label="Search"
-          ></button>
+          ></button>{" "}
+            </div>
+          )}
+         
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
@@ -625,8 +665,15 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
           />
-          <button className={styles.searchBtn} aria-label="Search"></button>
-
+          
+          {showInputLoading.sampleRef ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button className={styles.searchBtn} aria-label="Search"></button>{" "}
+            </div>
+          )}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleRef &&
               sampleRefrences.map((sample, index) => (
@@ -677,7 +724,9 @@ const SampleRequest = () => {
             placeholder="Insert Two Letter"
             value={sampleDetailsForm.upperColor}
           />
-           {showSuggestions.upperColor && <div className={styles.dropLoader}></div>}
+          {showInputLoading.upperColor && (
+            <div className={styles.dropLoader}></div>
+          )}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.upperColor &&
               colors.map((color, index) => (
@@ -728,7 +777,9 @@ const SampleRequest = () => {
             }
             value={sampleDetailsForm.liningColor}
           />
-          {showSuggestions.liningColor && <div className={styles.dropLoader}></div>}
+          {showInputLoading.liningColor && (
+            <div className={styles.dropLoader}></div>
+          )}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.liningColor &&
               colors.map((color, index) => (
@@ -779,7 +830,9 @@ const SampleRequest = () => {
             }
             value={sampleDetailsForm.soleLabel}
           />
-          {showSuggestions.soleLabel && <div className={styles.dropLoader}></div>}
+          {showInputLoading.soleLabel && (
+            <div className={styles.dropLoader}></div>
+          )}
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.soleLabel &&
               colors.map((color, index) => (
@@ -890,17 +943,20 @@ const SampleRequest = () => {
             value={sampleDetailsForm.sampleType}
             readOnly
           />
-           {showSuggestions.sampleType ? (<div className={styles.dropLoader}></div>):(  <div>
-            <button
-              onClick={() => {
-                handleSampleType("sampleType");
-                sampleTypeRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="Search"
-            ></button>
-          </div>)}
-         
+          {showInputLoading.sampleType ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              <button
+                onClick={() => {
+                  handleSampleType("sampleType");
+                  sampleTypeRef.current?.focus();
+                }}
+                className={styles.dropBtn}
+                aria-label="Search"
+              ></button>
+            </div>
+          )}
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.sampleType &&
@@ -945,19 +1001,26 @@ const SampleRequest = () => {
             })}
             type="text"
             ref={seasonInputRef}
-            className={styles.basicInput}
+            className={styles.buttonBasicInput}
             placeholder="Insert First Letter"
             value={sampleDetailsForm.season}
           />
 
-           {showSuggestions.season ? (<div className={styles.dropLoader}></div>):(<div> <button
-            onClick={() => {
-              handleSeasonButtonClick('season');
-              seasonInputRef.current?.focus();
-            }}
-            className={styles.dropBtn}
-            aria-label="dropDorn"
-          ></button> </div>)}
+          {showInputLoading.season ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button
+                onClick={() => {
+                  handleSeasonButtonClick("season");
+                  seasonInputRef.current?.focus();
+                }}
+                className={styles.dropBtn}
+                aria-label="dropDorn"
+              ></button>{" "}
+            </div>
+          )}
 
           {showSuggestions.season && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -985,11 +1048,7 @@ const SampleRequest = () => {
         <div className={styles.sampleRequestSubHeadContainer}>
           <h1
             className={styles.sampleRequestheadText}
-            style={
-              activeButton === "view"
-                ? {  marginTop: "2px" }
-                : {}
-            }
+            style={activeButton === "view" ? { marginTop: "2px" } : {}}
           >
             {activeButton === "details"
               ? isEditClicked
@@ -1271,7 +1330,7 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="number"
-                  className={styles.numberBasicInput}
+                  className={styles.basicInput}
                   placeholder="Input Here"
                   style={
                     validation.size === "invalid"
@@ -1289,7 +1348,7 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="number"
-                  className={styles.numberBasicInput}
+                  className={styles.basicInput}
                   placeholder="Input Here"
                   style={
                     validation.quantity === "invalid"
@@ -1533,7 +1592,7 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="number"
-                  className={styles.numberBasicInput}
+                  className={styles.basicInput}
                   placeholder="Enter.."
                   name="inQuantity"
                   style={
@@ -1649,16 +1708,14 @@ const SampleRequest = () => {
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-                <button className={styles.resetButton} onClick={resetAllFields}>
-                  Reset
-                </button>
+               
                 {isEditClicked ? (
                   <>
                     <button
                       onClick={handleUpdateSampleSubmit}
                       className={styles.submitButton}
                     >
-                      Update
+                      Submit
                     </button>{" "}
                     <button
                       className={styles.resetButton}
@@ -1668,11 +1725,14 @@ const SampleRequest = () => {
                         setIsEditSelected(false);
                       }}
                     >
-                      Cancel
+                      Go Back
                     </button>
                   </>
                 ) : (
                   <>
+                   <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
                     <button
                       onClick={handleCreateSampleSubmit}
                       className={styles.submitButton}
@@ -1689,7 +1749,13 @@ const SampleRequest = () => {
             <div className={styles.popupOverlay}>
               <div className={styles.popupContent}>
                 <h2>{popupMessage}</h2>
-                <button className={styles.popupButton} onClick={togglePopup}>
+                <button
+                  className={styles.popupButton}
+                  onClick={() => {
+                    togglePopup();
+                    {allowPrint && resetAllFields()};
+                  }}
+                >
                   OK
                 </button>
                 {allowPrint && (
@@ -1731,7 +1797,7 @@ const SampleRequest = () => {
               onSubmitArticleData={handleArticleNoSubmit}
             />
           )}
-         
+
           {isInfoPopup && (
             <InfoPopup
               onCancel={() => {

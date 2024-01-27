@@ -73,23 +73,7 @@ const ViewBuyer = ({onBuyerSelect}) => {
       checkboxSelection: true,
       showDisabledCheckboxes: true,
     },
-
     { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
-   
-    {
-      headerName: "Entry Date",
-      field: "entDate",
-      sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
-    {
-      headerName: "User Name",
-      field: "username",
-      sortable: true,
-      filter: true,
-    },
     { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
     {
       headerName: "Delivery Address",
@@ -103,6 +87,70 @@ const ViewBuyer = ({onBuyerSelect}) => {
       sortable: true,
       filter: true,
     },
+    {
+      headerName: "User Name",
+      field: "username",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "City",
+      field: "city",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Pincode",
+      field: "pincode",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Country",
+      field: "country",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Currency",
+      field: "currency",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Contact Person",
+      field: "contactPerson",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Mobile",
+      field: "mobile",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Phone",
+      field: "phone",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Email",
+      field: "email",
+      sortable: true,
+      filter: true,
+    },
+    { headerName: "Buyer Abbreviation", field: "bsAbbreviation", sortable: true, filter: true },
+    {
+      headerName: "Entry Date",
+      field: "entDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+   
   ];
 
   return (
@@ -111,7 +159,7 @@ const ViewBuyer = ({onBuyerSelect}) => {
     >
       <div
         className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 600, width: "100%", marginTop: "10px" }}
+        style={{ height: 500, width: "100%", marginTop: "10px" }}
       >
         <AgGridReact
           columnDefs={columnDefs}

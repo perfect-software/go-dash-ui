@@ -174,16 +174,16 @@
     color: rgba(0, 0, 0, 0.66);
   }
   .basicInput {
-    @apply border px-2 w-full pr-[30px] text-[0.84rem] rounded-[0.3125rem];
-    height: 2.2rem;
-  }
-  .numberBasicInput {
     @apply border px-2 w-full text-[0.84rem] rounded-[0.3125rem];
     height: 2.2rem;
   }
+  .buttonBasicInput {
+    @apply border px-2 w-full pr-[50px] text-[0.84rem] rounded-[0.3125rem];
+    height: 2.2rem;
+  }
   .basicInput2 {
-    @apply border w-full rounded-[0.3125rem] h-[2.2rem] bg-[#F7F7F7];
-    padding: 4px 50px 9px 9px;
+    @apply border w-full rounded-[0.3125rem] h-[2.2rem] text-[0.84rem] bg-[#F7F7F7];
+    padding: 2px 50px 2px 9px;
   }
   .commentInput {
     @apply border p-2 w-full rounded-[0.3125rem];
@@ -211,7 +211,7 @@
     outline: none;
     border: 1px solid #00a5ad;
   }
-  .numberBasicInput:focus {
+  .buttonBasicInput:focus {
     outline: none;
     border: 1px solid #00a5ad;
   }

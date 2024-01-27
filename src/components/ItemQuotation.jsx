@@ -28,7 +28,10 @@ const ItemQuotation = () => {
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [submitLoading, setSubmitLoading] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
-
+  const [showInputLoading, setShowInputLoading] = useState({
+    itemId: false,
+    supplierId:false
+  });
   const dispatch = useDispatch();
   const { itemRates, loaded, loading, error } = useSelector(
     (state) => state.itemRate
@@ -45,6 +48,13 @@ const ItemQuotation = () => {
       ...prevState,
       [name]: value,
     }));
+  };
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
+    
   };
   const [itemQuotation, setItemQuotation] = useState(() => {
     const savedForm = localStorage.getItem("itemQuotation");
@@ -130,8 +140,8 @@ const ItemQuotation = () => {
   };
   const handleItemNameChange = async (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setItemQuotation((prevItem) => ({ ...prevItem, itemId: value }));
-
     const filteredItems = itemNames.filter((item) =>
     item.itemName.toLowerCase().includes(value.toLowerCase())
   ).map(item => ({ itemId: item.itemId, itemName: item.itemName }));
@@ -139,10 +149,12 @@ const ItemQuotation = () => {
       ...prevState,
       itemNameList: filteredItems,
     }));
+    toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, value.length > 0);
   };
   const handleSupplierChange = async (e) => {
     const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
     setItemQuotation((prevItem) => ({ ...prevItem, supplierId: value }));
     const filteredItems = supplierData.filter((supplier) =>
     supplier.supplierName.toLowerCase().includes(value.toLowerCase())
@@ -152,6 +164,7 @@ const ItemQuotation = () => {
       ...prevState,
       suppplierList: filteredItems,
     }));
+    toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, value.length > 0);
   };
   
@@ -233,6 +246,7 @@ const ItemQuotation = () => {
     }
 };
 const handleButtonClick = (name) => {
+  toggleInputLoaderVisibility(`${name}`, true);
   if (name === "itemId") {
     setFilteredList({ ...filteredList, itemNameList: itemNames });
     toggleSuggestVisibility(name, !showSuggestions[name]);
@@ -241,6 +255,7 @@ const handleButtonClick = (name) => {
     setFilteredList({ ...filteredList, suppplierList: supplierData });
     toggleSuggestVisibility(name, !showSuggestions[name]);
   }
+  toggleInputLoaderVisibility(`${name}`, false);
 };
  const supplierNameRef = useRef(null);
  const downshiftSupplierName = (
@@ -277,14 +292,21 @@ const handleButtonClick = (name) => {
           placeholder="Type a word"
           value={itemQuotation.supplierId}
         />
-          <button
+        {showInputLoading.supplierId ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("supplierId");
               supplierNameRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+
+
+          )}
+        
          <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.supplierId &&
               filteredList.suppplierList.map((items, index) => (
@@ -345,14 +367,21 @@ const downshiftItemName = (
           placeholder="Type a word"
           value={itemQuotation.itemId}
         />
-          <button
+              {showInputLoading.itemId ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
             onClick={() => {
               handleButtonClick("itemId");
               itemNameRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={styles.dropBtn}
             aria-label="dropDorn"
           ></button>
+
+
+          )}
+       
          <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.itemId &&
               filteredList.itemNameList.map((items, index) => (
@@ -515,7 +544,7 @@ const downshiftItemName = (
       
           <div
             className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 500, width: "100%", marginTop: "10px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
