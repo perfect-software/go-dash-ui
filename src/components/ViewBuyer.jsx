@@ -73,14 +73,16 @@ const ViewBuyer = ({onBuyerSelect}) => {
       checkboxSelection: true,
       showDisabledCheckboxes: true,
     },
-    { headerName: "Buyer", field: "bsName", sortable: true, filter: true },
+    { headerName: "Buyer", field: "bsName", sortable: true, filter: true ,tooltipField: "bsName"},
     { headerName: "Buyer Code", field: "bsCode", sortable: true, filter: true },
     {
       headerName: "Delivery Address",
       field: "deliveryAddress",
       sortable: true,
       filter: true,
+      
     },
+
     {
       headerName: "Billing Address",
       field: "billingAddress",

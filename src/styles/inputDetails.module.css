@@ -186,11 +186,8 @@
     padding: 2px 50px 2px 9px;
   }
   .commentInput {
-    @apply border p-2 w-full rounded-[0.3125rem];
-    resize: none;
-    height: 6rem;
+    @apply border p-2 w-full text-[0.84rem] rounded-[0.3125rem];
   }
-
   .headInsertValueButton {
     @apply w-[9rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] px-[1.2rem] py-1 text-white 
     leading-4 bg-[#00A5AD] rounded-[0.3125rem];
@@ -232,11 +229,11 @@
     grid-gap: 4px 10px;
   }
   .sampleRequestTopGrid {
-    @apply grid sml:grid-cols-2 smp:grid-cols-1 grid-cols-3  mt-2;
+    @apply grid sml:grid-cols-2 smp:grid-cols-1 grid-cols-4  mt-2;
     grid-gap: 4px 10px;
   }
   .sampleRequestMiddleGrid {
-    @apply grid sm:grid-cols-1 sm:gap-5 sml:grid-cols-2 grid-cols-4  mt-2;
+    @apply grid sm:grid-cols-1 sm:gap-5 smxl:grid-cols-3 sml:grid-cols-2 grid-cols-5  mt-2;
     grid-gap: 4px 10px;
   }
   .sampleRequestSecondMiddleGrid {

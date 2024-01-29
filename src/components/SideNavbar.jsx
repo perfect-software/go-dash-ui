@@ -98,7 +98,7 @@ const SideNavbar = ({isOpen,toggleSidebar }) => {
 
   return (
    
-    <aside className={`${styles.navbar} ${isCollapsed&&!isSmallScreen ? styles.collapsed : ''} ${isOpen ? styles.open : ''}`}>
+    <aside  onMouseEnter={isCollapsed && toggleNavbar} onMouseLeave={toggleNavbar} className={`${styles.navbar} ${isCollapsed&&!isSmallScreen ? styles.collapsed : ''} ${isOpen ? styles.close : ''}`}>
       <div className={styles.navbarTop}>
       <img
           className={styles.menuIcons}
