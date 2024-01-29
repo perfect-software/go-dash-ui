@@ -1181,6 +1181,35 @@ const SampleRequest = () => {
                 {downshiftSampleType}
               </div>
 
+              <div className={styles.colSpan}>
+                <label
+                  className={styles.impsampleLabel}
+                  htmlFor="pair"
+                  required
+                >
+                   Financial Year
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.selectInput}
+                    style={
+                      validation.pair === "invalid"
+                        ? { border: "2px solid red" }
+                        : {}
+                    }
+                   // onChange={handleCreateSampleChange}
+                  >
+                    <option value="" selected disabled hidden>
+                      Financial Year
+                    </option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                  </select>
+                </div>
+              </div>
+
+
               <div className={styles.imgColSpan}>
                 <div className={styles.fileinputcontainer}>
                   {imagePreview && (
