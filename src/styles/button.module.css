@@ -47,10 +47,10 @@
   .buttonfront {
     display: block;
     position: relative;
-    padding: 8px 12px;
+    padding: 3px 5px;
     border-radius: 12px;
     @apply font-bold;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     color: white;
     background: hsl(345deg 100% 47%);
     will-change: transform;

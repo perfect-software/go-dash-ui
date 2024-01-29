@@ -98,9 +98,8 @@ const Header = ({ toggleSidebar }) => {
             <p className={styles.UserInfo}>
               <span className={styles.userSpanOne}>
                 Kevin Singh
-                <br />
               </span>
-              <span className={styles.userSpanTwo}>Merchandiser</span>
+        
             </p>
           </div>
 

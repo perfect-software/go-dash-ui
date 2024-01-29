@@ -159,12 +159,21 @@ const SampleRequest = () => {
   };
   const handleCreateSampleChange = (e) => {
     const { name, value } = e.target;
-    setSampleDetailsForm({
-      ...sampleDetailsForm,
-      [name]: value,
-    });
+    let newFormState = { ...sampleDetailsForm, [name]: value };
+    if (name === 'prodExDate' && value) {
+        const prodExDate = new Date(value);
+        const deliveryDate = new Date(prodExDate);
+        deliveryDate.setDate(prodExDate.getDate() + 7); // Add 7 days
+        const deliveryDateFormatted = deliveryDate.toISOString().split('T')[0];
+        newFormState = {
+            ...newFormState,
+            deliveryDate: deliveryDateFormatted
+        };
+    }
+    setSampleDetailsForm(newFormState);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
-  };
+};
+
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
     console.log(sample);
@@ -226,25 +235,25 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
-  
+
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
 
     if (value.length >= 3) {
-      toggleInputLoaderVisibility('buyer',true);
+      toggleInputLoaderVisibility("buyer", true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
       try {
         const fetchedBuyers = await getApiService(BASE_URL);
         setBuyers(fetchedBuyers);
         toggleSuggestVisibility("buyer", true);
-        toggleInputLoaderVisibility('buyer',false);
+        toggleInputLoaderVisibility("buyer", false);
       } catch (error) {
         console.error("Failed to fetch buyers:", error);
       } finally {
-        toggleInputLoaderVisibility('buyer',false);
+        toggleInputLoaderVisibility("buyer", false);
       }
     } else {
       toggleSuggestVisibility("buyer", false);
-    } 
+    }
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
@@ -279,16 +288,16 @@ const SampleRequest = () => {
     const encodedInput = encodeURIComponent(value);
     if (value.length >= 1) {
       const BASE_URL = `sample/getSRNO/{bsId}?input=${encodedInput}&bsId=${bsId}`;
-      toggleInputLoaderVisibility('sampleRef',true);
+      toggleInputLoaderVisibility("sampleRef", true);
       try {
         const fetchedRef = await getApiService(BASE_URL);
         setSampleRefrences(fetchedRef);
         toggleSuggestVisibility("sampleRef", true);
-        toggleInputLoaderVisibility('sampleRef',false);
+        toggleInputLoaderVisibility("sampleRef", false);
       } catch (error) {
         console.error("Failed to fetch SampleRefs:", error);
       } finally {
-        toggleInputLoaderVisibility('sampleRef',false);
+        toggleInputLoaderVisibility("sampleRef", false);
       }
     } else {
       toggleSuggestVisibility("sampleRef", false);
@@ -350,25 +359,25 @@ const SampleRequest = () => {
     await generatePDF(sampleDetailsForm);
   };
   const handleSeasonChange = (e) => {
-      const { name, value } = e.target;
-      toggleInputLoaderVisibility(`${name}`, true);
-      setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
-      const concatenatedString = `${name}List`;
-      const filtered = itemsData
-        .filter(
-          (item) =>
-            item.head.toLowerCase() === name.toLowerCase() &&
-            item.value.toLowerCase().includes(value.toLowerCase())
-        )
-        .map((item) => ({
-          name: item.value,
-        }));
-      const updatedFilteredList = {
-        ...filteredList,
-        [concatenatedString]: filtered,
-      };    
-     setFilteredList(updatedFilteredList);
-     toggleInputLoaderVisibility(`${name}`,false);
+    const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
+    setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
+    const concatenatedString = `${name}List`;
+    const filtered = itemsData
+      .filter(
+        (item) =>
+          item.head.toLowerCase() === name.toLowerCase() &&
+          item.value.toLowerCase().includes(value.toLowerCase())
+      )
+      .map((item) => ({
+        name: item.value,
+      }));
+    const updatedFilteredList = {
+      ...filteredList,
+      [concatenatedString]: filtered,
+    };
+    setFilteredList(updatedFilteredList);
+    toggleInputLoaderVisibility(`${name}`, false);
     if (value.length > 0) {
       toggleSuggestVisibility(`${name}`, true);
     } else {
@@ -440,7 +449,6 @@ const SampleRequest = () => {
       articleNo: tempArticleNo,
     };
     const BASE_URL = "sample/create";
-
     try {
       const responseData = await postApiService(
         updatedSampleDetailsForm,
@@ -511,11 +519,11 @@ const SampleRequest = () => {
     try {
       const fetchedType = await getApiService(BASE_URL);
       setSampleType(fetchedType);
-      toggleInputLoaderVisibility(`${name}`,false);
+      toggleInputLoaderVisibility(`${name}`, false);
     } catch (error) {
       console.error("Failed to fetch Sample Type:", error);
     } finally {
-      toggleInputLoaderVisibility(`${name}`,false);
+      toggleInputLoaderVisibility(`${name}`, false);
     }
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
@@ -536,14 +544,12 @@ const SampleRequest = () => {
       ...prevSuggestions,
       [key]: value,
     }));
-    
   };
   const toggleInputLoaderVisibility = (key, value) => {
     setShowInputLoading((prevSuggestions) => ({
       ...prevSuggestions,
       [key]: value,
     }));
-    
   };
   const toggleGridVisibility = (grid) => {
     setIsGridVisible((prevState) => ({
@@ -570,7 +576,7 @@ const SampleRequest = () => {
     };
     setFilteredList(updatedFilteredList);
     toggleSuggestVisibility(name, !showSuggestions[name]);
-    toggleInputLoaderVisibility(`${name}`,false);
+    toggleInputLoaderVisibility(`${name}`, false);
   };
 
   // Suggestions here
@@ -606,19 +612,18 @@ const SampleRequest = () => {
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
           />
-             {showInputLoading.buyer ? (
+          {showInputLoading.buyer ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <div>
               {" "}
               <button
-            onClick={() => setIsBuyerPopup(true)}
-            className={styles.searchBtn}
-            aria-label="Search"
-          ></button>{" "}
+                onClick={() => setIsBuyerPopup(true)}
+                className={styles.searchBtn}
+                aria-label="Search"
+              ></button>{" "}
             </div>
           )}
-         
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
@@ -665,13 +670,16 @@ const SampleRequest = () => {
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
           />
-          
+
           {showInputLoading.sampleRef ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <div>
               {" "}
-              <button className={styles.searchBtn} aria-label="Search"></button>{" "}
+              <button
+                className={styles.searchBtn}
+                aria-label="Search"
+              ></button>{" "}
             </div>
           )}
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -1234,7 +1242,7 @@ const SampleRequest = () => {
                 isGridVisible.basic ? "" : styles.hide
               }`}
             >
-              <div className={styles.colSpan2}>
+              <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="articleNo">
                   Article Name
                 </label>
@@ -1605,18 +1613,18 @@ const SampleRequest = () => {
                   required
                 />
               </div>
-              <div className={styles.colSpan2}>
+              <div className={styles.colSpan3}>
                 <label className={styles.sampleLabel} htmlFor="commentLeather">
                   Comment
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
+                <textarea
+                  className={styles.commentInput}
+                  placeholder="Enter Here"
                   name="comments"
                   value={sampleDetailsForm.comments}
                   onChange={handleCreateSampleChange}
-                  placeholder="Enter.."
-                />
+                  rows='1'
+                ></textarea>
               </div>
             </div>
           </div>
@@ -1708,7 +1716,6 @@ const SampleRequest = () => {
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-               
                 {isEditClicked ? (
                   <>
                     <button
@@ -1730,9 +1737,12 @@ const SampleRequest = () => {
                   </>
                 ) : (
                   <>
-                   <button className={styles.resetButton} onClick={resetAllFields}>
-                  Reset
-                </button>
+                    <button
+                      className={styles.resetButton}
+                      onClick={resetAllFields}
+                    >
+                      Reset
+                    </button>
                     <button
                       onClick={handleCreateSampleSubmit}
                       className={styles.submitButton}
@@ -1753,7 +1763,9 @@ const SampleRequest = () => {
                   className={styles.popupButton}
                   onClick={() => {
                     togglePopup();
-                    {allowPrint && resetAllFields()};
+                    {
+                      allowPrint && resetAllFields();
+                    }
                   }}
                 >
                   OK
