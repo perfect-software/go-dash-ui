@@ -20,6 +20,7 @@ import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 import InfoPopup from "../popups/InfoPopup";
+import ItemHeadPopup from "../popups/ItemHeadPopup";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
@@ -52,6 +54,9 @@ const SampleRequest = () => {
   const [buyers, setBuyers] = useState([]);
   const [filteredList, setFilteredList] = useState({
     seasonList: [],
+  });
+  const [itemForm, setItemForm] = useState({
+    year: "",
   });
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [colors, setColors] = useState([]);
@@ -1066,7 +1071,8 @@ const SampleRequest = () => {
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
-              <label className={styles.inputLabel} htmlFor="Copyfrom">
+               <div style={{display:'flex', alignItems:'center' , gap:'8px'}}> 
+               <label className={styles.inputLabel} htmlFor="Copyfrom">
                 Copy from
               </label>
               <div className={styles.headInputWithIcon}>
@@ -1085,6 +1091,13 @@ const SampleRequest = () => {
                   aria-label="Search"
                 ></button>
               </div>
+               </div>
+              <div style={{display:'flex' , alignItems:'center' , gap:'4px'}}><button
+                className={styles.headInsertValueButton}
+                onClick={() => setIsItemHeadPopup(true)}
+              >
+                Insert New Value
+              </button>
 
               <div>
                 <img
@@ -1095,7 +1108,7 @@ const SampleRequest = () => {
                   className={styles.ibutton}
                   alt="iButton"
                 />
-              </div>
+              </div></div>
             </div>
           )}
         </div>
@@ -1723,7 +1736,7 @@ const SampleRequest = () => {
                 />
               </div>
 
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="deliveryAddress">
                   Delivery Address
                 </label>
@@ -1863,6 +1876,14 @@ const SampleRequest = () => {
               onSubmitSampleData={handleSampleSubmit}
             />
           )}
+           {isItemHeadPopup && (
+        <ItemHeadPopup
+          onCancel={() => {
+            setIsItemHeadPopup(false);
+          }}
+          itemForm={itemForm}
+        />
+      )}
         </>
       ) : (
         <ViewSr onSampleSelect={handleSampleEdit} />
