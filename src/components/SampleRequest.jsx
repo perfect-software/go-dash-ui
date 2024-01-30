@@ -478,13 +478,15 @@ const SampleRequest = () => {
       return;
     }
     const imageResponseData = await uploadImage();
-      const imagePath = imageResponseData.imagePath; 
+      const imagePath = imageResponseData.message; 
+      console.log(imagePath);
       const updatedSampleDetailsForm = {
         ...sampleDetailsForm,
         dateOfOrder: formattedDate,
         articleNo: tempArticleNo,
         imagePath: imagePath,
       };
+
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
