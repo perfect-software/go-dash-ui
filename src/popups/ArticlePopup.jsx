@@ -69,14 +69,6 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       filter: true,
     },
     {
-      headerName: "Entry Date",
-      field: "entDate",
-      sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
-    {
       headerName: "Color",
       field: "color",
       sortable: true,
@@ -160,6 +152,14 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       field: "username",
       sortable: true,
       filter: true,
+    },
+    {
+      headerName: "Entry Date",
+      field: "entDate",
+      sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
     },
  
   ];

@@ -86,6 +86,12 @@ const ViewSr = ({ onSampleSelect }) => {
       filter: true,
     },
     {
+      headerName: "Financial Year",
+      field: "finYear",
+      sortable: true,
+      filter: true,
+    },
+    {
       headerName: "Size",
       field: "size",
       sortable: true,

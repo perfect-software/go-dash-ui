@@ -390,7 +390,7 @@
     @apply col-span-1 flex flex-row items-center gap-1 justify-end sm:justify-center;
   }
   .imgColSpan {
-    @apply col-span-1 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
+    @apply col-span-2 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
   }
   .topContainer {
     @apply flex flex-col;
@@ -427,7 +427,7 @@
   stroke: rgba(58, 71, 80, 0.13);
 }
     .resetButton {
-      @apply w-[3.8rem]  h-[0.7rem] text-[0.8rem] sml:text-sm font-[700] px-[1.23rem] py-[1rem] text-white 
+      @apply w-[3.8rem]  h-[0.7rem] whitespace-nowrap text-[0.8rem] sml:text-sm font-[700] px-[1.23rem] py-[1rem] text-white 
       leading-4 bg-[#001314] flex items-center justify-center rounded-[0.3125rem] 
       sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
     }

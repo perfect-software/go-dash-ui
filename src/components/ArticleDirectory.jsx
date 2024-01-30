@@ -38,6 +38,7 @@ const ArticleDirectory = () => {
           platformNo: "",
           heelType: "",
           heelNo: "",
+          username:"",
           heelHeight: "",
           lastNo: "",
           liningMaterial: "",
@@ -181,6 +182,7 @@ const ArticleDirectory = () => {
       gender: "",
       soleType: "",
       toeShape: "",
+      username:"",
       category: "",
       platformType: "",
       platformNo: "",
@@ -858,7 +860,7 @@ const ArticleDirectory = () => {
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
-              Platform
+              Platform Type
             </label>
             <input
               type="text"
@@ -882,7 +884,19 @@ const ArticleDirectory = () => {
               onChange={handleNormalArticleChange}
             />
           </div>
-
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="username">
+              Username
+            </label>
+            <input
+              type="text"
+              className={styles.basicInput}
+              name="username"
+              placeholder="Enter Here"
+              onChange={handleNormalArticleChange}
+              value={articleForm.username}
+            />
+          </div>
           <div className={styles.largeColSpan}>
             <label className={styles.sampleLabel} htmlFor="input1">
               Comment

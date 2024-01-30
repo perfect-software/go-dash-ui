@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import ViewSr from "./ViewSr";
+import axios from "axios";
 import SampleDirPopup from "../popups/SampleDirPopup";
 import {
   getApiService,
@@ -72,6 +73,7 @@ const SampleRequest = () => {
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [allowPrint, setAllowPrint] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const initialValidationState = {};
   const [validation, setValidation] = useState(initialValidationState);
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
@@ -108,6 +110,7 @@ const SampleRequest = () => {
           inSocks: "",
           inQuantity: "",
           comments: "",
+          finYear:"",
           deliveryDate: "",
           prodExDate: "",
         };
@@ -140,6 +143,7 @@ const SampleRequest = () => {
       "insole",
       "soleLabel",
       "socks",
+      "finYear",
       "heel",
       "pattern",
       "inUpperLeather",
@@ -181,7 +185,6 @@ const SampleRequest = () => {
 
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
-    console.log(sample);
     setIsEditSelected(sample !== null);
   };
 
@@ -189,6 +192,7 @@ const SampleRequest = () => {
     setIsEditClicked(true);
     setActiveButton("details");
     const { article_no, ...restOfEditSample } = editSample;
+    setBsID(editSample.buyer?.bs_id);
     const bsName = editSample.buyer?.bsName;
     const billingAddress = editSample.buyer?.billingAddress;
     const deliveryDate = editSample.deliveryDate
@@ -326,7 +330,7 @@ const SampleRequest = () => {
   const handleBuyerSubmit = (selectedBuyers) => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
       const selectedBuyer = selectedBuyers[0];
-      setBsID(selectedBuyer.bsId);
+      setBsID(selectedBuyer.bs_id);
       setSampleDetailsForm({
         ...sampleDetailsForm,
         bsName: selectedBuyer.bsName,
@@ -341,6 +345,7 @@ const SampleRequest = () => {
   const handleSampleSubmit = (selectedSamples) => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
+      setBsID(selectedSample.buyer?.bs_id);
       const { article_no, ...restOfSelectedSample } = selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
@@ -422,6 +427,7 @@ const SampleRequest = () => {
       liningColor: "",
       last: "",
       insole: "",
+      finYear:"",
       soleLabel: "",
       socks: "",
       heel: "",
@@ -435,24 +441,50 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+    setBsID("");
     setValidation(initialValidationState);
     localStorage.setItem(
       "sampleDetailsForm",
       JSON.stringify(sampleDetailsForm)
     );
   };
-
+  const uploadImage = async () => {
+    if (!imageFile) {
+      console.error('No file selected for upload');
+      return null; 
+    }
+    const formData = new FormData();
+    formData.append('image', imageFile); 
+    try {
+      const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('Image uploaded successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null; 
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-    const updatedSampleDetailsForm = {
-      ...sampleDetailsForm,
-      dateOfOrder: formattedDate,
-      articleNo: tempArticleNo,
-    };
+    const imageResponseData = await uploadImage();
+      const imagePath = imageResponseData.imagePath; 
+      const updatedSampleDetailsForm = {
+        ...sampleDetailsForm,
+        dateOfOrder: formattedDate,
+        articleNo: tempArticleNo,
+        imagePath: imagePath,
+      };
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
@@ -461,6 +493,7 @@ const SampleRequest = () => {
       );
       togglePopup(responseData.message);
       setAllowPrint(true);
+      setBsID("");
       dispatch(fetchAllSamples());
     } catch (error) {
       let errorMessage = "An error occurred";
@@ -480,6 +513,7 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
+  
 
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
@@ -503,6 +537,8 @@ const SampleRequest = () => {
       resetAllFields();
       setIsEditClicked(false);
       setIsEditSelected(false);
+      setEditSample(null);
+      setBsID("");
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -536,6 +572,7 @@ const SampleRequest = () => {
     setRemoveImage(true);
     const file = event.target.files[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result);
@@ -595,7 +632,6 @@ const SampleRequest = () => {
             deliveryAddress: selectedItem.deliveryAddress,
           });
           setBsID(selectedItem.bsId);
-          console.log(selectedItem);
           toggleSuggestVisibility("buyer", false);
         }
       }}
@@ -1065,13 +1101,13 @@ const SampleRequest = () => {
           >
             {activeButton === "details"
               ? isEditClicked
-                ? "Update Sample Request"
+                ? `Update Sample Request: ${isEditClicked && editSample.sr_no && editSample.sr_no}`
                 : "Sample Request"
               : "Sample Request Search"}
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
-               <div style={{display:'flex', alignItems:'center' , gap:'8px'}}> 
+               <div style={{display:'flex', alignItems:'center', gap:'8px'}}> 
                <label className={styles.inputLabel} htmlFor="Copyfrom">
                 Copy from
               </label>
@@ -1197,7 +1233,7 @@ const SampleRequest = () => {
               <div className={styles.colSpan}>
                 <label
                   className={styles.impsampleLabel}
-                  htmlFor="pair"
+                  htmlFor="finYear"
                   required
                 >
                    Financial Year
@@ -1205,16 +1241,20 @@ const SampleRequest = () => {
                 <div className={styles.selectWrapper}>
                   <select
                     className={styles.selectInput}
+                    name="finYear"
+                    value={sampleDetailsForm.finYear}
                     style={
-                      validation.pair === "invalid"
+                      validation.finYear === "invalid"
                         ? { border: "2px solid red" }
                         : {}
                     }
-                   // onChange={handleCreateSampleChange}
+                   onChange={handleCreateSampleChange}
                   >
                     <option value="" selected disabled hidden>
                       Financial Year
                     </option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
                     <option value="2023">2023</option>
                     <option value="2022">2022</option>
                     <option value="2021">2021</option>
@@ -1767,9 +1807,11 @@ const SampleRequest = () => {
                       Submit
                     </button>{" "}
                     <button
+                    
                       className={styles.resetButton}
                       onClick={() => {
                         resetAllFields();
+                        setBsID("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
                       }}
