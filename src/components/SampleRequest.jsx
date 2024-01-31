@@ -487,7 +487,7 @@ const SampleRequest = () => {
         image_nm: imagePath,
         finYear:'2024'
       };
-    const BASE_URL = "sample/reate";
+    const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
         updatedSampleDetailsForm,
