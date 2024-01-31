@@ -46,6 +46,35 @@
 .navRightImage:hover {
   animation: shake 0.5s ease-in-out;
 }
+.finYear{
+  @apply flex gap-2 items-center;
+}
+.impsampleLabel {
+  @apply  text-[#5b5b5b] font-bold whitespace-nowrap text-[0.84rem];
+}
+.selectInput:focus {
+  outline: none;
+  border: 1px solid #00a5ad;
+}
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  @apply w-full;
+}
+
+.selectWrapper::after {
+  content: url("../assets/dropDown.svg");
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.selectInput {
+  @apply border text-[0.84rem] px-2 w-[100px] rounded-[0.3125rem];
+  height: 1.6rem;
+  color: rgba(0, 0, 0, 0.66);
+}
 .togglePin {
   @apply sm:hidden;
 }

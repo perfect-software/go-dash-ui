@@ -110,7 +110,6 @@ const SampleRequest = () => {
           inSocks: "",
           inQuantity: "",
           comments: "",
-          finYear:"",
           deliveryDate: "",
           prodExDate: "",
         };
@@ -143,7 +142,6 @@ const SampleRequest = () => {
       "insole",
       "soleLabel",
       "socks",
-      "finYear",
       "heel",
       "pattern",
       "inUpperLeather",
@@ -191,7 +189,7 @@ const SampleRequest = () => {
   const handleEditClick = () => {
     setIsEditClicked(true);
     setActiveButton("details");
-    const { article_no, ...restOfEditSample } = editSample;
+    const { articleNo,articleName, ...restOfEditSample } = editSample;
     setBsID(editSample.buyer?.bs_id);
     const bsName = editSample.buyer?.bsName;
     const billingAddress = editSample.buyer?.billingAddress;
@@ -208,14 +206,14 @@ const SampleRequest = () => {
     setSampleDetailsForm({
       ...sampleDetailsForm,
       ...restOfEditSample,
-      articleNo: article_no,
+      articleNo: articleName,
       bsName: bsName,
       deliveryAddress: billingAddress,
       deliveryDate: deliveryDate,
       prodExDate: prodExDate,
       dateOfOrder: dateOfOrder,
     });
-    setTempArticeNo(article_no);
+    setTempArticeNo(articleNo);
   };
 
   const handlePrintClick = async () => {
@@ -346,11 +344,11 @@ const SampleRequest = () => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
       setBsID(selectedSample.buyer?.bs_id);
-      const { article_no, ...restOfSelectedSample } = selectedSample;
+      const { articleNo,articleName, ...restOfSelectedSample } = selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
         ...restOfSelectedSample,
-        articleNo: article_no,
+        articleNo: articleName,
         bsName: selectedSample.buyer?.bsName,
         deliveryAddress: selectedSample.buyer?.billingAddress,
         deliveryDate: selectedSample.deliveryDate
@@ -360,7 +358,7 @@ const SampleRequest = () => {
           ? getformatDate(selectedSample.prodExDate)
           : "",
       });
-      setTempArticeNo(article_no);
+      setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
       setValidation((prev) => ({ ...prev, bsName: "valid" }));
     }
@@ -427,7 +425,6 @@ const SampleRequest = () => {
       liningColor: "",
       last: "",
       insole: "",
-      finYear:"",
       soleLabel: "",
       socks: "",
       heel: "",
@@ -442,6 +439,7 @@ const SampleRequest = () => {
       prodExDate: "",
     });
     setBsID("");
+    setTempArticeNo("");
     setValidation(initialValidationState);
     localStorage.setItem(
       "sampleDetailsForm",
@@ -450,26 +448,29 @@ const SampleRequest = () => {
   };
   const uploadImage = async () => {
     if (!imageFile) {
-      console.error('No file selected for upload');
-      return null; 
+        console.log('No image file selected for upload');
+        return null; 
     }
+
     const formData = new FormData();
-    formData.append('image', imageFile); 
+    formData.append('image', imageFile);
+
     try {
-      const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      console.log('Image uploaded successfully:', response.data);
-      return response.data;
+        const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        console.log('Image uploaded successfully:', response.data);
+        return response.data;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      return null; 
+        console.error('Error uploading image:', error);
+        return null; 
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
   
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
@@ -478,16 +479,15 @@ const SampleRequest = () => {
       return;
     }
     const imageResponseData = await uploadImage();
-      const imagePath = imageResponseData.message; 
-      console.log(imagePath);
+    const imagePath = imageResponseData ? imageResponseData.message : null; 
       const updatedSampleDetailsForm = {
         ...sampleDetailsForm,
         dateOfOrder: formattedDate,
         articleNo: tempArticleNo,
-        imagePath: imagePath,
+        image_nm: imagePath,
+        finYear:'2024'
       };
-
-    const BASE_URL = "sample/create";
+    const BASE_URL = "sample/reate";
     try {
       const responseData = await postApiService(
         updatedSampleDetailsForm,
@@ -496,7 +496,10 @@ const SampleRequest = () => {
       togglePopup(responseData.message);
       setAllowPrint(true);
       setBsID("");
+      setTempArticeNo("");
       dispatch(fetchAllSamples());
+      setRemoveImage(false);
+        setImagePreview(null);
     } catch (error) {
       let errorMessage = "An error occurred";
 
@@ -527,6 +530,7 @@ const SampleRequest = () => {
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
+      articleNo: tempArticleNo,
     };
     const BASE_URL = "sample/update";
     try {
@@ -541,6 +545,7 @@ const SampleRequest = () => {
       setIsEditSelected(false);
       setEditSample(null);
       setBsID("");
+      setTempArticeNo("");
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -571,17 +576,22 @@ const SampleRequest = () => {
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
   const handleFileChange = (event) => {
-    setRemoveImage(true);
     const file = event.target.files[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+        if (file.size > 1048576) {
+            togglePopup("Please upload an image less than 1 MB.");
+            setRemoveImage(false);
+            return;
+        }
+        setRemoveImage(true);
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
-  };
+};
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -1232,39 +1242,6 @@ const SampleRequest = () => {
                 {downshiftSampleType}
               </div>
 
-              <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="finYear"
-                  required
-                >
-                   Financial Year
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="finYear"
-                    value={sampleDetailsForm.finYear}
-                    style={
-                      validation.finYear === "invalid"
-                        ? { border: "2px solid red" }
-                        : {}
-                    }
-                   onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Financial Year
-                    </option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                  </select>
-                </div>
-              </div>
-
-
               <div className={styles.imgColSpan}>
                 <div className={styles.fileinputcontainer}>
                   {imagePreview && (
@@ -1814,6 +1791,7 @@ const SampleRequest = () => {
                       onClick={() => {
                         resetAllFields();
                         setBsID("");
+                         setTempArticeNo("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
                       }}

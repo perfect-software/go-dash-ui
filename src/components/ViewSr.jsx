@@ -62,20 +62,45 @@ const ViewSr = ({ onSampleSelect }) => {
 
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
-    { headerName: "SR No.", field: "sr_no", sortable: true, filter: true },
-    { headerName: "Season", field: "season", sortable: true, filter: true },
-    { headerName: "Sample Refrence", field: "sampleRef", sortable: true, filter: true },
-    { headerName: "Sample Type", field: "sampleType", sortable: true, filter: true },
+    { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
+    { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
+    {
+      headerName: "Image",
+      field: "image_nm",
+      sortable: true,
+      width: 125,
+      filter: true,
+      cellRenderer: (params) => {
+        return params.value ? (
+          <img 
+            src={`http://localhost:8081/images/${params.value}`} 
+            alt="Image" 
+            style={{ height: '50px', width: '50px' }}
+          />
+        ) : null;
+      },
+    },
+    { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
+    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
     {
       headerName: "Article No",
-      field: "article_no",
+      field: "articleNo",
       sortable: true,
+      width:125,
+      filter: true,
+    },
+    {
+      headerName: "Article Name",
+      field: "articleName",
+      sortable: true,
+      width:125,
       filter: true,
     },
     {
       headerName: "Buyer Article",
       field: "buyerArticle",
       sortable: true,
+      width:150,
       filter: true,
     },
     
@@ -83,67 +108,72 @@ const ViewSr = ({ onSampleSelect }) => {
       headerName: "Buyer",
       field: "buyer.bsName",
       sortable: true,
+      width:300,
       filter: true,
     },
-    {
-      headerName: "Financial Year",
-      field: "finYear",
-      sortable: true,
-      filter: true,
-    },
+
     {
       headerName: "Size",
       field: "size",
       sortable: true,
+      width:100,
       filter: true,
     },
     {
       headerName: "Quantity",
       field: "quantity",
       sortable: true,
+      width:120,
       filter: true,
     },
     {
       headerName: "Pair",
       field: "pair",
       sortable: true,
+      width:100,
       filter: true,
     },
     {
       headerName: "Upper Color",
       field: "upperColor",
       sortable: true,
+      width:140,
       filter: true,
     },
     {
       headerName: "Lining Color",
       field: "liningColor",
       sortable: true,
+      width:140,
       filter: true,
     },
-    { headerName: "Last", field: "last", sortable: true, filter: true },
-    { headerName: "Insole", field: "insole", sortable: true, filter: true },
+    { headerName: "Last", width:140, field: "last", sortable: true, filter: true },
+    { headerName: "Insole", width:140, field: "insole", sortable: true, filter: true },
     {
       headerName: "Sole Label",
       field: "soleLabel",
       sortable: true,
+      width:140,
       filter: true,
     },
     {
       headerName: "Socks",
       field: "socks",
       sortable: true,
+      width:130,
       filter: true,
     },
     {
       headerName: "Heel",
       field: "heel",
       sortable: true,
+      width:130,
       filter: true,
     },
     {
       headerName: "Pattern",
       field: "pattern",
+      width:140,
       sortable: true,
       filter: true,
     },
@@ -151,23 +181,13 @@ const ViewSr = ({ onSampleSelect }) => {
       headerName: "Buyer Refrence",
       field: "buyerRef",
       sortable: true,
+      width:160,
       filter: true,
     },
     {
       headerName: "Upper Leather",
       field: "inUpperLeather",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Internal Socks",
-      field: "inSocks",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Internal Quantity",
-      field: "inQuantity",
+      width:160,
       sortable: true,
       filter: true,
     },
@@ -175,20 +195,36 @@ const ViewSr = ({ onSampleSelect }) => {
       headerName: "Internal Lining",
       field: "inLining",
       sortable: true,
+      width:160,
       filter: true,
     },
     {
-      headerName: "Date of Order",
-      field: "dateOfOrder",
+      headerName: "Internal Socks",
+      field: "inSocks",
       sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
+      width:160,
+      filter: true,
     },
+    {
+      headerName: "Internal Quantity",
+      field: "inQuantity",
+      sortable: true,
+      width:180,
+      filter: true,
+    },
+    {
+      headerName: "Comments",
+      field: "comments",
+      width:250,
+      sortable: true,
+      filter: true,
+    },
+    
     {
       headerName: "Delivery Date",
       field: "deliveryDate",
       sortable: true,
+      width:150,
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
@@ -197,11 +233,27 @@ const ViewSr = ({ onSampleSelect }) => {
       headerName: "ProdEx Date",
       field: "prodExDate",
       sortable: true,
+      width:150,
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
     },
-
+    {
+      headerName: "Date of Order",
+      field: "dateOfOrder",
+      sortable: true,
+      width:150,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+    {
+      headerName: "Financial Year",
+      field: "finYear",
+      width:150,
+      sortable: true,
+      filter: true,
+    },
   ];
 
 

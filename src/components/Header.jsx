@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "../styles/header.module.css";
+import inputStyles from "../styles/inputDetails.module.css";
 import buttonstyles from "../styles/button.module.css";
 import Logo from "../assets/logo.png";
 import UserIcon from "../assets/user.svg";
@@ -21,12 +22,6 @@ const Header = ({ toggleSidebar }) => {
           {isSmallScreen ? (
             <div className={styles.inlinelogo}>
               <img
-                onClick={() => navigate("/")}
-                className={styles.logoImg}
-                src={Logo}
-                alt="Company Logo"
-              />
-              <img
                 className={styles.menuIcons}
                 src={HamburgerIcon}
                 alt="Hamburger"
@@ -46,6 +41,31 @@ const Header = ({ toggleSidebar }) => {
         </div>
 
         <div className={styles.rightDiv}>
+        <div className={styles.finYear}>
+                {!isSmallScreen && <label
+                  className={styles.impsampleLabel}
+                  htmlFor="finYear"
+                  required
+                >
+                   Financial Year
+                </label>}
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.selectInput}
+                    name="finYear"
+
+                  >
+                    <option value="" selected disabled hidden>
+                     Year
+                    </option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                  </select>
+                </div>
+              </div>
           {isCore ? (
             // <div
             //   className={styles.rightPinDiv}
