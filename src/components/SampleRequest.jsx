@@ -366,6 +366,7 @@ const SampleRequest = () => {
   const handleViewPDF = async () => {
     await generatePDF(sampleDetailsForm);
   };
+ 
   const handleSeasonChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
@@ -465,10 +466,9 @@ const SampleRequest = () => {
         return response.data;
     } catch (error) {
         console.error('Error uploading image:', error);
-        return null; 
-    } finally {
         setLoading(false);
-    }
+        return null; 
+    } 
 };
 
   
@@ -480,6 +480,7 @@ const SampleRequest = () => {
     }
     const imageResponseData = await uploadImage();
     const imagePath = imageResponseData ? imageResponseData.message : null; 
+    console.log(imagePath);
       const updatedSampleDetailsForm = {
         ...sampleDetailsForm,
         dateOfOrder: formattedDate,
@@ -518,19 +519,28 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
-  
+  useEffect(() => {
+    if (isEditClicked && editSample.image_nm) {
+        const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
+        setImagePreview(imageUrl);
+        setRemoveImage(true);
+    }
+}, [isEditClicked, editSample]);
 
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()) {
+    if (!validateForm()){
       setLoading(false);
       return;
     }
+    const imageResponseData = await uploadImage();
+    const imagePath = imageResponseData ? imageResponseData.message : null; 
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
       articleNo: tempArticleNo,
+      image_nm: imagePath,
     };
     const BASE_URL = "sample/update";
     try {
@@ -545,6 +555,8 @@ const SampleRequest = () => {
       setIsEditSelected(false);
       setEditSample(null);
       setBsID("");
+      setRemoveImage(false);
+      setImagePreview(null);
       setTempArticeNo("");
     } catch (error) {
       if (error.response) {
@@ -1261,6 +1273,7 @@ const SampleRequest = () => {
                         onClick={() => {
                           setRemoveImage(false);
                           setImagePreview(null);
+                         
                         }}
                       >
                         Remove Image
@@ -1794,6 +1807,10 @@ const SampleRequest = () => {
                          setTempArticeNo("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
+                        setRemoveImage(false);
+                        setEditSample(null);
+                        setImagePreview(null);
+                  
                       }}
                     >
                       Go Back

@@ -4,8 +4,10 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
+import Cross from "../assets/cross.svg";
 import {  formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewDetails.module.css";
+import inputStyles from "../styles/inputDetails.module.css";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,6 +16,8 @@ const ViewSr = ({ onSampleSelect }) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
+  const [isImagePopup, setIsImagePopup] = useState(false);
+  const [imagePreview, setImagePreview] = useState(false);
   const { samples, loaded, loading, error } = useSelector(
     (state) => state.sample
   );
@@ -59,7 +63,10 @@ const ViewSr = ({ onSampleSelect }) => {
     const selectedData = event.api.getSelectedRows();
     onSampleSelect(selectedData.length > 0 ? selectedData[0] : null);
   };
-
+  const actionButton = (params) => {
+    setIsImagePopup(true);
+    setImagePreview(params.data.image_nm)
+  };
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
     { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
@@ -67,15 +74,17 @@ const ViewSr = ({ onSampleSelect }) => {
     {
       headerName: "Image",
       field: "image_nm",
-      sortable: true,
       width: 125,
       filter: true,
       cellRenderer: (params) => {
+        console.log(params.value);
         return params.value ? (
+       
           <img 
             src={`http://localhost:8081/images/${params.value}`} 
             alt="Image" 
             style={{ height: '50px', width: '50px' }}
+            onClick={() => actionButton(params)}
           />
         ) : null;
       },
@@ -258,28 +267,47 @@ const ViewSr = ({ onSampleSelect }) => {
 
 
   return (
-    <div
-      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-    >
-    
-        <div
-          className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-          style={{ height: 500, width: "100%", marginTop: "10px" }}
-        >
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={samples}
-            pagination={true}
-            paginationPageSize={12}
-            paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-            animateRows={true}
-            filter={true}
-            onGridReady={onGridReady}
-            onSelectionChanged={onRowSelected}
-            onRowDataChanged={onRowDataChanged}
-          />
+    <><div
+    className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
+  >
+  
+      <div
+        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
+        style={{ height: 500, width: "100%", marginTop: "10px" }}
+      >
+        <AgGridReact
+          columnDefs={columnDefs}
+          rowData={samples}
+          pagination={true}
+          paginationPageSize={12}
+          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+          animateRows={true}
+          filter={true}
+          onGridReady={onGridReady}
+          onSelectionChanged={onRowSelected}
+          onRowDataChanged={onRowDataChanged}
+        />
+      </div>
+  </div>
+      {isImagePopup && (
+        <div className={inputStyles.popupOverlay}>
+          <div className={inputStyles.imagePopupContent}>
+            <img
+              src={`http://localhost:8081/images/${imagePreview}`}
+              className={inputStyles.imagepreviewPopup}
+              alt=""
+            />
+            <img
+              onClick={() => {
+                setIsImagePopup(false);
+              }}
+              src={Cross}
+              alt="Select Icon"
+              className={inputStyles.crossIcon}
+            />
+          </div>
         </div>
-    </div>
+      )}</>
   );
 };
 
