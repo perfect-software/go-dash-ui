@@ -1,6 +1,6 @@
 .navbar {
   @apply w-[13rem] sm:w-44 bg-customWhite text-customGrey sm:hidden;
-  height: calc(100vh - 3rem);
+  height: calc(100vh - 2.5rem);
   transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
   transform: translateX(0);
   overflow-y: auto;

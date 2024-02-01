@@ -12,11 +12,30 @@ const generateQR = async (text) => {
     return "";
   }
 };
+const loadImageBase64 = async (src) => {
+  try {
+    const response = await fetch(src);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error("Failed to load image:", error);
+    return "";
+  }
+};
 
 export const generatePDF = async (sampleDetailsForm) => {
-  const imagePreview="";
+
   const qrCodeBase64 = await generateQR(
     sampleDetailsForm.sampleRef || "No Reference"
+  );
+  const imageBase64 = await loadImageBase64(
+    `http://localhost:8081/images/${sampleDetailsForm.image_nm}`
   );
 
   const now = new Date();
@@ -134,9 +153,7 @@ export const generatePDF = async (sampleDetailsForm) => {
 
 
   <div style="width: 30%;  margin-top:10px; margin-bottom:20px; display: flex; justify-content: flex-end;">
-  <img src="${
-    imagePreview || DefaultShoesImage
-  }" alt="QR Code" style="width: 140px; height:140px;" />
+  <img src="${imageBase64}" alt="Sample Image" style="width: 140px; height:140px;" />
   <img src="${qrCodeBase64}" alt="Shoes Image" style="width: 140px; height:140px;" />
 </div>
     </div>

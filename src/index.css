@@ -18,12 +18,19 @@ html,
 body {
   height: 100%;
   width: 100%;
-
   -webkit-tap-highlight-color: transparent;
 }
 
 ::-webkit-scrollbar {
   display: none;
+}
+.ag-header-cell-filtered {
+  background-color: #CDF3E3 !important;
+}
+.ag-theme-quartz
+{
+  --ag-header-cell-hover-background-color: #CDF3E3;
+  --ag-header-cell-moving-background-color: #CDF3E3;
 }
 .ag-header-cell-menu-button {
   opacity: 1 !important; 

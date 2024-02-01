@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Cross from "../assets/cross.svg";
 import BuyerPopup from "../popups/BuyerPopup";
 import ViewSr from "./ViewSr";
+import axios from "axios";
 import SampleDirPopup from "../popups/SampleDirPopup";
 import {
   getApiService,
@@ -20,6 +21,7 @@ import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
 import InfoPopup from "../popups/InfoPopup";
+import ItemHeadPopup from "../popups/ItemHeadPopup";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
     buyer: false,
@@ -53,6 +56,9 @@ const SampleRequest = () => {
   const [filteredList, setFilteredList] = useState({
     seasonList: [],
   });
+  const [itemForm, setItemForm] = useState({
+    year: "",
+  });
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [colors, setColors] = useState([]);
   const [itemsData, setItemsData] = useState([]);
@@ -67,6 +73,7 @@ const SampleRequest = () => {
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [allowPrint, setAllowPrint] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const initialValidationState = {};
   const [validation, setValidation] = useState(initialValidationState);
   const [isSampleDirPopup, setIsSampleDirPopup] = useState(false);
@@ -176,14 +183,14 @@ const SampleRequest = () => {
 
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
-    console.log(sample);
     setIsEditSelected(sample !== null);
   };
 
   const handleEditClick = () => {
     setIsEditClicked(true);
     setActiveButton("details");
-    const { article_no, ...restOfEditSample } = editSample;
+    const { articleNo,articleName, ...restOfEditSample } = editSample;
+    setBsID(editSample.buyer?.bs_id);
     const bsName = editSample.buyer?.bsName;
     const billingAddress = editSample.buyer?.billingAddress;
     const deliveryDate = editSample.deliveryDate
@@ -199,14 +206,14 @@ const SampleRequest = () => {
     setSampleDetailsForm({
       ...sampleDetailsForm,
       ...restOfEditSample,
-      articleNo: article_no,
+      articleNo: articleName,
       bsName: bsName,
       deliveryAddress: billingAddress,
       deliveryDate: deliveryDate,
       prodExDate: prodExDate,
       dateOfOrder: dateOfOrder,
     });
-    setTempArticeNo(article_no);
+    setTempArticeNo(articleNo);
   };
 
   const handlePrintClick = async () => {
@@ -321,7 +328,7 @@ const SampleRequest = () => {
   const handleBuyerSubmit = (selectedBuyers) => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
       const selectedBuyer = selectedBuyers[0];
-      setBsID(selectedBuyer.bsId);
+      setBsID(selectedBuyer.bs_id);
       setSampleDetailsForm({
         ...sampleDetailsForm,
         bsName: selectedBuyer.bsName,
@@ -336,11 +343,12 @@ const SampleRequest = () => {
   const handleSampleSubmit = (selectedSamples) => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
-      const { article_no, ...restOfSelectedSample } = selectedSample;
+      setBsID(selectedSample.buyer?.bs_id);
+      const { articleNo,articleName, ...restOfSelectedSample } = selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
         ...restOfSelectedSample,
-        articleNo: article_no,
+        articleNo: articleName,
         bsName: selectedSample.buyer?.bsName,
         deliveryAddress: selectedSample.buyer?.billingAddress,
         deliveryDate: selectedSample.deliveryDate
@@ -350,7 +358,7 @@ const SampleRequest = () => {
           ? getformatDate(selectedSample.prodExDate)
           : "",
       });
-      setTempArticeNo(article_no);
+      setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
       setValidation((prev) => ({ ...prev, bsName: "valid" }));
     }
@@ -358,6 +366,7 @@ const SampleRequest = () => {
   const handleViewPDF = async () => {
     await generatePDF(sampleDetailsForm);
   };
+ 
   const handleSeasonChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
@@ -430,24 +439,55 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+    setBsID("");
+    setTempArticeNo("");
     setValidation(initialValidationState);
     localStorage.setItem(
       "sampleDetailsForm",
       JSON.stringify(sampleDetailsForm)
     );
   };
+  const uploadImage = async () => {
+    if (!imageFile) {
+        console.log('No image file selected for upload');
+        return null; 
+    }
 
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    try {
+        const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        console.log('Image uploaded successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        setLoading(false);
+        return null; 
+    } 
+};
+
+  
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-    const updatedSampleDetailsForm = {
-      ...sampleDetailsForm,
-      dateOfOrder: formattedDate,
-      articleNo: tempArticleNo,
-    };
+    const imageResponseData = await uploadImage();
+    const imagePath = imageResponseData ? imageResponseData.message : null; 
+    console.log(imagePath);
+      const updatedSampleDetailsForm = {
+        ...sampleDetailsForm,
+        dateOfOrder: formattedDate,
+        articleNo: tempArticleNo,
+        image_nm: imagePath,
+        finYear:'2024'
+      };
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
@@ -456,7 +496,11 @@ const SampleRequest = () => {
       );
       togglePopup(responseData.message);
       setAllowPrint(true);
+      setBsID("");
+      setTempArticeNo("");
       dispatch(fetchAllSamples());
+      setRemoveImage(false);
+        setImagePreview(null);
     } catch (error) {
       let errorMessage = "An error occurred";
 
@@ -475,17 +519,28 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (isEditClicked && editSample.image_nm) {
+        const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
+        setImagePreview(imageUrl);
+        setRemoveImage(true);
+    }
+}, [isEditClicked, editSample]);
 
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()) {
+    if (!validateForm()){
       setLoading(false);
       return;
     }
+    const imageResponseData = await uploadImage();
+    const imagePath = imageResponseData ? imageResponseData.message : null; 
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
+      articleNo: tempArticleNo,
+      image_nm: imagePath,
     };
     const BASE_URL = "sample/update";
     try {
@@ -498,6 +553,11 @@ const SampleRequest = () => {
       resetAllFields();
       setIsEditClicked(false);
       setIsEditSelected(false);
+      setEditSample(null);
+      setBsID("");
+      setRemoveImage(false);
+      setImagePreview(null);
+      setTempArticeNo("");
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -528,16 +588,22 @@ const SampleRequest = () => {
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
   const handleFileChange = (event) => {
-    setRemoveImage(true);
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+        if (file.size > 1048576) {
+            togglePopup("Please upload an image less than 1 MB.");
+            setRemoveImage(false);
+            return;
+        }
+        setRemoveImage(true);
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
-  };
+};
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -590,7 +656,6 @@ const SampleRequest = () => {
             deliveryAddress: selectedItem.deliveryAddress,
           });
           setBsID(selectedItem.bsId);
-          console.log(selectedItem);
           toggleSuggestVisibility("buyer", false);
         }
       }}
@@ -1060,13 +1125,14 @@ const SampleRequest = () => {
           >
             {activeButton === "details"
               ? isEditClicked
-                ? "Update Sample Request"
+                ? `Update Sample Request: ${isEditClicked && editSample.sr_no && editSample.sr_no}`
                 : "Sample Request"
               : "Sample Request Search"}
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
-              <label className={styles.inputLabel} htmlFor="Copyfrom">
+               <div style={{display:'flex', alignItems:'center', gap:'8px'}}> 
+               <label className={styles.inputLabel} htmlFor="Copyfrom">
                 Copy from
               </label>
               <div className={styles.headInputWithIcon}>
@@ -1085,6 +1151,13 @@ const SampleRequest = () => {
                   aria-label="Search"
                 ></button>
               </div>
+               </div>
+              <div style={{display:'flex' , alignItems:'center' , gap:'4px'}}><button
+                className={styles.headInsertValueButton}
+                onClick={() => setIsItemHeadPopup(true)}
+              >
+                Insert New Value
+              </button>
 
               <div>
                 <img
@@ -1095,7 +1168,7 @@ const SampleRequest = () => {
                   className={styles.ibutton}
                   alt="iButton"
                 />
-              </div>
+              </div></div>
             </div>
           )}
         </div>
@@ -1181,35 +1254,6 @@ const SampleRequest = () => {
                 {downshiftSampleType}
               </div>
 
-              <div className={styles.colSpan}>
-                <label
-                  className={styles.impsampleLabel}
-                  htmlFor="pair"
-                  required
-                >
-                   Financial Year
-                </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    style={
-                      validation.pair === "invalid"
-                        ? { border: "2px solid red" }
-                        : {}
-                    }
-                   // onChange={handleCreateSampleChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Financial Year
-                    </option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                  </select>
-                </div>
-              </div>
-
-
               <div className={styles.imgColSpan}>
                 <div className={styles.fileinputcontainer}>
                   {imagePreview && (
@@ -1229,6 +1273,7 @@ const SampleRequest = () => {
                         onClick={() => {
                           setRemoveImage(false);
                           setImagePreview(null);
+                         
                         }}
                       >
                         Remove Image
@@ -1723,7 +1768,7 @@ const SampleRequest = () => {
                 />
               </div>
 
-              <div className={styles.colSpan}>
+              <div className={styles.colSpan2}>
                 <label className={styles.sampleLabel} htmlFor="deliveryAddress">
                   Delivery Address
                 </label>
@@ -1754,11 +1799,18 @@ const SampleRequest = () => {
                       Submit
                     </button>{" "}
                     <button
+                    
                       className={styles.resetButton}
                       onClick={() => {
                         resetAllFields();
+                        setBsID("");
+                         setTempArticeNo("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
+                        setRemoveImage(false);
+                        setEditSample(null);
+                        setImagePreview(null);
+                  
                       }}
                     >
                       Go Back
@@ -1863,6 +1915,14 @@ const SampleRequest = () => {
               onSubmitSampleData={handleSampleSubmit}
             />
           )}
+           {isItemHeadPopup && (
+        <ItemHeadPopup
+          onCancel={() => {
+            setIsItemHeadPopup(false);
+          }}
+          itemForm={itemForm}
+        />
+      )}
         </>
       ) : (
         <ViewSr onSampleSelect={handleSampleEdit} />
