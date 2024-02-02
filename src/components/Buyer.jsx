@@ -496,7 +496,34 @@ const Buyer = () => {
   useEffect(() => {
     getCurrency();
   }, []);
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "view" : "details"
+        );
+        if (activeButton === "view" && !isCollapsed) {
+          toggleNavbar();
+        } 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton, isCollapsed, toggleNavbar]);
+  
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "P" || event.key === "p"  && activeButton === "view" && isPrintSelected) {
+       handlePrintClick(); 
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [activeButton, isPrintSelected,handlePrintClick]);
   useEffect(() => {
     if (confirmAccountNo === buyerForm.bsAccountRequest.bankAccountNo) {
       setIsMatching(true);

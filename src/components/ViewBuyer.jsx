@@ -26,7 +26,20 @@ const ViewBuyer = ({onBuyerSelect}) => {
       dispatch(fetchAllBuyers());
     }
   }, []);
-
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const onRowDataChanged = useCallback(() => {
     if (gridApi) {
       gridApi.hideOverlay();
@@ -192,6 +205,7 @@ const ViewBuyer = ({onBuyerSelect}) => {
           filter={true}
           onGridReady={onGridReady}
           rowSelection={"multiple"}
+          onCellKeyDown={onCellKeyDown}
           onSelectionChanged={onRowSelected}
           onRowDataChanged={onRowDataChanged}
         />

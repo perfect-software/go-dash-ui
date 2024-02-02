@@ -216,6 +216,26 @@ const ItemQuotation = () => {
     }
     
   ];
+
+
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "view" : "details"
+        );
+        if (activeButton === "view" && !isCollapsed) {
+          toggleNavbar();
+        } 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton, isCollapsed, toggleNavbar]);
+
+
   const handleItemQuotationSubmit = async (e)=>{
     e.preventDefault();
     setSubmitLoading(true);
@@ -245,6 +265,23 @@ const ItemQuotation = () => {
      setSubmitLoading(false);
     }
 };
+ const onCellKeyDown = useCallback((e) => {
+  
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+     
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+       
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
 const handleButtonClick = (name) => {
   toggleInputLoaderVisibility(`${name}`, true);
   if (name === "itemId") {
@@ -555,7 +592,7 @@ const downshiftItemName = (
               animateRows={true}
               filter={true}
               onGridReady={onGridReady}
-
+              onCellKeyDown={onCellKeyDown}
             />
           </div>
       </div>

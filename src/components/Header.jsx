@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/header.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
 import buttonstyles from "../styles/button.module.css";
@@ -12,8 +12,29 @@ import useIsSmallScreen from "../features/useIsSmallScreen";
 const Header = ({ toggleSidebar }) => {
   const isSmallScreen = useIsSmallScreen();
   const [isCore, setIsCore] = useState(true);
-
+    const [financialYears, setFinancialYears] = useState([]);
+    const [selectedYear, setSelectedYear] = useState('');
   const navigate = useNavigate();
+  useEffect(() => {
+    const fetchFinancialYears = async () => {
+      try {
+       l
+        const response = await fetch('api/generic/getFinancialYear');
+        const data = await response.json();
+        setFinancialYears(data);
+        const activeYear = data.find(year => year.status === 'A');
+        if (activeYear) setSelectedYear(activeYear.year);
+      } catch (error) {
+        console.error('Failed to fetch financial years:', error);
+      }
+    };
+
+    fetchFinancialYears();
+  }, []);
+  const handleYearEnd = () => {
+    // Implement the function to mark year-end or create a year start
+    console.log('Year-end or start creation logic here');
+  };
 
   return (
     <header className={styles.headerContainer}>
@@ -42,30 +63,32 @@ const Header = ({ toggleSidebar }) => {
 
         <div className={styles.rightDiv}>
         <div className={styles.finYear}>
-                {!isSmallScreen && <label
-                  className={styles.impsampleLabel}
-                  htmlFor="finYear"
-                  required
-                >
-                   Financial Year
-                </label>}
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    name="finYear"
-
-                  >
-                    <option value="" selected disabled hidden>
-                     Year
-                    </option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                  </select>
-                </div>
-              </div>
+      {!isSmallScreen && <label className={styles.impsampleLabel} htmlFor="finYear">
+        Financial Year
+      </label>}
+      <div className={styles.selectWrapper}>
+        <select
+          className={styles.selectInput}
+          name="finYear"
+          value={selectedYear}
+          onChange={e => setSelectedYear(e.target.value)}
+        >
+          <option value="" disabled hidden>
+            Year
+          </option>
+          {financialYears.map((year) => (
+            <option key={year.year} value={year.year}>
+              {year.year.substr(0, 2) + "/" + year.year.substr(2)} 
+            </option>
+          ))}
+        </select>
+        </div>
+        </div>
+      <button className={styles.rightPinDiv} onClick={handleYearEnd}>
+        End year
+      </button>
+      
+   
           {isCore ? (
             // <div
             //   className={styles.rightPinDiv}

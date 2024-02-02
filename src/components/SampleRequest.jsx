@@ -29,6 +29,7 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
@@ -80,6 +81,7 @@ const SampleRequest = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [editSample, setEditSample] = useState(null);
+  const [printSrNo,setPrintSrNo]=useState("");
   const [sampleDetailsForm, setSampleDetailsForm] = useState(() => {
     const savedForm = localStorage.getItem("sampleDetailsForm");
     return savedForm
@@ -167,19 +169,19 @@ const SampleRequest = () => {
   const handleCreateSampleChange = (e) => {
     const { name, value } = e.target;
     let newFormState = { ...sampleDetailsForm, [name]: value };
-    if (name === 'prodExDate' && value) {
-        const prodExDate = new Date(value);
-        const deliveryDate = new Date(prodExDate);
-        deliveryDate.setDate(prodExDate.getDate() + 7); // Add 7 days
-        const deliveryDateFormatted = deliveryDate.toISOString().split('T')[0];
-        newFormState = {
-            ...newFormState,
-            deliveryDate: deliveryDateFormatted
-        };
+    if (name === "prodExDate" && value) {
+      const prodExDate = new Date(value);
+      const deliveryDate = new Date(prodExDate);
+      deliveryDate.setDate(prodExDate.getDate() + 7); // Add 7 days
+      const deliveryDateFormatted = deliveryDate.toISOString().split("T")[0];
+      newFormState = {
+        ...newFormState,
+        deliveryDate: deliveryDateFormatted,
+      };
     }
     setSampleDetailsForm(newFormState);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
-};
+  };
 
   const handleSampleEdit = (sample) => {
     setEditSample(sample);
@@ -189,7 +191,7 @@ const SampleRequest = () => {
   const handleEditClick = () => {
     setIsEditClicked(true);
     setActiveButton("details");
-    const { articleNo,articleName, ...restOfEditSample } = editSample;
+    const { articleNo, articleName, ...restOfEditSample } = editSample;
     setBsID(editSample.buyer?.bs_id);
     const bsName = editSample.buyer?.bsName;
     const billingAddress = editSample.buyer?.billingAddress;
@@ -217,11 +219,13 @@ const SampleRequest = () => {
   };
 
   const handlePrintClick = async () => {
-    const updatedSampleDetails = {
+    const { image_nm,sr_no, ...restOfSelectedSample } = editSample;
+    const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
-      ...editSample,
-      bsName: editSample.buyer ? editSample.buyer.bsName : "",
-      deliveryAddress: editSample.buyer ? editSample.buyer.billingAddress : "",
+      ...restOfSelectedSample,
+      bsName: editSample.buyer?.bsName,
+      sr_no:sr_no,
+      deliveryAddress: editSample.buyer?.billingAddress,
       deliveryDate: editSample.deliveryDate
         ? getformatDate(editSample.deliveryDate)
         : "",
@@ -229,7 +233,8 @@ const SampleRequest = () => {
         ? getformatDate(editSample.prodExDate)
         : "",
     };
-    await generatePDF(updatedSampleDetails);
+    setSampleDetailsForm(updatedSampleDetailsForm);
+    await generatePDF(updatedSampleDetailsForm,image_nm,sr_no);
   };
 
   const [isGridVisible, setIsGridVisible] = useState({
@@ -263,7 +268,22 @@ const SampleRequest = () => {
     }
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "view" : "details"
+        );
+        if (activeButton === "view" && !isCollapsed) {
+          toggleNavbar();
+        } 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton, isCollapsed, toggleNavbar]);
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -344,7 +364,8 @@ const SampleRequest = () => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
       setBsID(selectedSample.buyer?.bs_id);
-      const { articleNo,articleName, ...restOfSelectedSample } = selectedSample;
+      const { articleNo, articleName, ...restOfSelectedSample } =
+        selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
         ...restOfSelectedSample,
@@ -364,9 +385,9 @@ const SampleRequest = () => {
     }
   };
   const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm);
+    await generatePDF(sampleDetailsForm, imageUrl,printSrNo);
   };
- 
+
   const handleSeasonChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
@@ -409,7 +430,25 @@ const SampleRequest = () => {
       console.error("Failed to fetch Items:", error);
     }
   };
-
+  useEffect(() => {
+    let inactivityTimer;
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        resetAllFields();
+      }, 5 * 60 * 1000);
+    };
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
+    window.addEventListener("scroll", resetInactivityTimer);
+    resetInactivityTimer();
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener("mousemove", resetInactivityTimer);
+      window.removeEventListener("keydown", resetInactivityTimer);
+      window.removeEventListener("scroll", resetInactivityTimer);
+    };
+  }, []);
   const resetAllFields = () => {
     setSampleDetailsForm({
       season: "",
@@ -439,8 +478,11 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+
     setBsID("");
     setTempArticeNo("");
+    setImagePreview(null);
+    setRemoveImage(false);
     setValidation(initialValidationState);
     localStorage.setItem(
       "sampleDetailsForm",
@@ -449,29 +491,32 @@ const SampleRequest = () => {
   };
   const uploadImage = async () => {
     if (!imageFile) {
-        console.log('No image file selected for upload');
-        return null; 
+      console.log("No image file selected for upload");
+      return null;
     }
 
     const formData = new FormData();
-    formData.append('image', imageFile);
+    formData.append("image", imageFile);
 
     try {
-        const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        console.log('Image uploaded successfully:', response.data);
-        return response.data;
+      const response = await axios.post(
+        "http://localhost:8081/api/sample/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("Image uploaded successfully:", response.data);
+      return response.data;
     } catch (error) {
-        console.error('Error uploading image:', error);
-        setLoading(false);
-        return null; 
-    } 
-};
+      console.error("Error uploading image:", error);
+      setLoading(false);
+      return null;
+    }
+  };
 
-  
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
@@ -479,28 +524,29 @@ const SampleRequest = () => {
       return;
     }
     const imageResponseData = await uploadImage();
-    const imagePath = imageResponseData ? imageResponseData.message : null; 
-    console.log(imagePath);
-      const updatedSampleDetailsForm = {
-        ...sampleDetailsForm,
-        dateOfOrder: formattedDate,
-        articleNo: tempArticleNo,
-        image_nm: imagePath,
-        finYear:'2024'
-      };
+    const imagePath = imageResponseData ? imageResponseData.message : null;
+    const updatedSampleDetailsForm = {
+      ...sampleDetailsForm,
+      dateOfOrder: formattedDate,
+      articleNo: tempArticleNo,
+      image_nm: imagePath,
+      finYear: "2024",
+    };
+    setImageUrl(imagePath);
     const BASE_URL = "sample/create";
     try {
       const responseData = await postApiService(
         updatedSampleDetailsForm,
         BASE_URL
       );
-      togglePopup(responseData.message);
+      setPrintSrNo(responseData.response);
+      togglePopup(responseData.responseStatus.description);
       setAllowPrint(true);
       setBsID("");
       setTempArticeNo("");
       dispatch(fetchAllSamples());
       setRemoveImage(false);
-        setImagePreview(null);
+      setImagePreview(null);
     } catch (error) {
       let errorMessage = "An error occurred";
 
@@ -519,23 +565,38 @@ const SampleRequest = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "P" || event.key === "p"  && activeButton === "view" && isEditSelected) {
+        handlePrintClick(); 
+      }
+      if (event.key === "U" || event.key === "u"  && activeButton === "view" && isEditSelected) {
+        handleEditClick(); 
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-        const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
-        setImagePreview(imageUrl);
-        setRemoveImage(true);
+      const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
+      setImagePreview(imageUrl);
+      setRemoveImage(true);
     }
-}, [isEditClicked, editSample]);
+  }, [isEditClicked, editSample]);
 
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()){
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
     const imageResponseData = await uploadImage();
-    const imagePath = imageResponseData ? imageResponseData.message : null; 
+    const imagePath = imageResponseData ? imageResponseData.message : null;
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
@@ -590,20 +651,20 @@ const SampleRequest = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-        if (file.size > 1048576) {
-            togglePopup("Please upload an image less than 1 MB.");
-            setRemoveImage(false);
-            return;
-        }
-        setRemoveImage(true);
-        setImageFile(file);
-        const reader = new FileReader();
-        reader.onload = () => {
-            setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
+      if (file.size > 1048576) {
+        togglePopup("Please upload an image less than 1 MB.");
+        setRemoveImage(false);
+        return;
+      }
+      setRemoveImage(true);
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-};
+  };
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -1125,50 +1186,58 @@ const SampleRequest = () => {
           >
             {activeButton === "details"
               ? isEditClicked
-                ? `Update Sample Request: ${isEditClicked && editSample.sr_no && editSample.sr_no}`
+                ? `Update Sample Request: ${
+                    isEditClicked && editSample.sr_no && editSample.sr_no
+                  }`
                 : "Sample Request"
               : "Sample Request Search"}
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
-               <div style={{display:'flex', alignItems:'center', gap:'8px'}}> 
-               <label className={styles.inputLabel} htmlFor="Copyfrom">
-                Copy from
-              </label>
-              <div className={styles.headInputWithIcon}>
-                <input
-                  type="text"
-                  name="input1"
-                  placeholder="Search Sample Request to duplicate"
-                  className={styles.headInput}
-                  readOnly
-                />
-                <button
-                  onClick={() => {
-                    setIsSampleDirPopup(true);
-                  }}
-                  className={styles.searchBtn}
-                  aria-label="Search"
-                ></button>
-              </div>
-               </div>
-              <div style={{display:'flex' , alignItems:'center' , gap:'4px'}}><button
-                className={styles.headInsertValueButton}
-                onClick={() => setIsItemHeadPopup(true)}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                Insert New Value
-              </button>
+                <label className={styles.inputLabel} htmlFor="Copyfrom">
+                  Copy from
+                </label>
+                <div className={styles.headInputWithIcon}>
+                  <input
+                    type="text"
+                    name="input1"
+                    placeholder="Search Sample Request to duplicate"
+                    className={styles.headInput}
+                    readOnly
+                  />
+                  <button
+                    onClick={() => {
+                      setIsSampleDirPopup(true);
+                    }}
+                    className={styles.searchBtn}
+                    aria-label="Search"
+                  ></button>
+                </div>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <button
+                  className={styles.headInsertValueButton}
+                  onClick={() => setIsItemHeadPopup(true)}
+                >
+                  Insert New Value
+                </button>
 
-              <div>
-                <img
-                  src={IButtonIcon}
-                  onClick={() => {
-                    setIsInfoPopup(true);
-                  }}
-                  className={styles.ibutton}
-                  alt="iButton"
-                />
-              </div></div>
+                <div>
+                  <img
+                    src={IButtonIcon}
+                    onClick={() => {
+                      setIsInfoPopup(true);
+                    }}
+                    className={styles.ibutton}
+                    alt="iButton"
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1273,7 +1342,7 @@ const SampleRequest = () => {
                         onClick={() => {
                           setRemoveImage(false);
                           setImagePreview(null);
-                         
+                          setImageFile(null);
                         }}
                       >
                         Remove Image
@@ -1697,7 +1766,7 @@ const SampleRequest = () => {
                   name="comments"
                   value={sampleDetailsForm.comments}
                   onChange={handleCreateSampleChange}
-                  rows='1'
+                  rows="1"
                 ></textarea>
               </div>
             </div>
@@ -1799,18 +1868,12 @@ const SampleRequest = () => {
                       Submit
                     </button>{" "}
                     <button
-                    
                       className={styles.resetButton}
                       onClick={() => {
                         resetAllFields();
-                        setBsID("");
-                         setTempArticeNo("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
-                        setRemoveImage(false);
                         setEditSample(null);
-                        setImagePreview(null);
-                  
                       }}
                     >
                       Go Back
@@ -1915,14 +1978,14 @@ const SampleRequest = () => {
               onSubmitSampleData={handleSampleSubmit}
             />
           )}
-           {isItemHeadPopup && (
-        <ItemHeadPopup
-          onCancel={() => {
-            setIsItemHeadPopup(false);
-          }}
-          itemForm={itemForm}
-        />
-      )}
+          {isItemHeadPopup && (
+            <ItemHeadPopup
+              onCancel={() => {
+                setIsItemHeadPopup(false);
+              }}
+              itemForm={itemForm}
+            />
+          )}
         </>
       ) : (
         <ViewSr onSampleSelect={handleSampleEdit} />

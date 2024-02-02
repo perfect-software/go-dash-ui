@@ -12,7 +12,7 @@ import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const SamplePipelineProgressView = () => {
-  const [activeButton, setActiveButton] = useState("input");
+  const [activeButton, setActiveButton] = useState("progress");
   const [itemSelect,setItemSelect] = useState(null);
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [isEditSelected, setIsEditSelected] = useState(false);
@@ -63,7 +63,20 @@ const SamplePipelineProgressView = () => {
     }
   }, [ loaded, loading, gridApiInput]);
 
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "progress" ? "dashboard" : "progress"
+        );
+      
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton]);
   const [gridApiOutput, setGridApiOutput] = useState(null);
   const onGridReadyOutput = useCallback((params) => {
     setGridApiOutput(params.api);
@@ -173,18 +186,18 @@ const SamplePipelineProgressView = () => {
           <div className={styles.topButtons}>
             <button
               className={`${styles.screenChangeButton} ${
-                activeButton === "input" ? styles.active : ""
+                activeButton === "progress" ? styles.active : ""
               }`}
-              onClick={() => setActiveButton("input")}
+              onClick={() => setActiveButton("progress")}
             >
               View Progress
             </button>
             <button
               className={`${styles.screenChangeButton} ${
-                activeButton === "output" ? styles.active : ""
+                activeButton === "dashboard" ? styles.active : ""
               }`}
                onClick={() => {
-                  setActiveButton("output");
+                  setActiveButton("dashboard");
                   {
                     !isCollapsed && toggleNavbar();
                   }
@@ -198,7 +211,7 @@ const SamplePipelineProgressView = () => {
         </div>
       </div>
 
-      {activeButton === "input" ? (
+      {activeButton === "progress" ? (
         <>
           {" "}
           <div className={styles.topContainer}>

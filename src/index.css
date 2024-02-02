@@ -35,6 +35,7 @@ body {
 .ag-header-cell-menu-button {
   opacity: 1 !important; 
 }
+
 @media only screen and (max-width: 695px) {
  
   .ag-theme-quartz .ag-paging-panel {

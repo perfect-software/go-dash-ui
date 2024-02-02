@@ -29,13 +29,14 @@ const loadImageBase64 = async (src) => {
   }
 };
 
-export const generatePDF = async (sampleDetailsForm) => {
+export const generatePDF = async (sampleDetailsForm,imageUrl,sr) => {
 
   const qrCodeBase64 = await generateQR(
     sampleDetailsForm.sampleRef || "No Reference"
   );
+  console.log(sampleDetailsForm);
   const imageBase64 = await loadImageBase64(
-    `http://localhost:8081/images/${sampleDetailsForm.image_nm}`
+    `http://localhost:8081/images/${imageUrl}`
   );
 
   const now = new Date();
@@ -134,7 +135,7 @@ export const generatePDF = async (sampleDetailsForm) => {
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
       <strong>Sample Reference No:</strong> ${
-        sampleDetailsForm.sampleRef || "Not Available"
+        sampleDetailsForm.sr_no || "Not Available"
       }
     </p>
     <p style="color: #000; font-size: 15px; word-wrap: break-word; margin: 0;">
@@ -216,7 +217,7 @@ export const generatePDF = async (sampleDetailsForm) => {
 
   const pdfBlob = pdf.output("blob");
   const pdfUrl = URL.createObjectURL(pdfBlob);
-  window.open(pdfUrl, "_blank");
+  window.open(pdfUrl,);
 
   document.body.removeChild(invoiceElement);
 };

@@ -63,7 +63,20 @@ const SamplePipeline = () => {
     }
   }, [ loaded, loading, gridApiInput]);
 
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "input" ? "output" : "input"
+        );
+      
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton]);
   const [gridApiOutput, setGridApiOutput] = useState(null);
   const onGridReadyOutput = useCallback((params) => {
     setGridApiOutput(params.api);

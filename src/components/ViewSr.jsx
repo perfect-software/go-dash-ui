@@ -28,8 +28,10 @@ const ViewSr = ({ onSampleSelect }) => {
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
-  }, []);
 
+  }, []);
+ 
+  
   const onRowDataChanged = useCallback(() => {
     if (gridApi) {
       gridApi.hideOverlay();
@@ -59,6 +61,24 @@ const ViewSr = ({ onSampleSelect }) => {
       return 0;
     }
   };
+
+  const onCellKeyDown = useCallback((e) => {
+  
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+     
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+       
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const onRowSelected = (event) => {
     const selectedData = event.api.getSelectedRows();
     onSampleSelect(selectedData.length > 0 ? selectedData[0] : null);
@@ -77,7 +97,6 @@ const ViewSr = ({ onSampleSelect }) => {
       width: 125,
       filter: true,
       cellRenderer: (params) => {
-        console.log(params.value);
         return params.value ? (
        
           <img 
@@ -283,6 +302,7 @@ const ViewSr = ({ onSampleSelect }) => {
           paginationPageSizeSelector={[10, 12, 20, 50, 100]}
           animateRows={true}
           filter={true}
+          onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
           onSelectionChanged={onRowSelected}
           onRowDataChanged={onRowDataChanged}

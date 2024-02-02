@@ -30,7 +30,20 @@ const Supplier = () => {
     city: false,
     currency: false,
   });
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlLeft") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "providedDetails" : "details"
+        );
 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton]);
   const handleSupplierFormChange = (e) => {
     const { name, value } = e.target;
 
