@@ -63,9 +63,22 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       return 0;
     },
   };
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const columnDefs = [
     { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
-    { headerName: "Buyer Code",width:135, field: "bsCode", sortable: true, filter: true },
     { headerName: "Buyer", width:300, field: "bsName", sortable: true, filter: true },
     { headerName: "Buyer Abbreviation", field: "bsAbbreviation", sortable: true, filter: true },
     {
@@ -203,6 +216,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
+              onCellKeyDown={onCellKeyDown}
               onGridReady={onGridReady}
               onSelectionChanged={onRowSelected}
               onRowDataChanged={onRowDataChanged}

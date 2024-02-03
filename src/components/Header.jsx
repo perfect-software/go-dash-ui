@@ -15,22 +15,22 @@ const Header = ({ toggleSidebar }) => {
     const [financialYears, setFinancialYears] = useState([]);
     const [selectedYear, setSelectedYear] = useState('');
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchFinancialYears = async () => {
-      try {
-       l
-        const response = await fetch('api/generic/getFinancialYear');
-        const data = await response.json();
-        setFinancialYears(data);
-        const activeYear = data.find(year => year.status === 'A');
-        if (activeYear) setSelectedYear(activeYear.year);
-      } catch (error) {
-        console.error('Failed to fetch financial years:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchFinancialYears = async () => {
+  //     try {
+  //      l
+  //       const response = await fetch('api/generic/getFinancialYear');
+  //       const data = await response.json();
+  //       setFinancialYears(data);
+  //       const activeYear = data.find(year => year.status === 'A');
+  //       if (activeYear) setSelectedYear(activeYear.year);
+  //     } catch (error) {
+  //       console.error('Failed to fetch financial years:', error);
+  //     }
+  //   };
 
-    fetchFinancialYears();
-  }, []);
+  //   fetchFinancialYears();
+  // }, []);
   const handleYearEnd = () => {
     // Implement the function to mark year-end or create a year start
     console.log('Year-end or start creation logic here');

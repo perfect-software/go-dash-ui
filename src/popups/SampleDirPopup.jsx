@@ -61,22 +61,35 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       return 0;
     },
   };
-
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const columnDefs = [
     {headerName: "Select",field:'select', maxWidth: 80, checkboxSelection: true  },
     { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
     { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
     { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
+    {
+      headerName: "Buyer",
+      field: "buyer.bsName",
+      sortable: true,
+      width:300,
+      filter: true,
+    },
     { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
     {
       headerName: "Article No",
-      field: "articleNo",
-      sortable: true,
-      width:125,
-      filter: true,
-    },
-    {
-      headerName: "Article Name",
       field: "articleName",
       sortable: true,
       width:125,
@@ -91,13 +104,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       filter: true,
     },
     
-    {
-      headerName: "Buyer",
-      field: "buyer.bsName",
-      sortable: true,
-      width:300,
-      filter: true,
-    },
+ 
 
     {
       headerName: "Size",
@@ -280,6 +287,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
+              onCellKeyDown={onCellKeyDown}
               onGridReady={onGridReady}
               onSelectionChanged={onRowSelected}
               onRowDataChanged={onRowDataChanged}

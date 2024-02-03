@@ -24,13 +24,16 @@ const ViewSr = ({ onSampleSelect }) => {
 
   const [gridApi, setGridApi] = useState(null);
   const onGridReady = useCallback((params) => {
+   
     setGridApi(params.api);
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
-
+    params.api.ensureIndexVisible(0);
+    params.api.setFocusedCell(0, columnDefs[0].field);
   }, []);
- 
+
+
   
   const onRowDataChanged = useCallback(() => {
     if (gridApi) {
@@ -81,14 +84,16 @@ const ViewSr = ({ onSampleSelect }) => {
   }, []);
   const onRowSelected = (event) => {
     const selectedData = event.api.getSelectedRows();
-    onSampleSelect(selectedData.length > 0 ? selectedData[0] : null);
+    onSampleSelect(selectedData.length > 0 ? selectedData : null);
   };
   const actionButton = (params) => {
     setIsImagePopup(true);
     setImagePreview(params.data.image_nm)
   };
   const columnDefs = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,  checkboxSelection: true },
+    { headerName: "Edit",  field:'edit' , maxWidth: 80,  headerCheckboxSelection: true,
+    checkboxSelection: true,
+    showDisabledCheckboxes: true},
     { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
     { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
     {
@@ -109,21 +114,23 @@ const ViewSr = ({ onSampleSelect }) => {
       },
     },
     { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
-    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
     {
-      headerName: "Article No",
-      field: "articleNo",
+      headerName: "Buyer",
+      field: "buyer.bsName",
       sortable: true,
-      width:125,
+      width:300,
       filter: true,
     },
+    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
+   
     {
-      headerName: "Article Name",
+      headerName: "Article No",
       field: "articleName",
       sortable: true,
       width:125,
       filter: true,
     },
+
     {
       headerName: "Buyer Article",
       field: "buyerArticle",
@@ -132,13 +139,7 @@ const ViewSr = ({ onSampleSelect }) => {
       filter: true,
     },
     
-    {
-      headerName: "Buyer",
-      field: "buyer.bsName",
-      sortable: true,
-      width:300,
-      filter: true,
-    },
+ 
 
     {
       headerName: "Size",
@@ -304,6 +305,7 @@ const ViewSr = ({ onSampleSelect }) => {
           filter={true}
           onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
+          rowSelection={"multiple"}
           onSelectionChanged={onRowSelected}
           onRowDataChanged={onRowDataChanged}
         />

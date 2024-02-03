@@ -20,6 +20,7 @@ import Downshift from "downshift";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
+import { generateOnSubmitPDF } from "../features/generateOnSubmitPDF";
 import InfoPopup from "../popups/InfoPopup";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 
@@ -29,7 +30,9 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [printForm,setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [multipleSelected, setMultipleSelected] = useState(false);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
@@ -184,9 +187,22 @@ const SampleRequest = () => {
   };
 
   const handleSampleEdit = (sample) => {
-    setEditSample(sample);
-    setIsEditSelected(sample !== null);
+    if (sample && sample.length > 0) {
+      setEditSample(sample[0]);
+      setIsEditSelected(true);
+      if (sample.length > 1) {
+        setMultipleSelected(false);
+      } else {
+        setMultipleSelected(true);
+        setPrintForm(sample);
+      }
+    } else {
+      setIsEditSelected(false);
+      setMultipleSelected(false);
+      setPrintForm(null);
+    }
   };
+  
 
   const handleEditClick = () => {
     setIsEditClicked(true);
@@ -219,22 +235,7 @@ const SampleRequest = () => {
   };
 
   const handlePrintClick = async () => {
-    const { image_nm,sr_no, ...restOfSelectedSample } = editSample;
-    const updatedSampleDetailsForm = {
-      ...sampleDetailsForm,
-      ...restOfSelectedSample,
-      bsName: editSample.buyer?.bsName,
-      sr_no:sr_no,
-      deliveryAddress: editSample.buyer?.billingAddress,
-      deliveryDate: editSample.deliveryDate
-        ? getformatDate(editSample.deliveryDate)
-        : "",
-      prodExDate: editSample.prodExDate
-        ? getformatDate(editSample.prodExDate)
-        : "",
-    };
-    setSampleDetailsForm(updatedSampleDetailsForm);
-    await generatePDF(updatedSampleDetailsForm,image_nm,sr_no);
+    await generateOnSubmitPDF(printForm);
   };
 
   const [isGridVisible, setIsGridVisible] = useState({
@@ -385,7 +386,7 @@ const SampleRequest = () => {
     }
   };
   const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm, imageUrl,printSrNo);
+    await generatePDF(sampleDetailsForm);
   };
 
   const handleSeasonChange = (e) => {
@@ -540,7 +541,7 @@ const SampleRequest = () => {
         BASE_URL
       );
       setPrintSrNo(responseData.response);
-      togglePopup(responseData.responseStatus.description);
+      togglePopup(responseData.responseStatus.description + ' For ' + responseData.response);
       setAllowPrint(true);
       setBsID("");
       setTempArticeNo("");
@@ -609,7 +610,7 @@ const SampleRequest = () => {
         updatedSampleDetailsForm,
         BASE_URL
       );
-      togglePopup(responseData.message);
+      togglePopup(responseData.message + ' For ' + editSample.sr_no);
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
@@ -1249,7 +1250,9 @@ const SampleRequest = () => {
                 className={`${styles.screenChangeButton} ${
                   activeButton === "details" ? styles.active : ""
                 }`}
-                onClick={() => setActiveButton("details")}
+                onClick={() =>{ setActiveButton("details"); setIsEditSelected(false);
+                setMultipleSelected(false);
+                setPrintForm(null);}}
               >
                 Sample Order Details
               </button>
@@ -1270,7 +1273,7 @@ const SampleRequest = () => {
             {activeButton === "view" && (
               <div className={styles.editContainer}>
                 <button
-                  disabled={!isEditSelected}
+                  disabled={!multipleSelected}
                   className={styles.headButton}
                   onClick={handleEditClick}
                 >

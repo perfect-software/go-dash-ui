@@ -61,7 +61,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   };
   const columnDefs = [
     { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "Article Name",  width:150, field: "articleName", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
     {
       headerName: "Animal",
       field: "animal",
@@ -179,7 +179,20 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
     },
  
   ];
-
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const onRowSelected = (event) => {
     const selectedData = event.api.getSelectedRows();
     setRowSelect(selectedData.length > 0);
@@ -216,6 +229,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
                 paginationPageSizeSelector={[10, 12, 20, 50, 100]}
                 animateRows={true}
                 filter={true}
+                onCellKeyDown={onCellKeyDown}
                 onGridReady={onGridReady}
                 onSelectionChanged={onRowSelected}
                 onRowDataChanged={onRowDataChanged}

@@ -25,6 +25,8 @@ const ViewBuyer = ({onBuyerSelect}) => {
     if (!loaded && !loading) {
       dispatch(fetchAllBuyers());
     }
+    params.api.ensureIndexVisible(0);
+    params.api.setFocusedCell(0, columnDefs[0].field);
   }, []);
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {
@@ -86,7 +88,6 @@ const ViewBuyer = ({onBuyerSelect}) => {
       checkboxSelection: true,
       showDisabledCheckboxes: true,
     },
-    { headerName: "Buyer Code",width:135, field: "bsCode", sortable: true, filter: true },
     { headerName: "Buyer", width:300, field: "bsName", sortable: true, filter: true },
     { headerName: "Buyer Abbreviation", field: "bsAbbreviation", sortable: true, filter: true },
     {
