@@ -283,6 +283,20 @@ const ViewSr = ({ onSampleSelect }) => {
       sortable: true,
       filter: true,
     },
+    {
+      headerName: "Internal Ref",
+      field: "internal_ref",
+      width:200,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Leather Remark",
+      field: "leather_remark",
+      width:200,
+      sortable: true,
+      filter: true,
+    },
   ];
 
 

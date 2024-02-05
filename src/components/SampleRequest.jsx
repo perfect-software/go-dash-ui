@@ -104,6 +104,8 @@ const SampleRequest = () => {
           liningColor: "",
           last: "",
           insole: "",
+          internal_ref:"",
+          leather_remark:"",
           soleLabel: "",
           socks: "",
           dateOfOrder: "",
@@ -144,6 +146,7 @@ const SampleRequest = () => {
       "upperColor",
       "liningColor",
       "last",
+      "internal_ref",
       "insole",
       "soleLabel",
       "socks",
@@ -185,23 +188,25 @@ const SampleRequest = () => {
     setSampleDetailsForm(newFormState);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
   const handleSampleEdit = (sample) => {
-    if (sample && sample.length > 0) {
-      setEditSample(sample[0]);
-      setIsEditSelected(true);
-      if (sample.length > 1) {
-        setMultipleSelected(false);
-      } else {
-        setMultipleSelected(true);
-        setPrintForm(sample);
-      }
-    } else {
-      setIsEditSelected(false);
-      setMultipleSelected(false);
-      setPrintForm(null);
+    setIsEditSelected(false);
+    setMultipleSelected(false);
+    setPrintForm([]);
+    if (sample) {
+        setIsEditSelected(true);
+        const sampleArray = Array.isArray(sample) ? sample : [sample];
+
+        if (sampleArray.length > 1) {
+            setPrintForm(sampleArray);
+            setMultipleSelected(false);
+        } else {
+            setEditSample(sampleArray[0]); 
+            setPrintForm(sampleArray); 
+            setMultipleSelected(true);
+        }
     }
-  };
+};
+
   
 
   const handleEditClick = () => {
@@ -235,7 +240,15 @@ const SampleRequest = () => {
   };
 
   const handlePrintClick = async () => {
+  try {
+    setLoading(true);
     await generateOnSubmitPDF(printForm);
+  } catch (error) {
+    
+  } finally{
+    setLoading(false);
+  }
+   
   };
 
   const [isGridVisible, setIsGridVisible] = useState({
@@ -386,7 +399,7 @@ const SampleRequest = () => {
     }
   };
   const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm);
+    await generatePDF(sampleDetailsForm, imageUrl,printSrNo);
   };
 
   const handleSeasonChange = (e) => {
@@ -467,6 +480,8 @@ const SampleRequest = () => {
       last: "",
       insole: "",
       soleLabel: "",
+      internal_ref:"",
+      leather_remark:"",
       socks: "",
       heel: "",
       pattern: "",
@@ -1280,13 +1295,17 @@ const SampleRequest = () => {
                   Update
                 </button>
 
-                <button
-                  disabled={!isEditSelected}
-                  className={styles.headButtonPrint}
-                  onClick={handlePrintClick}
-                >
-                  Print
-                </button>
+                {loading ? (
+              <div className={styles.buttonContainer}>
+                <div className={styles.loader}></div>
+              </div>
+            ) : ( <button
+              disabled={!isEditSelected}
+              className={styles.headButtonPrint}
+              onClick={handlePrintClick}
+            >
+              Print
+            </button>)}
               </div>
             )}
           </div>
@@ -1759,6 +1778,40 @@ const SampleRequest = () => {
                   required
                 />
               </div>
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="internal_ref">
+                  Internal Ref.
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter.."
+                  name="internal_ref"
+                  style={
+                    validation.inQuantity === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
+                  value={sampleDetailsForm.internal_ref}
+                  onChange={handleCreateSampleChange}
+                  required
+                />
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="leather_remark">
+                  Leather Remark
+                </label>
+                <textarea
+                  type="text"
+                  className={styles.commentInput}
+                  placeholder="Enter.."
+                  name="leather_remark"
+                  value={sampleDetailsForm.leather_remark}
+                  onChange={handleCreateSampleChange}
+                  rows="1"
+                ></textarea>
+              </div>
+             
               <div className={styles.colSpan3}>
                 <label className={styles.sampleLabel} htmlFor="commentLeather">
                   Comment
@@ -1912,6 +1965,7 @@ const SampleRequest = () => {
                     togglePopup();
                     {
                       allowPrint && resetAllFields();
+                      setImageUrl("");
                     }
                   }}
                 >
