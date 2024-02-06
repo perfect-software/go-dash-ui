@@ -65,7 +65,7 @@ const SamplePipeline = () => {
 
   useEffect(() => {
     const toggleActiveButton = (event) => {
-      if (event.code === "ControlLeft") {
+      if (event.code === "ControlRight") {
         setActiveButton((prevButton) =>
           prevButton === "input" ? "output" : "input"
         );

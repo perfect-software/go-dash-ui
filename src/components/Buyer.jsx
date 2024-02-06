@@ -498,7 +498,7 @@ const Buyer = () => {
   }, []);
   useEffect(() => {
     const toggleActiveButton = (event) => {
-      if (event.code === "ControlLeft") {
+      if (event.code === "ControlRight") {
         setActiveButton((prevButton) =>
           prevButton === "details" ? "view" : "details"
         );

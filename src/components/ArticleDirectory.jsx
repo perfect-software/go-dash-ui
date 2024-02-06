@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { getApiService, postApiService } from "../service/apiService";
-
+import Cross from "../assets/cross.svg";
 import Downshift from "downshift";
+import axios from "axios";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -20,8 +21,10 @@ const ArticleDirectory = () => {
   });
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
+  const textareaRef = useRef(null);
   const [loading, setLoading] = useState(false);
-
+  const [imageFile, setImageFile] = useState(null);
   const [articleForm, setArticleForm] = useState(() => {
     const savedForm = localStorage.getItem("articleForm");
     return savedForm
@@ -163,7 +166,25 @@ const ArticleDirectory = () => {
       console.error("Failed to fetch Items:", error);
     }
   };
-
+  const autosize = () => {
+    const el = textareaRef.current;
+    if (el) {
+      
+      el.style.cssText = 'height:auto;'; 
+      el.style.cssText = 'height:' + el.scrollHeight + 'px';
+    }
+  };
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el) {
+      el.addEventListener('keydown', autosize);
+    }
+    return () => {
+      if (el) {
+        el.removeEventListener('keydown', autosize);
+      }
+    };
+  }, []);
   const [showSuggestions, setShowSuggestions] = useState({
     animal: false,
     soleType: false,
@@ -195,6 +216,51 @@ const ArticleDirectory = () => {
       comment: "",
     });
   };
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 1048576) {
+        togglePopup("Please upload an image less than 1 MB.");
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (name) => {
+    if (!imageFile) {
+      console.log("No image file selected for upload");
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    formData.append("filename", name);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8081/api/sample/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("Image uploaded successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setLoading(false);
+      return null;
+    }
+  };
 
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
@@ -206,6 +272,9 @@ const ArticleDirectory = () => {
     const BASE_URL = "article/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);
+      const imageName = formData.articleName+formData.lastNo;
+      console.log(imageName);
+      const imageResponseData = await uploadImage(imageName);
       togglePopup(responseData.message);
     } catch (error) {
       if (error.response) {
@@ -752,14 +821,13 @@ const ArticleDirectory = () => {
             </label>
             {downshiftColor}
           </div>
-
+       
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="animal">
               Animal
             </label>
             {downshiftAnimal}
           </div>
-
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="gender">
               Gender
@@ -902,6 +970,7 @@ const ArticleDirectory = () => {
               Comment
             </label>
             <textarea
+              ref={textareaRef}
               className={styles.commentInput}
               placeholder="Enter Here"
               name="comment"
@@ -910,9 +979,44 @@ const ArticleDirectory = () => {
               rows="3"
             ></textarea>
           </div>
+          
+          <div className={styles.imgColSpan}>
+                <div className={styles.fileinputcontainer2}>
+                  {imagePreview ? (
+                    <div className={styles.imagepreview2}>
+                      <img
+                        src={imagePreview}
+                        onClick={() => setIsImagePopup(true)}
+                        alt="Preview"
+                      />
+                      <img
+                        onClick={() => {
+                          setImagePreview(null);
+                          setImageFile(null);
+                        }}
+                        src={Cross}
+                        alt="Select Icon"
+                        className={styles.removeImageButton2}
+                      />
+                    </div>
+                  ) : (
+                    <label htmlFor="file" className={styles.filelabel2}>
+                      Insert Image
+                      <input
+                        type="file"
+                        id="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  )}
+                </div>
+              
+              </div>
+        
         </div>
       </div>
-      <div className={styles.parentButtonContainer}>
+      <div style={{marginTop:'50px'}} className={styles.parentButtonContainer}>
         {loading ? (
           <div className={styles.buttonContainer}>
             <div className={styles.loader}></div>

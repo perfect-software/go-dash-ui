@@ -90,7 +90,7 @@
     @apply flex gap-1;
   }
   .articleTopGrid {
-    @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
+    @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
   }
   .itemTopGrid {
     @apply grid smp:grid-cols-1 sml:grid-cols-2 grid-cols-3 gap-2 mt-2;
@@ -390,8 +390,11 @@
     @apply col-span-1 flex flex-row items-center gap-1 justify-end sm:justify-center;
   }
   .imgColSpan {
-    @apply col-span-2 smp:col-span-1 sml:col-span-2 flex flex-row items-center gap-1 sm:justify-center sml:justify-center sm:my-4 sml:my-4;
+    @apply col-span-1 ml-2 gap-3 flex items-center justify-end sm:my-4 sml:my-4;
+    grid-row: span 2;
   }
+  
+  
   .topContainer {
     @apply flex flex-col;
   }
@@ -571,4 +574,70 @@
       @apply w-[8.3125vw] h-[2.625vh] text-[1.125vw] sml:text-sm font-[700] p-[1.23rem] text-white 
       leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
       sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+    }
+
+    .fileinputcontainer2 {
+      @apply rounded-md flex;
+      position: relative;
+      display: flex;
+      width: 70px; 
+      height: 70px; 
+      border: 2px solid black;
+      align-items: center;
+      background-color: #00ADB5; 
+      color: white;
+      overflow: hidden;
+    }
+    
+    .filelabel2, .imagepreview2 {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .filelabel2 {
+      display: flex;
+      justify-content: center; 
+      align-items: center;
+      cursor: pointer;
+      height: 100%;
+      width: 100%; 
+      text-align: center; 
+      margin: 0; 
+      padding: 0;
+      font-weight: bold;
+      background-color: #00ADB5; 
+      color: white;
+      position: relative; 
+    }
+    
+    .filelabel2 input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0; /* Hide the input but keep it functional */
+      cursor: pointer;
+    }
+    .imagepreview2 img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .imageInput{
+      
+    }
+    .removeImageButton2 {
+      @apply h-[1rem] w-[1rem] cursor-pointer;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      transition: transform 1s ease-in;
+    }
+  
+    .removeImageButton2:hover {
+      transform: rotate(90deg);
     }
