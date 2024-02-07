@@ -112,6 +112,23 @@ const ViewSr = ({ onSampleSelect }) => {
       filter: true,
     },
     {
+      headerName: "Image",
+      field: "image_nm",
+      width: 125,
+      filter: true,
+      cellRenderer: (params) => {
+        return params.value ? (
+       
+          <img 
+            src={`http://localhost:8081/images/${params.value}`} 
+            alt="Image" 
+            style={{ height: '50px', width: '50px' }}
+            onClick={() => actionButton(params)}
+          />
+        ) : null;
+      },
+    },
+    {
       headerName: "Buyer",
       field: "buyer.bsName",
       sortable: true,
@@ -143,23 +160,7 @@ const ViewSr = ({ onSampleSelect }) => {
     { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
 
     { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
-    {
-      headerName: "Image",
-      field: "image_nm",
-      width: 125,
-      filter: true,
-      cellRenderer: (params) => {
-        return params.value ? (
-       
-          <img 
-            src={`http://localhost:8081/images/${params.value}`} 
-            alt="Image" 
-            style={{ height: '50px', width: '50px' }}
-            onClick={() => actionButton(params)}
-          />
-        ) : null;
-      },
-    },
+   
     { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
     {
       headerName: "Buyer Article",

@@ -570,6 +570,8 @@ const SampleRequest = () => {
     } catch (error) {
       console.error("Error uploading image:", error);
       setLoading(false);
+      console.log(
+      );
       return null;
     }
   };
