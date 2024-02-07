@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import inputStyles from "../styles/inputDetails.module.css";
 import { useNavigate } from "react-router-dom";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/articlePopup.module.css";
@@ -14,6 +15,8 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [rowSelect, setRowSelect] = useState(false);
   const [buyers, setBuyers] = useState([]);
+  const [isImagePopup, setIsImagePopup] = useState(false);
+  const [imagePreview, setImagePreview] = useState(false);
   const [gridApi, setGridApi] = useState(null);
 
   const fetchAllBuyers = async () => {
@@ -68,6 +71,23 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       sortable: true,
       width:130,
       filter: true,
+    },
+    {
+      headerName: "Image",
+      field: "image_nm",
+      width: 125,
+      filter: true,
+      cellRenderer: (params) => {
+        const imageUrl = `http://localhost:8081/images/article/${params.value}`;
+        return (
+          <img
+            src={imageUrl}
+            alt="Image"
+            style={{ height: '50px', width: '50px' }}
+            onClick={() => actionButton(params)}
+          />
+        );
+      },
     },
     {
       headerName: "Color",
@@ -179,6 +199,10 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
     },
  
   ];
+  const actionButton = (params) => {
+    setIsImagePopup(true);
+    setImagePreview(params.data.image_nm)
+  };
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {
       return;
@@ -258,7 +282,27 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             </button>
           </div>
         </div>
+        {isImagePopup && (
+        <div className={inputStyles.popupOverlay}>
+          <div className={inputStyles.imagePopupContent}>
+            <img
+              src={`http://localhost:8081/images/article/${imagePreview}`}
+              className={inputStyles.imagepreviewPopup}
+              alt=""
+            />
+            <img
+              onClick={() => {
+                setIsImagePopup(false);
+              }}
+              src={Cross}
+              alt="Select Icon"
+              className={inputStyles.crossIcon}
+            />
+          </div>
+        </div>
+      )}
       </div>
+      
     )
   );
 };

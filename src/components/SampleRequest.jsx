@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import UpIcon from "../assets/up.svg";
+import Upload from "../assets/folder-upload.png";
+import BlankImage from "../assets/no-photo.png";
 import IButtonIcon from "../assets/iButton.svg";
 import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +32,7 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [articleImageView,setArticleImageView]=useState(null);
   const [printForm, setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const [multipleSelected, setMultipleSelected] = useState(false);
@@ -142,26 +145,30 @@ const SampleRequest = () => {
 
   const autosize = (el) => {
     if (el) {
-      el.style.cssText = 'height:auto;';
-      el.style.cssText = 'height:' + el.scrollHeight + 'px';
+      el.style.cssText = "height:auto;";
+      el.style.cssText = "height:" + el.scrollHeight + "px";
     }
   };
 
   useEffect(() => {
-    const textareas = [commentTextareaRef.current, soleRemarkTextareaRef.current, leatherRemarkTextareaRef.current];
+    const textareas = [
+      commentTextareaRef.current,
+      soleRemarkTextareaRef.current,
+      leatherRemarkTextareaRef.current,
+    ];
 
     const autosizeListener = (event) => autosize(event.target);
 
     textareas.forEach((textarea) => {
       if (textarea) {
-        textarea.addEventListener('keydown', autosizeListener);
+        textarea.addEventListener("keydown", autosizeListener);
       }
     });
 
     return () => {
       textareas.forEach((textarea) => {
         if (textarea) {
-          textarea.removeEventListener('keydown', autosizeListener);
+          textarea.removeEventListener("keydown", autosizeListener);
         }
       });
     };
@@ -383,8 +390,8 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
+      setArticleImageView(`http://localhost:8081/images/article/${selectedArticle.image_nm}`)
       setTempArticeNo(selectedArticle.articleId);
-
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
@@ -409,7 +416,7 @@ const SampleRequest = () => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
       setBsID(selectedSample.buyer?.bs_id);
-      const { articleNo, articleName, ...restOfSelectedSample } =
+      const { image_nm,articleNo, articleName, ...restOfSelectedSample } =
         selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
@@ -545,11 +552,12 @@ const SampleRequest = () => {
 
     const formData = new FormData();
     formData.append("image", imageFile);
-    formData.append("srno", srno);
+    formData.append("fileName", srno);
+    formData.append("type", 'sample');
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/api/sample/upload",
+        "http://localhost:8081/api/generic/upload",
         formData,
         {
           headers: {
@@ -569,8 +577,8 @@ const SampleRequest = () => {
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
-        setLoading(false);
-        return;
+      setLoading(false);
+      return;
     }
 
     const updatedSampleDetailsForm = {
@@ -579,7 +587,6 @@ const SampleRequest = () => {
       articleNo: tempArticleNo,
       finYear: "2024",
     };
-    
     try {
       const createSampleResponse = await postApiService(
         updatedSampleDetailsForm,
@@ -587,9 +594,9 @@ const SampleRequest = () => {
       );
       if (createSampleResponse && createSampleResponse.response) {
         const srno = createSampleResponse.response;
+        console.log(srno);
         const imageResponseData = await uploadImage(srno);
-        if (imageResponseData && imageResponseData.message) {
-          const imagePath = imageResponseData.message;
+        if (imageResponseData && imageResponseData.response) {
           setImageUrl(imagePath);
         }
         setPrintSrNo(srno);
@@ -598,7 +605,7 @@ const SampleRequest = () => {
         );
         setAllowPrint(true);
       }
-      
+
       dispatch(fetchAllSamples());
     } catch (error) {
       let errorMessage = "An error occurred";
@@ -616,12 +623,13 @@ const SampleRequest = () => {
       togglePopup(errorMessage);
     } finally {
       setLoading(false);
+      setArticleImageView(null);
       setRemoveImage(false);
       setImagePreview(null);
       setBsID("");
       setTempArticeNo("");
     }
-};
+  };
 
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -681,6 +689,7 @@ const SampleRequest = () => {
       setIsEditSelected(false);
       setEditSample(null);
       setBsID("");
+      setArticleImageView(null);
       setRemoveImage(false);
       setImagePreview(null);
       setTempArticeNo("");
@@ -1471,30 +1480,49 @@ const SampleRequest = () => {
                       />
                     </div>
                   ) : (
-                    <label htmlFor="file" className={styles.filelabel2}>
-                      Insert Image
-                      <input
-                        type="file"
-                        id="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
+                   
+                      <label htmlFor="file" className={styles.filelabel2}>
+                      <img
+                        src={Upload}
+                        alt="Image Placeholder"
+                        className={styles.uploadImagePlaceholder}
                       />
-                    </label>
+                        Upload Image
+                        <input
+                          type="file"
+                          id="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                   
                   )}
                 </div>
-                {imagePreview && (
-                <div className={styles.fileinputcontainer2}>
-                
-                    <div className={styles.imagepreview2}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className={styles.fileinputcontainer2}>
+                    {articleImageView ? (
+                      <div className={styles.imagepreview2}>
+                        <img
+                          src={articleImageView}
+                          alt="Preview"
+                        />
+                      </div>
+                    ) : (
                       <img
-                        src={imagePreview}
-                        onClick={() => setIsImagePopup(true)}
-                        alt="Preview"
+                        src={BlankImage}
+                        alt="Image Placeholder"
+                        className={styles.blankImagePlaceholder}
                       />
-                    </div>
-                 
+                    )}
+                  </div>
+                  <p className={styles.articleImageText}>Article Image</p>
                 </div>
-                )}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="sampleRef">
@@ -1792,7 +1820,7 @@ const SampleRequest = () => {
                   Comment
                 </label>
                 <textarea
-                ref={commentTextareaRef}
+                  ref={commentTextareaRef}
                   className={styles.commentInput}
                   placeholder="Enter Here"
                   name="comments"
@@ -1945,7 +1973,7 @@ const SampleRequest = () => {
                   Sole Remark
                 </label>
                 <textarea
-                   ref={leatherRemarkTextareaRef}
+                  ref={leatherRemarkTextareaRef}
                   className={styles.commentInput}
                   placeholder="Enter Here"
                   name="sole_remark"

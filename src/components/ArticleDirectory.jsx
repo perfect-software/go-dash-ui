@@ -4,6 +4,7 @@ import { getApiService, postApiService } from "../service/apiService";
 import Cross from "../assets/cross.svg";
 import Downshift from "downshift";
 import axios from "axios";
+import Upload from "../assets/folder-upload.png";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -241,19 +242,21 @@ const ArticleDirectory = () => {
 
     const formData = new FormData();
     formData.append("image", imageFile);
-    formData.append("filename", name);
+    formData.append("fileName", name);
+    formData.append("type", 'article');
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/api/sample/upload",
+        "http://localhost:8081/api/generic/upload",
         formData,
         {
+
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "multipart/form-data ",
           },
         }
       );
-      console.log("Image uploaded successfully:", response.data);
+      console.log("Image uploaded successfully:");
       return response.data;
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -269,12 +272,15 @@ const ArticleDirectory = () => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
+    const imageName = formData.articleName+formData.lastNo;
+    const imageResponseData = await uploadImage(imageName);
     const BASE_URL = "article/create";
     try {
-      const responseData = await postApiService(formData, BASE_URL);
-      const imageName = formData.articleName+formData.lastNo;
-      console.log(imageName);
-      const imageResponseData = await uploadImage(imageName);
+        const updatedArticleForm = {
+          ...formData,
+          image_nm: imageResponseData.response,
+        };
+      const responseData = await postApiService(updatedArticleForm, BASE_URL);
       togglePopup(responseData.message);
     } catch (error) {
       if (error.response) {
@@ -986,7 +992,7 @@ const ArticleDirectory = () => {
                     <div className={styles.imagepreview2}>
                       <img
                         src={imagePreview}
-                        onClick={() => setIsImagePopup(true)}
+                        
                         alt="Preview"
                       />
                       <img
@@ -1001,17 +1007,21 @@ const ArticleDirectory = () => {
                     </div>
                   ) : (
                     <label htmlFor="file" className={styles.filelabel2}>
-                      Insert Image
-                      <input
-                        type="file"
-                        id="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
+                      <img
+                        src={Upload}
+                        alt="Image Placeholder"
+                        className={styles.uploadImagePlaceholder}
                       />
-                    </label>
+                        Upload Image
+                        <input
+                          type="file"
+                          id="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </label>
                   )}
-                </div>
-              
+                </div>   
               </div>
         
         </div>

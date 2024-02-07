@@ -390,7 +390,7 @@
     @apply col-span-1 flex flex-row items-center gap-1 justify-end sm:justify-center;
   }
   .imgColSpan {
-    @apply col-span-1 ml-2 gap-3 flex items-center justify-end sm:my-4 sml:my-4;
+    @apply col-span-1 ml-2 gap-3 flex justify-end sm:my-4 sml:my-4;
     grid-row: span 2;
   }
   
@@ -577,14 +577,14 @@
     }
 
     .fileinputcontainer2 {
-      @apply rounded-md flex;
+      @apply rounded-md flex justify-center;
       position: relative;
       display: flex;
       width: 70px; 
       height: 70px; 
-      border: 2px solid black;
+      border: 2px dashed black;
       align-items: center;
-      background-color: #00ADB5; 
+      background-color: #ECECEC; 
       color: white;
       overflow: hidden;
     }
@@ -599,18 +599,19 @@
     }
     
     .filelabel2 {
-      display: flex;
+      @apply text-[13px] flex flex-col cursor-pointer ;
       justify-content: center; 
       align-items: center;
       cursor: pointer;
+      line-height: 1; 
       height: 100%;
       width: 100%; 
       text-align: center; 
       margin: 0; 
       padding: 0;
       font-weight: bold;
-      background-color: #00ADB5; 
-      color: white;
+      background-color: #ECECEC; 
+      color: black;
       position: relative; 
     }
     
@@ -620,7 +621,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: 0; /* Hide the input but keep it functional */
+      opacity: 0;
       cursor: pointer;
     }
     .imagepreview2 img {
@@ -640,4 +641,14 @@
   
     .removeImageButton2:hover {
       transform: rotate(90deg);
+    }
+
+    .uploadImagePlaceholder{
+      @apply h-[1.3rem] w-[1.3rem] mb-1;
+    }
+    .blankImagePlaceholder{
+      @apply h-[3rem] w-[3rem] mb-1;
+    }
+    .articleImageText{
+       @apply text-[11px];
     }
