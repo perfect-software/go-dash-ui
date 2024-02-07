@@ -536,6 +536,7 @@ const SampleRequest = () => {
 
     setBsID("");
     setTempArticeNo("");
+    setArticleImageView(null);
     setImagePreview(null);
     setRemoveImage(false);
     setValidation(initialValidationState);
