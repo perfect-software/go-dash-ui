@@ -94,7 +94,7 @@ const generateDocumentUI = async (data, index, totalPages) => {
     "TOTAL",
   ];
   const imageSrc = await loadImageBase64(
-    `http://localhost:8081/images/${data.image_nm}`
+    `http://localhost:8081/images/sample_request/${data.image_nm}`
   );
   const qrCodeSrc = await generateQR(data.sr_no || "No Reference");
   const now = new Date();

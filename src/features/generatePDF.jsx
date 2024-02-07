@@ -45,8 +45,9 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
     month: "long",
     day: "numeric",
   });
+  console.log(image_url);
   const imageSrc = await loadImageBase64(
-    `http://localhost:8081/images/${image_url}`
+    `http://localhost:8081/images/sample_request/${image_url}`
   );
   const qrCodeSrc = await generateQR(sr_no || "No Reference");
   const currentTime = now.toLocaleTimeString("en-GB", {

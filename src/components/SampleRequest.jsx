@@ -599,7 +599,7 @@ const SampleRequest = () => {
         console.log(srno);
         const imageResponseData = await uploadImage(srno);
         if (imageResponseData && imageResponseData.response) {
-          setImageUrl(imagePath);
+          setImageUrl(imageResponseData.response);
         }
         setPrintSrNo(srno);
         togglePopup(
@@ -657,7 +657,7 @@ const SampleRequest = () => {
   }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-      const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
+      const imageUrl = `http://localhost:8081/images/sample_request/${editSample.image_nm}`;
       setImagePreview(imageUrl);
       setRemoveImage(true);
     }

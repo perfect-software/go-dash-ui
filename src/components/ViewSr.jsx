@@ -120,7 +120,7 @@ const ViewSr = ({ onSampleSelect }) => {
         return params.value ? (
        
           <img 
-            src={`http://localhost:8081/images/${params.value}`} 
+            src={`http://localhost:8081/images/sample_request/${params.value}`} 
             alt="Image" 
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
@@ -342,7 +342,7 @@ const ViewSr = ({ onSampleSelect }) => {
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
-              src={`http://localhost:8081/images/${imagePreview}`}
+              src={`http://localhost:8081/images/sample_request/${imagePreview}`}
               className={inputStyles.imagepreviewPopup}
               alt=""
             />
