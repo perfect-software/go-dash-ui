@@ -9,6 +9,7 @@ import ItemHeadPopup from "../popups/ItemHeadPopup";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
+  const [isImagePopup, setIsImagePopup] = useState(false);
   const [colors, setColors] = useState([]);
   const [showInputLoading, setShowInputLoading] = useState({
     animal: false,
@@ -216,6 +217,7 @@ const ArticleDirectory = () => {
       socksMaterial: "",
       comment: "",
     });
+    setImagePreview(null);
   };
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -281,7 +283,9 @@ const ArticleDirectory = () => {
           image_nm: imageResponseData.response,
         };
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
-      togglePopup(responseData.message);
+      console.log(responseData);
+      togglePopup(responseData.responseStatus.description);
+      setImagePreview(null);
     } catch (error) {
       if (error.response) {
         togglePopup(
@@ -992,7 +996,7 @@ const ArticleDirectory = () => {
                     <div className={styles.imagepreview2}>
                       <img
                         src={imagePreview}
-                        
+                        onClick={() => setIsImagePopup(true)}
                         alt="Preview"
                       />
                       <img
@@ -1058,6 +1062,25 @@ const ArticleDirectory = () => {
           </div>
         </div>
       )}
+       {isImagePopup && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.imagePopupContent}>
+                <img
+                  src={imagePreview}
+                  className={styles.imagepreviewPopup}
+                  alt=""
+                />
+                <img
+                  onClick={() => {
+                    setIsImagePopup(false);
+                  }}
+                  src={Cross}
+                  alt="Select Icon"
+                  className={styles.crossIcon}
+                />
+              </div>
+            </div>
+          )}
       {isItemHeadPopup && (
         <ItemHeadPopup
           onCancel={() => {

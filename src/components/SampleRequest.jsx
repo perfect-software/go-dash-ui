@@ -659,7 +659,9 @@ const SampleRequest = () => {
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
       const imageUrl = `http://localhost:8081/images/sample_request/${editSample.image_nm}`;
+      const articleImageUrl = `http://localhost:8081/images/article/${editSample.article_image}`;
       setImagePreview(imageUrl);
+      setArticleImageView(articleImageUrl);
       setRemoveImage(true);
     }
   }, [isEditClicked, editSample]);
@@ -671,20 +673,19 @@ const SampleRequest = () => {
       setLoading(false);
       return;
     }
-    const imageResponseData = await uploadImage();
-    const imagePath = imageResponseData ? imageResponseData.message : null;
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       sample_id: editSample.sampleId,
       articleNo: tempArticleNo,
-      image_nm: imagePath,
     };
+   
     const BASE_URL = "sample/update";
     try {
       const responseData = await putApiService(
         updatedSampleDetailsForm,
         BASE_URL
       );
+      const imageResponseData = await uploadImage(editSample.sr_no);
       togglePopup(responseData.message + " For " + editSample.sr_no);
       dispatch(fetchAllSamples());
       resetAllFields();
