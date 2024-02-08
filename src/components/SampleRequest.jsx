@@ -25,6 +25,7 @@ import { generatePDF } from "../features/generatePDF";
 import { generateOnSubmitPDF } from "../features/generateOnSubmitPDF";
 import InfoPopup from "../popups/InfoPopup";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
+import { ARTICLE_IMAGE_PATH, SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
-  const [articleImageView,setArticleImageView]=useState(null);
+  const [articleImageView, setArticleImageView] = useState(null);
   const [printForm, setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const [multipleSelected, setMultipleSelected] = useState(false);
@@ -68,6 +69,7 @@ const SampleRequest = () => {
   const [filteredList, setFilteredList] = useState({
     seasonList: [],
     patternList: [],
+    articleNoList: [],
   });
   const [itemForm, setItemForm] = useState({
     year: "",
@@ -76,11 +78,12 @@ const SampleRequest = () => {
   const [colors, setColors] = useState([]);
   const [itemsData, setItemsData] = useState([]);
   const [sampleRefrences, setSampleRefrences] = useState([]);
-  const [articleNos, setArticleNos] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bsId, setBsID] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
+  const [isArticleImagePopup, setIsArticleImagePopup] = useState(false);
   const [tempArticleNo, setTempArticeNo] = useState("");
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
@@ -227,6 +230,15 @@ const SampleRequest = () => {
         deliveryDate: deliveryDateFormatted,
       };
     }
+    if (name === "quantity" && value.length > 5) {
+      return;
+    }
+    if (name === "size" && value.length > 5) {
+      return;
+    }
+    if (name === "inQuantity" && value.length > 20) {
+      return;
+    }
     setSampleDetailsForm(newFormState);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
@@ -299,9 +311,7 @@ const SampleRequest = () => {
 
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
-
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
-
     if (value.length >= 3) {
       toggleInputLoaderVisibility("buyer", true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -390,7 +400,7 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
-      setArticleImageView(`http://localhost:8081/images/article/${selectedArticle.image_nm}`)
+      setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`);
       setTempArticeNo(selectedArticle.articleId);
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
@@ -416,8 +426,13 @@ const SampleRequest = () => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
       setBsID(selectedSample.buyer?.bs_id);
-      const { image_nm,articleNo, articleName, ...restOfSelectedSample } =
-        selectedSample;
+      const {
+        article_image,
+        image_nm,
+        articleNo,
+        articleName,
+        ...restOfSelectedSample
+      } = selectedSample;
       setSampleDetailsForm({
         ...sampleDetailsForm,
         ...restOfSelectedSample,
@@ -431,6 +446,9 @@ const SampleRequest = () => {
           ? getformatDate(selectedSample.prodExDate)
           : "",
       });
+      setArticleImageView(
+        `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}`
+      );
       setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
       setValidation((prev) => ({ ...prev, bsName: "valid" }));
@@ -467,9 +485,46 @@ const SampleRequest = () => {
     }
   };
 
+  const handleArticleChange = (e) => {
+    const { name, value } = e.target;
+    toggleInputLoaderVisibility(name, true);
+    setSampleDetailsForm((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    if (value.trim().length > 0) {
+      const concatenatedString = `${name}List`;
+      const filtered = articles
+        .filter((item) =>
+          item.articleName.toLowerCase().includes(value.trim().toLowerCase())
+        )
+        .map((item) => ({
+          articleId: item.articleId,
+          articleName: item.articleName,
+          imageUrl: item.image_nm,
+        }));
+
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [concatenatedString]: filtered,
+      }));
+      toggleSuggestVisibility(name, filtered.length > 0);
+    } else {
+      toggleSuggestVisibility(name, false);
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [`${name}List`]: [],
+      }));
+    }
+    toggleInputLoaderVisibility(name, false);
+  };
+
   useEffect(() => {
     if (itemsData.length === 0) {
       getItems();
+    }
+    if (articles.length === 0) {
+      fetchAllarticles();
     }
   }, []);
 
@@ -480,6 +535,15 @@ const SampleRequest = () => {
       setItemsData(response);
     } catch (error) {
       console.error("Failed to fetch Items:", error);
+    }
+  };
+  const fetchAllarticles = async () => {
+    const url = "article/getArticle";
+    try {
+      const response = await getApiService(url);
+      setArticles(response);
+    } catch (error) {
+      console.error("Failed to Article", error);
     }
   };
   useEffect(() => {
@@ -550,11 +614,10 @@ const SampleRequest = () => {
       console.log("No image file selected for upload");
       return null;
     }
-
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("fileName", srno);
-    formData.append("type", 'sample');
+    formData.append("type", "sample");
 
     try {
       const response = await axios.post(
@@ -571,8 +634,7 @@ const SampleRequest = () => {
     } catch (error) {
       console.error("Error uploading image:", error);
       setLoading(false);
-      console.log(
-      );
+      console.log();
       return null;
     }
   };
@@ -590,12 +652,13 @@ const SampleRequest = () => {
       articleNo: tempArticleNo,
       finYear: "2024",
     };
+
     try {
       const createSampleResponse = await postApiService(
         updatedSampleDetailsForm,
         "sample/create"
       );
-      if (createSampleResponse && createSampleResponse.response) {
+      if (createSampleResponse.responseStatus && createSampleResponse.responseStatus.description) {
         const srno = createSampleResponse.response;
         console.log(srno);
         const imageResponseData = await uploadImage(srno);
@@ -611,18 +674,14 @@ const SampleRequest = () => {
 
       dispatch(fetchAllSamples());
     } catch (error) {
-      let errorMessage = "An error occurred";
-
-      if (error.response) {
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
         errorMessage =
-          error.response.data.message ||
+          error.response.data.responseStatus.description ||
           `Server error: ${error.response.status}`;
       } else if (error.request) {
         errorMessage = "No response received from the server.";
-      } else {
-        errorMessage = error.message;
       }
-
       togglePopup(errorMessage);
     } finally {
       setLoading(false);
@@ -658,8 +717,8 @@ const SampleRequest = () => {
   }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-      const imageUrl = `http://localhost:8081/images/sample_request/${editSample.image_nm}`;
-      const articleImageUrl = `http://localhost:8081/images/article/${editSample.article_image}`;
+      const imageUrl = `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}`;
+      const articleImageUrl = `${ARTICLE_IMAGE_PATH}${editSample.article_image}`;
       setImagePreview(imageUrl);
       setArticleImageView(articleImageUrl);
       setRemoveImage(true);
@@ -678,7 +737,7 @@ const SampleRequest = () => {
       sample_id: editSample.sampleId,
       articleNo: tempArticleNo,
     };
-   
+
     const BASE_URL = "sample/update";
     try {
       const responseData = await putApiService(
@@ -686,7 +745,10 @@ const SampleRequest = () => {
         BASE_URL
       );
       const imageResponseData = await uploadImage(editSample.sr_no);
-      togglePopup(responseData.message + " For " + editSample.sr_no);
+      if (responseData.responseStatus && responseData.responseStatus.description) {
+        togglePopup(
+          responseData.responseStatus.description + " For " + editSample.sr_no);
+      }
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
@@ -698,16 +760,15 @@ const SampleRequest = () => {
       setImagePreview(null);
       setTempArticeNo("");
     } catch (error) {
-      if (error.response) {
-        togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+        errorMessage = "No response received from the server.";
       }
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -869,6 +930,7 @@ const SampleRequest = () => {
               name: "sampleRef",
             })}
             type="text"
+            maxLength="30"
             className={styles.basicInput2}
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
@@ -926,6 +988,7 @@ const SampleRequest = () => {
               name: "upperColor",
             })}
             type="text"
+            maxLength="20"
             className={styles.basicInput}
             style={
               validation.upperColor === "invalid"
@@ -979,6 +1042,7 @@ const SampleRequest = () => {
               name: "liningColor",
             })}
             type="text"
+            maxLength="20"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
             style={
@@ -1033,6 +1097,7 @@ const SampleRequest = () => {
             })}
             type="text"
             className={styles.basicInput}
+            maxLength="20"
             placeholder="Insert Two Letter"
             style={
               validation.soleLabel === "invalid"
@@ -1070,21 +1135,25 @@ const SampleRequest = () => {
         if (selectedItem) {
           setSampleDetailsForm({
             ...sampleDetailsForm,
-            articleNo: selectedItem,
+            articleNo: selectedItem.articleName,
           });
+          setTempArticeNo(selectedItem.articleId);
+          setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}`);
           toggleSuggestVisibility("articleNo", false);
         }
       }}
       selectedItem={sampleDetailsForm.articleNo}
+      itemToString={(item) => (item ? item.articleNo : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
-              onChange: handleCreateSampleChange,
+              onChange: handleArticleChange,
               name: "articleNo",
             })}
             type="text"
+            maxLength="10"
             ref={articleNoRef}
             className={styles.basicInput2}
             placeholder="Type any word"
@@ -1100,21 +1169,22 @@ const SampleRequest = () => {
             ></button>
           </div>
 
-          <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.articleNo &&
-              articleNos.map((article, index) => (
+          {showSuggestions.articleNo && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.articleNoList.map((item, index) => (
                 <div
-                  {...getItemProps({ key: index, index, item: article })}
+                  {...getItemProps({ key: index, index, item })}
                   className={
                     highlightedIndex === index
                       ? styles.highlighted
                       : styles.suggestionItem
                   }
                 >
-                  {article}
+                  {item.articleName}
                 </div>
               ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </Downshift>
@@ -1211,6 +1281,7 @@ const SampleRequest = () => {
               name: "season",
             })}
             type="text"
+            maxLength="20"
             ref={seasonInputRef}
             className={styles.buttonBasicInput}
             placeholder="Insert First Letter"
@@ -1276,7 +1347,13 @@ const SampleRequest = () => {
               onChange: handleDropItemChange,
               name: "pattern",
             })}
+            style={
+              validation.pattern === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             type="text"
+            maxLength="20"
             ref={patternInputRef}
             className={styles.buttonBasicInput}
             placeholder="Insert First Letter"
@@ -1291,7 +1368,7 @@ const SampleRequest = () => {
               <button
                 onClick={() => {
                   handleDropItemClick("pattern");
-                  seasonInputRef.current?.focus();
+                  patternInputRef.current?.focus();
                 }}
                 className={styles.dropBtn}
                 aria-label="dropDorn"
@@ -1465,32 +1542,38 @@ const SampleRequest = () => {
                 {downshiftBuyer}
               </div>
               <div className={styles.imgColSpan}>
-                <div className={styles.fileinputcontainer2}>
-                  {imagePreview ? (
-                    <div className={styles.imagepreview2}>
-                      <img
-                        src={imagePreview}
-                        onClick={() => setIsImagePopup(true)}
-                        alt="Preview"
-                      />
-                      <img
-                        onClick={() => {
-                          setImagePreview(null);
-                          setImageFile(null);
-                        }}
-                        src={Cross}
-                        alt="Select Icon"
-                        className={styles.removeImageButton2}
-                      />
-                    </div>
-                  ) : (
-                   
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className={styles.fileinputcontainer2}>
+                    {imagePreview ? (
+                      <div className={styles.imagepreview2}>
+                        <img
+                          src={imagePreview}
+                          onClick={() => setIsImagePopup(true)}
+                          alt="Preview"
+                        />
+                        <img
+                          onClick={() => {
+                            setImagePreview(null);
+                            setImageFile(null);
+                          }}
+                          src={Cross}
+                          alt="Select Icon"
+                          className={styles.removeImageButton2}
+                        />
+                      </div>
+                    ) : (
                       <label htmlFor="file" className={styles.filelabel2}>
-                      <img
-                        src={Upload}
-                        alt="Image Placeholder"
-                        className={styles.uploadImagePlaceholder}
-                      />
+                        <img
+                          src={Upload}
+                          alt="Image Placeholder"
+                          className={styles.uploadImagePlaceholder}
+                        />
                         Upload Image
                         <input
                           type="file"
@@ -1499,8 +1582,9 @@ const SampleRequest = () => {
                           onChange={handleFileChange}
                         />
                       </label>
-                   
-                  )}
+                    )}
+                  </div>
+                  <p className={styles.articleImageText}>SR Image</p>
                 </div>
                 <div
                   style={{
@@ -1513,6 +1597,7 @@ const SampleRequest = () => {
                     {articleImageView ? (
                       <div className={styles.imagepreview2}>
                         <img
+                          onClick={() => setIsArticleImagePopup(true)}
                           src={articleImageView}
                           alt="Preview"
                         />
@@ -1569,25 +1654,7 @@ const SampleRequest = () => {
                 <label className={styles.sampleLabel} htmlFor="articleNo">
                   Article No
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    name="articleNo"
-                    value={sampleDetailsForm.articleNo}
-                    readOnly
-                    onChange={handleCreateSampleChange}
-                  />
-                  <button
-                    onClick={() => {
-                      setIsArticlePopup(true);
-                    }}
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                </div>
-                {/* {downshiftArticleNo} */}
+                {downshiftArticleNo}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="buyerArticle">
@@ -1597,6 +1664,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input 3"
+                  maxLength="50"
                   name="buyerArticle"
                   style={
                     validation.buyerArticle === "invalid"
@@ -1616,6 +1684,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="buyerRef"
+                  maxLength="50"
                   value={sampleDetailsForm.buyerRef}
                   onChange={handleCreateSampleChange}
                 />
@@ -1739,6 +1808,7 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="text"
+                  maxLength="20"
                   className={styles.basicInput}
                   placeholder="Input Here"
                   style={
@@ -1760,6 +1830,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="insole"
+                  maxLength="20"
                   style={
                     validation.insole === "invalid"
                       ? { border: "2px solid red" }
@@ -1784,6 +1855,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="socks"
+                  maxLength="20"
                   style={
                     validation.socks === "invalid"
                       ? { border: "2px solid red" }
@@ -1803,6 +1875,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="heel"
+                  maxLength="20"
                   style={
                     validation.heel === "invalid"
                       ? { border: "2px solid red" }
@@ -1814,7 +1887,7 @@ const SampleRequest = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="pattern">
+                <label className={styles.impsampleLabel} htmlFor="pattern">
                   Pattern
                 </label>
                 {downshiftPattern}
@@ -1827,6 +1900,7 @@ const SampleRequest = () => {
                   ref={commentTextareaRef}
                   className={styles.commentInput}
                   placeholder="Enter Here"
+                  maxLength="200"
                   name="comments"
                   value={sampleDetailsForm.comments}
                   onChange={handleCreateSampleChange}
@@ -1869,6 +1943,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   name="inUpperLeather"
+                  maxLength="50"
                   value={sampleDetailsForm.inUpperLeather}
                   onChange={handleCreateSampleChange}
                   style={
@@ -1889,6 +1964,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inLining"
+                  maxLength="50"
                   value={sampleDetailsForm.inLining}
                   style={
                     validation.inLining === "invalid"
@@ -1908,6 +1984,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inSocks"
+                  maxLength="50"
                   style={
                     validation.inSocks === "invalid"
                       ? { border: "2px solid red" }
@@ -1946,8 +2023,9 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="internal_ref"
+                  maxLength="50"
                   style={
-                    validation.inQuantity === "invalid"
+                    validation.internal_ref === "invalid"
                       ? { border: "2px solid red" }
                       : {}
                   }
@@ -1965,6 +2043,7 @@ const SampleRequest = () => {
                   ref={soleRemarkTextareaRef}
                   className={styles.commentInput}
                   placeholder="Enter.."
+                  maxLength="200"
                   name="leather_remark"
                   value={sampleDetailsForm.leather_remark}
                   onChange={handleCreateSampleChange}
@@ -1981,6 +2060,7 @@ const SampleRequest = () => {
                   className={styles.commentInput}
                   placeholder="Enter Here"
                   name="sole_remark"
+                  maxLength="200"
                   value={sampleDetailsForm.sole_remark}
                   onChange={handleCreateSampleChange}
                   rows="3"
@@ -2154,6 +2234,25 @@ const SampleRequest = () => {
                 <img
                   onClick={() => {
                     setIsImagePopup(false);
+                  }}
+                  src={Cross}
+                  alt="Select Icon"
+                  className={styles.crossIcon}
+                />
+              </div>
+            </div>
+          )}
+          {isArticleImagePopup && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.imagePopupContent}>
+                <img
+                  src={articleImageView}
+                  className={styles.imagepreviewPopup}
+                  alt=""
+                />
+                <img
+                  onClick={() => {
+                    setIsArticleImagePopup(false);
                   }}
                   src={Cross}
                   alt="Select Icon"

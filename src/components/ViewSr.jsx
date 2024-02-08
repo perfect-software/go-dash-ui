@@ -10,6 +10,7 @@ import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
 
 
 const ViewSr = ({ onSampleSelect }) => {
@@ -112,7 +113,7 @@ const ViewSr = ({ onSampleSelect }) => {
       filter: true,
     },
     {
-      headerName: "Image",
+      headerName: "SR Image",
       field: "image_nm",
       width: 125,
       filter: true,
@@ -120,7 +121,7 @@ const ViewSr = ({ onSampleSelect }) => {
         return params.value ? (
        
           <img 
-            src={`http://localhost:8081/images/sample_request/${params.value}`} 
+            src={`${SAMPLE_REQUEST_IMAGE_PATH}${params.value}`} 
             alt="Image" 
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
@@ -342,7 +343,7 @@ const ViewSr = ({ onSampleSelect }) => {
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
-              src={`http://localhost:8081/images/sample_request/${imagePreview}`}
+              src={`${SAMPLE_REQUEST_IMAGE_PATH}${imagePreview}`}
               className={inputStyles.imagepreviewPopup}
               alt=""
             />

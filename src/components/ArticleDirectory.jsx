@@ -258,11 +258,18 @@ const ArticleDirectory = () => {
           },
         }
       );
-      console.log("Image uploaded successfully:");
+      console.log("Image uploaded successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setLoading(false);
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
       return null;
     }
   };
@@ -283,20 +290,21 @@ const ArticleDirectory = () => {
           image_nm: imageResponseData.response,
         };
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
-      console.log(responseData);
-      togglePopup(responseData.responseStatus.description);
+      if (responseData.responseStatus && responseData.responseStatus.description) {
+        togglePopup(
+          responseData.responseStatus.description + " For " + responseData.response);
+      }
       setImagePreview(null);
     } catch (error) {
-      if (error.response) {
-        togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+        errorMessage = "No response received from the server.";
       }
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }

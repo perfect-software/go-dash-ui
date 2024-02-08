@@ -8,23 +8,23 @@ import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/articlePopup.module.css";
 import Cross from "../assets/cross.svg";
 import { getApiService } from "../service/apiService";
+import { ARTICLE_IMAGE_PATH } from "../features/url";
 
 const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [rowSelect, setRowSelect] = useState(false);
-  const [buyers, setBuyers] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
   const [gridApi, setGridApi] = useState(null);
 
-  const fetchAllBuyers = async () => {
+  const fetchAllarticles = async () => {
     const url = "article/getArticle";
     try {
       const response = await getApiService(url);
-      setBuyers(response);
-     
+      setArticles(response);
     } catch (error) {
       console.error("Failed to Article", error);
     }
@@ -33,7 +33,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
 
-    fetchAllBuyers();
+    fetchAllarticles();
   }, []);
 
   const onRowDataChanged = useCallback(() => {
@@ -78,7 +78,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       width: 125,
       filter: true,
       cellRenderer: (params) => {
-        const imageUrl = `http://localhost:8081/images/article/${params.value}`;
+        const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
         return (
           <img
             src={imageUrl}
@@ -247,7 +247,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             >
               <AgGridReact
                 columnDefs={columnDefs}
-                rowData={buyers}
+                rowData={articles}
                 pagination={true}
                 paginationPageSize={12}
                 paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -286,7 +286,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
-              src={`http://localhost:8081/images/article/${imagePreview}`}
+              src={`${ARTICLE_IMAGE_PATH}${imagePreview}`}
               className={inputStyles.imagepreviewPopup}
               alt=""
             />
