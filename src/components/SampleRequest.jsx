@@ -686,7 +686,7 @@ const SampleRequest = () => {
         BASE_URL
       );
       const imageResponseData = await uploadImage(editSample.sr_no);
-      togglePopup(responseData.message + " For " + editSample.sr_no);
+      togglePopup(responseData.response + "Updated!");
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
