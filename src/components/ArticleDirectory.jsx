@@ -274,7 +274,7 @@ const ArticleDirectory = () => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-    const imageName = formData.articleName+formData.lastNo;
+    const imageName = formData.articleName+'-'+formData.lastNo;
     const imageResponseData = await uploadImage(imageName);
     const BASE_URL = "article/create";
     try {
