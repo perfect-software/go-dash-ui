@@ -294,7 +294,9 @@ const ArticleDirectory = () => {
         togglePopup(
           responseData.responseStatus.description + " For " + responseData.response);
       }
-      setImagePreview(null);
+ 
+      resetArticle();
+      
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
