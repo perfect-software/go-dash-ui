@@ -671,7 +671,6 @@ const SampleRequest = () => {
         );
         setAllowPrint(true);
       }
-
       dispatch(fetchAllSamples());
     } catch (error) {
       let errorMessage;
@@ -745,10 +744,7 @@ const SampleRequest = () => {
         BASE_URL
       );
       const imageResponseData = await uploadImage(editSample.sr_no);
-      if (responseData.responseStatus && responseData.responseStatus.description) {
-        togglePopup(
-          responseData.responseStatus.description + " For " + editSample.sr_no);
-      }
+      togglePopup(responseData.message + " For " + editSample.sr_no);
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
