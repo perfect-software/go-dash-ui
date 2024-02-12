@@ -5,7 +5,7 @@ import DefaultShoesImage from "../assets/notFound.png";
 import {
   formatDDMMYYYYDate,
 } from "./convertDate";
-
+import { ARTICLE_IMAGE_PATH, SAMPLE_REQUEST_IMAGE_PATH } from "./url";
 const generateQR = async (text) => {
   try {
     return await QRCode.toDataURL(text);
@@ -38,16 +38,18 @@ const loadImageBase64 = async (src) => {
     });
   }
 };
-export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
+export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_image) => {
   const now = new Date();
   const currentDate = now.toLocaleDateString("en-GB", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  console.log(image_url);
   const imageSrc = await loadImageBase64(
-    `http://localhost:8081/images/sample_request/${image_url}`
+    `${SAMPLE_REQUEST_IMAGE_PATH}${image_url}`
+  );
+  const articleImageSrc = await loadImageBase64(
+    `${ARTICLE_IMAGE_PATH}${article_image}`
   );
   const qrCodeSrc = await generateQR(sr_no || "No Reference");
   const currentTime = now.toLocaleTimeString("en-GB", {
@@ -57,63 +59,65 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
     hour12: false,
   });
   const headers = [
-    "BUYER ART.NO.",
-    "ART.NO.",
-    "COLOR",
-    "INSOLE",
-    "LAST",
-    "SOLE",
-    "HEEL",
-    "SIZE",
-    "QTY",
-    "OWN",
-    "TOTAL",
+    { name: "BUYER ART.NO.", width: "12%" },
+    { name: "ART.NO.", width: "8%" },
+    { name: "COLOR", width: "15%" },
+    { name: "INSOLE", width: "15%" },
+    { name: "LAST", width: "15%" },
+    { name: "SOLE", width: "15%" },
+    { name: "HEEL", width: "15%" },
+    { name: "SIZE", width: "5%" },
+    { name: "QTY", width: "5%" },
+    { name: "OWN", width: "5%" },
+    { name: "TOTAL", width: "5%" },
   ];
   const tableRows = [
-    [sampleDetailsForm.articleNo || "N/A"],
-    [sampleDetailsForm.articleNo || "N/A"],
-    [sampleDetailsForm.upperColor || "N/A"],
-    [sampleDetailsForm.insole || "N/A"],
-    [sampleDetailsForm.last || "N/A"],
-    [sampleDetailsForm.soleLabel || "N/A"],
-    [sampleDetailsForm.heel || "N/A"],
-    [sampleDetailsForm.size || "N/A"],
-    [sampleDetailsForm.quantity || "N/A"],
-    [sampleDetailsForm.own || "N/A"],
-    [sampleDetailsForm.total || "N/A"],
+    [{ content: sampleDetailsForm.articleNo || "N/A", width: "10%" }],
+    [{ content: sampleDetailsForm.articleNo || "N/A", width: "10%" }],
+    [{ content: sampleDetailsForm.upperColor || "N/A", width: "15%" }],
+    [{ content: sampleDetailsForm.insole || "N/A", width: "15%" }],
+    [{ content: sampleDetailsForm.last || "N/A", width: "15%" }],
+    [{ content: sampleDetailsForm.soleLabel || "N/A", width: "15%" }],
+    [{ content: sampleDetailsForm.heel || "N/A", width: "15%" }],
+    [{ content: sampleDetailsForm.size || "N/A", width: "5%" }],
+    [{ content: sampleDetailsForm.quantity || "N/A", width: "5%" }],
+    [{ content: sampleDetailsForm.own || "N/A", width: "5%" }],
+    [{ content: sampleDetailsForm.total || "N/A", width: "5%" }],
   ];
 
   const generateHeaders = (headers) => {
     return `
-  <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <tr>
-      ${headers
-        .map(
-          (header) => `
-          <th style="word-wrap: break-word; text-align: center; padding: 2px; border: 0; font-size: 13px; font-weight: bold;">${header}</th>
-
-      `
-        )
-        .join("")}
-    </tr>
-  </table>
-`;
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <tr>
+          ${headers
+            .map(
+              (header) => `
+              <th style="word-wrap: break-word; text-align: center; padding: 2px; border: 0; font-size: 13px; font-weight: bold; width: ${header.width};">${header.name}</th>
+              `
+            )
+            .join("")}
+        </tr>
+      </table>
+    `;
   };
   const generateTable = (rows) => {
     return `
-  <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <tr>
-      ${rows
-        .map(
-          (row) => `
-        <td style="text-align:center;vertical-align: top; padding: 5px; border: 0; font-size: 13px; word-wrap: break-word;">${row}</td>
-      `
-        )
-        .join("")}
-    </tr>
-  </table>
-`;
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+      <tr>
+        ${rows.map(row => `
+         
+            ${row.map(cell => `
+              <td style="text-align:center; vertical-align: top; padding: 5px; border: 0; font-size: 13px; word-wrap: break-word; width: ${cell.width};">
+                ${cell.content}
+              </td>
+            `).join('')}
+        
+        `).join('')}
+        </tr>
+      </table>
+    `;
   };
+
   const invoiceElement = document.createElement("div");
   invoiceElement.style.position = "absolute";
   invoiceElement.style.left = "-9999px";
@@ -121,29 +125,29 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
   invoiceElement.style.height = "210mm";
   document.body.appendChild(invoiceElement);
 
-  invoiceElement.innerHTML =`<div style="font-family: Arial, sans-serif; padding:14px; page-break-after: always;">
+  invoiceElement.innerHTML =`<div style="font-family: Arial, sans-serif; page-break-after: always;padding: 14px;">
   <div style="display: flex; flex-direction:column;  ">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h1>GUPTA H.C. OVERSEAS (I) PVT. LTD</h1>
           <p>SAMPLE ORDER/SPECIFICATION SHEET</p>
           <div style="display:flex; gap:10px;">
-          <p>DATE: ${currentDate}</p>
-          <p>Time: ${currentTime}</p>
-          <p>Page 1 of 1</p>
+          <p style="font-size: 11px;">DATE: ${currentDate}</p>
+          <p style="font-size: 11px;">Time: ${currentTime}</p>
+          <p style="font-size: 11px;">Page 1 of 1</p>
           </div>
         </div>
         <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-           <div style="display: flex; flex-direction:column;  " >
-           <p><strong>BUYER Name : </strong>${sampleDetailsForm.buyer.bsName}</p>
-           <p><strong>INTERNAL REF : </strong>${sampleDetailsForm.internal_ref || "N/A"}</p>
-           <p><strong>BUYER REF : </strong>${sampleDetailsForm.internal_ref || "N/A"}</p>
-           <p><strong>INITIAL </strong></p>
+        <div style="display: flex; justify-content: space-between; width:100%; align-items: top;font-size: 15px; ">
+           <div style="display: flex; flex-direction:column; width:34%">
+           <p style="word-wrap: break-word; "><strong style="margin-right:12px;">BUYER NAME</strong> : ${sampleDetailsForm.buyer.bsName}</p>
+           <p style="word-wrap: break-word; "><strong>INTERNAL REF</strong> : ${sampleDetailsForm.internal_ref || "N/A"}</p>
+           <p style="word-wrap: break-word; "><strong style="margin-right:27px;">BUYER REF</strong> : ${sampleDetailsForm.internal_ref || "N/A"}</p>
+           <p><strong>INITIAL</strong></p>
            </div>
 
 
-           <div style="display: flex; flex-direction:column; align-items:center;  ">
-           <strong>SR NO : ${sampleDetailsForm.sr_no || "N/A"}</strong>
+           <div style="display: flex; flex-direction:column; margin-right:160px; align-items:center;  ">
+           <strong>SR NO : ${sr_no || "N/A"}</strong>
            <p><strong>TYPE OF SAMPLE : </strong>${sampleDetailsForm.sampleType || "N/A"}</p>
            <div style="display:flex; gap:10px;">
            <p><strong>PATTERN : </strong>${sampleDetailsForm.pattern || "N/A"}</p>
@@ -152,9 +156,9 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
            </div>
 
            <div style="display: flex; flex-direction:column;  ">
-           <p><strong>DATE OF ORDER: </strong>${formatDDMMYYYYDate(sampleDetailsForm.dateOfOrder) || "N/A"}</p>
-           <p><strong>PROD EX-FEACT Dt : </strong>${formatDDMMYYYYDate(sampleDetailsForm.prodExDate) || "N/A"}</p>
-           <p><strong>DELIVERY DATE : </strong>${formatDDMMYYYYDate(sampleDetailsForm.deliveryDate) || "N/A"}</p>
+           <p><strong style="margin-right:11px;">DATE OF ORDER</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.dateOfOrder) || "N/A"}</p>
+           <p><strong>PROD EX-FACT Dt</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.prodExDate) || "N/A"}</p>
+           <p><strong style="margin-right:18.7px;">DELIVERY DATE</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.deliveryDate) || "N/A"}</p>
            </div>
 
         </div>
@@ -166,14 +170,19 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
       <div style="border-top: 2px solid #000; margin-top: 5px;"></div>
       ${generateTable(tableRows)}
       <div style="border-top: 2px solid #000; margin-top: 5px;"></div>
-       <div style="display:flex;align-items: center;  font-size: 13px;  ">
-       <p><strong>UPPER : </strong>${sampleDetailsForm.upperColor || "N/A"}</p>
-       <p style="margin-left:20%;"><strong>SOLE LABEL : </strong>${sampleDetailsForm.soleLabel || "N/A"}</p>
+      <div style="display:flex; width:100%;  justify-content: space-between ;align-items: center;  font-size: 13px;  ">
+       <div style="display:flex; flex-direction:column;" >
+       <p><strong style="margin-right:2px">UPPER</strong> : ${sampleDetailsForm.upperColor || "N/A"}</p>
+       <p><strong>LINING</strong> : ${sampleDetailsForm.liningColor || "N/A"}</p>
        </div>
-       <div style="display:flex;  justify-content: space-between; align-items: center;  font-size: 13px; ">
-       <p><strong>LINING : </strong>${sampleDetailsForm.liningColor || "N/A"}</p>
-       <p><strong>SOCK : </strong>${sampleDetailsForm.socks || "N/A"}</p>
-       <strong style="word-wrap: break-word;width:300px; font-size: 16px;">${sampleDetailsForm.leather_remark|| "N/A"}</strong>
+       <div style="display:flex; flex-direction:column;" >
+       <p><strong>SOLE LABEL</strong> : ${sampleDetailsForm.soleLabel || "N/A"}</p>
+       <p><strong style="margin-right:44px">SOCK</strong> : ${sampleDetailsForm.socks || "N/A"}</p>
+       </div>
+       <div style="display:flex;flex-direction:column; width:65%;">
+       <p style="word-wrap: normal;"><strong style="margin-right:24px">SOLE REMARK</strong> : ${sampleDetailsForm.sole_remark|| "N/A"}</p>
+       <p style="word-wrap: break-word;"><strong>LEATHER REMARK</strong> : ${sampleDetailsForm.leather_remark|| "N/A"}</p>
+       </div>
        </div>
        <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
       <div style="display: flex; margin-top: 2px;">
@@ -186,32 +195,34 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no) => {
         <strong style="font-size: 18px; word-wrap: break-word; margin-right:30px">${sampleDetailsForm.comments || "N/A"}</strong>
         </div>
         </div>
-        <div style="width:40%; display: flex; margin-top:20px; justify-content: end;">
-        <div style="border: 2px solid black; padding: 2px; display: inline-flex;">
-        <img src="${qrCodeSrc}" alt="QR Code" style="width: 150px; height: 150px" />
+        <div style="width:50%; display: flex; margin-top:20px; justify-content: end;">
+        <div style="border: 2px solid black; padding: 2px; display: flex;align-items:center;justify-content:center">
+        <img src="${qrCodeSrc}" alt="QR Code" style="width: 140px; height: 140px" />
     </div>
-    <div style="border: 2px solid black; padding: 2px; display: inline-flex; margin-left: 10px;">
-        <img src="${imageSrc}" alt="Sample Image" style="width: 150px; height: 150px" />
+    <div style="border: 2px solid black; padding: 2px; display: flex; flex-direction:column;align-items:center; margin-left: 10px;justify-content:center">
+        <img src="${imageSrc}" alt="Sample Image" style="width: 140px; height: 140px" />
+        <p style="font-size: 12px;margin-bottom:5px">SR Image</p>
     </div>
+    <div style="border: 2px solid black; padding: 2px; display: flex; align-items:center;  flex-direction:column; margin-left: 10px;justify-content:center">
+        <img src="${articleImageSrc}" alt="Sample Image" style="width: 140px; height: 140px" />
+        <p style="font-size: 12px; margin-bottom:5px ">Article Image</p>
+    </div>
+    
     </div>
    
       </div>
       <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
-      <div style="display: flex; justify-content: space-between; margin-top:30px">
-      <div style="text-align: left;">
-        <p style="color: #000;">Seller Signature</p>
-        <div style="width: 180px; height: 40px; border: 1px solid #000000; margin-top: 15px;"></div>
-      </div>
-      <div style="text-align: right;">
-        <p style="color: #000;">Merchandiser Signature</p>
-        <div style="width: 180px; height: 40px; border: 1px solid #000000; margin-top: 15px;"></div>
-      </div>
-   
+    </div>
+    <div style="display: flex; padding:14px; justify-content: space-between; margin-top:30px">
+    <div style="text-align: left;">
+      <p style="color: #000;">Seller Signature</p>
+      <div style="width: 180px; height: 40px; border: 1px solid #000000; margin-top: 15px;"></div>
+    </div>
+    <div style="text-align: right;">
+      <p style="color: #000;">Merchandiser Signature</p>
+      <div style="width: 180px; height: 40px; border: 1px solid #000000; margin-top: 15px;"></div>
+    </div>
         </div>
-  
-      </div>
-   
-        
 `;
 
   const canvas = await html2canvas(invoiceElement, {

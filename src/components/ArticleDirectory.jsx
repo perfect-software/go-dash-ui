@@ -5,12 +5,18 @@ import Cross from "../assets/cross.svg";
 import Downshift from "downshift";
 import axios from "axios";
 import Upload from "../assets/folder-upload.png";
+import { fetchAllArticles } from "../reducer/articleSlice";
+import { useDispatch, useSelector } from "react-redux";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
+import ViewArticle from "./viewArticle";
+import { ARTICLE_IMAGE_PATH } from "../features/url";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [colors, setColors] = useState([]);
+  const [isEditClicked, setIsEditClicked] = useState(false);
+  const [activeButton, setActiveButton] = useState("details");
   const [showInputLoading, setShowInputLoading] = useState({
     animal: false,
     soleType: false,
@@ -23,8 +29,11 @@ const ArticleDirectory = () => {
   });
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [isEditSelected, setIsEditSelected] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const textareaRef = useRef(null);
+  const dispatch = useDispatch();
+  const [editArticle, setEditArticle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [articleForm, setArticleForm] = useState(() => {
@@ -51,7 +60,20 @@ const ArticleDirectory = () => {
           comment: "",
         };
   });
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlRight") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "providedDetails" : "details"
+        );
 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton]);
   useEffect(() => {
     localStorage.setItem("articleForm", JSON.stringify(articleForm));
   }, [articleForm]);
@@ -122,6 +144,25 @@ const ArticleDirectory = () => {
     toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
+const handleArticleEdit =(article)=>{
+ setIsEditSelected(false);
+ if(article) {
+  setIsEditSelected(true);
+   setEditArticle(article);
+  
+ }
+}
+
+const handleEditClick =()=>{
+  setIsEditClicked(true);
+  setActiveButton("details");
+  const { image_nm , ...restOfArticle} = editArticle;
+  setArticleForm({
+    ...articleForm,
+    ...restOfArticle,
+  });
+  setImagePreview(`${ARTICLE_IMAGE_PATH}${image_nm}`);
+ }
 
   const handleArticleChange = (e) => {
     const { name, value } = e.target;
@@ -274,6 +315,46 @@ const ArticleDirectory = () => {
     }
   };
 
+
+  const handleUpdateArticleSubmit = async(e)=>{
+    e.preventDefault();
+    setLoading(true);
+    const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
+      acc[key] = value === "" ? null : value;
+      return acc;
+    }, {});
+    const imageName = formData.articleName+'-'+formData.lastNo;
+    const imageResponseData = await uploadImage(imageName);
+    const BASE_URL = "article/update";
+    try {
+      const updatedArticleForm = {
+        ...formData,
+        image_nm: imageResponseData.response,  
+        articleId: editArticle.articleId,
+      };
+    const responseData = await postApiService(updatedArticleForm, BASE_URL);
+    if (responseData.responseStatus && responseData.responseStatus.description) {
+      togglePopup(
+        responseData.responseStatus.description + " For " + responseData.response);
+    }
+    resetArticle(); 
+    dispatch(fetchAllArticles());
+  } catch (error) {
+    let errorMessage;
+    if (error.response && error.response.data.responseStatus) {
+      errorMessage =
+        error.response.data.responseStatus.description ||
+        `Server error: ${error.response.status}`;
+    } else if (error.request) {
+      errorMessage = "No response received from the server.";
+    }
+    togglePopup(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+
+  }
+
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -296,7 +377,7 @@ const ArticleDirectory = () => {
       }
  
       resetArticle();
-      
+      dispatch(fetchAllArticles());
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
@@ -801,25 +882,57 @@ const ArticleDirectory = () => {
 
   return (
     <div className={styles.articlePageContainer}>
-      <div className={styles.articleDirectoryContainer}>
-        <div className={styles.headContiner}>
-          <div className={styles.simpleSubHeadContainer}>
-            <h1 className={styles.headText}>Article Directory</h1>
-          </div>
-          <div className={styles.subHeadContainerTwo}>
-            <div className={styles.subHeadContainerThree}>
-              <h2>Article Details</h2>
-              <button
-                className={styles.headInsertValueButton}
-                onClick={() => setIsItemHeadPopup(true)}
-              >
-                Insert New Value
-              </button>
-            </div>
-
-            <div className={styles.headBorder}></div>
-          </div>
+      <div className={styles.headContainer}>
+        <div className={styles.subHeadContainer}>
+        <h1
+            className={styles.headText}
+          >
+            {activeButton === "details"
+              ? isEditClicked
+                ? `Update Article: ${
+                    isEditClicked && editArticle.articleName && editArticle.articleName
+                  }`
+                : "Article Directory"
+              : "Article Search"}
+          </h1>
         </div>
+        <div className={styles.subHeadContainerTwo}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className={styles.topButtons}>
+            <button
+              className={`${styles.screenChangeButton} ${
+                activeButton === "details" ? styles.active : ""
+              }`}
+              onClick={() => setActiveButton("details")}
+            >
+              Article Details
+            </button>
+            <button
+              className={`${styles.screenChangeButton} ${
+                activeButton === "view" ? styles.active : ""
+              }`}
+              onClick={() => setActiveButton("view")}
+            >
+              View Article
+            </button>
+          </div>
+          {activeButton === "view" && (
+              <div className={styles.editContainer}>
+                <button
+                 disabled={!isEditSelected}
+                  className={styles.headButton}
+                  onClick={handleEditClick}
+                >
+                 Update
+                </button>
+              </div>
+            )}
+           </div>
+          <div className={styles.headBorder}></div>
+        </div>
+      </div>
+      {activeButton === "details" ? (
+        <>
         <div className={styles.articleTopGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
@@ -1039,29 +1152,55 @@ const ArticleDirectory = () => {
               </div>
         
         </div>
-      </div>
-      <div style={{marginTop:'50px'}} className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
+
+        <div className={styles.parentButtonContainer}>
+            {loading ? (
+              <div className={styles.buttonContainer}>
+                <div className={styles.loader}></div>
+              </div>
+            ) : (
+              <div className={styles.buttonContainer}>
+                {isEditClicked ? (
+                  <>
+                    <button
+                      onClick={handleUpdateArticleSubmit}
+                      className={styles.submitButton}
+                    >
+                      Submit
+                    </button>{" "}
+                    <button
+                      className={styles.resetButton}
+                      onClick={() => {
+                        resetArticle();
+                        setIsEditClicked(false);
+                        setIsEditSelected(false);
+                        setEditArticle(null);
+                      }}
+                    >
+                      Go Back
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className={styles.resetButton}
+                      onClick={resetArticle}
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={handleSubmitArticleClick}
+                      className={styles.submitButton}
+                    >
+                      Submit
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button
-              className={styles.resetButton}
-              onClick={() => resetArticle()}
-            >
-              Reset
-            </button>
-            <button
-              className={styles.submitButton}
-              onClick={handleSubmitArticleClick}
-            >
-              Submit
-            </button>
-          </div>
-        )}
-      </div>
+   
+    
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>
@@ -1099,6 +1238,10 @@ const ArticleDirectory = () => {
           }}
           itemForm={articleForm}
         />
+      )}
+      </>
+      ) : (
+        <ViewArticle onArticleSelect={handleArticleEdit}/>
       )}
     </div>
   );

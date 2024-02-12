@@ -7,6 +7,7 @@ import {
   formatToLocalDDMMYYYY,
 } from "./convertDate";
 import DefaultShoesImage from "../assets/notFound.png";
+import { ARTICLE_IMAGE_PATH, SAMPLE_REQUEST_IMAGE_PATH } from "./url";
 
 const generateQR = async (text) => {
   try {
@@ -81,20 +82,23 @@ export const generateOnSubmitPDF = async (sampleDetailsForm) => {
 
 const generateDocumentUI = async (data, index, totalPages) => {
   const headers = [
-    "BUYER ART.NO.",
-    "ART.NO.",
-    "COLOR",
-    "INSOLE",
-    "LAST",
-    "SOLE",
-    "HEEL",
-    "SIZE",
-    "QTY",
-    "OWN",
-    "TOTAL",
+    { name: "BUYER ART.NO.", width: "12%" },
+    { name: "ART.NO.", width: "8%" },
+    { name: "COLOR", width: "15%" },
+    { name: "INSOLE", width: "15%" },
+    { name: "LAST", width: "15%" },
+    { name: "SOLE", width: "15%" },
+    { name: "HEEL", width: "15%" },
+    { name: "SIZE", width: "5%" },
+    { name: "QTY", width: "5%" },
+    { name: "OWN", width: "5%" },
+    { name: "TOTAL", width: "5%" },
   ];
   const imageSrc = await loadImageBase64(
-    `http://localhost:8081/images/sample_request/${data.image_nm}`
+    `${SAMPLE_REQUEST_IMAGE_PATH}${data.image_nm}`
+  );
+  const articleImageSrc = await loadImageBase64(
+    `${ARTICLE_IMAGE_PATH}${data.article_image}`
   );
   const qrCodeSrc = await generateQR(data.sr_no || "No Reference");
   const now = new Date();
@@ -111,50 +115,53 @@ const generateDocumentUI = async (data, index, totalPages) => {
   });
  
   const tableRows = [
-    [data.articleNo || "N/A"],
-    [data.articleNo || "N/A"],
-    [data.upperColor || "N/A"],
-    [data.insole || "N/A"],
-    [data.last || "N/A"],
-    [data.soleLabel || "N/A"],
-    [data.heel || "N/A"],
-    [data.size || "N/A"],
-    [data.quantity || "N/A"],
-    [data.own || "N/A"],
-    [data.total || "N/A"],
+    [{ content: data.articleNo || "N/A", width: "10%" }],
+    [{ content: data.articleNo || "N/A", width: "10%" }],
+    [{ content: data.upperColor || "N/A", width: "15%" }],
+    [{ content: data.insole || "N/A", width: "15%" }],
+    [{ content: data.last || "N/A", width: "15%" }],
+    [{ content: data.soleLabel || "N/A", width: "15%" }],
+    [{ content: data.heel || "N/A", width: "15%" }],
+    [{ content: data.size || "N/A", width: "5%" }],
+    [{ content: data.quantity || "N/A", width: "5%" }],
+    [{ content: data.own || "N/A", width: "5%" }],
+    [{ content: data.total || "N/A", width: "5%" }],
   ];
+  
 
   const generateHeaders = (headers) => {
     return `
-  <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <tr>
-      ${headers
-        .map(
-          (header) => `
-          <th style="word-wrap: break-word; text-align: center; padding: 2px; border: 0; font-size: 13px; font-weight: bold;">${header}</th>
-
-      `
-        )
-        .join("")}
-    </tr>
-  </table>
-`;
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <tr>
+          ${headers
+            .map(
+              (header) => `
+              <th style="word-wrap: break-word; text-align: center; padding: 2px; border: 0; font-size: 13px; font-weight: bold; width: ${header.width};">${header.name}</th>
+              `
+            )
+            .join("")}
+        </tr>
+      </table>
+    `;
   };
   const generateTable = (rows) => {
     return `
-  <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <tr>
-      ${rows
-        .map(
-          (row) => `
-        <td style="text-align:center;vertical-align: top; padding: 5px; border: 0; font-size: 13px; word-wrap: break-word;">${row}</td>
-      `
-        )
-        .join("")}
-    </tr>
-  </table>
-`;
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+      <tr>
+        ${rows.map(row => `
+         
+            ${row.map(cell => `
+              <td style="text-align:center; vertical-align: top; padding: 5px; border: 0; font-size: 13px; word-wrap: break-word; width: ${cell.width};">
+                ${cell.content}
+              </td>
+            `).join('')}
+        
+        `).join('')}
+        </tr>
+      </table>
+    `;
   };
+  
 
   return ` <div key=${index} style="font-family: Arial, sans-serif; page-break-after: always;">
   <div style="display: flex; flex-direction:column;  ">
@@ -162,22 +169,22 @@ const generateDocumentUI = async (data, index, totalPages) => {
           <h1>GUPTA H.C. OVERSEAS (I) PVT. LTD</h1>
           <p>SAMPLE ORDER/SPECIFICATION SHEET</p>
           <div style="display:flex; gap:10px;">
-          <p>DATE: ${currentDate}</p>
-          <p>Time: ${currentTime}</p>
-          <p>Page ${index + 1} of ${totalPages}</p>
+          <p style="font-size: 11px;">DATE: ${currentDate}</p>
+          <p style="font-size: 11px;">Time: ${currentTime}</p>
+          <p style="font-size: 11px;">Page ${index + 1} of ${totalPages}</p>
           </div>
         </div>
         <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-           <div style="display: flex; flex-direction:column;  " >
-           <p><strong>BUYER Name : </strong>${data.buyer.bsName}</p>
-           <p><strong>INTERNAL REF : </strong>${data.internal_ref || "N/A"}</p>
-           <p><strong>BUYER REF : </strong>${data.internal_ref || "N/A"}</p>
-           <p><strong>INITIAL </strong></p>
+        <div style="display: flex; justify-content: space-between; width:100%; align-items: top;font-size: 15px; ">
+           <div style="display: flex; flex-direction:column; width:34%">
+           <p style="word-wrap: break-word; "><strong style="margin-right:12px;">BUYER NAME</strong> : ${data.buyer.bsName}</p>
+           <p style="word-wrap: break-word; "><strong>INTERNAL REF</strong> : ${data.internal_ref || "N/A"}</p>
+           <p style="word-wrap: break-word; "><strong style="margin-right:27px;">BUYER REF</strong> : ${data.internal_ref || "N/A"}</p>
+           <p><strong>INITIAL</strong></p>
            </div>
 
 
-           <div style="display: flex; flex-direction:column; align-items:center;  ">
+           <div style="display: flex; flex-direction:column; margin-right:160px; align-items:center;  ">
            <strong>SR NO : ${data.sr_no || "N/A"}</strong>
            <p><strong>TYPE OF SAMPLE : </strong>${data.sampleType || "N/A"}</p>
            <div style="display:flex; gap:10px;">
@@ -187,9 +194,9 @@ const generateDocumentUI = async (data, index, totalPages) => {
            </div>
 
            <div style="display: flex; flex-direction:column;  ">
-           <p><strong>DATE OF ORDER: </strong>${formatDDMMYYYYDate(data.dateOfOrder) || "N/A"}</p>
-           <p><strong>PROD EX-FEACT Dt : </strong>${formatDDMMYYYYDate(data.prodExDate) || "N/A"}</p>
-           <p><strong>DELIVERY DATE : </strong>${formatDDMMYYYYDate(data.deliveryDate) || "N/A"}</p>
+           <p><strong style="margin-right:11px;">DATE OF ORDER</strong> : ${formatDDMMYYYYDate(data.dateOfOrder) || "N/A"}</p>
+           <p><strong>PROD EX-FACT Dt</strong> : ${formatDDMMYYYYDate(data.prodExDate) || "N/A"}</p>
+           <p><strong style="margin-right:18.7px;">DELIVERY DATE</strong> : ${formatDDMMYYYYDate(data.deliveryDate) || "N/A"}</p>
            </div>
 
         </div>
@@ -201,14 +208,19 @@ const generateDocumentUI = async (data, index, totalPages) => {
       <div style="border-top: 2px solid #000; margin-top: 5px;"></div>
       ${generateTable(tableRows)}
       <div style="border-top: 2px solid #000; margin-top: 5px;"></div>
-       <div style="display:flex;align-items: center;  font-size: 13px;  ">
-       <p><strong>UPPER : </strong>${data.upperColor || "N/A"}</p>
-       <p style="margin-left:20%;"><strong>SOLE LABEL : </strong>${data.soleLabel || "N/A"}</p>
+      <div style="display:flex; width:100%;  justify-content: space-between ;align-items: center;  font-size: 13px;  ">
+       <div style="display:flex; flex-direction:column;" >
+       <p><strong style="margin-right:2px">UPPER</strong> : ${data.upperColor || "N/A"}</p>
+       <p><strong>LINING</strong> : ${data.liningColor || "N/A"}</p>
        </div>
-       <div style="display:flex;  justify-content: space-between; align-items: center;  font-size: 13px; ">
-       <p><strong>LINING : </strong>${data.liningColor || "N/A"}</p>
-       <p><strong>SOCK : </strong>${data.socks || "N/A"}</p>
-       <strong style="word-wrap: break-word;width:300px; font-size: 16px;">${data.leather_remark|| "N/A"}</strong>
+       <div style="display:flex; flex-direction:column;" >
+       <p><strong>SOLE LABEL</strong> : ${data.soleLabel || "N/A"}</p>
+       <p><strong style="margin-right:44px">SOCK</strong> : ${data.socks || "N/A"}</p>
+       </div>
+       <div style="display:flex;flex-direction:column; width:65%;">
+       <p style="word-wrap: normal;"><strong style="margin-right:24px">SOLE REMARK</strong> : ${data.sole_remark|| "N/A"}</p>
+       <p style="word-wrap: break-word;"><strong>LEATHER REMARK</strong> : ${data.leather_remark|| "N/A"}</p>
+       </div>
        </div>
        <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
       <div style="display: flex; margin-top: 2px;">
@@ -221,12 +233,17 @@ const generateDocumentUI = async (data, index, totalPages) => {
         <strong style="font-size: 18px; word-wrap: break-word; margin-right:30px">${data.comments || "N/A"}</strong>
         </div>
         </div>
-        <div style="width:40%; display: flex; margin-top:20px; justify-content: end;">
-        <div style="border: 2px solid black; padding: 2px; display: inline-flex;">
-        <img src="${qrCodeSrc}" alt="QR Code" style="width: 150px; height: 150px" />
+        <div style="width:50%; display: flex; margin-top:20px; justify-content: end;">
+        <div style="border: 2px solid black; padding: 2px; display: flex;align-items:center;justify-content:center">
+        <img src="${qrCodeSrc}" alt="QR Code" style="width: 140px; height: 140px" />
     </div>
-    <div style="border: 2px solid black; padding: 2px; display: inline-flex; margin-left: 10px;">
-        <img src="${imageSrc}" alt="Sample Image" style="width: 150px; height: 150px" />
+    <div style="border: 2px solid black; padding: 2px; display: flex; flex-direction:column;align-items:center; margin-left: 10px;justify-content:center">
+        <img src="${imageSrc}" alt="Sample Image" style="width: 140px; height: 140px" />
+        <p style="font-size: 12px;margin-bottom:5px">SR Image</p>
+    </div>
+    <div style="border: 2px solid black; padding: 2px; display: flex; align-items:center;  flex-direction:column; margin-left: 10px;justify-content:center">
+        <img src="${articleImageSrc}" alt="Sample Image" style="width: 140px; height: 140px" />
+        <p style="font-size: 12px; margin-bottom:5px ">Article Image</p>
     </div>
     
     </div>

@@ -22,6 +22,7 @@ import Downshift from "downshift";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
+import { fetchAllArticles } from "../reducer/articleSlice";
 import { generateOnSubmitPDF } from "../features/generateOnSubmitPDF";
 import InfoPopup from "../popups/InfoPopup";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
@@ -34,6 +35,7 @@ const SampleRequest = () => {
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
   const [articleImageView, setArticleImageView] = useState(null);
+  const [articleURL, setArticleURL] = useState(null);
   const [printForm, setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const [multipleSelected, setMultipleSelected] = useState(false);
@@ -78,8 +80,8 @@ const SampleRequest = () => {
   const [colors, setColors] = useState([]);
   const [itemsData, setItemsData] = useState([]);
   const [sampleRefrences, setSampleRefrences] = useState([]);
-  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const [bsId, setBsID] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
@@ -97,6 +99,9 @@ const SampleRequest = () => {
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [editSample, setEditSample] = useState(null);
   const [printSrNo, setPrintSrNo] = useState("");
+  const { articles, articleLoaded, articleLoading, articleError } = useSelector(
+    (state) => state.article
+  );
   const [sampleDetailsForm, setSampleDetailsForm] = useState(() => {
     const savedForm = localStorage.getItem("sampleDetailsForm");
     return savedForm
@@ -401,6 +406,7 @@ const SampleRequest = () => {
         articleNo: selectedArticle.articleName,
       });
       setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`);
+      setArticleURL(selectedArticle.image_nm);
       setTempArticeNo(selectedArticle.articleId);
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
@@ -449,13 +455,21 @@ const SampleRequest = () => {
       setArticleImageView(
         `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}`
       );
+      setArticleURL(selectedSample.article_image);
       setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
       setValidation((prev) => ({ ...prev, bsName: "valid" }));
     }
   };
   const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm, imageUrl, printSrNo);
+    setPrintLoading(true);
+    try {
+      await generatePDF(sampleDetailsForm, imageUrl, printSrNo, articleURL);
+    } catch (error) {
+      console.log("Error in printing pdf");
+    } finally {
+      setPrintLoading(false);
+    }
   };
 
   const handleDropItemChange = (e) => {
@@ -523,8 +537,8 @@ const SampleRequest = () => {
     if (itemsData.length === 0) {
       getItems();
     }
-    if (articles.length === 0) {
-      fetchAllarticles();
+    if (!articleLoaded && !articleLoading) {
+      dispatch(fetchAllArticles());
     }
   }, []);
 
@@ -535,15 +549,6 @@ const SampleRequest = () => {
       setItemsData(response);
     } catch (error) {
       console.error("Failed to fetch Items:", error);
-    }
-  };
-  const fetchAllarticles = async () => {
-    const url = "article/getArticle";
-    try {
-      const response = await getApiService(url);
-      setArticles(response);
-    } catch (error) {
-      console.error("Failed to Article", error);
     }
   };
   useEffect(() => {
@@ -658,7 +663,10 @@ const SampleRequest = () => {
         updatedSampleDetailsForm,
         "sample/create"
       );
-      if (createSampleResponse.responseStatus && createSampleResponse.responseStatus.description) {
+      if (
+        createSampleResponse.responseStatus &&
+        createSampleResponse.responseStatus.description
+      ) {
         const srno = createSampleResponse.response;
         console.log(srno);
         const imageResponseData = await uploadImage(srno);
@@ -736,7 +744,6 @@ const SampleRequest = () => {
       sample_id: editSample.sampleId,
       articleNo: tempArticleNo,
     };
-
     const BASE_URL = "sample/update";
     try {
       const responseData = await putApiService(
@@ -744,7 +751,9 @@ const SampleRequest = () => {
         BASE_URL
       );
       const imageResponseData = await uploadImage(editSample.sr_no);
-      togglePopup(responseData.message + " For " + editSample.sr_no);
+      togglePopup(
+        responseData.responseStatus.description + " For " + editSample.sr_no
+      );
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
@@ -1135,6 +1144,7 @@ const SampleRequest = () => {
           });
           setTempArticeNo(selectedItem.articleId);
           setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}`);
+          setArticleURL(selectedItem.imageUrl);
           toggleSuggestVisibility("articleNo", false);
         }
       }}
@@ -2208,14 +2218,17 @@ const SampleRequest = () => {
                 >
                   OK
                 </button>
-                {allowPrint && (
-                  <button
-                    className={styles.popupButtonPrint}
-                    onClick={handleViewPDF}
-                  >
-                    Print
-                  </button>
-                )}
+                {allowPrint &&
+                  (printLoading ? (
+                    <div style={{marginLeft:'35px', marginTop:'15px'}} className={styles.loader}></div>
+                  ) : (
+                    <button
+                      className={styles.popupButtonPrint}
+                      onClick={handleViewPDF}
+                    >
+                      Print
+                    </button>
+                  ))}
               </div>
             </div>
           )}
