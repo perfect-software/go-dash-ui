@@ -91,7 +91,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       headerName: "Username",
       field: "buyer.username",
       sortable: true,
-      width:200,
+      width:130,
       filter: true,
     },
     {
@@ -304,7 +304,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "10px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}

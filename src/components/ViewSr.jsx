@@ -109,13 +109,13 @@ const ViewSr = ({ onSampleSelect }) => {
       headerName: "Username",
       field: "buyer.username",
       sortable: true,
-      width:200,
+      width:130,
       filter: true,
     },
     {
       headerName: "SR Image",
       field: "image_nm",
-      width: 125,
+      width: 150,
       filter: true,
       cellRenderer: (params) => {
         return params.value ? (
@@ -126,7 +126,7 @@ const ViewSr = ({ onSampleSelect }) => {
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        ) : null;
+        ):'Image not Found';
       },
     },
     {

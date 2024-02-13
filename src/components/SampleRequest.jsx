@@ -34,7 +34,6 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
-  const [articleImageView, setArticleImageView] = useState(null);
   const [articleURL, setArticleURL] = useState(null);
   const [printForm, setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
@@ -313,6 +312,7 @@ const SampleRequest = () => {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [articleImageView, setArticleImageView] = useState(null);
 
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
@@ -405,7 +405,8 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
-      setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`);
+      const articleImageUrl = selectedArticle.image_nm ? `${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}` : null;
+      setArticleImageView(articleImageUrl);
       setArticleURL(selectedArticle.image_nm);
       setTempArticeNo(selectedArticle.articleId);
       toggleSuggestVisibility("article", false);
@@ -452,9 +453,8 @@ const SampleRequest = () => {
           ? getformatDate(selectedSample.prodExDate)
           : "",
       });
-      setArticleImageView(
-        `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}`
-      );
+      const articleImageUrl = selectedSample.article_image ? `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}` : null;
+      setArticleImageView(articleImageUrl);
       setArticleURL(selectedSample.article_image);
       setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
@@ -614,6 +614,7 @@ const SampleRequest = () => {
       JSON.stringify(sampleDetailsForm)
     );
   };
+  
   const uploadImage = async (srno) => {
     if (!imageFile) {
       console.log("No image file selected for upload");
@@ -622,51 +623,54 @@ const SampleRequest = () => {
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("fileName", srno);
-    formData.append("type", "sample");
+    formData.append("type", 'sample');
 
     try {
       const response = await axios.post(
         "http://localhost:8081/api/generic/upload",
         formData,
         {
+
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "multipart/form-data ",
           },
         }
       );
       console.log("Image uploaded successfully:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setLoading(false);
-      console.log();
+      let errorMessage;
+      if (response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
       return null;
     }
   };
-
+ 
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-
     const updatedSampleDetailsForm = {
       ...sampleDetailsForm,
       dateOfOrder: formattedDate,
       articleNo: tempArticleNo,
       finYear: "2024",
     };
-
     try {
       const createSampleResponse = await postApiService(
         updatedSampleDetailsForm,
         "sample/create"
       );
-      if (
-        createSampleResponse.responseStatus &&
-        createSampleResponse.responseStatus.description
-      ) {
+      if (createSampleResponse.responseStatus &&
+        createSampleResponse.responseStatus.description) {
         const srno = createSampleResponse.response;
         console.log(srno);
         const imageResponseData = await uploadImage(srno);
@@ -724,8 +728,8 @@ const SampleRequest = () => {
   }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-      const imageUrl = `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}`;
-      const articleImageUrl = `${ARTICLE_IMAGE_PATH}${editSample.article_image}`;
+    const imageUrl = editSample.image_nm ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}` : null;
+     const articleImageUrl = editSample.article_image ? `${ARTICLE_IMAGE_PATH}${editSample.article_image}` : null;
       setImagePreview(imageUrl);
       setArticleImageView(articleImageUrl);
       setRemoveImage(true);
@@ -739,18 +743,20 @@ const SampleRequest = () => {
       setLoading(false);
       return;
     }
-    const updatedSampleDetailsForm = {
-      ...sampleDetailsForm,
-      sample_id: editSample.sampleId,
-      articleNo: tempArticleNo,
-    };
+    const imageResponseData = await uploadImage(editSample.sr_no);
+    const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "sample/update";
     try {
+      const updatedSampleDetailsForm = {
+        ...sampleDetailsForm,
+        sample_id: editSample.sampleId,
+        articleNo: tempArticleNo,
+        image_nm: imageNm,  
+      };
       const responseData = await putApiService(
         updatedSampleDetailsForm,
         BASE_URL
       );
-      const imageResponseData = await uploadImage(editSample.sr_no);
       togglePopup(
         responseData.responseStatus.description + " For " + editSample.sr_no
       );
@@ -1143,8 +1149,8 @@ const SampleRequest = () => {
             articleNo: selectedItem.articleName,
           });
           setTempArticeNo(selectedItem.articleId);
-          setArticleImageView(`${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}`);
-          setArticleURL(selectedItem.imageUrl);
+          const articleImageUrl = selectedItem.imageUrl ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}` : null;
+          setArticleURL(articleImageUrl);
           toggleSuggestVisibility("articleNo", false);
         }
       }}
@@ -1609,11 +1615,13 @@ const SampleRequest = () => {
                         />
                       </div>
                     ) : (
-                      <img
+                      <div className={styles.imagepreview2}>
+                       <img
                         src={BlankImage}
                         alt="Image Placeholder"
                         className={styles.blankImagePlaceholder}
                       />
+                      </div>
                     )}
                   </div>
                   <p className={styles.articleImageText}>Article Image</p>

@@ -206,7 +206,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "10px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}

@@ -106,18 +106,18 @@ const ViewArticle = ({onArticleSelect}) => {
     {
       headerName: "Article Image",
       field: "image_nm",
-      width: 125,
+      width: 150,
       filter: true,
       cellRenderer: (params) => {
         const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
-        return (
+          return params.value ? (
           <img
             src={imageUrl}
             alt="Image"
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        );
+        ): 'Image not Found';
       },
     },
     {

@@ -73,18 +73,18 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
     {
       headerName: "Image",
       field: "image_nm",
-      width: 125,
+      width: 150,
       filter: true,
       cellRenderer: (params) => {
         const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
-        return (
+        return params.value ? (
           <img
             src={imageUrl}
             alt="Image"
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        );
+          ): 'Image not Found';
       },
     },
     {
@@ -241,7 +241,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             </div>
             <div
               className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-              style={{ height: 600, width: "100%", marginTop: "10px" }}
+              style={{ height: 550, width: "100%", marginTop: "10px" }}
             >
               <AgGridReact
                 columnDefs={columnDefs}

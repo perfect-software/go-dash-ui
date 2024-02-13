@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
-import { getApiService, postApiService } from "../service/apiService";
+import { getApiService, postApiService, putApiService } from "../service/apiService";
 import Cross from "../assets/cross.svg";
 import Downshift from "downshift";
 import axios from "axios";
@@ -161,7 +161,8 @@ const handleEditClick =()=>{
     ...articleForm,
     ...restOfArticle,
   });
-  setImagePreview(`${ARTICLE_IMAGE_PATH}${image_nm}`);
+  const articleImageUrl = image_nm ? `${ARTICLE_IMAGE_PATH}${image_nm}` : null;
+  setImagePreview(articleImageUrl);
  }
 
   const handleArticleChange = (e) => {
@@ -282,7 +283,6 @@ const handleEditClick =()=>{
       console.log("No image file selected for upload");
       return null;
     }
-
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("fileName", name);
@@ -303,7 +303,7 @@ const handleEditClick =()=>{
       return response.data;
     } catch (error) {
       let errorMessage;
-      if (error.response && error.response.data.responseStatus) {
+      if (response.data.responseStatus) {
         errorMessage =
           error.response.data.responseStatus.description ||
           `Server error: ${error.response.status}`;
@@ -325,14 +325,15 @@ const handleEditClick =()=>{
     }, {});
     const imageName = formData.articleName+'-'+formData.lastNo;
     const imageResponseData = await uploadImage(imageName);
+    const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "article/update";
     try {
       const updatedArticleForm = {
         ...formData,
-        image_nm: imageResponseData.response,  
+        image_nm: imageNm,  
         articleId: editArticle.articleId,
       };
-    const responseData = await postApiService(updatedArticleForm, BASE_URL);
+    const responseData = await putApiService(updatedArticleForm, BASE_URL);
     if (responseData.responseStatus && responseData.responseStatus.description) {
       togglePopup(
         responseData.responseStatus.description + " For " + responseData.response);
