@@ -18,7 +18,7 @@
   @apply col-span-2 flex flex-row items-center gap-1;
 }
 .popupContainer {
-  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
+  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col py-1 px-2 items-center rounded-[0.625rem] text-center overflow-auto;
 }
 .sampleLabel {
   @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
@@ -39,7 +39,7 @@
     height: 2.5rem;
   }
 .topBarContainer h1 {
-  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400];
+  @apply text-[#00ADB5] text-[1rem] m-0;
 }
 
 .crossIcon {
@@ -55,24 +55,23 @@
   @apply flex w-full justify-between;
 }
 
-.bottomPopupContainer {
-  @apply flex justify-center w-full mt-3;
-}
 
 .popupButton {
   @apply flex bg-[#001314] items-center justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
 
 .selectPopupButton {
-  @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+  @apply flex items-center bg-[#00A5AD] justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
-
+.navigatePopupButton {
+  @apply flex bg-[#001314] items-center justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
 .viewButton {
   @apply flex items-center rounded-sm bg-[#0de37f] font-bold justify-center h-[1.4rem] w-[4rem];
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 .bottomButtonContainer {
-  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-3;
+  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
 }
 .bottomInventoryButtonContainer
 {
@@ -90,11 +89,11 @@
 }
 .bottomInventoryButtonContainer h3
 {
-  @apply sml:text-[0.8rem];
+  @apply text-[0.8rem];
   color: rgba(91, 91, 91, 1);
 }
 .bottomButtonContainer h3 {
-  @apply sml:text-[0.8rem];
+  @apply text-[0.8rem];
   color: rgba(91, 91, 91, 1);
 }
 .agThemeQuartz ::-webkit-scrollbar {

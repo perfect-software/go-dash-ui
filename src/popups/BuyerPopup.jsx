@@ -206,7 +206,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 550, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "5px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
@@ -225,7 +225,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
           <div className={styles.bottomButtonContainer}>
             <h3>Couldn't find the Buyer ?</h3>
             <button
-              className={styles.popupButton}
+              className={styles.navigatePopupButton}
               onClick={() => navigate("/buyer")}
             >
               Add New Buyer

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import styles from "../styles/sampleDirPopup.module.css";
+import styles from "../styles/popupTable.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -286,8 +286,8 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   return (
     isPopupVisible && (
       <div className={styles.popupOverlay}>
-        <div className={styles.sampleDirPopupContainer}>
-          <div className={styles.topsampleDirPopupContainer}>
+        <div className={styles.popupContainer}>
+          <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
               <h1>Sample Directory</h1>
               <img
@@ -304,7 +304,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 550, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "5px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
@@ -321,7 +321,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
             />
           </div>
 
-          <div className={styles.bottomSampleButtonContainer}>
+          <div className={styles.bottomButtonContainer}>
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}

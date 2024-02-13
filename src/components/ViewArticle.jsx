@@ -117,7 +117,7 @@ const ViewArticle = ({onArticleSelect}) => {
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        ): 'Image not Found';
+        ): 'No Image';
       },
     },
     {

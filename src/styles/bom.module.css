@@ -330,9 +330,8 @@ select {
   opacity: 0.8;
 }
 .addBtn {
-  @apply w-[5rem] h-[2.2rem] text-[1.125vw] sml:text-sm font-[700] p-[1rem] text-white 
-  leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
-  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+  @apply flex items-center bg-[#00A5AD] justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+
 }
 
 .addBtn:hover {
@@ -404,3 +403,25 @@ select {
 
 
 
+.agThemeQuartz ::-webkit-scrollbar {
+  display: block; /* or 'auto' */
+  height:8px;
+  width:4px;
+}
+.agThemeQuartz {
+  /* bright green, 10% opacity */
+  @apply text-left;
+  --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
+}
+
+.agThemeQuartz ::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+}
+
+.agThemeQuartz ::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
+}

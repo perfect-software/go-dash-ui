@@ -30,7 +30,7 @@ const MENU_ITEMS = {
   sample: {
     title: "Sample",
     icon: SampleIcon,
-    subItems: ["Sample Request", "BOM","Sample Pipeline","Sample Progress"],
+    subItems: ["Sample Request", "SR BOM","Sample Pipeline","Sample Progress"],
   },
   sales: {
     title: "Sales",
@@ -65,7 +65,7 @@ const SUBITEM_ICONS = {
   Gatepass: GatePassIcon,
   "New Work Order": NewWorkIcon,
   "New Job": NewJobIcon,
-  BOM: BomIcon,
+  "SR BOM": BomIcon,
   "Article Directory": ArticleIcon,
   "Item Directory": ItemIcon,
   "Item Quotation":GatePassIcon,

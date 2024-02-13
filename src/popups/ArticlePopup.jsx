@@ -5,7 +5,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import inputStyles from "../styles/inputDetails.module.css";
 import { useNavigate } from "react-router-dom";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
-import styles from "../styles/articlePopup.module.css";
+import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { fetchAllArticles } from "../reducer/articleSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,7 +84,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-          ): 'Image not Found';
+          ): 'No Image';
       },
     },
     {
@@ -225,8 +225,8 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   return (
     isPopupVisible && (
       <div className={styles.popupOverlay}>
-        <div className={styles.articlePopupContainer}>
-          <div className={styles.toparticlePopupContainer}>
+        <div className={styles.popupContainer}>
+          <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
               <h1>Article Directory</h1>
               <img
@@ -241,7 +241,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             </div>
             <div
               className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-              style={{ height: 550, width: "100%", marginTop: "10px" }}
+              style={{ height: 550, width: "100%", marginTop: "5px" }}
             >
               <AgGridReact
                 columnDefs={columnDefs}
@@ -259,19 +259,18 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
             </div>
           </div>
 
-         
-       
-          <div className={styles.bottomarticleButtonContainer}>
+
+          <div className={styles.bottomButtonContainer}>
             <h3>Couldn't find the Article ?</h3>
             <button
-              className={styles.articlePopupButton}
+              className={styles.navigatePopupButton}
               onClick={() => navigate("/articledirectory")}
             >
               Add New Article
             </button>
             <button
            disabled={!rowSelect}
-              className={styles.articleSelectPopupButton}
+              className={styles.selectPopupButton}
               onClick={() => {
                 onSubmitArticleData(selectedArticle);
               }}

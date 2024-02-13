@@ -1,5 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import styles from "../styles/bom.module.css";
+import React, { useState, useEffect, useRef , useMemo} from "react";
+import styles from "../styles/inputDetails.module.css";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
+import tableStyles from "../styles/bom.module.css";
 import Downshift from "downshift";
 import { useSelector, useDispatch } from "react-redux";
 import { getformatDate } from "../features/convertDate";
@@ -37,9 +41,9 @@ const MaterialTable = ({ bomData, setBomData }) => {
     usedIn: "",
     pair: "",
     supplierId: { name: "", id: "" },
-    stockConsumedQty: "",
     bomQty: "",
     unit: "",
+
     requiredQty: "",
     rate: "",
     cost: "",
@@ -51,7 +55,6 @@ const MaterialTable = ({ bomData, setBomData }) => {
     const requiredFields = [
       "itemId",
       "supplierId",
-      "stockConsumedQty",
       "bomQty",
       "unit",
       "requiredQty",
@@ -298,7 +301,6 @@ const MaterialTable = ({ bomData, setBomData }) => {
         bomQty: newItem.bomQty,
         supplierId: newItem.supplierId.id,
         supplierName: newItem.supplierId.name,
-        stockConsumedQty: newItem.stockConsumedQty,
         unit: newItem.unit,
         requiredQty: newItem.requiredQty,
         rate: newItem.rate,
@@ -335,12 +337,10 @@ const MaterialTable = ({ bomData, setBomData }) => {
       usedIn: "",
       pair: "",
       supplierId: { name: "", id: "" },
-      stockConsumedQty: "",
       bomQty: "",
       unit: "",
       requiredQty: "",
       rate: "",
-      cost: "",
     });
   };
 
@@ -384,6 +384,40 @@ const MaterialTable = ({ bomData, setBomData }) => {
       return newData;
     });
   };
+  const columnDefs = useMemo(() => [
+    { field: 'groupName', headerName: 'Group',width:150 ,   tooltipField: 'groupName',},
+    { field: 'subgroupName', headerName: 'Subgroup' , width:150 , tooltipField: 'subgroupName'},
+    { field: 'itemName', headerName: 'Item Name',width:150, tooltipField: 'itemName'},
+    { field: 'usedIn', headerName: 'Used In', width:89 },
+    { field: 'pair', headerName: 'Pair' ,width:89 },
+    { field: 'bomQty', headerName: 'BOM Qty', width:89 },
+    { field: 'requiredQty', headerName: 'Extra',width:89 },
+    { field: 'rate', headerName: 'Rate' ,width:89 },
+    { field: 'unit', headerName: 'Unit',  width:89 },
+    { field: 'supplierId', headerName: 'Supplier',width:89 },
+    { field: 'cost', headerName: 'Cost' ,width:89},
+    {
+      field: 'action',
+      headerName: 'Action',
+      width:70,
+      cellStyle: { textAlign: 'center' },
+      cellRenderer: function (params) {
+        return (
+          <div style={{
+            height: '100%', 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center' 
+          }}>
+            <button  className={tableStyles.minus}
+             onClick={() => handleRemoveItem(params.data.groupId, params.data.subgroupId, params.data.itemId)}
+            >
+            </button>
+          </div>
+        );
+      },
+  },
+  ], []);
 
   const handleGrpButtonClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
@@ -411,54 +445,84 @@ const MaterialTable = ({ bomData, setBomData }) => {
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
-  const renderTableBody = () => {
+  // const renderTableBody = () => {
+  //   let rows = [];
+
+  //   bomData.groups.forEach((group) => {
+  //     let totalItemsInGroup = group.subgroups.reduce(
+  //       (sum, subgroup) => sum + subgroup.items.length,
+  //       0
+  //     );
+  //     group.subgroups.forEach((subgroup, subgroupIndex) => {
+  //       subgroup.items.forEach((item, itemIndex) => {
+  //         rows.push(
+  //           <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
+  //             {subgroupIndex === 0 && itemIndex === 0 && (
+  //               <td rowSpan={totalItemsInGroup}>{group.name}</td>
+  //             )}
+  //             {itemIndex === 0 && (
+  //               <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
+  //             )}
+  //             <td>{item.itemName}</td>
+
+  //             <td>{item.usedIn}</td>
+
+  //             <td>{item.pair}</td>
+
+  //             <td>{item.bomQty}</td>
+  //             <td>{item.stockConsumedQty}</td>
+
+  //             <td>{item.requiredQty}</td>
+  //             <td>{item.rate}</td>
+  //             <td>{item.unit}</td>
+  //             <td>{item.supplierName}</td>
+  //             <td>{item.cost}</td>
+  //             <td style={{ textAlign: "center" }}>
+  //               <button
+  //                 onClick={() =>
+  //                   handleRemoveItem(group.id, subgroup.id, item.itemId)
+  //                 }
+  //                 className={styles.minus}
+  //               ></button>
+  //             </td>
+  //           </tr>
+  //         );
+  //       });
+  //     });
+  //   });
+
+  //   return rows;
+  // };
+
+  const rowData = useMemo(() => {
     let rows = [];
 
     bomData.groups.forEach((group) => {
-      let totalItemsInGroup = group.subgroups.reduce(
-        (sum, subgroup) => sum + subgroup.items.length,
-        0
-      );
-      group.subgroups.forEach((subgroup, subgroupIndex) => {
-        subgroup.items.forEach((item, itemIndex) => {
-          rows.push(
-            <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
-              {subgroupIndex === 0 && itemIndex === 0 && (
-                <td rowSpan={totalItemsInGroup}>{group.name}</td>
-              )}
-              {itemIndex === 0 && (
-                <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
-              )}
-              <td>{item.itemName}</td>
-
-              <td>{item.usedIn}</td>
-
-              <td>{item.pair}</td>
-
-              <td>{item.bomQty}</td>
-              <td>{item.stockConsumedQty}</td>
-
-              <td>{item.requiredQty}</td>
-              <td>{item.rate}</td>
-              <td>{item.unit}</td>
-              <td>{item.supplierName}</td>
-              <td>{item.cost}</td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  onClick={() =>
-                    handleRemoveItem(group.id, subgroup.id, item.itemId)
-                  }
-                  className={styles.minus}
-                ></button>
-              </td>
-            </tr>
-          );
+      group.subgroups.forEach((subgroup) => {
+        subgroup.items.forEach((item) => {
+          rows.push({
+            groupId:group.id,
+            groupName: group.name,
+            subgroupName: subgroup.name,
+            subgroupId: subgroup.id,
+            itemName: item.itemName,
+            usedIn: item.usedIn,
+            pair: item.pair,
+            bomQty: item.bomQty,
+            stockConsumedQty: item.stockConsumedQty,
+            requiredQty: item.requiredQty,
+            rate: item.rate,
+            unit: item.unit,
+            supplierId: item.supplierName,
+            cost: item.cost,
+            itemId: item.itemId
+          });
         });
       });
     });
 
     return rows;
-  };
+  }, [bomData]);
 
   const downshiftItemName = (
     <Downshift
@@ -512,7 +576,7 @@ const MaterialTable = ({ bomData, setBomData }) => {
           ) : (
             <button
             onClick={() => setIsRatePopup(true)}
-            className={styles.searchBtn2}
+            className={tableStyles.searchBtn2}
             aria-label="Search"
           ></button>
           )}
@@ -580,7 +644,7 @@ const MaterialTable = ({ bomData, setBomData }) => {
                 handleGrpButtonClick("itemgrp");
                 itemGrpRef.current?.focus();
               }}
-              className={styles.searchBtn}
+              className={tableStyles.searchBtn}
               aria-label="dropDorn"
             ></button>
           )}
@@ -660,7 +724,7 @@ const MaterialTable = ({ bomData, setBomData }) => {
               handleGrpButtonClick("itemsubgrp");
               itemSubGrpRef.current?.focus();
             }}
-            className={styles.searchBtn}
+            className={tableStyles.searchBtn}
             disabled={!newItem.itemgrp.name}
             aria-label="dropDorn"
           ></button>
@@ -746,24 +810,6 @@ const MaterialTable = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="stockConsumedQty">
-            Stock C.Qty
-          </label>
-          <input
-            type="text"
-            name="stockConsumedQty"
-            value={newItem.stockConsumedQty}
-            style={
-              validation.stockConsumedQty === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            onChange={handleInputChange}
-            placeholder="Stock Consumed Qty"
-            className={styles.basicInput}
-          />
-        </div>
-        <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="requiredQty">
             Extra
           </label>
@@ -831,20 +877,6 @@ const MaterialTable = ({ bomData, setBomData }) => {
             value={newItem.supplierId.name}
           />
         </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="cost">
-            Cost
-          </label>
-          <input
-            name="cost"
-            type="number"
-            value={newItem.cost}
-            readOnly
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Add Cost"
-          />
-        </div>
         <div className={styles.colSpan2}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
             Group
@@ -863,7 +895,7 @@ const MaterialTable = ({ bomData, setBomData }) => {
               e.preventDefault();
               handleAddMaterial();
             }}
-            className={styles.addBtn}
+            className={tableStyles.addBtn}
             aria-label="Search"
           >
             {" "}
@@ -873,39 +905,18 @@ const MaterialTable = ({ bomData, setBomData }) => {
       </div>
 
       <div
-        className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
+        className={isCollapsed ? tableStyles.topContainer : tableStyles.topContainerOpen}
       >
-        <table className={styles.customTable}>
-          <thead>
-            <tr>
-              <th>Group</th>
-              <th>Subgroup</th>
-              <th>Item Name</th>
-              <th>Used In</th>
-              <th>Pair</th>
-              <th>BOM Qty</th>
-              <th>Stock Consumed Qty</th>
-              <th>Extra</th>
-              <th>Rate</th>
-              <th>Unit</th>
-              <th>Supplier</th>
-              <th>Cost</th>
-              <th style={{ textAlign: "center" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>{renderTableBody()}</tbody>
-          {bomData.groups.length > 0 && (
-            <tfoot>
-              <tr>
-                <td colSpan="11"></td>
-                <td>
-                  <strong>Total: {bomData.totalCost}</strong>
-                </td>
-                <td></td>
-              </tr>
-            </tfoot>
-          )}
-        </table>
+         <div
+        className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
+        style={{ height: 250, width: "100%", marginTop: "10px"  }}
+      >
+        <AgGridReact
+        rowData={rowData}
+        columnDefs={columnDefs}
+      
+      />
+      </div>
       </div>
       {isRatePopup && (
         <ItemRatesPopup

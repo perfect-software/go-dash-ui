@@ -15,6 +15,8 @@ const ArticleDirectory = () => {
   const [itemsData, setItemsData] = useState([]);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [colors, setColors] = useState([]);
+  const initialValidationState = {};
+  const [validation, setValidation] = useState(initialValidationState);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
   const [showInputLoading, setShowInputLoading] = useState({
@@ -52,7 +54,6 @@ const ArticleDirectory = () => {
           platformNo: "",
           heelType: "",
           heelNo: "",
-          username:"",
           heelHeight: "",
           lastNo: "",
           liningMaterial: "",
@@ -60,6 +61,41 @@ const ArticleDirectory = () => {
           comment: "",
         };
   });
+
+  const validateForm = () => {
+    let isValid = true;
+    let newValidation = {};
+
+    const requiredFields = [
+      "articleName",
+      "animal",
+      "color",
+      "gender",
+      "soleType",
+      "toeShape",
+      "category",
+      "platformType",
+      "platformNo",
+      "heelType",
+      "heelNo",
+      "heelHeight",
+      "lastNo",
+      "liningMaterial",
+      "socksMaterial",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!articleForm[field] || articleForm[field].trim() === "") {
+        isValid = false;
+        newValidation[field] = "invalid";
+      } else {
+        newValidation[field] = "valid";
+      }
+    });
+
+    setValidation(newValidation);
+    return isValid;
+  };
   useEffect(() => {
     const toggleActiveButton = (event) => {
       if (event.code === "ControlRight") {
@@ -102,6 +138,7 @@ const ArticleDirectory = () => {
       ...articleForm,
       [name]: value,
     });
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
@@ -125,6 +162,7 @@ const ArticleDirectory = () => {
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleButtonClick = (name) => {
@@ -163,6 +201,7 @@ const handleEditClick =()=>{
   });
   const articleImageUrl = image_nm ? `${ARTICLE_IMAGE_PATH}${image_nm}` : null;
   setImagePreview(articleImageUrl);
+
  }
 
   const handleArticleChange = (e) => {
@@ -194,6 +233,7 @@ const handleEditClick =()=>{
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   useEffect(() => {
@@ -260,6 +300,7 @@ const handleEditClick =()=>{
       comment: "",
     });
     setImagePreview(null);
+    setValidation(initialValidationState);
   };
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -319,6 +360,11 @@ const handleEditClick =()=>{
   const handleUpdateArticleSubmit = async(e)=>{
     e.preventDefault();
     setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+  
     const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
@@ -359,17 +405,23 @@ const handleEditClick =()=>{
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+  
     const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
     const imageName = formData.articleName+'-'+formData.lastNo;
     const imageResponseData = await uploadImage(imageName);
+    const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "article/create";
     try {
         const updatedArticleForm = {
           ...formData,
-          image_nm: imageResponseData.response,
+          image_nm: imageNm,
         };
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
       if (responseData.responseStatus && responseData.responseStatus.description) {
@@ -411,6 +463,7 @@ const handleEditClick =()=>{
             animal: selectedItem.name,
           });
           toggleSuggestVisibility("animal", false);
+          setValidation((prev) => ({ ...prev, animal: "valid" }));
         }
       }}
       selectedItem={articleForm.animal}
@@ -426,6 +479,11 @@ const handleEditClick =()=>{
             type="text"
             ref={animalInputRef}
             className={styles.basicInput}
+            style={
+              validation.animal === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.animal}
           />
@@ -473,6 +531,7 @@ const handleEditClick =()=>{
             color: selectedItem,
           });
           toggleSuggestVisibility("color", false);
+          setValidation((prev) => ({ ...prev, color: "valid" }));
         }
       }}
       itemToString={(item) => (item ? item : "")}
@@ -487,6 +546,11 @@ const handleEditClick =()=>{
             })}
             type="text"
             className={styles.buttonBasicInput}
+            style={
+              validation.color === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Type "
             value={articleForm.color}
           />
@@ -521,6 +585,7 @@ const handleEditClick =()=>{
             soleType: selectedItem.name,
           });
           toggleSuggestVisibility("soleType", false);
+          setValidation((prev) => ({ ...prev, soleType: "valid" }));
         }
       }}
       selectedItem={articleForm.soleType}
@@ -536,6 +601,11 @@ const handleEditClick =()=>{
             type="text"
             ref={soleTypeInputRef}
             className={styles.basicInput}
+            style={
+              validation.soleType === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.soleType}
           />
@@ -583,6 +653,7 @@ const handleEditClick =()=>{
             toeShape: selectedItem.name,
           });
           toggleSuggestVisibility("toeShape", false);
+          setValidation((prev) => ({ ...prev, toeShape: "valid" }));
         }
       }}
       selectedItem={articleForm.toeShape}
@@ -598,6 +669,11 @@ const handleEditClick =()=>{
             type="text"
             ref={toeShapeInputRef}
             className={styles.basicInput}
+            style={
+              validation.toeShape === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.toeShape}
           />
@@ -644,6 +720,7 @@ const handleEditClick =()=>{
             liningMaterial: selectedItem.name,
           });
           toggleSuggestVisibility("liningMaterial", false);
+          setValidation((prev) => ({ ...prev, liningMaterial: "valid" }));
         }
       }}
       selectedItem={articleForm.liningMaterial}
@@ -659,6 +736,11 @@ const handleEditClick =()=>{
             type="text"
             ref={liningMaterialInputRef}
             className={styles.basicInput}
+            style={
+              validation.liningMaterial === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.liningMaterial}
           />
@@ -706,6 +788,7 @@ const handleEditClick =()=>{
             socksMaterial: selectedItem.name,
           });
           toggleSuggestVisibility("socksMaterial", false);
+          setValidation((prev) => ({ ...prev, socksMaterial: "valid" }));
         }
       }}
       selectedItem={articleForm.socksMaterial}
@@ -721,6 +804,11 @@ const handleEditClick =()=>{
             type="text"
             ref={socksMaterialInputRef}
             className={styles.basicInput}
+            style={
+              validation.socksMaterial === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.socksMaterial}
           />
@@ -767,6 +855,7 @@ const handleEditClick =()=>{
             heelType: selectedItem.name,
           });
           toggleSuggestVisibility("heelType", false);
+          setValidation((prev) => ({ ...prev, heelType: "valid" }));
         }
       }}
       selectedItem={articleForm.heelType}
@@ -782,6 +871,11 @@ const handleEditClick =()=>{
             type="text"
             ref={heelTypeInputRef}
             className={styles.basicInput}
+            style={
+              validation.heelType === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             placeholder="Insert First Letter"
             value={articleForm.heelType}
           />
@@ -829,6 +923,7 @@ const handleEditClick =()=>{
             category: selectedItem.name,
           });
           toggleSuggestVisibility("category", false);
+          setValidation((prev) => ({ ...prev, category: "valid" }));
         }
       }}
       selectedItem={articleForm.category}
@@ -845,6 +940,11 @@ const handleEditClick =()=>{
             ref={categoryInputRef}
             className={styles.basicInput}
             placeholder="Insert First Letter"
+            style={
+              validation.category === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             value={articleForm.category}
           />
           {showInputLoading.category ? (
@@ -936,7 +1036,7 @@ const handleEditClick =()=>{
         <>
         <div className={styles.articleTopGrid}>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleName">
+            <label className={styles.impsampleLabel} htmlFor="articleName">
               Article Name
             </label>
             <input
@@ -944,26 +1044,31 @@ const handleEditClick =()=>{
               className={styles.basicInput}
               name="articleName"
               placeholder="Enter Here"
+              style={
+                validation.articleName === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               onChange={handleNormalArticleChange}
               value={articleForm.articleName}
             />
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="color">
+            <label className={styles.impsampleLabel} htmlFor="color">
               Article Color
             </label>
             {downshiftColor}
           </div>
        
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="animal">
+            <label className={styles.impsampleLabel} htmlFor="animal">
               Animal
             </label>
             {downshiftAnimal}
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="gender">
+            <label className={styles.impsampleLabel} htmlFor="gender">
               Gender
             </label>
             <div className={styles.selectWrapper}>
@@ -972,6 +1077,11 @@ const handleEditClick =()=>{
                 name="gender"
                 onChange={handleNormalArticleChange}
                 value={articleForm.gender}
+                style={
+                  validation.gender === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
               >
                 <option value="" selected disabled hidden>
                   Select Gender
@@ -983,45 +1093,50 @@ const handleEditClick =()=>{
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="soleType">
+            <label className={styles.impsampleLabel} htmlFor="soleType">
               Sole Type
             </label>
             {downshiftSoleType}
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="toeShape">
+            <label className={styles.impsampleLabel} htmlFor="toeShape">
               Toe Shape
             </label>
             {downshiftToeShape}
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="category">
+            <label className={styles.impsampleLabel} htmlFor="category">
               Category
             </label>
             {downshiftCategory}
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Platform No.
             </label>
             <input
               type="text"
               name="platformNo"
               className={styles.basicInput}
+              style={
+                validation.platformNo === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               placeholder="Enter Here"
               value={articleForm.platformNo}
               onChange={handleNormalArticleChange}
             />
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
+            <label className={styles.impsampleLabel} htmlFor="input4">
               Heel Type
             </label>
             {downshiftHeelType}
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Heel Height
             </label>
             <input
@@ -1029,52 +1144,67 @@ const handleEditClick =()=>{
               className={styles.basicInput}
               placeholder="Enter Here"
               name="heelHeight"
+              style={
+                validation.heelHeight === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               value={articleForm.heelHeight}
               onChange={handleNormalArticleChange}
             />
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input4">
+            <label className={styles.impsampleLabel} htmlFor="input4">
               Last No.
             </label>
             <input
               type="text"
               className={styles.basicInput}
               placeholder="Enter Here"
+              style={
+                validation.lastNo === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               name="lastNo"
               value={articleForm.lastNo}
               onChange={handleNormalArticleChange}
             />
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Lining Material
             </label>
             {downshiftLiningMaterial}
           </div>
 
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Socks Material
             </label>
             {downshiftSocksMaterial}
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Platform Type
             </label>
             <input
               type="text"
               className={styles.basicInput}
               placeholder="Enter Here"
+              style={
+                validation.platformType === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               name="platformType"
               value={articleForm.platformType}
               onChange={handleNormalArticleChange}
             />
           </div>
           <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
+            <label className={styles.impsampleLabel} htmlFor="input1">
               Heel No.
             </label>
             <input
@@ -1082,21 +1212,13 @@ const handleEditClick =()=>{
               className={styles.basicInput}
               placeholder="Enter Here"
               name="heelNo"
+              style={
+                validation.heelNo === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
               value={articleForm.heelNo}
               onChange={handleNormalArticleChange}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="username">
-              Username
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              name="username"
-              placeholder="Enter Here"
-              onChange={handleNormalArticleChange}
-              value={articleForm.username}
             />
           </div>
           <div className={styles.largeColSpan}>

@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import styles from "../styles/bom.module.css";
+import styles from "../styles/inputDetails.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import MaterialTable from "./MaterialTable";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
-
+import OverHead from "./bomPages/OverHead";
 const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const [bomData, setBomData] = useState({
@@ -29,6 +30,7 @@ const Bom = () => {
     articleNo: false,
     itemName: false,
   });
+  const [activePage, setActivePage] = useState('graphAverage');
 
   const addGrid = () => {
     setBottomGrids([...bottomGrids, {}]);
@@ -158,29 +160,61 @@ const Bom = () => {
 
 
   return (
-    <div className={styles.bomContainer}>
-      <div className={styles.bomSubContainer}>
-        <div className={styles.headContiner}>
-          <div className={styles.subHeadContainer}>
-            <h1 className={styles.headText}>BOM</h1>
+    <div className={styles.BOMContainer}>
+        <div className={styles.headContainer}>
+        <div className={styles.BOMSubHeadContainer}>
+          <h1 className={styles.headText}>
+           SR BOM
+          </h1>
           </div>
-          <div className={styles.subHeadContainerTwo}>
-            <div className={styles.subHeadContainerThree}>
-              <h2>Sample Details</h2>
-              <div style={{display:"flex",gap:'6px'}}>
-              <button className={styles.headButton} onClick={handleViewPDF}>
-                Print
-              </button>
-              <button className={styles.headButton}  onClick={() => {
+        <div className={styles.subHeadContainerTwo}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className={styles.topButtons}>
+            <button
+              className={`${styles.screenChangeButton} ${
+                activeButton === "details" ? styles.active : ""
+              }`}
+              onClick={() => setActiveButton("details")}
+            >
+              BOM Details
+            </button>
+            <button
+              className={`${styles.screenChangeButton} ${
+                activeButton === "view" ? styles.active : ""
+              }`}
+              onClick={() => {
+                setActiveButton("view");
+                {
+              
+                }
+              }}
+            >
+              View BOM
+            </button>
+          </div>
+              <div className={styles.editContainer}>
+                <button
+                  className={styles.headButton}
+                  onClick={handleViewPDF}
+                >
+                  Print
+                </button>
+                  <button
+                    className={styles.headButtonPrint}
+                    onClick={() => {
                       setIsInventoryPopup(true);
-                    }}>
-                Inventory 
-              </button>
-              </div>
-            </div>
-            <div className={styles.headBorder}></div>
+                    }}
+                  >
+                    Inventory
+                  </button>
+           
           </div>
+          </div>
+        
         </div>
+       
+      </div>
+      <div className={styles.headBorder}></div>
         <div className={styles.topGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
@@ -226,15 +260,45 @@ const Bom = () => {
         
         </div>
         <div className={styles.middleContainerBottom}>
-          <span>Add Group Here</span>
-          <button className={styles.plus2} onClick={addGrid}></button>
+        <div className={styles.topButtons}>
+      <button
+        className={`${styles.screenChangeButton} ${activePage === "graphAverage" ? styles.active : ""}`}
+        onClick={() => setActivePage("graphAverage")}
+      >
+       Graph Average
+      </button>
+      <button
+        className={`${styles.screenChangeButton} ${activePage === "overHead" ? styles.active : ""}`}
+        onClick={() => setActivePage("overHead")}
+      >
+       Over Head
+      </button>
+      <button
+        className={`${styles.screenChangeButton} ${activePage === "comment" ? styles.active : ""}`}
+        onClick={() => setActivePage("comment")}
+      >
+        Comment
+      </button>
+      <button
+        className={`${styles.screenChangeButton} ${activePage === "specification" ? styles.active : ""}`}
+        onClick={() => setActivePage("specification")}
+      >
+       Specification
+      </button>
+      <button
+        className={`${styles.screenChangeButton} ${activePage === "size" ? styles.active : ""}`}
+        onClick={() => setActivePage("size")}
+      >
+       Size Roll
+      </button>
+    </div>
         </div>
         <div className={styles.headBorder}></div>
-
-        <div className={styles.materialTableContainer}>
+    {activePage=="graphAverage" && <div>  
+          <div className={styles.materialTableContainer}>
           <MaterialTable bomData={bomData} setBomData={setBomData} />
         </div>
-      </div>
+    
       <div className={styles.parentButtonContainer}>
         {loading ? (
           <div className={styles.buttonContainer}>
@@ -251,7 +315,30 @@ const Bom = () => {
             </button>
           </div>
         )}
-      </div>
+      </div></div>}
+
+      {activePage==="overHead" && <div>  
+          <div className={styles.materialTableContainer}>
+          <OverHead/>
+        </div>
+    
+      <div className={styles.parentButtonContainer}>
+        {loading ? (
+          <div className={styles.buttonContainer}>
+            <div className={styles.loader}></div>
+          </div>
+        ) : (
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton} >Reset</button>
+            <button
+              className={styles.submitButton}
+               onClick={handleSubmitBomClick}
+            >
+              Submit
+            </button>
+          </div>
+        )}
+      </div></div>}
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>
