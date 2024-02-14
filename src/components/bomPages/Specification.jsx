@@ -6,37 +6,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const OverHead = () => {
-  const columnDefs = useMemo(
-    () => [
-      { field: "code", headerName: "Code" },
-      { field: "head", headerName: "Head" },
-      { field: "percent", headerName: "%" },
-      { field: "rate", headerName: "rate" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
-    ],
-    []
-  );
-  const [rowData, setRowData] = useState([]);
+const Specifications = () => {
   const [newItem, setNewItem] = useState({
     code: '',
     head: '',
@@ -62,7 +32,7 @@ const OverHead = () => {
       <div className={styles.topGrid}>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
-            Over Head
+            Leather
           </label>
           <input
             name="head"
@@ -75,7 +45,7 @@ const OverHead = () => {
         </div>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="unit">
-            SubTotal %
+            Lining
           </label>
           <input
             name="percent"
@@ -89,7 +59,7 @@ const OverHead = () => {
 
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="unit">
-            Rate
+            Last
           </label>
           <input
             name="rate"
@@ -101,28 +71,60 @@ const OverHead = () => {
           />
         </div>
         <div className={styles.colSpan}>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-               handleAddMaterial();
-            }}
-            className={tableStyles.addBtn}
-            aria-label="Search"
-          >
-            {" "}
-            ADD{" "}
-          </button>
+          <label className={styles.sampleLabel} htmlFor="unit">
+            Insole
+          </label>
+          <input
+            name="rate"
+            type="text"
+            onChange={handleInputChange}
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.rate}
+          />
         </div>
-      </div>
-
-      <div
-        className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+        <div className={styles.colSpan}>
+          <label className={styles.sampleLabel} htmlFor="unit">
+            Heel
+          </label>
+          <input
+            name="rate"
+            type="text"
+            onChange={handleInputChange}
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.rate}
+          />
+        </div>
+        <div className={styles.colSpan}>
+          <label className={styles.sampleLabel} htmlFor="unit">
+           Socks
+          </label>
+          <input
+            name="rate"
+            type="text"
+            onChange={handleInputChange}
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.rate}
+          />
+        </div>
+        <div className={styles.colSpan}>
+          <label className={styles.sampleLabel} htmlFor="unit">
+           Socks Printing
+          </label>
+          <input
+            name="rate"
+            type="text"
+            onChange={handleInputChange}
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.rate}
+          />
+        </div>
       </div>
     </>
   );
 };
 
-export default OverHead;
+export default Specifications;

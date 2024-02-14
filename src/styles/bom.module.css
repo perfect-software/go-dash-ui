@@ -88,33 +88,47 @@
 
 .customTable {
   border-spacing: 0;
-  border-collapse: separate;
+  border-collapse: collapse; 
   width: 100%;
-  @apply overflow-x-auto mt-2;
-  border-radius: 8px; 
- 
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden; 
+  background-color: #fff; 
 }
 
 .customTable th,
 .customTable td {
-  padding: 2px;
+  padding: 0.75rem; 
   text-align: left;
-  border: 1px solid #E5E7EB;
-  @apply overflow-x-auto text-sm;
-  white-space: nowrap;
-  max-width: 100px;
+  border-bottom: 1px solid #E5E7EB; 
+  color: #4B5563;
+  font-size: 0.875rem;
+}
+.customTable td {
+  
+  border-bottom: 1px solid #E5E7EB;
+}
 
-}
-.customTable tfoot {
-  background-color: #FAFAFB;
-  font-weight: lighter;
-  color: #181D1F;
-}
 .customTable th {
-  background-color: #FAFAFB;
-  font-weight: lighter;
-  color: #181D1F;
+  background-color: #F9FAFB; 
+  color: #1F2937;
+  border: 1px solid #E5E7EB; 
+  font-weight: 600; 
 }
+
+
+.customTable tfoot {
+  background-color: #F3F4F6; 
+  color: #4B5563; 
+}
+
+.customTable tfoot td {
+  border-top: 2px solid #E5E7EB; 
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+
 .customTable th:first-child {
   border-top-left-radius: 8px;
 }
@@ -129,6 +143,9 @@
 
 .customTable tr:last-child td:last-child {
   border-bottom-right-radius: 8px;
+}
+.customTable tr:hover {
+  background-color: #F5F5F5;
 }
 
 .topContainer {

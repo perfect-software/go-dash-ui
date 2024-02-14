@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef , useMemo} from "react";
-import styles from "../styles/inputDetails.module.css";
+import styles from "../../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import tableStyles from "../styles/bom.module.css";
+import tableStyles from "../../styles/bom.module.css";
 import Downshift from "downshift";
 import { useSelector, useDispatch } from "react-redux";
-import { getformatDate } from "../features/convertDate";
-import { fetchItemGroupsAndSubGroups } from "../reducer/grpSubgrpSlice";
-import { useSidebar } from "../context/SidebarContext";
-import { getApiService } from "../service/apiService";
-import { fetchAllItemRates } from "../reducer/itemRateSlice";
-import ItemRatesPopup from "../popups/ItemRatesPopup";
+import { getformatDate } from "../../features/convertDate";
+import { fetchItemGroupsAndSubGroups } from "../../reducer/grpSubgrpSlice";
+import { useSidebar } from "../../context/SidebarContext";
+import { getApiService } from "../../service/apiService";
+import { fetchAllItemRates } from "../../reducer/itemRateSlice";
+import ItemRatesPopup from "../../popups/ItemRatesPopup";
 
-const MaterialTable = ({ bomData, setBomData }) => {
+const GraphAverage = ({ bomData, setBomData }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
@@ -384,40 +384,7 @@ const MaterialTable = ({ bomData, setBomData }) => {
       return newData;
     });
   };
-  const columnDefs = useMemo(() => [
-    { field: 'groupName', headerName: 'Group',width:150 ,   tooltipField: 'groupName',},
-    { field: 'subgroupName', headerName: 'Subgroup' , width:150 , tooltipField: 'subgroupName'},
-    { field: 'itemName', headerName: 'Item Name',width:150, tooltipField: 'itemName'},
-    { field: 'usedIn', headerName: 'Used In', width:89 },
-    { field: 'pair', headerName: 'Pair' ,width:89 },
-    { field: 'bomQty', headerName: 'BOM Qty', width:89 },
-    { field: 'requiredQty', headerName: 'Extra',width:89 },
-    { field: 'rate', headerName: 'Rate' ,width:89 },
-    { field: 'unit', headerName: 'Unit',  width:89 },
-    { field: 'supplierId', headerName: 'Supplier',width:89 },
-    { field: 'cost', headerName: 'Cost' ,width:89},
-    {
-      field: 'action',
-      headerName: 'Action',
-      width:70,
-      cellStyle: { textAlign: 'center' },
-      cellRenderer: function (params) {
-        return (
-          <div style={{
-            height: '100%', 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center' 
-          }}>
-            <button  className={tableStyles.minus}
-             onClick={() => handleRemoveItem(params.data.groupId, params.data.subgroupId, params.data.itemId)}
-            >
-            </button>
-          </div>
-        );
-      },
-  },
-  ], []);
+
 
   const handleGrpButtonClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
@@ -445,54 +412,52 @@ const MaterialTable = ({ bomData, setBomData }) => {
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
-  // const renderTableBody = () => {
-  //   let rows = [];
+  const renderTableBody = () => {
+    let rows = [];
 
-  //   bomData.groups.forEach((group) => {
-  //     let totalItemsInGroup = group.subgroups.reduce(
-  //       (sum, subgroup) => sum + subgroup.items.length,
-  //       0
-  //     );
-  //     group.subgroups.forEach((subgroup, subgroupIndex) => {
-  //       subgroup.items.forEach((item, itemIndex) => {
-  //         rows.push(
-  //           <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
-  //             {subgroupIndex === 0 && itemIndex === 0 && (
-  //               <td rowSpan={totalItemsInGroup}>{group.name}</td>
-  //             )}
-  //             {itemIndex === 0 && (
-  //               <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
-  //             )}
-  //             <td>{item.itemName}</td>
+    bomData.groups.forEach((group) => {
+      let totalItemsInGroup = group.subgroups.reduce(
+        (sum, subgroup) => sum + subgroup.items.length,
+        0
+      );
+      group.subgroups.forEach((subgroup, subgroupIndex) => {
+        subgroup.items.forEach((item, itemIndex) => {
+          rows.push(
+            <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
+              {subgroupIndex === 0 && itemIndex === 0 && (
+                <td rowSpan={totalItemsInGroup}>{group.name}</td>
+              )}
+              {itemIndex === 0 && (
+                <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
+              )}
+              <td>{item.itemName}</td>
 
-  //             <td>{item.usedIn}</td>
+              <td>{item.usedIn}</td>
 
-  //             <td>{item.pair}</td>
+              <td>{item.pair}</td>
 
-  //             <td>{item.bomQty}</td>
-  //             <td>{item.stockConsumedQty}</td>
+              <td>{item.bomQty}</td>
+              <td>{item.requiredQty}</td>
+              <td>{item.rate}</td>
+              <td>{item.unit}</td>
+              <td>{item.supplierName}</td>
+              <td>{item.cost}</td>
+              <td style={{ textAlign: "center" }}>
+                <button
+                  onClick={() =>
+                    handleRemoveItem(group.id, subgroup.id, item.itemId)
+                  }
+                  className={tableStyles.minus}
+                ></button>
+              </td>
+            </tr>
+          );
+        });
+      });
+    });
 
-  //             <td>{item.requiredQty}</td>
-  //             <td>{item.rate}</td>
-  //             <td>{item.unit}</td>
-  //             <td>{item.supplierName}</td>
-  //             <td>{item.cost}</td>
-  //             <td style={{ textAlign: "center" }}>
-  //               <button
-  //                 onClick={() =>
-  //                   handleRemoveItem(group.id, subgroup.id, item.itemId)
-  //                 }
-  //                 className={styles.minus}
-  //               ></button>
-  //             </td>
-  //           </tr>
-  //         );
-  //       });
-  //     });
-  //   });
-
-  //   return rows;
-  // };
+    return rows;
+  };
 
   const rowData = useMemo(() => {
     let rows = [];
@@ -810,6 +775,22 @@ const MaterialTable = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
+          <label className={styles.sampleLabel} htmlFor="unit">
+            Unit
+          </label>
+          <input
+            name="unit"
+            type="text"
+            onChange={handleInputChange}
+            style={
+              validation.unit === "invalid" ? { border: "2px solid red" } : {}
+            }
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.unit}
+          />
+        </div>
+        <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="requiredQty">
             Extra
           </label>
@@ -843,23 +824,19 @@ const MaterialTable = ({ bomData, setBomData }) => {
             value={newItem.rate}
           />
         </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
-            Unit
+        <div className={styles.colSpan2}>
+          <label className={styles.sampleLabel} htmlFor="itemgrp">
+            Group
           </label>
-          <input
-            name="unit"
-            type="text"
-            onChange={handleInputChange}
-            style={
-              validation.unit === "invalid" ? { border: "2px solid red" } : {}
-            }
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.unit}
-          />
+          {downshiftItemGrp}
         </div>
         <div className={styles.colSpan2}>
+          <label className={styles.sampleLabel} htmlFor="itemsubgrp">
+            Sub Group
+          </label>
+          {downshiftItemSubGrp}
+        </div>
+        <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="supplierId">
             Supplier
           </label>
@@ -876,18 +853,6 @@ const MaterialTable = ({ bomData, setBomData }) => {
             placeholder="Enter supplier"
             value={newItem.supplierId.name}
           />
-        </div>
-        <div className={styles.colSpan2}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
-            Group
-          </label>
-          {downshiftItemGrp}
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="itemsubgrp">
-            Sub Group
-          </label>
-          {downshiftItemSubGrp}
         </div>
         <div className={styles.colSpan}>
           <button
@@ -907,16 +872,36 @@ const MaterialTable = ({ bomData, setBomData }) => {
       <div
         className={isCollapsed ? tableStyles.topContainer : tableStyles.topContainerOpen}
       >
-         <div
-        className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px"  }}
-      >
-        <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-      
-      />
-      </div>
+       <table className={tableStyles.customTable}>
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Subgroup</th>
+              <th>Item Name</th>
+              <th>Used In</th>
+              <th>Pair</th>
+              <th>BOM Qty</th>
+              <th>Extra</th>
+              <th>Rate</th>
+              <th>Unit</th>
+              <th>Supplier</th>
+              <th>Cost</th>
+              <th style={{ textAlign: "center" }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>{renderTableBody()}</tbody>
+          {bomData.groups.length > 0 && (
+            <tfoot>
+              <tr>
+                <td colSpan="10"></td>
+                <td>
+                  <strong>Total: {bomData.totalCost}</strong>
+                </td>
+                <td></td>
+              </tr>
+            </tfoot>
+          )}
+        </table>
       </div>
       {isRatePopup && (
         <ItemRatesPopup
@@ -930,4 +915,4 @@ const MaterialTable = ({ bomData, setBomData }) => {
   );
 };
 
-export default MaterialTable;
+export default GraphAverage;

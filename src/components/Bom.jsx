@@ -2,9 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { getApiService, postApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
-import MaterialTable from "./MaterialTable";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 import OverHead from "./bomPages/OverHead";
+import GraphAverage from "./bomPages/GraphAverage";
+import Comments from "./bomPages/Comment";
+import SizeRoles from "./bomPages/SizeRole";
+import Specifications from "./bomPages/Specification";
 const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -296,7 +299,7 @@ const Bom = () => {
         <div className={styles.headBorder}></div>
     {activePage=="graphAverage" && <div>  
           <div className={styles.materialTableContainer}>
-          <MaterialTable bomData={bomData} setBomData={setBomData} />
+          <GraphAverage bomData={bomData} setBomData={setBomData} />
         </div>
     
       <div className={styles.parentButtonContainer}>
@@ -320,6 +323,75 @@ const Bom = () => {
       {activePage==="overHead" && <div>  
           <div className={styles.materialTableContainer}>
           <OverHead/>
+        </div>
+    
+      <div className={styles.parentButtonContainer}>
+        {loading ? (
+          <div className={styles.buttonContainer}>
+            <div className={styles.loader}></div>
+          </div>
+        ) : (
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton} >Reset</button>
+            <button
+              className={styles.submitButton}
+               onClick={handleSubmitBomClick}
+            >
+              Submit
+            </button>
+          </div>
+        )}
+      </div></div>}
+
+      {activePage==="comment" && <div>  
+          <div className={styles.materialTableContainer}>
+          <Comments/>
+        </div>
+    
+      <div className={styles.parentButtonContainer}>
+        {loading ? (
+          <div className={styles.buttonContainer}>
+            <div className={styles.loader}></div>
+          </div>
+        ) : (
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton} >Reset</button>
+            <button
+              className={styles.submitButton}
+               onClick={handleSubmitBomClick}
+            >
+              Submit
+            </button>
+          </div>
+        )}
+      </div></div>}
+
+      {activePage==="size" && <div>  
+          <div className={styles.materialTableContainer}>
+          <SizeRoles/>
+        </div>
+    
+      <div className={styles.parentButtonContainer}>
+        {loading ? (
+          <div className={styles.buttonContainer}>
+            <div className={styles.loader}></div>
+          </div>
+        ) : (
+          <div className={styles.buttonContainer}>
+            <button className={styles.resetButton} >Reset</button>
+            <button
+              className={styles.submitButton}
+               onClick={handleSubmitBomClick}
+            >
+              Submit
+            </button>
+          </div>
+        )}
+      </div></div>}
+      
+      {activePage==="specification" && <div>  
+          <div className={styles.materialTableContainer}>
+          <Specifications/>
         </div>
     
       <div className={styles.parentButtonContainer}>

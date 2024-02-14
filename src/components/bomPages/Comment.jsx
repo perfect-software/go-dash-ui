@@ -6,13 +6,11 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const OverHead = () => {
+const Comments = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "code", headerName: "Code" },
-      { field: "head", headerName: "Head" },
-      { field: "percent", headerName: "%" },
-      { field: "rate", headerName: "rate" },
+      { field: "header", headerName: "Header" , width:200},
+      { field: "comment", headerName: "Comment" },
       {
         field: 'action',
         headerName: 'Action',
@@ -26,7 +24,7 @@ const OverHead = () => {
               alignItems: 'center' 
             }}>
               <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
+              onClick={() => handleRemoveItem(params.data.header)}
               >
               </button>
             </div>
@@ -38,14 +36,12 @@ const OverHead = () => {
   );
   const [rowData, setRowData] = useState([]);
   const [newItem, setNewItem] = useState({
-    code: '',
-    head: '',
-    percent: '',
-    rate: '',
+    comment: '',
+    header: '',
   });
   const handleAddMaterial = () => {
     setRowData([...rowData, newItem]);
-    setNewItem({ code: '', head: '', percent: '', rate: '' });
+    setNewItem({ comment: '', header: ''});
   };
 
   const handleInputChange = (e) => {
@@ -53,8 +49,8 @@ const OverHead = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (code) => {
-    setRowData(rowData.filter((item) => item.code !== code));
+  const handleRemoveItem = (header) => {
+    setRowData(rowData.filter((item) => item.header !== header));
   };
 
   return (
@@ -62,42 +58,28 @@ const OverHead = () => {
       <div className={styles.topGrid}>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
-            Over Head
+            Header
           </label>
           <input
-            name="head"
+            name="header"
             type="text"
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Enter unit"
-            value={newItem.head}
+            value={newItem.header}
           />
         </div>
-        <div className={styles.colSpan}>
+        <div className={styles.colSpan2}>
           <label className={styles.sampleLabel} htmlFor="unit">
-            SubTotal %
+            Comments
           </label>
           <input
-            name="percent"
+            name="comment"
             type="text"
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Enter unit"
-             value={newItem.percent}
-          />
-        </div>
-
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
-            Rate
-          </label>
-          <input
-            name="rate"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.rate}
+             value={newItem.comment}
           />
         </div>
         <div className={styles.colSpan}>
@@ -125,4 +107,4 @@ const OverHead = () => {
   );
 };
 
-export default OverHead;
+export default Comments;

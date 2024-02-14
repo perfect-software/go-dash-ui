@@ -6,16 +6,15 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const OverHead = () => {
+const SizeRoles = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "code", headerName: "Code" },
-      { field: "head", headerName: "Head" },
-      { field: "percent", headerName: "%" },
-      { field: "rate", headerName: "rate" },
+      { field: "size", quantityName: "Size" , width:200},
+      { field: "quantity", quantityName: "Quantity" },
+      { field: "extra", quantityName: "Extra" },
       {
         field: 'action',
-        headerName: 'Action',
+        quantityName: 'Action',
         cellStyle: { textAlign: 'center' },
         cellRenderer: function (params) {
           return (
@@ -26,7 +25,7 @@ const OverHead = () => {
               alignItems: 'center' 
             }}>
               <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
+              onClick={() => handleRemoveItem(params.data.size)}
               >
               </button>
             </div>
@@ -38,14 +37,13 @@ const OverHead = () => {
   );
   const [rowData, setRowData] = useState([]);
   const [newItem, setNewItem] = useState({
-    code: '',
-    head: '',
-    percent: '',
-    rate: '',
+    size: '',
+    quantity: '',
+    extra: '',
   });
   const handleAddMaterial = () => {
     setRowData([...rowData, newItem]);
-    setNewItem({ code: '', head: '', percent: '', rate: '' });
+    setNewItem({ size: '', quantity: '',extra: ''});
   };
 
   const handleInputChange = (e) => {
@@ -53,51 +51,50 @@ const OverHead = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (code) => {
-    setRowData(rowData.filter((item) => item.code !== code));
+  const handleRemoveItem = (size) => {
+    setRowData(rowData.filter((item) => item.size !== size));
   };
 
   return (
     <>
       <div className={styles.topGrid}>
+      <div className={styles.colSpan}>
+          <label className={styles.sampleLabel} htmlFor="itemgrp">
+            Size
+          </label>
+          <input
+            name="size"
+            type="text"
+            onChange={handleInputChange}
+            className={styles.basicInput}
+            placeholder="Enter unit"
+            value={newItem.size}
+          />
+        </div>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
-            Over Head
+           Quantity
           </label>
           <input
-            name="head"
+            name="quantity"
             type="text"
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Enter unit"
-            value={newItem.head}
+            value={newItem.quantity}
           />
         </div>
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="unit">
-            SubTotal %
+           Extra
           </label>
           <input
-            name="percent"
+            name="extra"
             type="text"
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Enter unit"
-             value={newItem.percent}
-          />
-        </div>
-
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
-            Rate
-          </label>
-          <input
-            name="rate"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.rate}
+             value={newItem.extra}
           />
         </div>
         <div className={styles.colSpan}>
@@ -125,4 +122,4 @@ const OverHead = () => {
   );
 };
 
-export default OverHead;
+export default SizeRoles;
