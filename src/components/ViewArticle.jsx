@@ -24,29 +24,28 @@ const ViewArticle = ({onArticleSelect}) => {
   );
 
   const [gridApi, setGridApi] = useState(null);
+
   const onGridReady = useCallback((params) => {
-   
     setGridApi(params.api);
     if (!loaded && !loading) {
       dispatch(fetchAllArticles());
     }
-    params.api.ensureIndexVisible(0);
-    params.api.setFocusedCell(0, columnDefs[0].field);
-  }, []);
-
-
+  }, [loaded, loading, dispatch]);
   
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && articles.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [ loaded, loading, gridApi]);
+  }, [gridApi, loaded, loading, error, articles]);
+
 
   const dateFilterParams = {
     comparator: function(filterLocalDateAtMidnight, cellValue) {
@@ -213,13 +212,6 @@ const ViewArticle = ({onArticleSelect}) => {
       filter: true,
     },
     {
-      headerName: "User Name",
-      field: "username",
-      sortable: true,
-      width:140,
-      filter: true,
-    },
-    {
       headerName: "Entry Date",
       field: "entDate",
       sortable: true,
@@ -251,7 +243,12 @@ const ViewArticle = ({onArticleSelect}) => {
           onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
           onSelectionChanged={onRowSelected}
-          onRowDataChanged={onRowDataChanged}
+          overlayLoadingTemplate={
+            '<span class="ag-overlay-loading-center">Loading...</span>'
+          }
+          overlayNoRowsTemplate={
+            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+          }
         />
       </div>
   </div>

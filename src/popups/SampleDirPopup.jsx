@@ -26,19 +26,21 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
-  }, []);
-
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
+  }, [loaded, loading, dispatch]);
+  
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && samples.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [loaded, loading, gridApi]);
+  }, [gridApi, loaded, loading, error, samples]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -317,7 +319,12 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
               onCellKeyDown={onCellKeyDown}
               onGridReady={onGridReady}
               onSelectionChanged={onRowSelected}
-              onRowDataChanged={onRowDataChanged}
+              overlayLoadingTemplate={
+                '<span class="ag-overlay-loading-center">Loading...</span>'
+              }
+              overlayNoRowsTemplate={
+                `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+              }
             />
           </div>
 

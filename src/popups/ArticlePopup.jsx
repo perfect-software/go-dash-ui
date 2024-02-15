@@ -16,6 +16,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [rowSelect, setRowSelect] = useState(false);
+  const dispatch = useDispatch();
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
 
@@ -24,22 +25,27 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   );
   const [gridApi, setGridApi] = useState(null);
   const onGridReady = useCallback((params) => {
-   
     setGridApi(params.api);
     if (!loaded && !loading) {
       dispatch(fetchAllArticles());
     }
-    params.api.ensureIndexVisible(0);
-    params.api.setFocusedCell(0, columnDefs[0].field);
-  }, []);
-
-
+  }, [loaded, loading, dispatch]);
   
-  const onRowDataChanged = useCallback(() => {
+  useEffect(() => {
     if (gridApi) {
-      gridApi.hideOverlay();
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && articles.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [gridApi]);
+  }, [gridApi, loaded, loading, error, articles]);
+
+
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
       if (!cellValue) return -1;
@@ -180,13 +186,6 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       filter: true,
     },
     {
-      headerName: "User Name",
-      field: "username",
-      sortable: true,
-      width:140,
-      filter: true,
-    },
-    {
       headerName: "Entry Date",
       field: "entDate",
       sortable: true,
@@ -254,7 +253,12 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
                 onCellKeyDown={onCellKeyDown}
                 onGridReady={onGridReady}
                 onSelectionChanged={onRowSelected}
-                onRowDataChanged={onRowDataChanged}
+                overlayLoadingTemplate={
+                  '<span class="ag-overlay-loading-center">Loading...</span>'
+                }
+                overlayNoRowsTemplate={
+                  `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+                }
               />
             </div>
           </div>

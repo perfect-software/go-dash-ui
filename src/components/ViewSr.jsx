@@ -24,29 +24,30 @@ const ViewSr = ({ onSampleSelect }) => {
   );
 
   const [gridApi, setGridApi] = useState(null);
+
+  
   const onGridReady = useCallback((params) => {
-   
     setGridApi(params.api);
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
-    params.api.ensureIndexVisible(0);
-    params.api.setFocusedCell(0, columnDefs[0].field);
-  }, []);
-
-
+  }, [loaded, loading, dispatch]);
   
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && samples.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [ loaded, loading, gridApi]);
+  }, [gridApi, loaded, loading, error, samples]);
+  
+
 
   const dateFilterParams = {
     comparator: function(filterLocalDateAtMidnight, cellValue) {
@@ -335,7 +336,12 @@ const ViewSr = ({ onSampleSelect }) => {
           onGridReady={onGridReady}
           rowSelection={"multiple"}
           onSelectionChanged={onRowSelected}
-          onRowDataChanged={onRowDataChanged}
+          overlayLoadingTemplate={
+            '<span class="ag-overlay-loading-center">Loading...</span>'
+          }
+          overlayNoRowsTemplate={
+            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+          }
         />
       </div>
   </div>

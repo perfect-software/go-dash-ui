@@ -759,7 +759,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="bomQty">
+          <label className={styles.impsampleLabel} htmlFor="bomQty">
             BOM Qty
           </label>
           <input
@@ -775,7 +775,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
+          <label className={styles.impsampleLabel} htmlFor="unit">
             Unit
           </label>
           <input
@@ -791,7 +791,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="requiredQty">
+          <label className={styles.impsampleLabel} htmlFor="requiredQty">
             Extra
           </label>
           <input
@@ -809,7 +809,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="rate">
+          <label className={styles.impsampleLabel} htmlFor="rate">
             Rate
           </label>
           <input
@@ -825,13 +825,13 @@ const GraphAverage = ({ bomData, setBomData }) => {
           />
         </div>
         <div className={styles.colSpan2}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
+          <label className={styles.impsampleLabel} htmlFor="itemgrp">
             Group
           </label>
           {downshiftItemGrp}
         </div>
         <div className={styles.colSpan2}>
-          <label className={styles.sampleLabel} htmlFor="itemsubgrp">
+          <label className={styles.impsampleLabel} htmlFor="itemsubgrp">
             Sub Group
           </label>
           {downshiftItemSubGrp}
@@ -872,6 +872,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
       <div
         className={isCollapsed ? tableStyles.topContainer : tableStyles.topContainerOpen}
       >
+       <div className={tableStyles.tableBor}>
        <table className={tableStyles.customTable}>
           <thead>
             <tr>
@@ -902,6 +903,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
             </tfoot>
           )}
         </table>
+       </div>
       </div>
       {isRatePopup && (
         <ItemRatesPopup

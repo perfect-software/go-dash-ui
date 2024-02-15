@@ -25,9 +25,22 @@ const ViewBuyer = ({onBuyerSelect}) => {
     if (!loaded && !loading) {
       dispatch(fetchAllBuyers());
     }
-    params.api.ensureIndexVisible(0);
-    params.api.setFocusedCell(0, columnDefs[0].field);
-  }, []);
+  }, [loaded, loading, dispatch]);
+  
+  useEffect(() => {
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && buyers.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
+    }
+  }, [gridApi, loaded, loading, error, buyers]);
+
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {
       return;
@@ -42,17 +55,7 @@ const ViewBuyer = ({onBuyerSelect}) => {
       }
     }
   }, []);
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
 
-  useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
-    }
-  }, [loaded, loading, gridApi]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -208,7 +211,12 @@ const ViewBuyer = ({onBuyerSelect}) => {
           rowSelection={"multiple"}
           onCellKeyDown={onCellKeyDown}
           onSelectionChanged={onRowSelected}
-          onRowDataChanged={onRowDataChanged}
+          overlayLoadingTemplate={
+            '<span class="ag-overlay-loading-center">Loading...</span>'
+          }
+          overlayNoRowsTemplate={
+            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+          }
         />
       </div>
     </div>
