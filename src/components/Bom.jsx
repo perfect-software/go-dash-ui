@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
-import { getApiService, postApiService } from "../service/apiService";
+import tableStyles from "../styles/bom.module.css";
+import { getApiService, getDataApiService, postApiService } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 import OverHead from "./bomPages/OverHead";
+import Downshift from "downshift";
 import GraphAverage from "./bomPages/GraphAverage";
 import Comments from "./bomPages/Comment";
 import SizeRoles from "./bomPages/SizeRole";
@@ -12,6 +14,9 @@ const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [srList ,setSrList]=useState([]);
+  const [resetTrigger, setResetTrigger] = useState(false);
+  const [filteredsrList ,setfilteredSrList]=useState([]);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
@@ -22,22 +27,121 @@ const Bom = () => {
     totalCost:"",
     groups: [],
   });
+
+  const [showInputLoading, setShowInputLoading] = useState({
+    sampleNo: false,
+  
+  });
+
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
   };
 
   const [showSuggestions, setShowSuggestions] = useState({
-    buyer: false,
-    color: false,
-    articleNo: false,
-    itemName: false,
+    sampleNo: false,
   });
   const [activePage, setActivePage] = useState('graphAverage');
-
-  const addGrid = () => {
-    setBottomGrids([...bottomGrids, {}]);
+  const toggleInputLoaderVisibility = (key, value) => {
+    setShowInputLoading((prevSuggestions) => ({
+      ...prevSuggestions,
+      [key]: value,
+    }));
   };
+
+  const handleButtonClick = (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
+    setfilteredSrList(srList);
+    toggleInputLoaderVisibility(`${name}`, false);
+    toggleSuggestVisibility(name, !showSuggestions[name]);
+  };
+
+  const handleSampleNoChange = async (e) => {
+    const { name, value } = e.target;
+    toggleInputLoaderVisibility(`${name}`, true);
+    setBomData({...bomData ,sampleNo:value})
+    toggleSuggestVisibility(name, value.length > 0);
+    const filteredItems = srList
+      .filter((item) =>
+        item.toLowerCase().includes(value.toLowerCase()))
+      
+    setfilteredSrList(filteredItems);
+    toggleInputLoaderVisibility(`${name}`, false);
+  };
+
+
+  const sampleRef = useRef(null);
+  const downshiftsampleRef = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          toggleSuggestVisibility("sampleNo", false);
+          setBomData({...bomData,sampleNo:selectedItem})
+          fetchBySrNo(selectedItem);
+        }
+      }}
+      selectedItem={bomData.sampleNo}
+      itemToString={(item) => (item ? item : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleSampleNoChange,
+              name: "sampleNo",
+            })}
+            type="text"
+            ref={sampleRef}
+            className={styles.basicInput}
+            placeholder="Insert First Letter"
+            value={bomData.sampleNo}
+         
+          />
+
+          {showInputLoading.sampleNo ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <button
+              onClick={() => {
+                handleButtonClick("sampleNo");
+                sampleRef.current?.focus();
+              }}
+              className={tableStyles.searchBtn}
+              aria-label="dropDorn"
+            ></button>
+          )}
+
+          {showSuggestions.sampleNo && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+            {filteredsrList.map((item, index) => (
+              <div
+                {...getItemProps({ key: index, index, item })}
+                className={
+                  highlightedIndex === index
+                    ? styles.highlighted
+                    : styles.suggestionItem
+                }
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
+ useEffect(()=>{
+   fetchSRNo();
+ },[])
+
+
+  const fetchSRNo = async ()=>{
+   const BASE_URL = 'bom/getSrNoList'
+    const response = await getApiService(BASE_URL);
+    setSrList(response);
+  }
 
   const handleBomChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +150,29 @@ const Bom = () => {
       [name]: value,
     });
   };
+ 
+  const fetchBySrNo = async (SRNo) => {
+    toggleInputLoaderVisibility('sampleNo', true);
+    try {
+      const BASE_URL = 'bom/getSamplebySrNo';
+      const response = await getDataApiService({ srno: SRNo }, BASE_URL); 
+      setBomData({ ...bomData, buyerName: response.buyerName, articleNo: response.articleNo , sampleNo:SRNo });
+    } catch (error) {
+      console.error(error);
+      togglePopup('Failed To Fetch');
+    } finally {
+      toggleInputLoaderVisibility('sampleNo', false);
+    }
+  };
+  
+  const resetAllFields = () => {
+    setBomData({
+      sampleNo: "",
+      articleNo: "",
+      buyerName: "",
+    });
+    setResetTrigger(true);
+  };
 
   const handleViewPDF = async () => {
     const jsonData = JSON.stringify(bomData);
@@ -53,39 +180,8 @@ const Bom = () => {
     await generatePDF(bomData);
     
   };
-  const articleNoFetch = async () => {
-    articleNoRef.current?.focus();
-    const BASE_URL = "article/getArticleNo";
-    try {
-      const fetchedArticle = await getApiService(BASE_URL);
-      console.log(fetchedArticle);
-      setArticleNos(fetchedArticle);
-      toggleSuggestVisibility("articleNo", true);
-    } catch (error) {
-      console.error("Failed to Article No:", error);
-    }
-  };
+  
 
-  const handleCreateColorChange = async (e) => {
-    const { name, value } = e.target;
-    setArticleCostForm({ ...articleCostForm, [name]: value });
-    if (value.length >= 2) {
-      const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
-        value
-      )}`;
-
-      try {
-        const fetchedColors = await getApiService(BASE_URL);
-        setColors(fetchedColors);
-
-        toggleSuggestVisibility(`${name}`, true);
-      } catch (error) {
-        console.error("Failed to fetch Colors:", error);
-      }
-    } else {
-      toggleSuggestVisibility(`${name}`, false);
-    }
-  };
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
@@ -93,24 +189,7 @@ const Bom = () => {
     }));
   };
 
-  const handleBuyerInputChange = async (e) => {
-    const value = e.target.value;
-    setArticleCostForm({ ...articleCostForm, buyerName: value });
-
-    if (value.length >= 3) {
-      const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
-
-      try {
-        const fetchedBuyers = await getApiService(BASE_URL);
-        setBuyers(fetchedBuyers);
-        toggleSuggestVisibility("buyer", true);
-      } catch (error) {
-        console.error("Failed to fetch buyers:", error);
-      }
-    } else {
-      toggleSuggestVisibility("buyer", false);
-    }
-  };
+ 
   const prepareDataForSubmission = (bomData) => {
 
     const transformedData = {
@@ -144,18 +223,18 @@ const Bom = () => {
     const BASE_URL = 'bom/create';
     try {
        const responseData = await postApiService(dataToSubmit,BASE_URL);
-       togglePopup(responseData.message);
+       togglePopup(responseData.responseStatus.description);
+       resetAllFields();
     } catch (error) {
-      if (error.response) {
-        togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+        errorMessage = "No response received from the server.";
       }
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -223,14 +302,7 @@ const Bom = () => {
             <label className={styles.sampleLabel} htmlFor="articleName">
               Sample No
             </label>
-            <input
-              type="text"
-              name="sampleNo"
-              className={styles.basicInput}
-              placeholder="Sample No"
-              onChange={handleBomChange}
-              value={bomData.sampleNo}
-            />
+            {downshiftsampleRef}
           </div>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
@@ -246,7 +318,7 @@ const Bom = () => {
             />
           </div>
 
-          <div className={styles.colSpan2}>
+          <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleNo">
               Buyer Name
             </label>
@@ -259,7 +331,19 @@ const Bom = () => {
               value={bomData.buyerName}
             />
           </div>
-
+          <div className={styles.colSpan}>
+            <label className={styles.sampleLabel} htmlFor="articleNo">
+              Bom Type
+            </label>
+            <input
+              type="text"
+              name="bomType"
+              className={styles.basicInput}
+              placeholder="BOM Type"
+              onChange={handleBomChange}
+              value={bomData.bomType}
+            />
+          </div>
         
         </div>
         <div className={styles.middleContainerBottom}>
@@ -299,109 +383,45 @@ const Bom = () => {
         <div className={styles.headBorder}></div>
     {activePage=="graphAverage" && <div>  
           <div className={styles.materialTableContainer}>
-          <GraphAverage bomData={bomData} setBomData={setBomData} />
+          <GraphAverage bomData={bomData} setBomData={setBomData} resetTrigger={resetTrigger} onResetDone={() => setResetTrigger(false)}/>
         </div>
-    
-      <div className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
-          </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} >Reset</button>
-            <button
-              className={styles.submitButton}
-               onClick={handleSubmitBomClick}
-            >
-              Submit
-            </button>
-          </div>
-        )}
-      </div></div>}
+    </div>}
 
       {activePage==="overHead" && <div>  
           <div className={styles.materialTableContainer}>
           <OverHead/>
         </div>
     
-      <div className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
-          </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} >Reset</button>
-            <button
-              className={styles.submitButton}
-               onClick={handleSubmitBomClick}
-            >
-              Submit
-            </button>
-          </div>
-        )}
-      </div></div>}
+     </div>}
 
       {activePage==="comment" && <div>  
           <div className={styles.materialTableContainer}>
           <Comments/>
         </div>
     
-      <div className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
-          </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} >Reset</button>
-            <button
-              className={styles.submitButton}
-               onClick={handleSubmitBomClick}
-            >
-              Submit
-            </button>
-          </div>
-        )}
-      </div></div>}
+      </div>}
 
       {activePage==="size" && <div>  
           <div className={styles.materialTableContainer}>
           <SizeRoles/>
         </div>
     
-      <div className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
-          </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} >Reset</button>
-            <button
-              className={styles.submitButton}
-               onClick={handleSubmitBomClick}
-            >
-              Submit
-            </button>
-          </div>
-        )}
-      </div></div>}
+    </div>}
       
       {activePage==="specification" && <div>  
           <div className={styles.materialTableContainer}>
           <Specifications/>
         </div>
     
-      <div className={styles.parentButtonContainer}>
+   </div>}
+   <div className={styles.parentButtonContainer}>
         {loading ? (
           <div className={styles.buttonContainer}>
             <div className={styles.loader}></div>
           </div>
         ) : (
           <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} >Reset</button>
+            <button className={styles.resetButton} onClick={resetAllFields}>Reset</button>
             <button
               className={styles.submitButton}
                onClick={handleSubmitBomClick}
@@ -410,7 +430,7 @@ const Bom = () => {
             </button>
           </div>
         )}
-      </div></div>}
+      </div>
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>

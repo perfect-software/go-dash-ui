@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef , useMemo} from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -13,13 +13,17 @@ import { getApiService } from "../../service/apiService";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
 
-const GraphAverage = ({ bomData, setBomData }) => {
+const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const initialValidationState = {};
   const [isRatePopup, setIsRatePopup] = useState(false);
   const [validation, setValidation] = useState(initialValidationState);
+  const [selectionStates, setSelectionStates] = useState({
+    itemsubgrp: false,
+    itemgrp: false,
+  });
   const [filteredList, setFilteredList] = useState({
     itemGrpList: [],
     itemSubGrpList: [],
@@ -43,11 +47,20 @@ const GraphAverage = ({ bomData, setBomData }) => {
     supplierId: { name: "", id: "" },
     bomQty: "",
     unit: "",
-
     requiredQty: "",
     rate: "",
     cost: "",
   });
+
+  useEffect(() => {
+    if (resetTrigger) {
+      setBomData({
+        groups: []
+    });
+      onResetDone(); 
+    }
+  }, [resetTrigger, onResetDone]);
+
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
@@ -61,14 +74,14 @@ const GraphAverage = ({ bomData, setBomData }) => {
       "rate",
     ];
 
-    if (!newItem.itemgrp.name.trim()) {
+    if (!newItem.itemgrp.name.trim() || !selectionStates.itemgrp) {
       isValid = false;
       newValidation["itemgrp"] = "invalid";
     } else {
       newValidation["itemgrp"] = "valid";
     }
 
-    if (!newItem.itemsubgrp.name.trim()) {
+    if (!newItem.itemsubgrp.name.trim() || !selectionStates.itemsubgrp) {
       isValid = false;
       newValidation["itemsubgrp"] = "invalid";
     } else {
@@ -99,7 +112,6 @@ const GraphAverage = ({ bomData, setBomData }) => {
     return isValid;
   };
 
-    
   const dispatch = useDispatch();
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
@@ -123,7 +135,15 @@ const GraphAverage = ({ bomData, setBomData }) => {
       ...prevSuggestions,
       [key]: value,
     }));
-  }
+  };
+
+  const updateSelectionState = (itemName, isSelected) => {
+    setSelectionStates((prevStates) => ({
+      ...prevStates,
+      [itemName]: isSelected,
+    }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem((prev) => {
@@ -191,6 +211,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
 
   const handleGrpItemChange = (e) => {
     const { name, value } = e.target;
+    updateSelectionState(name, false);
     toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
       setNewItem({ ...newItem, itemgrp: { ...newItem.itemgrp, name: value } });
@@ -385,7 +406,6 @@ const GraphAverage = ({ bomData, setBomData }) => {
     });
   };
 
-
   const handleGrpButtonClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
@@ -414,7 +434,13 @@ const GraphAverage = ({ bomData, setBomData }) => {
 
   const renderTableBody = () => {
     let rows = [];
-
+    if (!bomData || !Array.isArray(bomData.groups) || bomData.groups.length === 0) {
+      return (
+        <tr>
+          <td colSpan="12" style={{ textAlign: "center" }}>No data available</td>
+        </tr>
+      );
+    }
     bomData.groups.forEach((group) => {
       let totalItemsInGroup = group.subgroups.reduce(
         (sum, subgroup) => sum + subgroup.items.length,
@@ -458,36 +484,6 @@ const GraphAverage = ({ bomData, setBomData }) => {
 
     return rows;
   };
-
-  const rowData = useMemo(() => {
-    let rows = [];
-
-    bomData.groups.forEach((group) => {
-      group.subgroups.forEach((subgroup) => {
-        subgroup.items.forEach((item) => {
-          rows.push({
-            groupId:group.id,
-            groupName: group.name,
-            subgroupName: subgroup.name,
-            subgroupId: subgroup.id,
-            itemName: item.itemName,
-            usedIn: item.usedIn,
-            pair: item.pair,
-            bomQty: item.bomQty,
-            stockConsumedQty: item.stockConsumedQty,
-            requiredQty: item.requiredQty,
-            rate: item.rate,
-            unit: item.unit,
-            supplierId: item.supplierName,
-            cost: item.cost,
-            itemId: item.itemId
-          });
-        });
-      });
-    });
-
-    return rows;
-  }, [bomData]);
 
   const downshiftItemName = (
     <Downshift
@@ -536,16 +532,16 @@ const GraphAverage = ({ bomData, setBomData }) => {
             placeholder="Type a word"
             value={newItem.itemId.name}
           />
-            {showInputLoading.itemId ? (
+          {showInputLoading.itemId ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <button
-            onClick={() => setIsRatePopup(true)}
-            className={tableStyles.searchBtn2}
-            aria-label="Search"
-          ></button>
+              onClick={() => setIsRatePopup(true)}
+              className={tableStyles.searchBtn2}
+              aria-label="Search"
+            ></button>
           )}
-       
+
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.itemId &&
               itemNames.map((name, idx) => (
@@ -576,6 +572,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
             itemgrp: { id: selectedItem.id, name: selectedItem.name },
           }));
           setItemGroupNumber(selectedItem.id);
+          updateSelectionState("itemgrp", true);
           toggleSuggestVisibility("itemgrp", false);
         }
       }}
@@ -650,6 +647,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
             itemsubgrp: { id: selectedItem.id, name: selectedItem.name },
           }));
           toggleSuggestVisibility("itemsubgrp", false);
+          updateSelectionState("itemsubgrp", true);
         }
       }}
       selectedItem={newItem.itemsubgrp}
@@ -673,28 +671,22 @@ const GraphAverage = ({ bomData, setBomData }) => {
             }
             disabled={!newItem.itemgrp.name}
             value={newItem.itemsubgrp.name}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddMaterial();
-              }
-            }}
+         
           />
 
-{showInputLoading.itemsubgrp ? (
+          {showInputLoading.itemsubgrp ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <button
-            onClick={() => {
-              handleGrpButtonClick("itemsubgrp");
-              itemSubGrpRef.current?.focus();
-            }}
-            className={tableStyles.searchBtn}
-            disabled={!newItem.itemgrp.name}
-            aria-label="dropDorn"
-          ></button>
+              onClick={() => {
+                handleGrpButtonClick("itemsubgrp");
+                itemSubGrpRef.current?.focus();
+              }}
+              className={tableStyles.searchBtn}
+              disabled={!newItem.itemgrp.name}
+              aria-label="dropDorn"
+            ></button>
           )}
-       
 
           {showSuggestions.itemsubgrp && (
             <div {...getMenuProps()} className={styles.suggestions}>
@@ -869,11 +861,8 @@ const GraphAverage = ({ bomData, setBomData }) => {
         </div>
       </div>
 
-      <div
-        className={isCollapsed ? tableStyles.topContainer : tableStyles.topContainerOpen}
-      >
-       <div className={tableStyles.tableBor}>
-       <table className={tableStyles.customTable}>
+      <div className={tableStyles.tableBor}>
+        <table className={tableStyles.customTable}>
           <thead>
             <tr>
               <th>Group</th>
@@ -891,7 +880,7 @@ const GraphAverage = ({ bomData, setBomData }) => {
             </tr>
           </thead>
           <tbody>{renderTableBody()}</tbody>
-          {bomData.groups.length > 0 && (
+          {!bomData || !Array.isArray(bomData.groups) || bomData.groups.length > 0 && (
             <tfoot>
               <tr>
                 <td colSpan="10"></td>
@@ -903,8 +892,8 @@ const GraphAverage = ({ bomData, setBomData }) => {
             </tfoot>
           )}
         </table>
-       </div>
       </div>
+
       {isRatePopup && (
         <ItemRatesPopup
           onCancel={() => {
