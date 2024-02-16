@@ -10,6 +10,7 @@ import GraphAverage from "./bomPages/GraphAverage";
 import Comments from "./bomPages/Comment";
 import SizeRoles from "./bomPages/SizeRole";
 import Specifications from "./bomPages/Specification";
+import ViewBom from "./ViewBom";
 const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -21,15 +22,16 @@ const Bom = () => {
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const [bomData, setBomData] = useState({
-    sampleNo: "",
+    sr_no: "",
     articleNo: "",
+    bomType:"",
     buyerName: "",
     totalCost:"",
     groups: [],
   });
 
   const [showInputLoading, setShowInputLoading] = useState({
-    sampleNo: false,
+    sr_no: false,
   
   });
 
@@ -39,7 +41,7 @@ const Bom = () => {
   };
 
   const [showSuggestions, setShowSuggestions] = useState({
-    sampleNo: false,
+    sr_no: false,
   });
   const [activePage, setActivePage] = useState('graphAverage');
   const toggleInputLoaderVisibility = (key, value) => {
@@ -59,7 +61,7 @@ const Bom = () => {
   const handleSampleNoChange = async (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    setBomData({...bomData ,sampleNo:value})
+    setBomData({...bomData ,sr_no:value})
     toggleSuggestVisibility(name, value.length > 0);
     const filteredItems = srList
       .filter((item) =>
@@ -75,12 +77,12 @@ const Bom = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          toggleSuggestVisibility("sampleNo", false);
-          setBomData({...bomData,sampleNo:selectedItem})
+          toggleSuggestVisibility("sr_no", false);
+          setBomData({...bomData,sr_no:selectedItem})
           fetchBySrNo(selectedItem);
         }
       }}
-      selectedItem={bomData.sampleNo}
+      selectedItem={bomData.sr_no}
       itemToString={(item) => (item ? item : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
@@ -88,22 +90,22 @@ const Bom = () => {
           <input
             {...getInputProps({
               onChange: handleSampleNoChange,
-              name: "sampleNo",
+              name: "sr_no",
             })}
             type="text"
             ref={sampleRef}
             className={styles.basicInput}
             placeholder="Insert First Letter"
-            value={bomData.sampleNo}
+            value={bomData.sr_no}
          
           />
 
-          {showInputLoading.sampleNo ? (
+          {showInputLoading.sr_no ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <button
               onClick={() => {
-                handleButtonClick("sampleNo");
+                handleButtonClick("sr_no");
                 sampleRef.current?.focus();
               }}
               className={tableStyles.searchBtn}
@@ -111,7 +113,7 @@ const Bom = () => {
             ></button>
           )}
 
-          {showSuggestions.sampleNo && (
+          {showSuggestions.sr_no && (
             <div {...getMenuProps()} className={styles.suggestions}>
             {filteredsrList.map((item, index) => (
               <div
@@ -152,24 +154,25 @@ const Bom = () => {
   };
  
   const fetchBySrNo = async (SRNo) => {
-    toggleInputLoaderVisibility('sampleNo', true);
+    toggleInputLoaderVisibility('sr_no', true);
     try {
       const BASE_URL = 'bom/getSamplebySrNo';
       const response = await getDataApiService({ srno: SRNo }, BASE_URL); 
-      setBomData({ ...bomData, buyerName: response.buyerName, articleNo: response.articleNo , sampleNo:SRNo });
+      setBomData({ ...bomData, buyerName: response.buyerName, articleNo: response.articleNo , sr_no:SRNo });
     } catch (error) {
       console.error(error);
       togglePopup('Failed To Fetch');
     } finally {
-      toggleInputLoaderVisibility('sampleNo', false);
+      toggleInputLoaderVisibility('sr_no', false);
     }
   };
   
   const resetAllFields = () => {
     setBomData({
-      sampleNo: "",
+      sr_no: "",
       articleNo: "",
       buyerName: "",
+      bomType: "",
     });
     setResetTrigger(true);
   };
@@ -194,6 +197,7 @@ const Bom = () => {
 
     const transformedData = {
       ...bomData,
+      
       groups: bomData.groups.map((group) => ({
         itemgrp: group.id,
         subgroups: group.subgroups.map((subgroup) => ({
@@ -297,7 +301,10 @@ const Bom = () => {
        
       </div>
       <div className={styles.headBorder}></div>
-        <div className={styles.topGrid}>
+     
+      {activeButton === "details" ? (  
+      <>      
+       <div className={styles.topGrid}>
           <div className={styles.colSpan}>
             <label className={styles.sampleLabel} htmlFor="articleName">
               Sample No
@@ -431,6 +438,19 @@ const Bom = () => {
           </div>
         )}
       </div>
+      </> 
+      ):(
+         <div> <ViewBom/></div>
+      )}
+
+
+
+
+
+
+
+
+      
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>

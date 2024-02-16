@@ -456,7 +456,7 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
               {itemIndex === 0 && (
                 <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
               )}
-              <td>{item.itemName}</td>
+              <td style={{maxWidth:'200px'}}>{item.itemName}</td>
 
               <td>{item.usedIn}</td>
 
@@ -467,7 +467,7 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
               <td>{item.rate}</td>
               <td>{item.unit}</td>
               <td>{item.supplierName}</td>
-              <td>{item.cost}</td>
+              <td style={{maxWidth:'100px'}}>{item.cost}</td>
               <td style={{ textAlign: "center" }}>
                 <button
                   onClick={() =>
@@ -861,13 +861,13 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
         </div>
       </div>
 
-      <div className={tableStyles.tableBor}>
+      <div className={isCollapsed ? tableStyles.tableBor : tableStyles.tableBorOpen}>
         <table className={tableStyles.customTable}>
           <thead>
             <tr>
               <th>Group</th>
               <th>Subgroup</th>
-              <th>Item Name</th>
+              <th style={{maxWidth:'200px'}}>Item Name</th>
               <th>Used In</th>
               <th>Pair</th>
               <th>BOM Qty</th>
@@ -875,7 +875,7 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
               <th>Rate</th>
               <th>Unit</th>
               <th>Supplier</th>
-              <th>Cost</th>
+              <th style={{maxWidth:'100px'}}>Cost</th>
               <th style={{ textAlign: "center" }}>Action</th>
             </tr>
           </thead>

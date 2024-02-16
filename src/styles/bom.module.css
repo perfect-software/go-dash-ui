@@ -69,25 +69,33 @@
   grid-gap: 4px 10px;
 }
 .tableBor {
-  @apply overflow-x-auto mt-3 w-[100%];
+  @apply mt-3;
+  width: calc(100vw - 95px);
   border: 1px solid #E5E7EB;
   border-radius: 8px;
+  overflow: auto; 
+}
+.tableBorOpen {
+  @apply mt-3;
+  width: calc(100vw - 245px);
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: auto; 
 }
 
 .customTable {
   border-collapse: collapse;
   border-spacing: 0;
-  min-width: 100%;
+  width: 100%;
   border-radius: 8px;
   background-color: #fff;
 }
-
 .customTable td {
   padding: 0.75rem; 
   text-align: left;
   @apply whitespace-nowrap overflow-x-auto;
   color: #000000;
-  max-width:100px;
+  max-width:90px;
   font-size: 0.875rem;
 }
 .customTable td {
@@ -100,7 +108,7 @@
   text-align: left;
   background-color: #F9FAFB; 
   color: #000000;
-  max-width:100px;
+  max-width:90px;
   font-size: 0.84rem;
 }
 .customTable th:last-child {
@@ -442,5 +450,25 @@ select {
 }
 
 .tableBor::-webkit-scrollbar-thumb:hover {
+  background: rgba(58, 71, 80, 1);
+}
+
+.tableBorOpen::-webkit-scrollbar {
+  display: block;
+  height: 0.4rem;
+}
+
+.tableBorOpen::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.tableBorOpen::-webkit-scrollbar-thumb {
+  margin: 2px 0;
+  background: rgba(58, 71, 80, 0.6);
+  border-radius: 2px;
+}
+
+.tableBorOpen::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 71, 80, 1);
 }

@@ -4,6 +4,7 @@ import sampleSlice from '../reducer/sampleSlice';
 import dataSlice from '../reducer/grpSubgrpSlice';
 import itemRateSlice from '../reducer/itemRateSlice';
 import articleSlice from '../reducer/articleSlice';
+import bomSlice from '../reducer/bomSlice';
 
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     sample:sampleSlice,
     data: dataSlice,
     itemRate: itemRateSlice,
-    article:articleSlice
+    article:articleSlice,
+    bom:bomSlice
   }
 });
