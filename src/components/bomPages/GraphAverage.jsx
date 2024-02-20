@@ -58,6 +58,8 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
         groups: []
     });
       onResetDone(); 
+      setValidation(initialValidationState);
+      resetNewItemState();
     }
   }, [resetTrigger, onResetDone]);
 

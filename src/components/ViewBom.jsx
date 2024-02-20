@@ -93,7 +93,7 @@ const ViewBom = () => {
   };
  
   const columnDefs = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,  headerCheckboxSelection: true,
+    { headerName: "Edit",  field:'edit' , maxWidth: 80,
     checkboxSelection: true,
     showDisabledCheckboxes: true},
     { headerName: "SR No.", width:150, field: "srno", sortable: true, filter: true },
@@ -135,6 +135,7 @@ const ViewBom = () => {
     {
         headerName: "BOM Details",
         field:'bomId',
+        width:120,
         cellRenderer: function (params) {
           return (
             <div style={{

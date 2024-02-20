@@ -884,6 +884,7 @@ const SampleRequest = () => {
               validation.bsName === "invalid" ? { border: "2px solid red" } : {}
             }
             className={styles.basicInput2}
+            disabled={isEditClicked}
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
           />
@@ -1699,6 +1700,7 @@ const SampleRequest = () => {
                   placeholder="Input Here"
                   name="buyerRef"
                   maxLength="50"
+                  disabled={isEditClicked}
                   value={sampleDetailsForm.buyerRef}
                   onChange={handleCreateSampleChange}
                 />

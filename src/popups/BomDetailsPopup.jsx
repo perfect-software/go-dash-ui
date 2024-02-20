@@ -31,11 +31,14 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
       } else if (!isFetching && bomDetails.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
-        gridApi.setRowData(bomDetails); 
+        const rowDataToUpdate = [].concat(bomDetails);
+        gridApi.updateGridOptions({ rowData: rowDataToUpdate });
         gridApi.hideOverlay();
       }
     }
+    
   }, [gridApi, isFetching, fetchError, bomDetails]);
+  
   
 
 
@@ -44,8 +47,9 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
     setFetchError(null);
     try {
       if (bomId) {
-        const BASE_URL = 'bom/getBomDetails';
+        const BASE_URL = 'bom/viewbomdetails';
         const response = await getDataApiService({ bomId: bomId }, BASE_URL);
+        console.log(response);
         setBomDetails(response); 
         setIsFetching(false);
       }
@@ -82,27 +86,83 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
   };
   const columnDefs = [
     { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
-    { headerName: "SR No", field: "bsName", sortable: true, filter: true },
     {
-      headerName: "Item Name",
-      field: "entDate",
+      headerName: "Item ID",
+      field: "item_id",
       sortable: true,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
+      width:100,
+      filter: true,
     },
-    { headerName: "Size", field: "bsCode", sortable: true, filter: true },
     {
-      headerName: "Blc. Qty",
-      field: "deliveryAddress",
+      headerName: "Group",
+      field: "itemGrp",
+      sortable: true,
+      width:150,
+      filter: true,
+    },
+    {
+      headerName: "Sub Group",
+      field: "itemSubGrp",
+      sortable: true,
+      width:150,
+      filter: true,
+    },
+    
+    {
+      headerName: "Used In",
+      field: "usedIn",
+      sortable: true,
+      width:100,
+      filter: true,
+    },
+    {
+      headerName: "Pair",
+      field: "pair",
+      sortable: true,
+      width:100,
+      filter: true,
+    },
+    {
+      headerName: "BOM Quantity",
+      field: "bomQty",
+      width:100,
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Qty",
-      field: "billingAddress",
+      headerName: "Stock Consumed",
+      field: "stockConsumedQty",
+      sortable: true,
+      width:100,
+      filter: true,
+    },
+    {
+      headerName: "Required Quantity",
+      field: "reqQty",
+      sortable: true,
+      width:100,
+      filter: true,
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      width:70,
       sortable: true,
       filter: true,
+    },
+    {
+      headerName: "Unit",
+      field: "unit",
+      width:70,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Supplier Id",
+      field: "supplier_id",
+      sortable: true,
+      filter: true,
+      width:70,
     },
   ];
 
@@ -132,7 +192,7 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
           >
             <AgGridReact
               columnDefs={columnDefs}
-              rowData={bomDetails}
+            //  rowData={bomDetails}
               pagination={true}
               paginationPageSize={12}
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}

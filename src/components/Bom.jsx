@@ -1,13 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import tableStyles from "../styles/bom.module.css";
-import { getApiService, getDataApiService, postApiService } from "../service/apiService";
+import {
+  getApiService,
+  getDataApiService,
+  postApiService,
+} from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 import OverHead from "./bomPages/OverHead";
 import Downshift from "downshift";
+import { useDispatch, useSelector } from "react-redux";
 import GraphAverage from "./bomPages/GraphAverage";
 import Comments from "./bomPages/Comment";
+import { fetchAllBom } from "../reducer/bomSlice";
 import SizeRoles from "./bomPages/SizeRole";
 import Specifications from "./bomPages/Specification";
 import ViewBom from "./ViewBom";
@@ -15,24 +21,23 @@ const Bom = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const [srList ,setSrList]=useState([]);
+  const [srList, setSrList] = useState([]);
   const [resetTrigger, setResetTrigger] = useState(false);
-  const [filteredsrList ,setfilteredSrList]=useState([]);
+  const [filteredsrList, setfilteredSrList] = useState([]);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const [bomData, setBomData] = useState({
     sr_no: "",
     articleNo: "",
-    bomType:"",
+    bomType: "",
     buyerName: "",
-    totalCost:"",
+    totalCost: "",
     groups: [],
   });
-
+  const dispatch = useDispatch();
   const [showInputLoading, setShowInputLoading] = useState({
     sr_no: false,
-  
   });
 
   const togglePopup = (message) => {
@@ -43,7 +48,7 @@ const Bom = () => {
   const [showSuggestions, setShowSuggestions] = useState({
     sr_no: false,
   });
-  const [activePage, setActivePage] = useState('graphAverage');
+  const [activePage, setActivePage] = useState("graphAverage");
   const toggleInputLoaderVisibility = (key, value) => {
     setShowInputLoading((prevSuggestions) => ({
       ...prevSuggestions,
@@ -61,16 +66,15 @@ const Bom = () => {
   const handleSampleNoChange = async (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    setBomData({...bomData ,sr_no:value})
+    setBomData({ ...bomData, sr_no: value });
     toggleSuggestVisibility(name, value.length > 0);
-    const filteredItems = srList
-      .filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase()))
-      
+    const filteredItems = srList.filter((item) =>
+      item.toLowerCase().includes(value.toLowerCase())
+    );
+
     setfilteredSrList(filteredItems);
     toggleInputLoaderVisibility(`${name}`, false);
   };
-
 
   const sampleRef = useRef(null);
   const downshiftsampleRef = (
@@ -78,7 +82,7 @@ const Bom = () => {
       onChange={(selectedItem) => {
         if (selectedItem) {
           toggleSuggestVisibility("sr_no", false);
-          setBomData({...bomData,sr_no:selectedItem})
+          setBomData({ ...bomData, sr_no: selectedItem });
           fetchBySrNo(selectedItem);
         }
       }}
@@ -97,7 +101,6 @@ const Bom = () => {
             className={styles.basicInput}
             placeholder="Insert First Letter"
             value={bomData.sr_no}
-         
           />
 
           {showInputLoading.sr_no ? (
@@ -115,35 +118,34 @@ const Bom = () => {
 
           {showSuggestions.sr_no && (
             <div {...getMenuProps()} className={styles.suggestions}>
-            {filteredsrList.map((item, index) => (
-              <div
-                {...getItemProps({ key: index, index, item })}
-                className={
-                  highlightedIndex === index
-                    ? styles.highlighted
-                    : styles.suggestionItem
-                }
-              >
-                {item}
-              </div>
-            ))}
-          </div>
+              {filteredsrList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
     </Downshift>
   );
 
- useEffect(()=>{
-   fetchSRNo();
- },[])
+  useEffect(() => {
+    fetchSRNo();
+  }, []);
 
-
-  const fetchSRNo = async ()=>{
-   const BASE_URL = 'bom/getSrNoList'
+  const fetchSRNo = async () => {
+    const BASE_URL = "bom/getSrNoList";
     const response = await getApiService(BASE_URL);
     setSrList(response);
-  }
+  };
 
   const handleBomChange = (e) => {
     const { name, value } = e.target;
@@ -152,21 +154,26 @@ const Bom = () => {
       [name]: value,
     });
   };
- 
+
   const fetchBySrNo = async (SRNo) => {
-    toggleInputLoaderVisibility('sr_no', true);
+    toggleInputLoaderVisibility("sr_no", true);
     try {
-      const BASE_URL = 'bom/getSamplebySrNo';
-      const response = await getDataApiService({ srno: SRNo }, BASE_URL); 
-      setBomData({ ...bomData, buyerName: response.buyerName, articleNo: response.articleNo , sr_no:SRNo });
+      const BASE_URL = "bom/getSamplebySrNo";
+      const response = await getDataApiService({ srno: SRNo }, BASE_URL);
+      setBomData({
+        ...bomData,
+        buyerName: response.buyerName,
+        articleNo: response.articleNo,
+        sr_no: SRNo,
+      });
     } catch (error) {
       console.error(error);
-      togglePopup('Failed To Fetch');
+      togglePopup("Failed To Fetch");
     } finally {
-      toggleInputLoaderVisibility('sr_no', false);
+      toggleInputLoaderVisibility("sr_no", false);
     }
   };
-  
+
   const resetAllFields = () => {
     setBomData({
       sr_no: "",
@@ -181,9 +188,7 @@ const Bom = () => {
     const jsonData = JSON.stringify(bomData);
     console.log(jsonData);
     await generatePDF(bomData);
-    
   };
-  
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -192,17 +197,15 @@ const Bom = () => {
     }));
   };
 
- 
   const prepareDataForSubmission = (bomData) => {
-
     const transformedData = {
       ...bomData,
-      
+
       groups: bomData.groups.map((group) => ({
         itemgrp: group.id,
         subgroups: group.subgroups.map((subgroup) => ({
           itemsubgrp: subgroup.id,
-          items: subgroup.items.map(item => ({
+          items: subgroup.items.map((item) => ({
             itemId: item.itemId,
             usedIn: item.usedIn,
             pair: item.pair,
@@ -212,23 +215,24 @@ const Bom = () => {
             unit: item.unit,
             requiredQty: item.requiredQty,
             rate: item.rate,
-          }))
-        }))
-      }))
+          })),
+        })),
+      })),
     };
-  
+
     return transformedData;
   };
 
-  const handleSubmitBomClick = async (e)=>{
+  const handleSubmitBomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
     const dataToSubmit = await prepareDataForSubmission(bomData);
-    const BASE_URL = 'bom/create';
+    const BASE_URL = "bom/create";
     try {
-       const responseData = await postApiService(dataToSubmit,BASE_URL);
-       togglePopup(responseData.responseStatus.description);
-       resetAllFields();
+      const responseData = await postApiService(dataToSubmit, BASE_URL);
+      togglePopup(responseData.responseStatus.description);
+      resetAllFields();
+      dispatch(fetchAllBom());
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
@@ -242,215 +246,223 @@ const Bom = () => {
     } finally {
       setLoading(false);
     }
-  }
-
+  };
 
   return (
     <div className={styles.BOMContainer}>
-        <div className={styles.headContainer}>
+      <div className={styles.headContainer}>
         <div className={styles.BOMSubHeadContainer}>
-          <h1 className={styles.headText}>
-           SR BOM
-          </h1>
-          </div>
-        <div className={styles.subHeadContainerTwo}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div className={styles.topButtons}>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "details" ? styles.active : ""
-              }`}
-              onClick={() => setActiveButton("details")}
-            >
-              BOM Details
-            </button>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "view" ? styles.active : ""
-              }`}
-              onClick={() => {
-                setActiveButton("view");
-                {
-              
-                }
-              }}
-            >
-              View BOM
-            </button>
-          </div>
-              <div className={styles.editContainer}>
-                <button
-                  className={styles.headButton}
-                  onClick={handleViewPDF}
-                >
-                  Print
-                </button>
-                  <button
-                    className={styles.headButtonPrint}
-                    onClick={() => {
-                      setIsInventoryPopup(true);
-                    }}
-                  >
-                    Inventory
-                  </button>
-           
-          </div>
-          </div>
-        
+          <h1 className={styles.headText}>SR BOM</h1>
         </div>
-       
+        <div className={styles.subHeadContainerTwo}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className={styles.topButtons}>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "details" ? styles.active : ""
+                }`}
+                onClick={() => setActiveButton("details")}
+              >
+                BOM Details
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "view" ? styles.active : ""
+                }`}
+                onClick={() => {
+                  setActiveButton("view");
+                  {
+                  }
+                }}
+              >
+                View BOM
+              </button>
+            </div>
+            <div className={styles.editContainer}>
+              <button className={styles.headButton} onClick={handleViewPDF}>
+                Print
+              </button>
+              <button
+                className={styles.headButtonPrint}
+                onClick={() => {
+                  setIsInventoryPopup(true);
+                }}
+              >
+                Inventory
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <div className={styles.headBorder}></div>
-     
-      {activeButton === "details" ? (  
-      <>      
-       <div className={styles.topGrid}>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleName">
-              Sample No
-            </label>
-            {downshiftsampleRef}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Article No
-            </label>
-            <input
-              type="text"
-              name="articleNo"
-              className={styles.basicInput}
-              placeholder="Article No"
-              onChange={handleBomChange}
-              value={bomData.articleNo}
-            />
-          </div>
 
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Buyer Name
-            </label>
-            <input
-              type="text"
-              name="buyerName"
-              className={styles.basicInput}
-              placeholder="Buyer Name"
-              onChange={handleBomChange}
-              value={bomData.buyerName}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.sampleLabel} htmlFor="articleNo">
-              Bom Type
-            </label>
-            <input
-              type="text"
-              name="bomType"
-              className={styles.basicInput}
-              placeholder="BOM Type"
-              onChange={handleBomChange}
-              value={bomData.bomType}
-            />
-          </div>
-        
-        </div>
-        <div className={styles.middleContainerBottom}>
-        <div className={styles.topButtons}>
-      <button
-        className={`${styles.screenChangeButton} ${activePage === "graphAverage" ? styles.active : ""}`}
-        onClick={() => setActivePage("graphAverage")}
-      >
-       Graph Average
-      </button>
-      <button
-        className={`${styles.screenChangeButton} ${activePage === "overHead" ? styles.active : ""}`}
-        onClick={() => setActivePage("overHead")}
-      >
-       Over Head
-      </button>
-      <button
-        className={`${styles.screenChangeButton} ${activePage === "comment" ? styles.active : ""}`}
-        onClick={() => setActivePage("comment")}
-      >
-        Comment
-      </button>
-      <button
-        className={`${styles.screenChangeButton} ${activePage === "specification" ? styles.active : ""}`}
-        onClick={() => setActivePage("specification")}
-      >
-       Specification
-      </button>
-      <button
-        className={`${styles.screenChangeButton} ${activePage === "size" ? styles.active : ""}`}
-        onClick={() => setActivePage("size")}
-      >
-       Size Roll
-      </button>
-    </div>
-        </div>
-        <div className={styles.headBorder}></div>
-    {activePage=="graphAverage" && <div>  
-          <div className={styles.materialTableContainer}>
-          <GraphAverage bomData={bomData} setBomData={setBomData} resetTrigger={resetTrigger} onResetDone={() => setResetTrigger(false)}/>
-        </div>
-    </div>}
+      {activeButton === "details" ? (
+        <>
+          <div className={styles.topGrid}>
+            <div className={styles.colSpan}>
+              <label className={styles.sampleLabel} htmlFor="articleName">
+                Sample No
+              </label>
+              {downshiftsampleRef}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.sampleLabel} htmlFor="articleNo">
+                Article No
+              </label>
+              <input
+                type="text"
+                name="articleNo"
+                className={styles.basicInput}
+                placeholder="Article No"
+                onChange={handleBomChange}
+                value={bomData.articleNo}
+              />
+            </div>
 
-      {activePage==="overHead" && <div>  
-          <div className={styles.materialTableContainer}>
-          <OverHead/>
-        </div>
-    
-     </div>}
-
-      {activePage==="comment" && <div>  
-          <div className={styles.materialTableContainer}>
-          <Comments/>
-        </div>
-    
-      </div>}
-
-      {activePage==="size" && <div>  
-          <div className={styles.materialTableContainer}>
-          <SizeRoles/>
-        </div>
-    
-    </div>}
-      
-      {activePage==="specification" && <div>  
-          <div className={styles.materialTableContainer}>
-          <Specifications/>
-        </div>
-    
-   </div>}
-   <div className={styles.parentButtonContainer}>
-        {loading ? (
-          <div className={styles.buttonContainer}>
-            <div className={styles.loader}></div>
+            <div className={styles.colSpan}>
+              <label className={styles.sampleLabel} htmlFor="articleNo">
+                Buyer Name
+              </label>
+              <input
+                type="text"
+                name="buyerName"
+                className={styles.basicInput}
+                placeholder="Buyer Name"
+                onChange={handleBomChange}
+                value={bomData.buyerName}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.sampleLabel} htmlFor="articleNo">
+                Bom Type
+              </label>
+              <input
+                type="text"
+                name="bomType"
+                className={styles.basicInput}
+                placeholder="BOM Type"
+                onChange={handleBomChange}
+                value={bomData.bomType}
+              />
+            </div>
           </div>
-        ) : (
-          <div className={styles.buttonContainer}>
-            <button className={styles.resetButton} onClick={resetAllFields}>Reset</button>
-            <button
-              className={styles.submitButton}
-               onClick={handleSubmitBomClick}
-            >
-              Submit
-            </button>
+          <div className={styles.middleContainerBottom}>
+            <div className={styles.topButtons}>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "graphAverage" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("graphAverage")}
+              >
+                Graph Average
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "overHead" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("overHead")}
+              >
+                Over Head
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "comment" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("comment")}
+              >
+                Comment
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "specification" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("specification")}
+              >
+                Specification
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "size" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("size")}
+              >
+                Size Roll
+              </button>
+            </div>
           </div>
-        )}
-      </div>
-      </> 
-      ):(
-         <div> <ViewBom/></div>
+          <div className={styles.headBorder}></div>
+          {activePage == "graphAverage" && (
+            <div>
+              <div className={styles.materialTableContainer}>
+                <GraphAverage
+                  bomData={bomData}
+                  setBomData={setBomData}
+                  resetTrigger={resetTrigger}
+                  onResetDone={() => setResetTrigger(false)}
+                />
+              </div>
+            </div>
+          )}
+
+          {activePage === "overHead" && (
+            <div>
+              <div className={styles.materialTableContainer}>
+                <OverHead />
+              </div>
+            </div>
+          )}
+
+          {activePage === "comment" && (
+            <div>
+              <div className={styles.materialTableContainer}>
+                <Comments />
+              </div>
+            </div>
+          )}
+
+          {activePage === "size" && (
+            <div>
+              <div className={styles.materialTableContainer}>
+                <SizeRoles />
+              </div>
+            </div>
+          )}
+
+          {activePage === "specification" && (
+            <div>
+              <div className={styles.materialTableContainer}>
+                <Specifications />
+              </div>
+            </div>
+          )}
+          <div className={styles.parentButtonContainer}>
+            {loading ? (
+              <div className={styles.buttonContainer}>
+                <div className={styles.loader}></div>
+              </div>
+            ) : (
+              <div className={styles.buttonContainer}>
+                <button className={styles.resetButton} onClick={resetAllFields}>
+                  Reset
+                </button>
+                <button
+                  className={styles.submitButton}
+                  disabled={bomData.groups && !bomData.groups.length > 0}
+                  onClick={handleSubmitBomClick}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div>
+          {" "}
+          <ViewBom />
+        </div>
       )}
 
-
-
-
-
-
-
-
-      
       {isPopupVisible && (
         <div className={styles.popupOverlay}>
           <div className={styles.popupContent}>
@@ -461,13 +473,13 @@ const Bom = () => {
           </div>
         </div>
       )}
-       {isInventoryPopup && (
-            <InventoryCheckPopup
-              onCancel={() => {
-                setIsInventoryPopup(false);
-              }}
-            />
-          )}
+      {isInventoryPopup && (
+        <InventoryCheckPopup
+          onCancel={() => {
+            setIsInventoryPopup(false);
+          }}
+        />
+      )}
     </div>
   );
 };
