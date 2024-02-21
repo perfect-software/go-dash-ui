@@ -24,6 +24,13 @@ const Bom = () => {
   const [srList, setSrList] = useState([]);
   const [resetTrigger, setResetTrigger] = useState(false);
   const [filteredsrList, setfilteredSrList] = useState([]);
+  const initialValidationState = {};
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [isEditSelected, setIsEditSelected] = useState(false);
+  const [isEditClicked, setIsEditClicked] = useState(false);
+  const [bomDetails, setBomDetails] = useState([]);
+  const [tempBomDetails, setTempBomDetails] = useState(null);
+  const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
@@ -40,6 +47,24 @@ const Bom = () => {
     sr_no: false,
   });
 
+  const validateForm = () => {
+    let isValid = true;
+    let newValidation = {};
+
+    const requiredFields = ["sr_no", "articleNo", "buyerName"];
+
+    requiredFields.forEach((field) => {
+      if (!bomData[field] || bomData[field].trim() === "") {
+        isValid = false;
+        newValidation[field] = "invalid";
+      } else {
+        newValidation[field] = "valid";
+      }
+    });
+
+    setValidation(newValidation);
+    return isValid;
+  };
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
@@ -61,6 +86,7 @@ const Bom = () => {
     setfilteredSrList(srList);
     toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, !showSuggestions[name]);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleSampleNoChange = async (e) => {
@@ -71,9 +97,9 @@ const Bom = () => {
     const filteredItems = srList.filter((item) =>
       item.toLowerCase().includes(value.toLowerCase())
     );
-
     setfilteredSrList(filteredItems);
     toggleInputLoaderVisibility(`${name}`, false);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const sampleRef = useRef(null);
@@ -98,6 +124,9 @@ const Bom = () => {
             })}
             type="text"
             ref={sampleRef}
+            style={
+              validation.sr_no === "invalid" ? { border: "2px solid red" } : {}
+            }
             className={styles.basicInput}
             placeholder="Insert First Letter"
             value={bomData.sr_no}
@@ -146,6 +175,77 @@ const Bom = () => {
     const response = await getApiService(BASE_URL);
     setSrList(response);
   };
+  const fetchBomDetails = async (bomId) => {
+    try {
+      if (bomId) {
+        const BASE_URL = "bom/viewbomdetails";
+        const response = await getDataApiService({ bomId: bomId }, BASE_URL);
+        console.log(response);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchError("Failed to fetch BOM details");
+    }
+  };
+  const handleBOMEdit = (bom) => {
+    setIsEditSelected(false);
+    if (bom) {
+      setIsEditSelected(true);
+      setTempBomDetails(bom);
+    }
+  };
+
+  const handleEditClick = async () => {
+    setIsEditClicked(true);
+    setUpdateLoading(true);
+    setActiveButton("details");
+    try {
+      // Assuming fetchBomDetails returns the array shown in the uploaded image
+      const response = await fetchBomDetails(tempBomDetails[0].bomId);
+      if (response && Array.isArray(response)) {
+        // Map the response to the format expected by bomData.groups
+        const updatedGroups = response.map(details => {
+          return {
+            id: details.itemGrp, // Assuming itemGrp is the group ID
+            name: details.itemGrp, // You might need to fetch the group name separately if it's not part of the details
+            subgroups: [{
+              id: details.itemSubGrp,
+              name: details.itemSubGrp, // Again, fetch subgroup name if necessary
+              items: [{
+                itemId: details.item_id,
+                itemName: details.itemGrp, // Replace with the actual item name field
+                usedIn: details.usedIn,
+                pair: details.pair,
+                bomQty: details.bomQty,
+                supplierId: details.supplier_id,
+                supplierName: details.supplier_id, // Replace with actual supplier name field
+                unit: details.unit,
+                requiredQty: details.reqQty,
+                rate: details.rate,
+                cost: details.amount, // Assuming 'amount' is the cost
+                // Add any other fields needed
+              }]
+            }]
+          };
+        });
+  
+        // Now set the updated groups to bomData
+        setBomData(prevData => {
+          let newData = JSON.parse(JSON.stringify(prevData));
+          newData.groups = updatedGroups;
+          // Calculate totalCost based on new groups if necessary
+          return newData;
+        });
+      } else {
+        // Handle the case where response is not as expected
+      }
+    } catch (error) {
+      // Handle error
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+  
 
   const handleBomChange = (e) => {
     const { name, value } = e.target;
@@ -153,6 +253,7 @@ const Bom = () => {
       ...bomData,
       [name]: value,
     });
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const fetchBySrNo = async (SRNo) => {
@@ -166,6 +267,12 @@ const Bom = () => {
         articleNo: response.articleNo,
         sr_no: SRNo,
       });
+      if (response.buyerName) {
+        setValidation((prev) => ({ ...prev, buyerName: "valid" }));
+      }
+      if (response.articleNo) {
+        setValidation((prev) => ({ ...prev, articleNo: "valid" }));
+      }
     } catch (error) {
       console.error(error);
       togglePopup("Failed To Fetch");
@@ -181,6 +288,7 @@ const Bom = () => {
       buyerName: "",
       bomType: "",
     });
+    setValidation(initialValidationState);
     setResetTrigger(true);
   };
 
@@ -226,6 +334,10 @@ const Bom = () => {
   const handleSubmitBomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
     const dataToSubmit = await prepareDataForSubmission(bomData);
     const BASE_URL = "bom/create";
     try {
@@ -279,17 +391,38 @@ const Bom = () => {
               </button>
             </div>
             <div className={styles.editContainer}>
-              <button className={styles.headButton} onClick={handleViewPDF}>
-                Print
-              </button>
-              <button
-                className={styles.headButtonPrint}
-                onClick={() => {
-                  setIsInventoryPopup(true);
-                }}
-              >
-                Inventory
-              </button>
+              {activeButton === "view" && (
+                <div className={styles.editContainer}>
+                  {updateLoading ? (
+                    <div className={styles.buttonContainer}>
+                      <div className={styles.loader}></div>
+                    </div>
+                  ) : (
+                    <button
+                      disabled={!isEditSelected}
+                      className={styles.headButton}
+                      onClick={handleEditClick}
+                    >
+                      Update
+                    </button>
+                  )}
+                  <button className={styles.headButton} onClick={handleViewPDF}>
+                    Print
+                  </button>
+                </div>
+              )}
+              {activeButton === "details" && (
+                <div className={styles.editContainer}>
+                  <button
+                    className={styles.headButtonPrint}
+                    onClick={() => {
+                      setIsInventoryPopup(true);
+                    }}
+                  >
+                    Inventory
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -300,13 +433,13 @@ const Bom = () => {
         <>
           <div className={styles.topGrid}>
             <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleName">
+              <label className={styles.impsampleLabel} htmlFor="articleName">
                 Sample No
               </label>
               {downshiftsampleRef}
             </div>
             <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
+              <label className={styles.impsampleLabel} htmlFor="articleNo">
                 Article No
               </label>
               <input
@@ -314,13 +447,18 @@ const Bom = () => {
                 name="articleNo"
                 className={styles.basicInput}
                 placeholder="Article No"
+                style={
+                  validation.articleNo === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
                 onChange={handleBomChange}
                 value={bomData.articleNo}
               />
             </div>
 
             <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
+              <label className={styles.impsampleLabel} htmlFor="articleNo">
                 Buyer Name
               </label>
               <input
@@ -328,6 +466,11 @@ const Bom = () => {
                 name="buyerName"
                 className={styles.basicInput}
                 placeholder="Buyer Name"
+                style={
+                  validation.buyerName === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
                 onChange={handleBomChange}
                 value={bomData.buyerName}
               />
@@ -459,7 +602,7 @@ const Bom = () => {
       ) : (
         <div>
           {" "}
-          <ViewBom />
+          <ViewBom onBOMSelect={handleBOMEdit} />
         </div>
       )}
 

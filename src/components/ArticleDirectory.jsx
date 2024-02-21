@@ -6,16 +6,18 @@ import Downshift from "downshift";
 import axios from "axios";
 import Upload from "../assets/folder-upload.png";
 import { fetchAllArticles } from "../reducer/articleSlice";
+import ArticleMstPopup from "../popups/ArticlePopup";
 import { useDispatch, useSelector } from "react-redux";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
-import ViewArticle from "./viewArticle";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
+import ViewArticle from "./ViewArticle";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [colors, setColors] = useState([]);
   const initialValidationState = {};
+  const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [validation, setValidation] = useState(initialValidationState);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
@@ -44,6 +46,7 @@ const ArticleDirectory = () => {
       ? JSON.parse(savedForm)
       : {
           articleName: "",
+          article_no:"",
           animal: "",
           color: "",
           gender: "",
@@ -290,6 +293,7 @@ const handleEditClick =()=>{
       username:"",
       category: "",
       platformType: "",
+      article_no:"",
       platformNo: "",
       heelType: "",
       heelNo: "",
@@ -401,7 +405,9 @@ const handleEditClick =()=>{
   }
 
   }
+const handleArticleNoSubmit =()=>{
 
+}
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -778,6 +784,68 @@ const handleEditClick =()=>{
     </Downshift>
   );
 
+  const downshiftArticle = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setArticleForm({
+            ...articleForm,
+            article_no: selectedItem.articleName,
+          });
+          // setTempArticeNo(selectedItem.articleId);
+          // const articleImageUrl = selectedItem.imageUrl ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}` : null;
+          // setArticleURL(articleImageUrl);
+          toggleSuggestVisibility("article_no", false);
+        }
+      }}
+      selectedItem={articleForm.article_no}
+      itemToString={(item) => (item ? item.article_no : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+            //  onChange: handleArticleChange,
+              name: "article_no",
+            })}
+            type="text"
+            maxLength="10"
+            className={styles.basicInput2}
+            placeholder="Type any word"
+            value={articleForm.article_no}
+          />
+          <div>
+            <button
+              onClick={() => {
+                setIsArticlePopup(true);
+              }}
+              className={styles.searchBtn}
+              aria-label="Search"
+            ></button>
+          </div>
+{/* 
+          {showSuggestions.articleNo && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.articleNoList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.articleName}
+                </div>
+              ))}
+            </div>
+          )} */}
+        </div>
+      )}
+    </Downshift>
+  );
+
+
   const socksMaterialInputRef = useRef(null);
   const downshiftSocksMaterial = (
     <Downshift
@@ -1035,6 +1103,14 @@ const handleEditClick =()=>{
       {activeButton === "details" ? (
         <>
         <div className={styles.articleTopGrid}>
+          
+        <div className={styles.colSpan}>
+            <label className={styles.impsampleLabel} htmlFor="articleNo">
+              Article
+            </label>
+            {downshiftArticle}
+          </div>
+
           <div className={styles.colSpan}>
             <label className={styles.impsampleLabel} htmlFor="articleName">
               Article Name
@@ -1362,6 +1438,14 @@ const handleEditClick =()=>{
           itemForm={articleForm}
         />
       )}
+       {isArticlePopup && (
+            <ArticleMstPopup
+              onCancel={() => {
+                setIsArticlePopup(false);
+              }}
+             onSubmitArticleData={handleArticleNoSubmit}
+            />
+          )}
       </>
       ) : (
         <ViewArticle onArticleSelect={handleArticleEdit}/>

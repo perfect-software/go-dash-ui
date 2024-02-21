@@ -1,32 +1,29 @@
-import React, { useState, useEffect , useCallback} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import { useNavigate } from "react-router-dom";
-import { useSidebar } from "../context/SidebarContext";
-import Cross from "../assets/cross.svg";
-import Back from "../assets/back.png";
-import {  formatDDMMYYYYDate } from "../features/convertDate";
-import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
+import { useNavigate } from "react-router-dom";
+import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import styles from "../styles/popupTable.module.css";
+import Cross from "../assets/cross.svg";
 import { fetchAllArticles } from "../reducer/articleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 
-
-const ViewArticle = ({onArticleSelect}) => {
+const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
   const navigate = useNavigate();
-  const { isCollapsed } = useSidebar();
+  const [isPopupVisible, setIsPopupVisible] = useState(true);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [rowSelect, setRowSelect] = useState(false);
   const dispatch = useDispatch();
-  const [articleDetails,setArticleDetails] = useState(false);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
+
   const { articles, loaded, loading, error } = useSelector(
     (state) => state.article
   );
-
   const [gridApi, setGridApi] = useState(null);
-
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
@@ -50,107 +47,27 @@ const ViewArticle = ({onArticleSelect}) => {
 
 
   const dateFilterParams = {
-    comparator: function(filterLocalDateAtMidnight, cellValue) {
+    comparator: function (filterLocalDateAtMidnight, cellValue) {
       if (!cellValue) return -1;
+      console.log(filterLocalDateAtMidnight);
       const formattedCellValue = formatDDMMYYYYDate(cellValue);
-      const formattedFilterDate = filterLocalDateAtMidnight.toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).replace(/\//g, '-');
+      const formattedFilterDate = filterLocalDateAtMidnight
+        .toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-");
       if (formattedCellValue < formattedFilterDate) {
         return -1;
       } else if (formattedCellValue > formattedFilterDate) {
         return 1;
       }
       return 0;
-    }
+    },
   };
-
-  const onCellKeyDown = useCallback((e) => {
-  
-    if (!e.event) {
-      return;
-    }
-    const keyboardEvent = e.event;
-    const key = keyboardEvent.key;
-    if (key.length) {
-     
-      if (key === 'Enter') {
-        var rowNode = e.node;
-        var newSelection = !rowNode.isSelected();
-       
-        rowNode.setSelected(newSelection);
-      }
-    }
-  }, []);
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    onArticleSelect(selectedData.length > 0 ? selectedData[0] : null);
-  };
-  const actionButton = (params) => {
-    setIsImagePopup(true);
-    setImagePreview(params.data.image_nm)
-  };
-  const viewActionButton = (params) => {
-    setArticleDetails(true);
-   console.log(params);
- };
-  const columnDefsMst = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,
-    checkboxSelection: true,
-    showDisabledCheckboxes: true},
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
-    {
-      headerName: "Animal",
-      field: "animal",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Color",
-      field: "color",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
-    {
-      headerName: "Sole Type",
-      field: "soleType",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Article Details",
-      field:'ArtcleId',
-      width:120,
-      cellRenderer: function (params) {
-        return (
-          <div style={{
-            height: '100%', 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center' 
-          }}>
-            <button className={styles.viewButton}
-             onClick={() => viewActionButton(params.value)}
-            >
-              View{" "}
-            </button>
-          </div>
-        );
-      },
-    },
-
-  ];
   const columnDefs = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,
-    checkboxSelection: true,
-    showDisabledCheckboxes: true},
-    
+    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
     { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
     {
       headerName: "Animal",
@@ -160,20 +77,20 @@ const ViewArticle = ({onArticleSelect}) => {
       filter: true,
     },
     {
-      headerName: "Article Image",
+      headerName: "Image",
       field: "image_nm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {
         const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
-          return params.value ? (
+        return params.value ? (
           <img
             src={imageUrl}
             alt="Image"
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        ): 'No Image';
+          ): 'No Image';
       },
     },
     {
@@ -277,60 +194,96 @@ const ViewArticle = ({onArticleSelect}) => {
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
     },
-    {
-      headerName: "Go Back",
-      field:'goBack',
-      width:120,
-      cellRenderer: function (params) {
-        return (
-          <div style={{
-            height: '100%', 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center' 
-          }}>
-            <img className={styles.viewButton2}
-             src={Back}
-             onClick={()=>setArticleDetails(false)}
-            >
-            </img>
-          </div>
-        );
-      },
-    },
+ 
   ];
+  const actionButton = (params) => {
+    setIsImagePopup(true);
+    setImagePreview(params.data.image_nm)
+  };
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
+  const onRowSelected = (event) => {
+    const selectedData = event.api.getSelectedRows();
+    setRowSelect(selectedData.length > 0);
+    setSelectedArticle(selectedData);
 
+  };
 
   return (
-    <><div
-    className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-  >
-  
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
-          columnDefs={articleDetails ? columnDefs : columnDefsMst}
-          rowData={articles}
-          pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onCellKeyDown={onCellKeyDown}
-          onGridReady={onGridReady}
-          onSelectionChanged={onRowSelected}
-          overlayLoadingTemplate={
-            '<span class="ag-overlay-loading-center">Loading...</span>'
-          }
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
-          }
-        />
-      </div>
-  </div>
-      {isImagePopup && (
+    isPopupVisible && (
+      <div className={styles.popupOverlay}>
+        <div className={styles.popupContainer}>
+          <div className={styles.topPopupContainer}>
+            <div className={styles.topBarContainer}>
+              <h1>Article MST</h1>
+              <img
+                onClick={() => {
+                  setIsPopupVisible(false);
+                  onCancel();
+                }}
+                src={Cross}
+                alt="Select Icon"
+                className={styles.crossIcon}
+              />
+            </div>
+            <div
+              className={`ag-theme-quartz ${styles.agThemeQuartz}`}
+              style={{ height: 550, width: "100%", marginTop: "5px" }}
+            >
+              <AgGridReact
+                columnDefs={columnDefs}
+                rowData={articles}
+                pagination={true}
+                paginationPageSize={12}
+                paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+                animateRows={true}
+                filter={true}
+                onCellKeyDown={onCellKeyDown}
+                onGridReady={onGridReady}
+                onSelectionChanged={onRowSelected}
+                overlayLoadingTemplate={
+                  '<span class="ag-overlay-loading-center">Loading...</span>'
+                }
+                overlayNoRowsTemplate={
+                  `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+                }
+              />
+            </div>
+          </div>
+
+
+          <div className={styles.bottomButtonContainer}>
+            <h3>Couldn't find the Article ?</h3>
+            <button
+              className={styles.navigatePopupButton}
+              onClick={() => navigate("/articledirectory")}
+            >
+              Add New Article
+            </button>
+            <button
+           disabled={!rowSelect}
+              className={styles.selectPopupButton}
+              onClick={() => {
+                onSubmitArticleData(selectedArticle);
+              }}
+            >
+              Select
+            </button>
+          </div>
+        </div>
+        {isImagePopup && (
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
@@ -348,8 +301,11 @@ const ViewArticle = ({onArticleSelect}) => {
             />
           </div>
         </div>
-      )}</>
+      )}
+      </div>
+      
+    )
   );
 };
 
-export default ViewArticle;
+export default ArticleMstPopup;

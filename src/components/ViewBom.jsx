@@ -14,7 +14,7 @@ import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
 import BomDetailsPopup from "../popups/BomDetailsPopup";
 
 
-const ViewBom = () => {
+const ViewBom = ({onBOMSelect}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const [bomDetailsPopup,setBomDetailsPopup] = useState(false);
@@ -89,7 +89,7 @@ const ViewBom = () => {
   }, []);
   const onRowSelected = (event) => {
     const selectedData = event.api.getSelectedRows();
-   // onSampleSelect(selectedData.length > 0 ? selectedData : null);
+    onBOMSelect(selectedData.length > 0 ? selectedData : null);
   };
  
   const columnDefs = [
