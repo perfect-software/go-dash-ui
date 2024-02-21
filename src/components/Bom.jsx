@@ -29,6 +29,7 @@ const Bom = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [bomDetails, setBomDetails] = useState([]);
+  const [editDetails, setEditDetails] = useState(null); 
   const [tempBomDetails, setTempBomDetails] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
@@ -113,7 +114,7 @@ const Bom = () => {
         }
       }}
       selectedItem={bomData.sr_no}
-      itemToString={(item) => (item ? item : "")}
+      itemToString={(item) => (item ? item.sr_no : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -180,13 +181,15 @@ const Bom = () => {
       if (bomId) {
         const BASE_URL = "bom/viewbomdetails";
         const response = await getDataApiService({ bomId: bomId }, BASE_URL);
-        console.log(response);
+        return response;
       }
     } catch (error) {
       console.error(error);
       setFetchError("Failed to fetch BOM details");
     }
   };
+
+
   const handleBOMEdit = (bom) => {
     setIsEditSelected(false);
     if (bom) {
@@ -194,53 +197,19 @@ const Bom = () => {
       setTempBomDetails(bom);
     }
   };
-
   const handleEditClick = async () => {
     setIsEditClicked(true);
     setUpdateLoading(true);
     setActiveButton("details");
+    await fetchBySrNo(tempBomDetails[0].srno);
     try {
-      // Assuming fetchBomDetails returns the array shown in the uploaded image
       const response = await fetchBomDetails(tempBomDetails[0].bomId);
-      if (response && Array.isArray(response)) {
-        // Map the response to the format expected by bomData.groups
-        const updatedGroups = response.map(details => {
-          return {
-            id: details.itemGrp, // Assuming itemGrp is the group ID
-            name: details.itemGrp, // You might need to fetch the group name separately if it's not part of the details
-            subgroups: [{
-              id: details.itemSubGrp,
-              name: details.itemSubGrp, // Again, fetch subgroup name if necessary
-              items: [{
-                itemId: details.item_id,
-                itemName: details.itemGrp, // Replace with the actual item name field
-                usedIn: details.usedIn,
-                pair: details.pair,
-                bomQty: details.bomQty,
-                supplierId: details.supplier_id,
-                supplierName: details.supplier_id, // Replace with actual supplier name field
-                unit: details.unit,
-                requiredQty: details.reqQty,
-                rate: details.rate,
-                cost: details.amount, // Assuming 'amount' is the cost
-                // Add any other fields needed
-              }]
-            }]
-          };
-        });
-  
-        // Now set the updated groups to bomData
-        setBomData(prevData => {
-          let newData = JSON.parse(JSON.stringify(prevData));
-          newData.groups = updatedGroups;
-          // Calculate totalCost based on new groups if necessary
-          return newData;
-        });
-      } else {
-        // Handle the case where response is not as expected
+      if (response) {
+        setEditDetails(response);
+       
       }
     } catch (error) {
-      // Handle error
+      console.error("Error fetching details:", error);
     } finally {
       setUpdateLoading(false);
     }
@@ -540,6 +509,8 @@ const Bom = () => {
                 <GraphAverage
                   bomData={bomData}
                   setBomData={setBomData}
+                  editDetails={editDetails} 
+                  setEditDetails={setEditDetails} 
                   resetTrigger={resetTrigger}
                   onResetDone={() => setResetTrigger(false)}
                 />

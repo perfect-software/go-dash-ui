@@ -7,11 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
-import { fetchAllArticleMst } from "../reducer/articleMstSlice";
+import { fetchAllArticles } from "../reducer/articleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 
-const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
+const ArticleDetailsPopup = ({ onCancel, onSubmitArticleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
@@ -20,14 +20,14 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
 
-  const { articleMst, loaded, loading, error } = useSelector(
-    (state) => state.articleMst
+  const { articles, loaded, loading, error } = useSelector(
+    (state) => state.article
   );
   const [gridApi, setGridApi] = useState(null);
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
-      dispatch(fetchAllArticleMst());
+      dispatch(fetchAllArticles());
     }
   }, [loaded, loading, dispatch]);
   
@@ -37,29 +37,169 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
         gridApi.showLoadingOverlay();
       } else if (error) {
         gridApi.showNoRowsOverlay();
-      } else if (loaded && articleMst.length === 0) {
+      } else if (loaded && articles.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
         gridApi.hideOverlay();
       }
     }
-  }, [gridApi, loaded, loading, error, articleMst]);
+  }, [gridApi, loaded, loading, error, articles]);
 
 
+  const dateFilterParams = {
+    comparator: function (filterLocalDateAtMidnight, cellValue) {
+      if (!cellValue) return -1;
+      console.log(filterLocalDateAtMidnight);
+      const formattedCellValue = formatDDMMYYYYDate(cellValue);
+      const formattedFilterDate = filterLocalDateAtMidnight
+        .toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-");
+      if (formattedCellValue < formattedFilterDate) {
+        return -1;
+      } else if (formattedCellValue > formattedFilterDate) {
+        return 1;
+      }
+      return 0;
+    },
+  };
   const columnDefs = [
-  { headerName: "Edit",  field:'edit' , maxWidth: 150,
-     checkboxSelection: true,
-     showDisabledCheckboxes: true},
-    { headerName: "Article No",  width:200, field: "article_no", sortable: true, filter: true },
+    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
+    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
     {
-      headerName: "Last No",
-      field: "last_no",
+      headerName: "Animal",
+      field: "animal",
       sortable: true,
-      width:200,
+      width:130,
       filter: true,
     },
-
+    {
+      headerName: "Image",
+      field: "image_nm",
+      width: 150,
+      filter: true,
+      cellRenderer: (params) => {
+        const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
+        return params.value ? (
+          <img
+            src={imageUrl}
+            alt="Image"
+            style={{ height: '50px', width: '50px' }}
+            onClick={() => actionButton(params)}
+          />
+          ): 'No Image';
+      },
+    },
+    {
+      headerName: "Color",
+      field: "color",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
+    {
+      headerName: "Sole Type",
+      field: "soleType",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Toe Shape",
+      field: "toeShape",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Category",
+      field: "category",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Platform Type",
+      field: "platformType",
+      sortable: true,
+      filter: true,
+      width:150,
+    },
+    {
+      headerName: "Platform No",
+      field: "platformNo",
+      sortable: true,
+      width:150,
+      filter: true,
+    },
+    {
+      headerName: "Heel Type",
+      field: "heelType",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Heel No",
+      field: "heelNo",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Heel Height",
+      field: "heelHeight",
+      sortable: true,
+      width:140,
+      filter: true,
+    },
+    {
+      headerName: "Last No",
+      field: "lastNo",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Lining Material",
+      field: "liningMaterial",
+      sortable: true,
+      width:160,
+      filter: true,
+    },
+    {
+      headerName: "Socks Material",
+      field: "socksMaterial",
+      sortable: true,
+      width:160,
+      filter: true,
+    },
+    {
+      headerName: "Comment",
+      field: "comment",
+      sortable: true,
+      width:250,
+      filter: true,
+    },
+    {
+      headerName: "Entry Date",
+      field: "entDate",
+      sortable: true,
+      width:150,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
+    },
+ 
   ];
+  const actionButton = (params) => {
+    setIsImagePopup(true);
+    setImagePreview(params.data.image_nm)
+  };
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {
       return;
@@ -87,7 +227,7 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
         <div className={styles.popupContainer}>
           <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
-              <h1>Article MST</h1>
+              <h1>Article Directory</h1>
               <img
                 onClick={() => {
                   setIsPopupVisible(false);
@@ -104,7 +244,7 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
             >
               <AgGridReact
                 columnDefs={columnDefs}
-                rowData={articleMst}
+                rowData={articles}
                 pagination={true}
                 paginationPageSize={12}
                 paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -125,7 +265,7 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
 
 
           <div className={styles.bottomButtonContainer}>
-           
+
             <button
            disabled={!rowSelect}
               className={styles.selectPopupButton}
@@ -133,7 +273,7 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
                 onSubmitArticleData(selectedArticle);
               }}
             >
-              Select
+              Update
             </button>
           </div>
         </div>
@@ -162,4 +302,4 @@ const ArticleMstPopup = ({ onCancel, onSubmitArticleData }) => {
   );
 };
 
-export default ArticleMstPopup;
+export default ArticleDetailsPopup;

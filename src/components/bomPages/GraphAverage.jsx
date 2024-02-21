@@ -13,7 +13,7 @@ import { getApiService } from "../../service/apiService";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
 
-const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
+const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
@@ -62,6 +62,91 @@ const GraphAverage = ({ bomData, setBomData ,resetTrigger, onResetDone }) => {
       resetNewItemState();
     }
   }, [resetTrigger, onResetDone]);
+
+  const handleUpdateMaterial = (editDetails) => {
+    setBomData((prevData) => {
+      let newData = JSON.parse(JSON.stringify(prevData));
+  
+      editDetails.forEach((editItem) => {
+        let group = newData.groups.find((g) => g.id === editItem.itemGrp);
+        if (!group) {
+          group = {
+            id: editItem.itemGrp,
+            name: editItem.itemGrpName, 
+            subgroups: [],
+          };
+          newData.groups.push(group);
+        }
+  
+        let subgroup = group.subgroups.find((sg) => sg.id === editItem.itemSubGrp);
+        if (!subgroup) {
+          subgroup = {
+            id: editItem.itemSubGrp,
+            name: editItem.itemSubGrpName,
+            items: [],
+          };
+          group.subgroups.push(subgroup);
+        }
+        let existingItem = subgroup.items.find((i) => i.itemId === editItem.item_id);
+        if (existingItem) {
+          existingItem = {
+            ...existingItem,
+            usedIn: editItem.usedIn,
+            pair: editItem.pair,
+            bomQty: editItem.bomQty,
+            supplierId: editItem.supplier_id,
+            unit: editItem.unit,
+            requiredQty: editItem.reqQty,
+            rate: editItem.rate,
+            cost: editItem.rate * editItem.reqQty,
+          };
+        } else {
+          subgroup.items.push({
+            itemId: editItem.item_id,
+            itemName: editItem.itemName, 
+            usedIn: editItem.usedIn,
+            pair: editItem.pair,
+            bomQty: editItem.bomQty,
+            supplierId: editItem.supplier_id,
+            supplierName: editItem.supplierName,
+            unit: editItem.unit,
+            requiredQty: editItem.reqQty,
+            rate: editItem.rate,
+            cost: editItem.rate * editItem.reqQty,
+          });
+        }
+      });
+      let totalCost = newData.groups.reduce(
+        (total, group) =>
+          total +
+          group.subgroups.reduce(
+            (subTotal, subgroup) =>
+              subTotal +
+              subgroup.items.reduce(
+                (itemTotal, item) => itemTotal + (parseFloat(item.cost) || 0),
+                0
+              ),
+            0
+          ),
+        0
+      );
+  
+      newData.totalCost = totalCost.toFixed(2);
+      return newData;
+    });
+  };
+  
+  
+  useEffect(() => {
+    if (editDetails) {
+      console.log('Updating with edit details:', editDetails);
+      handleUpdateMaterial(editDetails);
+      setEditDetails(null); 
+    }
+  }, [editDetails, setEditDetails, handleUpdateMaterial]);
+
+
+
 
   const validateForm = () => {
     let isValid = true;

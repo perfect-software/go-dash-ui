@@ -9,28 +9,29 @@ import Back from "../assets/back.png";
 import {  formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
-import { fetchAllArticles } from "../reducer/articleSlice";
+import { fetchAllArticleMst } from "../reducer/articleMstSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
+import ArticlePopup from "../popups/ArticlePopup";
+import ArticleDetailsPopup from "../popups/ArticleDetailsPopup";
 
 
-const ViewArticle = ({onArticleSelect}) => {
+const ViewArticle = ({updateArticle}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
-  const [articleDetails,setArticleDetails] = useState(false);
+  const [articlePopup,setArticlePopup] = useState(false);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
-  const { articles, loaded, loading, error } = useSelector(
-    (state) => state.article
+  const { articleMst, loaded, loading, error } = useSelector(
+    (state) => state.articleMst
   );
-
   const [gridApi, setGridApi] = useState(null);
 
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
-      dispatch(fetchAllArticles());
+      dispatch(fetchAllArticleMst());
     }
   }, [loaded, loading, dispatch]);
   
@@ -40,15 +41,15 @@ const ViewArticle = ({onArticleSelect}) => {
         gridApi.showLoadingOverlay();
       } else if (error) {
         gridApi.showNoRowsOverlay();
-      } else if (loaded && articles.length === 0) {
+      } else if (loaded && articleMst.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
         gridApi.hideOverlay();
       }
     }
-  }, [gridApi, loaded, loading, error, articles]);
+  }, [gridApi, loaded, loading, error, articleMst]);
 
-
+  
   const dateFilterParams = {
     comparator: function(filterLocalDateAtMidnight, cellValue) {
       if (!cellValue) return -1;
@@ -84,49 +85,34 @@ const ViewArticle = ({onArticleSelect}) => {
       }
     }
   }, []);
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    onArticleSelect(selectedData.length > 0 ? selectedData[0] : null);
-  };
+ 
+  const handleArticleUpdate = (article)=>{
+     updateArticle(article);
+  }
   const actionButton = (params) => {
     setIsImagePopup(true);
     setImagePreview(params.data.image_nm)
   };
   const viewActionButton = (params) => {
-    setArticleDetails(true);
+    setArticlePopup(true);
    console.log(params);
  };
   const columnDefsMst = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,
-    checkboxSelection: true,
-    showDisabledCheckboxes: true},
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    // { headerName: "Edit",  field:'edit' , maxWidth: 80,
+    // checkboxSelection: true,
+    // showDisabledCheckboxes: true},
+    { headerName: "Article No",  width:200, field: "article_no", sortable: true, filter: true },
     {
-      headerName: "Animal",
-      field: "animal",
+      headerName: "Last No",
+      field: "last_no",
       sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Color",
-      field: "color",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
-    {
-      headerName: "Sole Type",
-      field: "soleType",
-      sortable: true,
-      width:130,
+      width:200,
       filter: true,
     },
     {
       headerName: "Article Details",
-      field:'ArtcleId',
-      width:120,
+      field:'articleMstId',
+      width:200,
       cellRenderer: function (params) {
         return (
           <div style={{
@@ -291,7 +277,7 @@ const ViewArticle = ({onArticleSelect}) => {
           }}>
             <img className={styles.viewButton2}
              src={Back}
-             onClick={()=>setArticleDetails(false)}
+             onClick={()=>setArticlePopup(false)}
             >
             </img>
           </div>
@@ -311,8 +297,8 @@ const ViewArticle = ({onArticleSelect}) => {
         style={{ height: 500, width: "100%", marginTop: "10px" }}
       >
         <AgGridReact
-          columnDefs={articleDetails ? columnDefs : columnDefsMst}
-          rowData={articles}
+          columnDefs={columnDefsMst}
+          rowData={articleMst}
           pagination={true}
           paginationPageSize={12}
           paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -320,7 +306,6 @@ const ViewArticle = ({onArticleSelect}) => {
           filter={true}
           onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
-          onSelectionChanged={onRowSelected}
           overlayLoadingTemplate={
             '<span class="ag-overlay-loading-center">Loading...</span>'
           }
@@ -348,7 +333,17 @@ const ViewArticle = ({onArticleSelect}) => {
             />
           </div>
         </div>
-      )}</>
+      )}
+       {articlePopup && (
+            <ArticleDetailsPopup
+              onCancel={() => {
+                setArticlePopup(false);
+              }}
+               onSubmitArticleData={handleArticleUpdate}
+            />
+          )}
+ 
+      </>
   );
 };
 

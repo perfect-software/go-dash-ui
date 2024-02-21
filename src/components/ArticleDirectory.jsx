@@ -6,7 +6,8 @@ import Downshift from "downshift";
 import axios from "axios";
 import Upload from "../assets/folder-upload.png";
 import { fetchAllArticles } from "../reducer/articleSlice";
-import ArticleMstPopup from "../popups/ArticlePopup";
+import { fetchAllArticleMst } from "../reducer/articleMstSlice";
+import ArticleMstPopup from "../popups/ArticleMstPopup";
 import { useDispatch, useSelector } from "react-redux";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
@@ -23,6 +24,7 @@ const ArticleDirectory = () => {
   const [activeButton, setActiveButton] = useState("details");
   const [showInputLoading, setShowInputLoading] = useState({
     animal: false,
+    articleNo:false,
     soleType: false,
     toeShape: false,
     category: false,
@@ -33,11 +35,10 @@ const ArticleDirectory = () => {
   });
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const [isEditSelected, setIsEditSelected] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const textareaRef = useRef(null);
   const dispatch = useDispatch();
-  const [editArticle, setEditArticle] = useState(null);
+const [editArticle, setEditArticle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [articleForm, setArticleForm] = useState(() => {
@@ -46,7 +47,7 @@ const ArticleDirectory = () => {
       ? JSON.parse(savedForm)
       : {
           articleName: "",
-          article_no:"",
+          articleNo:"",
           animal: "",
           color: "",
           gender: "",
@@ -64,13 +65,16 @@ const ArticleDirectory = () => {
           comment: "",
         };
   });
-
+  const { articleMst, articleLoaded, articleLoading, articleError } = useSelector(
+    (state) => state.articleMst
+  );
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
 
     const requiredFields = [
       "articleName",
+      "articleNo",
       "animal",
       "color",
       "gender",
@@ -118,6 +122,7 @@ const ArticleDirectory = () => {
   }, [articleForm]);
   const [filteredList, setFilteredList] = useState({
     animalList: [],
+    articleNoList:[],
     soleTypeList: [],
     toeShapeList: [],
     heelTypeList: [],
@@ -185,27 +190,29 @@ const ArticleDirectory = () => {
     toggleInputLoaderVisibility(`${name}`, false);
     toggleSuggestVisibility(name, !showSuggestions[name]);
   };
-const handleArticleEdit =(article)=>{
- setIsEditSelected(false);
- if(article) {
-  setIsEditSelected(true);
-   setEditArticle(article);
+
+  const handleArticleUpdate = (article) => {
+    if (Array.isArray(article) && article.length > 0) {
+      const newArticle = article[0];
+      setEditArticle(newArticle); 
+      setIsEditClicked(true);
+      setActiveButton("details");
+      if (newArticle) {
+        const { image_nm,article_no , ...restOfArticle } = newArticle;
+        setArticleForm({
+          ...articleForm,
+          articleNo:article_no,
+          ...restOfArticle,
+        });
+        const articleImageUrl = image_nm ? `${ARTICLE_IMAGE_PATH}${image_nm}` : null;
+        setImagePreview(articleImageUrl);
+      } else {
+        console.error('editArticle is null');
+      }
+    }
+   
+  };
   
- }
-}
-
-const handleEditClick =()=>{
-  setIsEditClicked(true);
-  setActiveButton("details");
-  const { image_nm , ...restOfArticle} = editArticle;
-  setArticleForm({
-    ...articleForm,
-    ...restOfArticle,
-  });
-  const articleImageUrl = image_nm ? `${ARTICLE_IMAGE_PATH}${image_nm}` : null;
-  setImagePreview(articleImageUrl);
-
- }
 
   const handleArticleChange = (e) => {
     const { name, value } = e.target;
@@ -243,6 +250,10 @@ const handleEditClick =()=>{
     if (itemsData.length === 0) {
       getItems();
     }
+   if (!articleLoaded && !articleLoading) {
+        dispatch(fetchAllArticleMst());
+      }
+  
   }, []);
   const getItems = async () => {
     const BASE_URL = "item/getItemHead";
@@ -293,7 +304,7 @@ const handleEditClick =()=>{
       username:"",
       category: "",
       platformType: "",
-      article_no:"",
+      articleNo:"",
       platformNo: "",
       heelType: "",
       heelNo: "",
@@ -403,10 +414,60 @@ const handleEditClick =()=>{
   } finally {
     setLoading(false);
   }
-
   }
-const handleArticleNoSubmit =()=>{
 
+ const handleArticleMstChange = (e) =>{
+  const { name, value } = e.target;
+  toggleInputLoaderVisibility(name, true);
+ setArticleForm((prevState) => ({
+    ...prevState,
+    [name]: value,
+  }));
+  if (value.trim().length > 0) {
+    const concatenatedString = `${name}List`;
+    const filtered = articleMst
+      .filter((item) =>
+        item.article_no.toLowerCase().includes(value.trim().toLowerCase())
+      )
+      .map((item) => ({
+        article_no: item.article_no,
+        last_no: item.last_no,
+      }));
+
+    setFilteredList((prevList) => ({
+      ...prevList,
+      [concatenatedString]: filtered,
+    }));
+    toggleSuggestVisibility(name, filtered.length > 0);
+  } else {
+    toggleSuggestVisibility(name, false);
+    setFilteredList((prevList) => ({
+      ...prevList,
+      [`${name}List`]: [],
+    }));
+  }
+  toggleInputLoaderVisibility(name, false);
+  setValidation((prev) => ({ ...prev, [name]: "valid" }));
+ }
+
+const handleArticleNoSubmit =(articleMst)=>{
+  if (Array.isArray(articleMst) && articleMst.length > 0) {
+    const selectedArticle = articleMst[0];
+    setArticleForm({
+      ...articleForm,
+      articleNo: selectedArticle.article_no,
+      lastNo: selectedArticle.last_no,
+    });
+    if(selectedArticle.last_no)
+    {
+      setValidation((prev) => ({ ...prev, lastNo: "valid" }));
+    }
+    setValidation((prev) => ({ ...prev, articleNo: "valid" }));
+    toggleSuggestVisibility("articleNo", false);
+    setIsArticlePopup(false);
+  }
+
+ 
 }
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
@@ -790,29 +851,36 @@ const handleArticleNoSubmit =()=>{
         if (selectedItem) {
           setArticleForm({
             ...articleForm,
-            article_no: selectedItem.articleName,
+            articleNo: selectedItem.article_no,
+            lastNo:selectedItem.last_no
           });
-          // setTempArticeNo(selectedItem.articleId);
-          // const articleImageUrl = selectedItem.imageUrl ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}` : null;
-          // setArticleURL(articleImageUrl);
-          toggleSuggestVisibility("article_no", false);
+          toggleSuggestVisibility("articleNo", false);
+          if(selectedItem.last_no)
+          {
+            setValidation((prev) => ({ ...prev, lastNo: "valid" }));
+          }
         }
       }}
-      selectedItem={articleForm.article_no}
-      itemToString={(item) => (item ? item.article_no : "")}
+      selectedItem={articleForm.articleNo}
+      itemToString={(item) => (item ? item.articleNo : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
-            //  onChange: handleArticleChange,
-              name: "article_no",
+              onChange: handleArticleMstChange,
+              name: "articleNo",
             })}
             type="text"
             maxLength="10"
+            style={
+              validation.articleNo === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             className={styles.basicInput2}
             placeholder="Type any word"
-            value={articleForm.article_no}
+            value={articleForm.articleNo}
           />
           <div>
             <button
@@ -823,7 +891,7 @@ const handleArticleNoSubmit =()=>{
               aria-label="Search"
             ></button>
           </div>
-{/* 
+
           {showSuggestions.articleNo && (
             <div {...getMenuProps()} className={styles.suggestions}>
               {filteredList.articleNoList.map((item, index) => (
@@ -835,11 +903,11 @@ const handleArticleNoSubmit =()=>{
                       : styles.suggestionItem
                   }
                 >
-                  {item.articleName}
+                  {item.article_no}
                 </div>
               ))}
             </div>
-          )} */}
+          )} 
         </div>
       )}
     </Downshift>
@@ -1085,7 +1153,7 @@ const handleArticleNoSubmit =()=>{
               View Article
             </button>
           </div>
-          {activeButton === "view" && (
+          {/* {activeButton === "view" && (
               <div className={styles.editContainer}>
                 <button
                  disabled={!isEditSelected}
@@ -1095,7 +1163,7 @@ const handleArticleNoSubmit =()=>{
                  Update
                 </button>
               </div>
-            )}
+            )} */}
            </div>
           <div className={styles.headBorder}></div>
         </div>
@@ -1106,7 +1174,7 @@ const handleArticleNoSubmit =()=>{
           
         <div className={styles.colSpan}>
             <label className={styles.impsampleLabel} htmlFor="articleNo">
-              Article
+              Article No
             </label>
             {downshiftArticle}
           </div>
@@ -1129,7 +1197,24 @@ const handleArticleNoSubmit =()=>{
               value={articleForm.articleName}
             />
           </div>
-
+          <div className={styles.colSpan}>
+            <label className={styles.impsampleLabel} htmlFor="input4">
+              Last No.
+            </label>
+            <input
+              type="text"
+              className={styles.basicInput}
+              placeholder="Enter Here"
+              style={
+                validation.lastNo === "invalid"
+                  ? { border: "2px solid red" }
+                  : {}
+              }
+              name="lastNo"
+              value={articleForm.lastNo}
+              onChange={handleNormalArticleChange}
+            />
+          </div>
           <div className={styles.colSpan}>
             <label className={styles.impsampleLabel} htmlFor="color">
               Article Color
@@ -1230,24 +1315,7 @@ const handleArticleNoSubmit =()=>{
             />
           </div>
 
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input4">
-              Last No.
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              style={
-                validation.lastNo === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              name="lastNo"
-              value={articleForm.lastNo}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
+          
           <div className={styles.colSpan}>
             <label className={styles.impsampleLabel} htmlFor="input1">
               Lining Material
@@ -1372,7 +1440,7 @@ const handleArticleNoSubmit =()=>{
                       onClick={() => {
                         resetArticle();
                         setIsEditClicked(false);
-                        setIsEditSelected(false);
+                    
                         setEditArticle(null);
                       }}
                     >
@@ -1448,7 +1516,7 @@ const handleArticleNoSubmit =()=>{
           )}
       </>
       ) : (
-        <ViewArticle onArticleSelect={handleArticleEdit}/>
+        <ViewArticle updateArticle={handleArticleUpdate} />
       )}
     </div>
   );
