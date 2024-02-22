@@ -20,6 +20,7 @@ const ViewArticle = ({updateArticle}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
+  const [articleMstId, setArticleMstId] = useState('');
   const [articlePopup,setArticlePopup] = useState(false);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
@@ -94,6 +95,7 @@ const ViewArticle = ({updateArticle}) => {
     setImagePreview(params.data.image_nm)
   };
   const viewActionButton = (params) => {
+    setArticleMstId(params);
     setArticlePopup(true);
    console.log(params);
  };
@@ -339,6 +341,7 @@ const ViewArticle = ({updateArticle}) => {
               onCancel={() => {
                 setArticlePopup(false);
               }}
+              articleMstId={articleMstId && articleMstId}
                onSubmitArticleData={handleArticleUpdate}
             />
           )}

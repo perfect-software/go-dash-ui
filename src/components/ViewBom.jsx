@@ -129,8 +129,10 @@ const ViewBom = ({onBOMSelect}) => {
       headerName: "Date",
       field: "entDate",
       sortable: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
       width:140,
-      filter: true,
+  
     },
     {
         headerName: "BOM Details",
@@ -158,8 +160,8 @@ const ViewBom = ({onBOMSelect}) => {
   ];
  
   const actionButton = (params) => {
+    setBomId(params);
      setBomDetailsPopup(true);
-     setBomId(params);
     console.log(params);
   };
   return (

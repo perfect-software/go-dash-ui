@@ -85,7 +85,7 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
     },
   };
   const columnDefs = [
-    { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
+   
     {
       headerName: "Item ID",
       field: "item_id",
@@ -208,7 +208,7 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
       
             />
           </div>
-          <div className={styles.bottomButtonContainer}>
+          {/* <div className={styles.bottomButtonContainer}>
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}
@@ -218,7 +218,7 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
             >
               Select
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     )

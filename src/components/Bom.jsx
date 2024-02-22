@@ -29,7 +29,7 @@ const Bom = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [bomDetails, setBomDetails] = useState([]);
-  const [editDetails, setEditDetails] = useState(null); 
+  const [editDetails, setEditDetails] = useState(null);
   const [tempBomDetails, setTempBomDetails] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
@@ -189,7 +189,6 @@ const Bom = () => {
     }
   };
 
-
   const handleBOMEdit = (bom) => {
     setIsEditSelected(false);
     if (bom) {
@@ -206,7 +205,6 @@ const Bom = () => {
       const response = await fetchBomDetails(tempBomDetails[0].bomId);
       if (response) {
         setEditDetails(response);
-       
       }
     } catch (error) {
       console.error("Error fetching details:", error);
@@ -214,7 +212,6 @@ const Bom = () => {
       setUpdateLoading(false);
     }
   };
-  
 
   const handleBomChange = (e) => {
     const { name, value } = e.target;
@@ -333,7 +330,20 @@ const Bom = () => {
     <div className={styles.BOMContainer}>
       <div className={styles.headContainer}>
         <div className={styles.BOMSubHeadContainer}>
-          <h1 className={styles.headText}>SR BOM</h1>
+          <h1
+            className={styles.sampleRequestheadText}
+            style={activeButton === "view" ? { marginTop: "2px" } : {}}
+          >
+            {activeButton === "details"
+              ? isEditClicked
+                ? `Update SR BOM: ${
+                    isEditClicked &&
+                    tempBomDetails[0].bomId &&
+                    tempBomDetails[0].bomId
+                  }`
+                : "SR BOM"
+              : "SR BOM Search"}
+          </h1>
         </div>
         <div className={styles.subHeadContainerTwo}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -509,8 +519,8 @@ const Bom = () => {
                 <GraphAverage
                   bomData={bomData}
                   setBomData={setBomData}
-                  editDetails={editDetails} 
-                  setEditDetails={setEditDetails} 
+                  editDetails={editDetails}
+                  setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
                   onResetDone={() => setResetTrigger(false)}
                 />
@@ -556,16 +566,44 @@ const Bom = () => {
               </div>
             ) : (
               <div className={styles.buttonContainer}>
-                <button className={styles.resetButton} onClick={resetAllFields}>
-                  Reset
-                </button>
-                <button
-                  className={styles.submitButton}
-                  disabled={bomData.groups && !bomData.groups.length > 0}
-                  onClick={handleSubmitBomClick}
-                >
-                  Submit
-                </button>
+                {isEditClicked ? (
+                  <>
+                    <button
+                    //  onClick={handleUpdateSampleSubmit}
+                      className={styles.submitButton}
+                    >
+                      Submit
+                    </button>{" "}
+                    <button
+                      className={styles.resetButton}
+                      onClick={() => {
+                        resetAllFields();
+                        setIsEditClicked(false);
+                        setIsEditSelected(false);
+                     
+                      }}
+                    >
+                      Go Back
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    <button
+                      className={styles.resetButton}
+                      onClick={resetAllFields}
+                    >
+                      Reset
+                    </button>
+                    <button
+                      className={styles.submitButton}
+                      disabled={bomData.groups && !bomData.groups.length > 0}
+                      onClick={handleSubmitBomClick}
+                    >
+                      Submit
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -7,43 +7,68 @@ import { useNavigate } from "react-router-dom";
 import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
-import { fetchAllArticles } from "../reducer/articleSlice";
-import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
+import { getDataApiService } from "../service/apiService";
 
-const ArticleDetailsPopup = ({ onCancel, onSubmitArticleData }) => {
+const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [rowSelect, setRowSelect] = useState(false);
-  const dispatch = useDispatch();
+  const [articleDetails, setArticleDetails] = useState([]);
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
-  const { articles, loaded, loading, error } = useSelector(
-    (state) => state.article
-  );
   const [gridApi, setGridApi] = useState(null);
+
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllArticles());
-    }
-  }, [loaded, loading, dispatch]);
+  }, []);
+  
   
   useEffect(() => {
     if (gridApi) {
-      if (loading) {
+      if (isFetching) {
         gridApi.showLoadingOverlay();
-      } else if (error) {
+      } else if (fetchError) {
         gridApi.showNoRowsOverlay();
-      } else if (loaded && articles.length === 0) {
+      } else if (!isFetching && articleDetails.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
+        const rowDataToUpdate = [].concat(articleDetails);
+        gridApi.updateGridOptions({ rowData: rowDataToUpdate });
         gridApi.hideOverlay();
       }
     }
-  }, [gridApi, loaded, loading, error, articles]);
+    
+  }, [gridApi, isFetching, fetchError, articleDetails]);
+  
+  
+
+
+ const fetchArticleDetails = async () => {
+    setIsFetching(true);
+    setFetchError(null);
+    try {
+      if (articleMstId) {
+        const BASE_URL = 'bom/getArticleWithArticleMstId';
+        const response = await getDataApiService({ articleMstId: articleMstId }, BASE_URL);
+        console.log(response);
+        setArticleDetails(response); 
+        setIsFetching(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchError("Failed to fetch BOM details");
+      setIsFetching(false);
+    }
+  };
+  useEffect(() => {
+    fetchArticleDetails();
+  }, [articleMstId]); 
+
 
 
   const dateFilterParams = {
@@ -244,7 +269,7 @@ const ArticleDetailsPopup = ({ onCancel, onSubmitArticleData }) => {
             >
               <AgGridReact
                 columnDefs={columnDefs}
-                rowData={articles}
+               // rowData={articles}
                 pagination={true}
                 paginationPageSize={12}
                 paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -257,7 +282,7 @@ const ArticleDetailsPopup = ({ onCancel, onSubmitArticleData }) => {
                   '<span class="ag-overlay-loading-center">Loading...</span>'
                 }
                 overlayNoRowsTemplate={
-                  `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+                  `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
                 }
               />
             </div>
