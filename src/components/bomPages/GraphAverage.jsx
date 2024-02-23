@@ -70,9 +70,11 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
       editDetails.forEach((editItem) => {
         let group = newData.groups.find((g) => g.id === editItem.itemGrp);
         if (!group) {
+          const groupName = filteredList.itemGrpList[editItem.itemGrp];
+          console.log(groupName);
           group = {
             id: editItem.itemGrp,
-            name: editItem.itemGrpName, 
+            name: groupName, 
             subgroups: [],
           };
           newData.groups.push(group);
@@ -80,30 +82,34 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
   
         let subgroup = group.subgroups.find((sg) => sg.id === editItem.itemSubGrp);
         if (!subgroup) {
+          const subgroupName = filteredList.itemSubGrpList[editItem.itemSubGrp];
           subgroup = {
             id: editItem.itemSubGrp,
-            name: editItem.itemSubGrpName,
+            name: subgroupName,
             items: [],
           };
           group.subgroups.push(subgroup);
         }
-        let existingItem = subgroup.items.find((i) => i.itemId === editItem.item_id);
-        if (existingItem) {
-          existingItem = {
-            ...existingItem,
-            usedIn: editItem.usedIn,
-            pair: editItem.pair,
-            bomQty: editItem.bomQty,
-            supplierId: editItem.supplier_id,
-            unit: editItem.unit,
-            requiredQty: editItem.reqQty,
-            rate: editItem.rate,
-            cost: editItem.rate * editItem.reqQty,
-          };
+        const itemDetails = itemRates.find(item => item.itemId === editItem.item_id);
+        const tempItemName = itemDetails ? itemDetails.itemName : null;
+        let itemIndex = subgroup.items.findIndex(i => i.itemId === editItem.item_id);
+      if (itemIndex !== -1) {
+        subgroup.items[itemIndex] = {
+          ...subgroup.items[itemIndex],
+          itemName: editItem.itemName,
+          usedIn: editItem.usedIn,
+          pair: editItem.pair,
+          bomQty: editItem.bomQty,
+          supplierId: editItem.supplier_id,
+          unit: editItem.unit,
+          requiredQty: editItem.reqQty,
+          rate: editItem.rate,
+          cost: editItem.rate * editItem.reqQty,
+        }
         } else {
           subgroup.items.push({
             itemId: editItem.item_id,
-            itemName: editItem.itemName, 
+            itemName: tempItemName || 'Unknown',
             usedIn: editItem.usedIn,
             pair: editItem.pair,
             bomQty: editItem.bomQty,
@@ -393,11 +399,9 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
         };
         group.subgroups.push(subgroup);
       }
-      const existingItem = subgroup.items.find(
-        (i) => i.itemId.id === newItem.itemId.id
-      );
-      if (existingItem) {
-        console.warn("Item already exists");
+      const existingItemIndex = subgroup.items.findIndex(i => i.itemId === newItem.itemId.id);
+      if (existingItemIndex !== -1) {
+        console.warn("Item already exists with ID:", newItem.itemId.id);
         return newData;
       }
 

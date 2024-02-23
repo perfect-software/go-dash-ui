@@ -53,7 +53,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
     setFetchError(null);
     try {
       if (articleMstId) {
-        const BASE_URL = 'bom/getArticleWithArticleMstId';
+        const BASE_URL = 'article/getArticleWithArticleMstId';
         const response = await getDataApiService({ articleMstId: articleMstId }, BASE_URL);
         console.log(response);
         setArticleDetails(response); 

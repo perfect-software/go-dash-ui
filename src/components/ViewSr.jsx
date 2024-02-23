@@ -108,7 +108,7 @@ const ViewSr = ({ onSampleSelect }) => {
     },
     {
       headerName: "Username",
-      field: "buyer.username",
+      field: "username",
       sortable: true,
       width:130,
       filter: true,
