@@ -110,8 +110,8 @@ const SampleRequest = () => {
           sampleRef: "",
           sampleType: "",
           bsName: "",
+          articleNo:"",
           deliveryAddress: "",
-          articleNo: "",
           buyerArticle: "",
           size: "",
           quantity: "",
@@ -139,10 +139,8 @@ const SampleRequest = () => {
         };
   });
   useEffect(() => {
-    localStorage.setItem(
-      "sampleDetailsForm",
-      JSON.stringify(sampleDetailsForm)
-    );
+    const { articleNo, ...formToSave } = sampleDetailsForm;
+    localStorage.setItem("sampleDetailsForm", JSON.stringify(formToSave));
   }, [sampleDetailsForm]);
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
@@ -192,6 +190,7 @@ const SampleRequest = () => {
       "size",
       "quantity",
       "pair",
+      "articleNo",
       "upperColor",
       "liningColor",
       "last",
@@ -522,6 +521,7 @@ const SampleRequest = () => {
         ...prevList,
         [concatenatedString]: filtered,
       }));
+      setValidation((prev) => ({ ...prev, [name]: "valid" }));
       toggleSuggestVisibility(name, filtered.length > 0);
     } else {
       toggleSuggestVisibility(name, false);
@@ -894,6 +894,7 @@ const SampleRequest = () => {
             <div>
               {" "}
               <button
+                disabled={isEditClicked}
                 onClick={() => setIsBuyerPopup(true)}
                 className={styles.searchBtn}
                 aria-label="Search"
@@ -1168,6 +1169,11 @@ const SampleRequest = () => {
             type="text"
             maxLength="10"
             ref={articleNoRef}
+            style={
+              validation.articleNo === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             className={styles.basicInput2}
             placeholder="Type any word"
             value={sampleDetailsForm.articleNo}
@@ -1666,7 +1672,7 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="articleNo">
+                <label className={styles.impsampleLabel} htmlFor="articleNo">
                   Article No
                 </label>
                 {downshiftArticleNo}

@@ -8,7 +8,7 @@ import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
-import { getDataApiService } from "../service/apiService";
+import { getApiService, getDataApiService } from "../service/apiService";
 
 const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => {
   const navigate = useNavigate();
@@ -45,16 +45,16 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
     
   }, [gridApi, isFetching, fetchError, articleDetails]);
   
-  
-
 
  const fetchArticleDetails = async () => {
     setIsFetching(true);
     setFetchError(null);
     try {
       if (articleMstId) {
-        const BASE_URL = 'article/getArticleWithArticleMstId';
+        const BASE_URL = 'bom/getArticleWithArticleMstId';
         const response = await getDataApiService({ articleMstId: articleMstId }, BASE_URL);
+        // const BASE_URL = 'article/getArticle';
+        // const response = await getApiService(BASE_URL);
         console.log(response);
         setArticleDetails(response); 
         setIsFetching(false);
@@ -94,6 +94,13 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
   const columnDefs = [
     { headerName: "Select", maxWidth: 80, checkboxSelection: true },
     { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    {
+      headerName: "Last No",
+      field: "lastNo",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
     {
       headerName: "Animal",
       field: "animal",
@@ -180,13 +187,6 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
       field: "heelHeight",
       sortable: true,
       width:140,
-      filter: true,
-    },
-    {
-      headerName: "Last No",
-      field: "lastNo",
-      width:140,
-      sortable: true,
       filter: true,
     },
     {

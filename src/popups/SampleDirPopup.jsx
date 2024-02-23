@@ -89,13 +89,13 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
     },
-    {
-      headerName: "Username",
-      field: "buyer.username",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
+    // {
+    //   headerName: "Username",
+    //   field: "buyer.username",
+    //   sortable: true,
+    //   width:130,
+    //   filter: true,
+    // },
     {
       headerName: "Buyer",
       field: "buyer.bsName",

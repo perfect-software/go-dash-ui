@@ -70,6 +70,10 @@
   @apply flex items-center rounded-sm bg-[#0de37f] font-bold justify-center h-[1.4rem] w-[4rem];
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
+.backViewButton {
+  @apply flex items-center mr-2 text-[14px] text-white rounded-[0.4375rem] font-bold whitespace-nowrap bg-[#00A5AD] justify-center px-1 h-[1.4rem] w-[4rem];
+
+}
 .bottomButtonContainer {
   @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
 }

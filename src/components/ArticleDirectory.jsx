@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
-import { getApiService, postApiService, putApiService } from "../service/apiService";
+import {
+  getApiService,
+  postApiService,
+  putApiService,
+} from "../service/apiService";
 import Cross from "../assets/cross.svg";
 import Downshift from "downshift";
 import axios from "axios";
@@ -12,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import ViewArticle from "./ViewArticle";
+import ViewArticleDetails from "./ViewArticleDetails";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
@@ -24,7 +29,7 @@ const ArticleDirectory = () => {
   const [activeButton, setActiveButton] = useState("details");
   const [showInputLoading, setShowInputLoading] = useState({
     animal: false,
-    articleNo:false,
+    articleNo: false,
     soleType: false,
     toeShape: false,
     category: false,
@@ -36,9 +41,10 @@ const ArticleDirectory = () => {
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [articleSaved, setArticleSaved] = useState(false);
   const textareaRef = useRef(null);
   const dispatch = useDispatch();
-const [editArticle, setEditArticle] = useState(null);
+  const [editArticle, setEditArticle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [articleForm, setArticleForm] = useState(() => {
@@ -47,7 +53,7 @@ const [editArticle, setEditArticle] = useState(null);
       ? JSON.parse(savedForm)
       : {
           articleName: "",
-          articleNo:"",
+          articleNo: "",
           animal: "",
           color: "",
           gender: "",
@@ -65,9 +71,8 @@ const [editArticle, setEditArticle] = useState(null);
           comment: "",
         };
   });
-  const { articleMst, articleLoaded, articleLoading, articleError } = useSelector(
-    (state) => state.articleMst
-  );
+  const { articleMst, articleLoaded, articleLoading, articleError } =
+    useSelector((state) => state.articleMst);
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
@@ -109,7 +114,6 @@ const [editArticle, setEditArticle] = useState(null);
         setActiveButton((prevButton) =>
           prevButton === "details" ? "providedDetails" : "details"
         );
-
       }
     };
     window.addEventListener("keydown", toggleActiveButton);
@@ -122,7 +126,7 @@ const [editArticle, setEditArticle] = useState(null);
   }, [articleForm]);
   const [filteredList, setFilteredList] = useState({
     animalList: [],
-    articleNoList:[],
+    articleNoList: [],
     soleTypeList: [],
     toeShapeList: [],
     heelTypeList: [],
@@ -133,6 +137,7 @@ const [editArticle, setEditArticle] = useState(null);
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
+    setArticleSaved(false);
   };
   const toggleInputLoaderVisibility = (key, value) => {
     setShowInputLoading((prevSuggestions) => ({
@@ -194,25 +199,25 @@ const [editArticle, setEditArticle] = useState(null);
   const handleArticleUpdate = (article) => {
     if (Array.isArray(article) && article.length > 0) {
       const newArticle = article[0];
-      setEditArticle(newArticle); 
+      setEditArticle(newArticle);
       setIsEditClicked(true);
       setActiveButton("details");
       if (newArticle) {
-        const { image_nm,article_no , ...restOfArticle } = newArticle;
+        const { image_nm, article_no, ...restOfArticle } = newArticle;
         setArticleForm({
           ...articleForm,
-          articleNo:article_no,
+          articleNo: article_no,
           ...restOfArticle,
         });
-        const articleImageUrl = image_nm ? `${ARTICLE_IMAGE_PATH}${image_nm}` : null;
+        const articleImageUrl = image_nm
+          ? `${ARTICLE_IMAGE_PATH}${image_nm}`
+          : null;
         setImagePreview(articleImageUrl);
       } else {
-        console.error('editArticle is null');
+        console.error("editArticle is null");
       }
     }
-   
   };
-  
 
   const handleArticleChange = (e) => {
     const { name, value } = e.target;
@@ -250,10 +255,9 @@ const [editArticle, setEditArticle] = useState(null);
     if (itemsData.length === 0) {
       getItems();
     }
-   if (!articleLoaded && !articleLoading) {
-        dispatch(fetchAllArticleMst());
-      }
-  
+    if (!articleLoaded && !articleLoading) {
+      dispatch(fetchAllArticleMst());
+    }
   }, []);
   const getItems = async () => {
     const BASE_URL = "item/getItemHead";
@@ -267,19 +271,18 @@ const [editArticle, setEditArticle] = useState(null);
   const autosize = () => {
     const el = textareaRef.current;
     if (el) {
-      
-      el.style.cssText = 'height:auto;'; 
-      el.style.cssText = 'height:' + el.scrollHeight + 'px';
+      el.style.cssText = "height:auto;";
+      el.style.cssText = "height:" + el.scrollHeight + "px";
     }
   };
   useEffect(() => {
     const el = textareaRef.current;
     if (el) {
-      el.addEventListener('keydown', autosize);
+      el.addEventListener("keydown", autosize);
     }
     return () => {
       if (el) {
-        el.removeEventListener('keydown', autosize);
+        el.removeEventListener("keydown", autosize);
       }
     };
   }, []);
@@ -301,10 +304,10 @@ const [editArticle, setEditArticle] = useState(null);
       gender: "",
       soleType: "",
       toeShape: "",
-      username:"",
+      username: "",
       category: "",
       platformType: "",
-      articleNo:"",
+      articleNo: "",
       platformNo: "",
       heelType: "",
       heelNo: "",
@@ -342,14 +345,13 @@ const [editArticle, setEditArticle] = useState(null);
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("fileName", name);
-    formData.append("type", 'article');
+    formData.append("type", "article");
 
     try {
       const response = await axios.post(
         "http://localhost:8081/api/generic/upload",
         formData,
         {
-
           headers: {
             "Content-Type": "multipart/form-data ",
           },
@@ -371,104 +373,106 @@ const [editArticle, setEditArticle] = useState(null);
     }
   };
 
-
-  const handleUpdateArticleSubmit = async(e)=>{
+  const handleUpdateArticleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-  
     const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-    const imageName = formData.articleName+'-'+formData.lastNo;
+    const resName = formData.articleNo + "-" + formData.lastNo;
+    const imageName = formData.articleName + "-" + formData.lastNo;
     const imageResponseData = await uploadImage(imageName);
     const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "article/update";
     try {
       const updatedArticleForm = {
         ...formData,
-        image_nm: imageNm,  
+        image_nm: imageNm,
         articleId: editArticle.articleId,
       };
-    const responseData = await putApiService(updatedArticleForm, BASE_URL);
-    if (responseData.responseStatus && responseData.responseStatus.description) {
-      togglePopup(
-        responseData.responseStatus.description + " For " + responseData.response);
+      const responseData = await putApiService(updatedArticleForm, BASE_URL);
+      if (
+        responseData.responseStatus &&
+        responseData.responseStatus.description
+      ) {
+        togglePopup(
+          responseData.responseStatus.description + " For " + resName
+        );
+      }
+      setArticleSaved(true);
+      setIsEditClicked(false);
+      dispatch(fetchAllArticles());
+      dispatch(fetchAllArticleMst());
+    } catch (error) {
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
+    } finally {
+      setLoading(false);
     }
-    resetArticle(); 
-    dispatch(fetchAllArticles());
-  } catch (error) {
-    let errorMessage;
-    if (error.response && error.response.data.responseStatus) {
-      errorMessage =
-        error.response.data.responseStatus.description ||
-        `Server error: ${error.response.status}`;
-    } else if (error.request) {
-      errorMessage = "No response received from the server.";
-    }
-    togglePopup(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-  }
+  };
 
- const handleArticleMstChange = (e) =>{
-  const { name, value } = e.target;
-  toggleInputLoaderVisibility(name, true);
- setArticleForm((prevState) => ({
-    ...prevState,
-    [name]: value,
-  }));
-  if (value.trim().length > 0) {
-    const concatenatedString = `${name}List`;
-    const filtered = articleMst
-      .filter((item) =>
-        item.article_no.toLowerCase().includes(value.trim().toLowerCase())
-      )
-      .map((item) => ({
-        article_no: item.article_no,
-        last_no: item.last_no,
+  const handleArticleMstChange = (e) => {
+    const { name, value } = e.target;
+    toggleInputLoaderVisibility(name, true);
+    setArticleForm((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    if (value.trim().length > 0) {
+      const concatenatedString = `${name}List`;
+      const filtered = articleMst
+        .filter((item) =>
+          item.article_no.toLowerCase().includes(value.trim().toLowerCase())
+        )
+        .map((item) => ({
+          article_no: item.article_no,
+          last_no: item.last_no,
+        }));
+
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [concatenatedString]: filtered,
       }));
-
-    setFilteredList((prevList) => ({
-      ...prevList,
-      [concatenatedString]: filtered,
-    }));
-    toggleSuggestVisibility(name, filtered.length > 0);
-  } else {
-    toggleSuggestVisibility(name, false);
-    setFilteredList((prevList) => ({
-      ...prevList,
-      [`${name}List`]: [],
-    }));
-  }
-  toggleInputLoaderVisibility(name, false);
-  setValidation((prev) => ({ ...prev, [name]: "valid" }));
- }
-
-const handleArticleNoSubmit =(articleMst)=>{
-  if (Array.isArray(articleMst) && articleMst.length > 0) {
-    const selectedArticle = articleMst[0];
-    setArticleForm({
-      ...articleForm,
-      articleNo: selectedArticle.article_no,
-      lastNo: selectedArticle.last_no,
-    });
-    if(selectedArticle.last_no)
-    {
-      setValidation((prev) => ({ ...prev, lastNo: "valid" }));
+      toggleSuggestVisibility(name, filtered.length > 0);
+    } else {
+      toggleSuggestVisibility(name, false);
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [`${name}List`]: [],
+      }));
     }
-    setValidation((prev) => ({ ...prev, articleNo: "valid" }));
-    toggleSuggestVisibility("articleNo", false);
-    setIsArticlePopup(false);
-  }
+    toggleInputLoaderVisibility(name, false);
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
+  };
 
- 
-}
+  const handleArticleNoSubmit = (articleMst) => {
+    if (Array.isArray(articleMst) && articleMst.length > 0) {
+      const selectedArticle = articleMst[0];
+      setArticleForm({
+        ...articleForm,
+        articleNo: selectedArticle.article_no,
+        lastNo: selectedArticle.last_no,
+      });
+      if (selectedArticle.last_no) {
+        setValidation((prev) => ({ ...prev, lastNo: "valid" }));
+      }
+      setValidation((prev) => ({ ...prev, articleNo: "valid" }));
+      toggleSuggestVisibility("articleNo", false);
+      setIsArticlePopup(false);
+    }
+  };
   const handleSubmitArticleClick = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -476,28 +480,34 @@ const handleArticleNoSubmit =(articleMst)=>{
       setLoading(false);
       return;
     }
-  
+
     const formData = Object.entries(articleForm).reduce((acc, [key, value]) => {
       acc[key] = value === "" ? null : value;
       return acc;
     }, {});
-    const imageName = formData.articleName+'-'+formData.lastNo;
+    const imageName = formData.articleName + "-" + formData.lastNo;
+    const resName = formData.articleNo + "-" + formData.lastNo;
     const imageResponseData = await uploadImage(imageName);
     const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "article/create";
     try {
-        const updatedArticleForm = {
-          ...formData,
-          image_nm: imageNm,
-        };
+      const updatedArticleForm = {
+        ...formData,
+        image_nm: imageNm,
+      };
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
-      if (responseData.responseStatus && responseData.responseStatus.description) {
+      if (
+        responseData.responseStatus &&
+        responseData.responseStatus.description
+      ) {
         togglePopup(
-          responseData.responseStatus.description + " For " + responseData.response);
+          responseData.responseStatus.description + " For " + resName
+        );
       }
- 
-      resetArticle();
+
+      setArticleSaved(true);
       dispatch(fetchAllArticles());
+      dispatch(fetchAllArticleMst());
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
@@ -547,9 +557,7 @@ const handleArticleNoSubmit =(articleMst)=>{
             ref={animalInputRef}
             className={styles.basicInput}
             style={
-              validation.animal === "invalid"
-                ? { border: "2px solid red" }
-                : {}
+              validation.animal === "invalid" ? { border: "2px solid red" } : {}
             }
             placeholder="Insert First Letter"
             value={articleForm.animal}
@@ -614,9 +622,7 @@ const handleArticleNoSubmit =(articleMst)=>{
             type="text"
             className={styles.buttonBasicInput}
             style={
-              validation.color === "invalid"
-                ? { border: "2px solid red" }
-                : {}
+              validation.color === "invalid" ? { border: "2px solid red" } : {}
             }
             placeholder="Type "
             value={articleForm.color}
@@ -852,11 +858,10 @@ const handleArticleNoSubmit =(articleMst)=>{
           setArticleForm({
             ...articleForm,
             articleNo: selectedItem.article_no,
-            lastNo:selectedItem.last_no
+            lastNo: selectedItem.last_no,
           });
           toggleSuggestVisibility("articleNo", false);
-          if(selectedItem.last_no)
-          {
+          if (selectedItem.last_no) {
             setValidation((prev) => ({ ...prev, lastNo: "valid" }));
           }
         }
@@ -879,11 +884,13 @@ const handleArticleNoSubmit =(articleMst)=>{
                 : {}
             }
             className={styles.basicInput2}
+            disabled={isEditClicked}
             placeholder="Type any word"
             value={articleForm.articleNo}
           />
           <div>
             <button
+              disabled={isEditClicked}
               onClick={() => {
                 setIsArticlePopup(true);
               }}
@@ -907,12 +914,11 @@ const handleArticleNoSubmit =(articleMst)=>{
                 </div>
               ))}
             </div>
-          )} 
+          )}
         </div>
       )}
     </Downshift>
   );
-
 
   const socksMaterialInputRef = useRef(null);
   const downshiftSocksMaterial = (
@@ -1121,39 +1127,46 @@ const handleArticleNoSubmit =(articleMst)=>{
     <div className={styles.articlePageContainer}>
       <div className={styles.headContainer}>
         <div className={styles.subHeadContainer}>
-        <h1
-            className={styles.headText}
-          >
+          <h1 className={styles.headText}>
             {activeButton === "details"
               ? isEditClicked
                 ? `Update Article: ${
-                    isEditClicked && editArticle.articleName && editArticle.articleName
+                    isEditClicked &&
+                    editArticle.article_no + "-" + editArticle.lastNo
                   }`
                 : "Article Directory"
               : "Article Search"}
           </h1>
         </div>
         <div className={styles.subHeadContainerTwo}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div className={styles.topButtons}>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "details" ? styles.active : ""
-              }`}
-              onClick={() => setActiveButton("details")}
-            >
-              Article Details
-            </button>
-            <button
-              className={`${styles.screenChangeButton} ${
-                activeButton === "view" ? styles.active : ""
-              }`}
-              onClick={() => setActiveButton("view")}
-            >
-              View Article
-            </button>
-          </div>
-          {/* {activeButton === "view" && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className={styles.topButtons}>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "details" ? styles.active : ""
+                }`}
+                onClick={() => setActiveButton("details")}
+              >
+                Article Details
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "view" ? styles.active : ""
+                }`}
+                onClick={() => setActiveButton("view")}
+              >
+                View Article
+              </button>
+              <button
+                className={`${styles.screenChangeButton} ${
+                  activeButton === "viewDetails" ? styles.active : ""
+                }`}
+                onClick={() => setActiveButton("viewDetails")}
+              >
+                View Article Details
+              </button>
+            </div>
+            {/* {activeButton === "view" && (
               <div className={styles.editContainer}>
                 <button
                  disabled={!isEditSelected}
@@ -1164,263 +1177,261 @@ const handleArticleNoSubmit =(articleMst)=>{
                 </button>
               </div>
             )} */}
-           </div>
+          </div>
           <div className={styles.headBorder}></div>
         </div>
       </div>
-      {activeButton === "details" ? (
+      {activeButton === "details" && (
         <>
-        <div className={styles.articleTopGrid}>
-          
-        <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="articleNo">
-              Article No
-            </label>
-            {downshiftArticle}
-          </div>
+          <div className={styles.articleTopGrid}>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="articleNo">
+                Article No
+              </label>
+              {downshiftArticle}
+            </div>
 
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="articleName">
-              Article Name
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              name="articleName"
-              placeholder="Enter Here"
-              style={
-                validation.articleName === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              onChange={handleNormalArticleChange}
-              value={articleForm.articleName}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input4">
-              Last No.
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              style={
-                validation.lastNo === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              name="lastNo"
-              value={articleForm.lastNo}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="color">
-              Article Color
-            </label>
-            {downshiftColor}
-          </div>
-       
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="animal">
-              Animal
-            </label>
-            {downshiftAnimal}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="gender">
-              Gender
-            </label>
-            <div className={styles.selectWrapper}>
-              <select
-                className={styles.selectInput}
-                name="gender"
-                onChange={handleNormalArticleChange}
-                value={articleForm.gender}
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="articleName">
+                Article Name
+              </label>
+              <input
+                type="text"
+                className={styles.basicInput}
+                name="articleName"
+                placeholder="Enter Here"
                 style={
-                  validation.gender === "invalid"
+                  validation.articleName === "invalid"
                     ? { border: "2px solid red" }
                     : {}
                 }
-              >
-                <option value="" selected disabled hidden>
-                  Select Gender
-                </option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-              </select>
+                onChange={handleNormalArticleChange}
+                value={articleForm.articleName}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input4">
+                Last No.
+              </label>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Enter Here"
+                disabled={isEditClicked}
+                style={
+                  validation.lastNo === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                name="lastNo"
+                value={articleForm.lastNo}
+                onChange={handleNormalArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="color">
+                Article Color
+              </label>
+              {downshiftColor}
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="animal">
+                Animal
+              </label>
+              {downshiftAnimal}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="gender">
+                Gender
+              </label>
+              <div className={styles.selectWrapper}>
+                <select
+                  className={styles.selectInput}
+                  name="gender"
+                  onChange={handleNormalArticleChange}
+                  value={articleForm.gender}
+                  style={
+                    validation.gender === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
+                >
+                  <option value="" selected disabled hidden>
+                    Select Gender
+                  </option>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="soleType">
+                Sole Type
+              </label>
+              {downshiftSoleType}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="toeShape">
+                Toe Shape
+              </label>
+              {downshiftToeShape}
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="category">
+                Category
+              </label>
+              {downshiftCategory}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Platform No.
+              </label>
+              <input
+                type="text"
+                name="platformNo"
+                className={styles.basicInput}
+                style={
+                  validation.platformNo === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                placeholder="Enter Here"
+                value={articleForm.platformNo}
+                onChange={handleNormalArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input4">
+                Heel Type
+              </label>
+              {downshiftHeelType}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Heel Height
+              </label>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Enter Here"
+                name="heelHeight"
+                style={
+                  validation.heelHeight === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                value={articleForm.heelHeight}
+                onChange={handleNormalArticleChange}
+              />
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Lining Material
+              </label>
+              {downshiftLiningMaterial}
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Socks Material
+              </label>
+              {downshiftSocksMaterial}
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Platform Type
+              </label>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Enter Here"
+                style={
+                  validation.platformType === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                name="platformType"
+                value={articleForm.platformType}
+                onChange={handleNormalArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Heel No.
+              </label>
+              <input
+                type="text"
+                className={styles.basicInput}
+                placeholder="Enter Here"
+                name="heelNo"
+                style={
+                  validation.heelNo === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                value={articleForm.heelNo}
+                onChange={handleNormalArticleChange}
+              />
+            </div>
+            <div className={styles.largeColSpan}>
+              <label className={styles.sampleLabel} htmlFor="input1">
+                Comment
+              </label>
+              <textarea
+                ref={textareaRef}
+                className={styles.commentInput}
+                placeholder="Enter Here"
+                name="comment"
+                value={articleForm.comment}
+                onChange={handleNormalArticleChange}
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div className={styles.imgColSpan}>
+              <div className={styles.fileinputcontainer2}>
+                {imagePreview ? (
+                  <div className={styles.imagepreview2}>
+                    <img
+                      src={imagePreview}
+                      onClick={() => setIsImagePopup(true)}
+                      alt="Preview"
+                    />
+                    <img
+                      onClick={() => {
+                        setImagePreview(null);
+                        setImageFile(null);
+                      }}
+                      src={Cross}
+                      alt="Select Icon"
+                      className={styles.removeImageButton2}
+                    />
+                  </div>
+                ) : (
+                  <label htmlFor="file" className={styles.filelabel2}>
+                    <img
+                      src={Upload}
+                      alt="Image Placeholder"
+                      className={styles.uploadImagePlaceholder}
+                    />
+                    Upload Image
+                    <input
+                      type="file"
+                      id="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="soleType">
-              Sole Type
-            </label>
-            {downshiftSoleType}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="toeShape">
-              Toe Shape
-            </label>
-            {downshiftToeShape}
-          </div>
-
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="category">
-              Category
-            </label>
-            {downshiftCategory}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Platform No.
-            </label>
-            <input
-              type="text"
-              name="platformNo"
-              className={styles.basicInput}
-              style={
-                validation.platformNo === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              placeholder="Enter Here"
-              value={articleForm.platformNo}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input4">
-              Heel Type
-            </label>
-            {downshiftHeelType}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Heel Height
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              name="heelHeight"
-              style={
-                validation.heelHeight === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              value={articleForm.heelHeight}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
-
-          
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Lining Material
-            </label>
-            {downshiftLiningMaterial}
-          </div>
-
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Socks Material
-            </label>
-            {downshiftSocksMaterial}
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Platform Type
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              style={
-                validation.platformType === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              name="platformType"
-              value={articleForm.platformType}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
-          <div className={styles.colSpan}>
-            <label className={styles.impsampleLabel} htmlFor="input1">
-              Heel No.
-            </label>
-            <input
-              type="text"
-              className={styles.basicInput}
-              placeholder="Enter Here"
-              name="heelNo"
-              style={
-                validation.heelNo === "invalid"
-                  ? { border: "2px solid red" }
-                  : {}
-              }
-              value={articleForm.heelNo}
-              onChange={handleNormalArticleChange}
-            />
-          </div>
-          <div className={styles.largeColSpan}>
-            <label className={styles.sampleLabel} htmlFor="input1">
-              Comment
-            </label>
-            <textarea
-              ref={textareaRef}
-              className={styles.commentInput}
-              placeholder="Enter Here"
-              name="comment"
-              value={articleForm.comment}
-              onChange={handleNormalArticleChange}
-              rows="3"
-            ></textarea>
-          </div>
-          
-          <div className={styles.imgColSpan}>
-                <div className={styles.fileinputcontainer2}>
-                  {imagePreview ? (
-                    <div className={styles.imagepreview2}>
-                      <img
-                        src={imagePreview}
-                        onClick={() => setIsImagePopup(true)}
-                        alt="Preview"
-                      />
-                      <img
-                        onClick={() => {
-                          setImagePreview(null);
-                          setImageFile(null);
-                        }}
-                        src={Cross}
-                        alt="Select Icon"
-                        className={styles.removeImageButton2}
-                      />
-                    </div>
-                  ) : (
-                    <label htmlFor="file" className={styles.filelabel2}>
-                      <img
-                        src={Upload}
-                        alt="Image Placeholder"
-                        className={styles.uploadImagePlaceholder}
-                      />
-                        Upload Image
-                        <input
-                          type="file"
-                          id="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                        />
-                      </label>
-                  )}
-                </div>   
-              </div>
-        
-        </div>
-
-        <div className={styles.parentButtonContainer}>
+          <div className={styles.parentButtonContainer}>
             {loading ? (
               <div className={styles.buttonContainer}>
                 <div className={styles.loader}></div>
@@ -1440,7 +1451,7 @@ const handleArticleNoSubmit =(articleMst)=>{
                       onClick={() => {
                         resetArticle();
                         setIsEditClicked(false);
-                    
+
                         setEditArticle(null);
                       }}
                     >
@@ -1466,19 +1477,24 @@ const handleArticleNoSubmit =(articleMst)=>{
               </div>
             )}
           </div>
-   
-    
-      {isPopupVisible && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popupContent}>
-            <h2>{popupMessage}</h2>
-            <button className={styles.popupButton} onClick={togglePopup}>
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-       {isImagePopup && (
+
+          {isPopupVisible && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.popupContent}>
+                <h2>{popupMessage}</h2>
+                <button
+                  className={styles.popupButton}
+                  onClick={() => {
+                    articleSaved && resetArticle();
+                    togglePopup();
+                  }}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+          {isImagePopup && (
             <div className={styles.popupOverlay}>
               <div className={styles.imagePopupContent}>
                 <img
@@ -1497,27 +1513,29 @@ const handleArticleNoSubmit =(articleMst)=>{
               </div>
             </div>
           )}
-      {isItemHeadPopup && (
-        <ItemHeadPopup
-          onCancel={() => {
-            setIsItemHeadPopup(false);
-            getItems();
-          }}
-          itemForm={articleForm}
-        />
-      )}
-       {isArticlePopup && (
+          {isItemHeadPopup && (
+            <ItemHeadPopup
+              onCancel={() => {
+                setIsItemHeadPopup(false);
+                getItems();
+              }}
+              itemForm={articleForm}
+            />
+          )}
+          {isArticlePopup && (
             <ArticleMstPopup
               onCancel={() => {
                 setIsArticlePopup(false);
               }}
-             onSubmitArticleData={handleArticleNoSubmit}
+              onSubmitArticleData={handleArticleNoSubmit}
             />
           )}
-      </>
-      ) : (
+        </>
+      )}
+      {activeButton === "view" && (
         <ViewArticle updateArticle={handleArticleUpdate} />
       )}
+      {activeButton === "viewDetails" && <ViewArticleDetails />}
     </div>
   );
 };
