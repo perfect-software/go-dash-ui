@@ -70,7 +70,7 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
       editDetails.forEach((editItem) => {
         let group = newData.groups.find((g) => g.id === editItem.itemGrp);
         if (!group) {
-          const groupName = filteredList.itemGrpList[editItem.itemGrp];
+          const groupName = itemGroups[editItem.itemGrp];
           console.log(groupName);
           group = {
             id: editItem.itemGrp,
@@ -82,10 +82,10 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
   
         let subgroup = group.subgroups.find((sg) => sg.id === editItem.itemSubGrp);
         if (!subgroup) {
-          const subgroupName = filteredList.itemSubGrpList[editItem.itemSubGrp];
+          const subgroupName = itemSubGroups[editItem.itemSubGrp];
           subgroup = {
             id: editItem.itemSubGrp,
-            name: subgroupName,
+            name: subgroupName.name,
             items: [],
           };
           group.subgroups.push(subgroup);
@@ -209,6 +209,8 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
   const { itemGroups, itemSubGroups, loaded, loading, error } = useSelector(
     (state) => state.data
   );
+
+
   const { itemRates, loadedRate, loadingRate, errorRate } = useSelector(
     (state) => state.itemRate
   );
@@ -216,6 +218,7 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
     if (!loaded && !loading) {
       dispatch(fetchItemGroupsAndSubGroups());
     }
+
   }, [loaded, loading, dispatch]);
 
   useEffect(() => {
