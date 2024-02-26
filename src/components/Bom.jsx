@@ -569,7 +569,7 @@ const Bom = () => {
                 {isEditClicked ? (
                   <>
                     <button
-                    //  onClick={handleUpdateSampleSubmit}
+                    onClick={handleSubmitBomClick}
                       className={styles.submitButton}
                     >
                       Submit
