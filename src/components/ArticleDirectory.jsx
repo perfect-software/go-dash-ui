@@ -17,6 +17,7 @@ import ItemHeadPopup from "../popups/ItemHeadPopup";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import ViewArticle from "./ViewArticle";
 import ViewArticleDetails from "./ViewArticleDetails";
+import GenericDownshiftDropdown from "../features/genericDownshift";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
@@ -31,7 +32,14 @@ const ArticleDirectory = () => {
     animal: false,
     articleNo: false,
     soleType: false,
+    season: false,
+    leather:false,
+    insole:false,
+    sole:false,
+    subCategory:false,
+    lastType:false,
     toeShape: false,
+    heelHeight:false,
     category: false,
     heelType: false,
     color: false,
@@ -57,7 +65,14 @@ const ArticleDirectory = () => {
           animal: "",
           color: "",
           gender: "",
+          season:"",
+          colorCode:"",
+          leather:"",
+          insole:"",
+          sole:"",
+          subCategory:"",
           soleType: "",
+          lastType:"",
           toeShape: "",
           category: "",
           platformType: "",
@@ -81,8 +96,15 @@ const ArticleDirectory = () => {
       "articleName",
       "articleNo",
       "animal",
+      "season",
+      "colorCode",
       "color",
+      "lastType",
       "gender",
+       "leather",
+       "sole",
+       "insole",
+       "subCategory",
       "soleType",
       "toeShape",
       "category",
@@ -127,9 +149,17 @@ const ArticleDirectory = () => {
   const [filteredList, setFilteredList] = useState({
     animalList: [],
     articleNoList: [],
+    lastTypeList:[],
+    soleList:[],
+    subCategoryList:[],
+    insoleList:[],
+    leatherList:[],
     soleTypeList: [],
     toeShapeList: [],
+    platformTypeList:[],
     heelTypeList: [],
+    heelHeightList: [],
+    seasonList: [],
     categoryList: [],
     liningMaterialList: [],
     socksMaterialList: [],
@@ -288,8 +318,17 @@ const ArticleDirectory = () => {
   }, []);
   const [showSuggestions, setShowSuggestions] = useState({
     animal: false,
+    articleNo: false,
     soleType: false,
+    season: false,
+    leather:false,
+    insole:false,
+    sole:false,
+    subCategory:false,
+    lastType:false,
+    platformType:false,
     toeShape: false,
+    heelHeight:false,
     category: false,
     heelType: false,
     color: false,
@@ -299,23 +338,29 @@ const ArticleDirectory = () => {
   const resetArticle = () => {
     setArticleForm({
       articleName: "",
-      animal: "",
-      color: "",
-      gender: "",
-      soleType: "",
-      toeShape: "",
-      username: "",
-      category: "",
-      platformType: "",
-      articleNo: "",
-      platformNo: "",
-      heelType: "",
-      heelNo: "",
-      heelHeight: "",
-      lastNo: "",
-      liningMaterial: "",
-      socksMaterial: "",
-      comment: "",
+          articleNo: "",
+          animal: "",
+          color: "",
+          gender: "",
+          leather:"",
+          season:"",
+          colorCode:"",
+          insole:"",
+          sole:"",
+          subCategory:"",
+          soleType: "",
+          lastType:"",
+          toeShape: "",
+          category: "",
+          platformType: "",
+          platformNo: "",
+          heelType: "",
+          heelNo: "",
+          heelHeight: "",
+          lastNo: "",
+          liningMaterial: "",
+          socksMaterial: "",
+          comment: "",
     });
     setImagePreview(null);
     setValidation(initialValidationState);
@@ -495,6 +540,7 @@ const ArticleDirectory = () => {
         ...formData,
         image_nm: imageNm,
       };
+      console.log(updatedArticleForm);
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
       if (
         responseData.responseStatus &&
@@ -530,72 +576,7 @@ const ArticleDirectory = () => {
     }));
   };
 
-  const animalInputRef = useRef(null);
-  const downshiftAnimal = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            animal: selectedItem.name,
-          });
-          toggleSuggestVisibility("animal", false);
-          setValidation((prev) => ({ ...prev, animal: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.animal}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "animal",
-            })}
-            type="text"
-            ref={animalInputRef}
-            className={styles.basicInput}
-            style={
-              validation.animal === "invalid" ? { border: "2px solid red" } : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.animal}
-          />
 
-          {showInputLoading.animal ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("animal");
-                animalInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.animal && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.animalList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
 
   const downshiftColor = (
     <Downshift
@@ -643,209 +624,6 @@ const ArticleDirectory = () => {
                 </div>
               ))}
           </div>
-        </div>
-      )}
-    </Downshift>
-  );
-
-  const soleTypeInputRef = useRef(null);
-  const downshiftSoleType = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            soleType: selectedItem.name,
-          });
-          toggleSuggestVisibility("soleType", false);
-          setValidation((prev) => ({ ...prev, soleType: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.soleType}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "soleType",
-            })}
-            type="text"
-            ref={soleTypeInputRef}
-            className={styles.basicInput}
-            style={
-              validation.soleType === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.soleType}
-          />
-          {showInputLoading.soleType ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("soleType");
-                soleTypeInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.soleType && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.soleTypeList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-
-  const toeShapeInputRef = useRef(null);
-  const downshiftToeShape = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            toeShape: selectedItem.name,
-          });
-          toggleSuggestVisibility("toeShape", false);
-          setValidation((prev) => ({ ...prev, toeShape: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.toeShape}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "toeShape",
-            })}
-            type="text"
-            ref={toeShapeInputRef}
-            className={styles.basicInput}
-            style={
-              validation.toeShape === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.toeShape}
-          />
-          {showInputLoading.toeShape ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("toeShape");
-                toeShapeInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.toeShape && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.toeShapeList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-  const liningMaterialInputRef = useRef(null);
-  const downshiftLiningMaterial = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            liningMaterial: selectedItem.name,
-          });
-          toggleSuggestVisibility("liningMaterial", false);
-          setValidation((prev) => ({ ...prev, liningMaterial: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.liningMaterial}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "liningMaterial",
-            })}
-            type="text"
-            ref={liningMaterialInputRef}
-            className={styles.basicInput}
-            style={
-              validation.liningMaterial === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.liningMaterial}
-          />
-          {showInputLoading.liningMaterial ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("liningMaterial");
-                liningMaterialInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.liningMaterial && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.liningMaterialList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </Downshift>
@@ -911,209 +689,6 @@ const ArticleDirectory = () => {
                   }
                 >
                   {item.article_no}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-
-  const socksMaterialInputRef = useRef(null);
-  const downshiftSocksMaterial = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            socksMaterial: selectedItem.name,
-          });
-          toggleSuggestVisibility("socksMaterial", false);
-          setValidation((prev) => ({ ...prev, socksMaterial: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.socksMaterial}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "socksMaterial",
-            })}
-            type="text"
-            ref={socksMaterialInputRef}
-            className={styles.basicInput}
-            style={
-              validation.socksMaterial === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.socksMaterial}
-          />
-          {showInputLoading.socksMaterial ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("socksMaterial");
-                socksMaterialInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.socksMaterial && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.socksMaterialList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-  const heelTypeInputRef = useRef(null);
-  const downshiftHeelType = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            heelType: selectedItem.name,
-          });
-          toggleSuggestVisibility("heelType", false);
-          setValidation((prev) => ({ ...prev, heelType: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.heelType}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "heelType",
-            })}
-            type="text"
-            ref={heelTypeInputRef}
-            className={styles.basicInput}
-            style={
-              validation.heelType === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            placeholder="Insert First Letter"
-            value={articleForm.heelType}
-          />
-          {showInputLoading.heelType ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("heelType");
-                heelTypeInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.heelType && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.heelTypeList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-
-  const categoryInputRef = useRef(null);
-  const downshiftCategory = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          setArticleForm({
-            ...articleForm,
-            category: selectedItem.name,
-          });
-          toggleSuggestVisibility("category", false);
-          setValidation((prev) => ({ ...prev, category: "valid" }));
-        }
-      }}
-      selectedItem={articleForm.category}
-      itemToString={(item) => (item ? item.name : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleArticleChange,
-              name: "category",
-            })}
-            type="text"
-            ref={categoryInputRef}
-            className={styles.basicInput}
-            placeholder="Insert First Letter"
-            style={
-              validation.category === "invalid"
-                ? { border: "2px solid red" }
-                : {}
-            }
-            value={articleForm.category}
-          />
-          {showInputLoading.category ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("category");
-                categoryInputRef.current?.focus();
-              }}
-              className={styles.dropBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.category && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredList.categoryList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item.name}
                 </div>
               ))}
             </div>
@@ -1229,17 +804,80 @@ const ArticleDirectory = () => {
               />
             </div>
             <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Last Type
+              </label>
+              <GenericDownshiftDropdown
+                name="lastType"
+                selectedItem={articleForm.lastType}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      lastType: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("lastType", false);
+                    setValidation((prev) => ({ ...prev, lastType: "valid" }));
+                  }
+                }}
+                items={filteredList.lastTypeList}
+                showInputLoading={showInputLoading.lastType}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.lastType}
+                placeholder="Insert First Letter"
+                validationState={validation.lastType}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="season">
+                Season
+              </label>
+              <GenericDownshiftDropdown
+                name="season"
+                selectedItem={articleForm.season}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      season: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("season", false);
+                    setValidation((prev) => ({ ...prev, season: "valid" }));
+                  }
+                }}
+                items={filteredList.seasonList}
+                showInputLoading={showInputLoading.season}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.season}
+                placeholder="Insert First Letter"
+                validationState={validation.season}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="color">
                 Article Color
               </label>
               {downshiftColor}
             </div>
-
             <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="animal">
-                Animal
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Color Code
               </label>
-              {downshiftAnimal}
+              <input
+                type="text"
+                name="colorCode"
+                className={styles.basicInput}
+                style={
+                  validation.colorCode === "invalid"
+                    ? { border: "2px solid red" }
+                    : {}
+                }
+                placeholder="Enter Here"
+                value={articleForm.colorCode}
+                onChange={handleNormalArticleChange}
+              />
             </div>
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="gender">
@@ -1265,25 +903,215 @@ const ArticleDirectory = () => {
                 </select>
               </div>
             </div>
-
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="animal">
+                Animal
+              </label>
+              <GenericDownshiftDropdown
+                name="animal"
+                selectedItem={articleForm.animal}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      animal: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("animal", false);
+                    setValidation((prev) => ({ ...prev, animal: "valid" }));
+                  }
+                }}
+                items={filteredList.animalList}
+                showInputLoading={showInputLoading.animal}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.animal}
+                placeholder="Insert First Letter"
+                validationState={validation.animal}
+                handleChange={handleArticleChange}
+              />
+            </div>
+          
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Leather
+              </label>
+              <GenericDownshiftDropdown
+                name="leather"
+                selectedItem={articleForm.leather}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      leather: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("leather", false);
+                    setValidation((prev) => ({ ...prev, leather: "valid" }));
+                  }
+                }}
+                items={filteredList.leatherList}
+                showInputLoading={showInputLoading.leather}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.leather}
+                placeholder="Insert First Letter"
+                validationState={validation.leather}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Insole
+              </label>
+              <GenericDownshiftDropdown
+                name="insole"
+                selectedItem={articleForm.insole}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      insole: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("insole", false);
+                    setValidation((prev) => ({ ...prev, insole: "valid" }));
+                  }
+                }}
+                items={filteredList.insoleList}
+                showInputLoading={showInputLoading.insole}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.insole}
+                placeholder="Insert First Letter"
+                validationState={validation.insole}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Sole
+              </label>
+              <GenericDownshiftDropdown
+                name="sole"
+                selectedItem={articleForm.sole}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      sole: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("sole", false);
+                    setValidation((prev) => ({ ...prev, sole: "valid" }));
+                  }
+                }}
+                items={filteredList.soleList}
+                showInputLoading={showInputLoading.sole}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.sole}
+                placeholder="Insert First Letter"
+                validationState={validation.sole}
+                handleChange={handleArticleChange}
+              />
+            </div>
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="soleType">
                 Sole Type
               </label>
-              {downshiftSoleType}
+              <GenericDownshiftDropdown
+                name="soleType"
+                selectedItem={articleForm.soleType}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      soleType: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("soleType", false);
+                    setValidation((prev) => ({ ...prev, soleType: "valid" }));
+                  }
+                }}
+                items={filteredList.soleTypeList}
+                showInputLoading={showInputLoading.soleType}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.soleType}
+                placeholder="Insert First Letter"
+                validationState={validation.soleType}
+                handleChange={handleArticleChange}
+              />
             </div>
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="toeShape">
                 Toe Shape
               </label>
-              {downshiftToeShape}
+              <GenericDownshiftDropdown
+                name="toeShape"
+                selectedItem={articleForm.toeShape}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      toeShape: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("toeShape", false);
+                    setValidation((prev) => ({ ...prev, toeShape: "valid" }));
+                  }
+                }}
+                items={filteredList.toeShapeList}
+                showInputLoading={showInputLoading.toeShape}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.toeShape}
+                placeholder="Insert First Letter"
+                validationState={validation.toeShape}
+                handleChange={handleArticleChange}
+              />
             </div>
 
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="category">
                 Category
               </label>
-              {downshiftCategory}
+              <GenericDownshiftDropdown
+                name="category"
+                selectedItem={articleForm.category}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      category: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("category", false);
+                    setValidation((prev) => ({ ...prev, category: "valid" }));
+                  }
+                }}
+                items={filteredList.categoryList}
+                showInputLoading={showInputLoading.category}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.category}
+                placeholder="Insert First Letter"
+                validationState={validation.category}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Sub Category
+              </label>
+              <GenericDownshiftDropdown
+                name="subCategory"
+                selectedItem={articleForm.subCategory}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      subCategory: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("subCategory", false);
+                    setValidation((prev) => ({ ...prev, subCategory: "valid" }));
+                  }
+                }}
+                items={filteredList.subCategoryList}
+                showInputLoading={showInputLoading.subCategory}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.subCategory}
+                placeholder="Insert First Letter"
+                validationState={validation.subCategory}
+                handleChange={handleArticleChange}
+              />
             </div>
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="input1">
@@ -1300,62 +1128,6 @@ const ArticleDirectory = () => {
                 }
                 placeholder="Enter Here"
                 value={articleForm.platformNo}
-                onChange={handleNormalArticleChange}
-              />
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="input4">
-                Heel Type
-              </label>
-              {downshiftHeelType}
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="input1">
-                Heel Height
-              </label>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Enter Here"
-                name="heelHeight"
-                style={
-                  validation.heelHeight === "invalid"
-                    ? { border: "2px solid red" }
-                    : {}
-                }
-                value={articleForm.heelHeight}
-                onChange={handleNormalArticleChange}
-              />
-            </div>
-
-            <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="input1">
-                Lining Material
-              </label>
-              {downshiftLiningMaterial}
-            </div>
-
-            <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="input1">
-                Socks Material
-              </label>
-              {downshiftSocksMaterial}
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="input1">
-                Platform Type
-              </label>
-              <input
-                type="text"
-                className={styles.basicInput}
-                placeholder="Enter Here"
-                style={
-                  validation.platformType === "invalid"
-                    ? { border: "2px solid red" }
-                    : {}
-                }
-                name="platformType"
-                value={articleForm.platformType}
                 onChange={handleNormalArticleChange}
               />
             </div>
@@ -1377,6 +1149,138 @@ const ArticleDirectory = () => {
                 onChange={handleNormalArticleChange}
               />
             </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Heel Height
+              </label>
+              <GenericDownshiftDropdown
+                name="heelHeight"
+                selectedItem={articleForm.heelHeight}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      heelHeight: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("heelHeight", false);
+                    setValidation((prev) => ({ ...prev, heelHeight: "valid" }));
+                  }
+                }}
+                items={filteredList.heelHeightList}
+                showInputLoading={showInputLoading.heelHeight}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.heelHeight}
+                placeholder="Insert First Letter"
+                validationState={validation.heelHeight}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input4">
+                Heel Type
+              </label>
+              <GenericDownshiftDropdown
+                name="heelType"
+                selectedItem={articleForm.heelType}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      heelType: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("heelType", false);
+                    setValidation((prev) => ({ ...prev, heelType: "valid" }));
+                  }
+                }}
+                items={filteredList.heelTypeList}
+                showInputLoading={showInputLoading.heelType}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.heelType}
+                placeholder="Insert First Letter"
+                validationState={validation.heelType}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Lining Material
+              </label>
+              <GenericDownshiftDropdown
+                name="liningMaterial"
+                selectedItem={articleForm.liningMaterial}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      liningMaterial: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("liningMaterial", false);
+                    setValidation((prev) => ({ ...prev, liningMaterial: "valid" }));
+                  }
+                }}
+                items={filteredList.liningMaterialList}
+                showInputLoading={showInputLoading.liningMaterial}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.liningMaterial}
+                placeholder="Insert First Letter"
+                validationState={validation.liningMaterial}
+                handleChange={handleArticleChange}
+              />
+            </div>
+
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Socks Material
+              </label>
+              <GenericDownshiftDropdown
+                name="socksMaterial"
+                selectedItem={articleForm.socksMaterial}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      socksMaterial: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("socksMaterial", false);
+                    setValidation((prev) => ({ ...prev, socksMaterial: "valid" }));
+                  }
+                }}
+                items={filteredList.socksMaterialList}
+                showInputLoading={showInputLoading.socksMaterial}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.socksMaterial}
+                placeholder="Insert First Letter"
+                validationState={validation.socksMaterial}
+                handleChange={handleArticleChange}
+              />
+            </div>
+            <div className={styles.colSpan}>
+              <label className={styles.impsampleLabel} htmlFor="input1">
+                Platform Type
+              </label>
+              <GenericDownshiftDropdown
+                name="platformType"
+                selectedItem={articleForm.platformType}
+                onChange={(selectedItem) => {
+                  if (selectedItem) {
+                    setArticleForm({
+                      ...articleForm,
+                      platformType: selectedItem.name,
+                    });
+                    toggleSuggestVisibility("platformType", false);
+                    setValidation((prev) => ({ ...prev, platformType: "valid" }));
+                  }
+                }}
+                items={filteredList.platformTypeList}
+                showInputLoading={showInputLoading.platformType}
+                handleButtonClick={handleButtonClick}
+                showSuggestions={showSuggestions.platformType}
+                placeholder="Insert First Letter"
+                validationState={validation.platformType}
+                handleChange={handleArticleChange}
+              />
+            </div>
+        
             <div className={styles.largeColSpan}>
               <label className={styles.sampleLabel} htmlFor="input1">
                 Comment

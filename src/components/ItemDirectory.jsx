@@ -11,6 +11,22 @@ const ItemDirectory = () => {
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const [itemSubGroupNumber, setItemSubGroupNumber] = useState("");
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
+  const [itemListForm,setItemListForm] = useState({
+    animal: "",
+    leather:"",
+    insole:"",
+    sole:"",
+    subCategory:"",
+    soleType: "",
+    lastType:"",
+    toeShape: "",
+    category: "",
+    platformType: "",
+    heelType: "",
+    heelHeight: "",
+    liningMaterial: "",
+    socksMaterial: "",
+  })
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -1326,7 +1342,7 @@ const ItemDirectory = () => {
             setIsItemHeadPopup(false);
             getItems();
           }}
-          itemForm={itemForm}
+          itemForm={itemListForm}
         />
       )}
     </div>
