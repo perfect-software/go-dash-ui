@@ -117,7 +117,7 @@ const  ItemRatesPopup = ({ onCancel, onSubmitRateData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 600, width: "100%", marginTop: "5px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
@@ -135,7 +135,7 @@ const  ItemRatesPopup = ({ onCancel, onSubmitRateData }) => {
           <div className={styles.bottomButtonContainer}>
             <h3>Couldn't find the Rates ?</h3>
             <button
-              className={styles.popupButton}
+              className={styles.navigatePopupButton}
               onClick={() => navigate("/itemquotation")}
             >
               Add New Rate

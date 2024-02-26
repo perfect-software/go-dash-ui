@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import styles from "../styles/sampleDirPopup.module.css";
+import styles from "../styles/popupTable.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -26,19 +26,21 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
-  }, []);
-
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
+  }, [loaded, loading, dispatch]);
+  
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && samples.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [loaded, loading, gridApi]);
+  }, [gridApi, loaded, loading, error, samples]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -61,41 +63,77 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       return 0;
     },
   };
-
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const columnDefs = [
     {headerName: "Select",field:'select', maxWidth: 80, checkboxSelection: true  },
     { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
-    { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
-    { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
-    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
     {
-      headerName: "Article No",
-      field: "articleNo",
-      sortable: true,
-      width:125,
-      filter: true,
-    },
-    {
-      headerName: "Article Name",
-      field: "articleName",
-      sortable: true,
-      width:125,
-      filter: true,
-    },
-
-    {
-      headerName: "Buyer Article",
-      field: "buyerArticle",
+      headerName: "Date of Order",
+      field: "dateOfOrder",
       sortable: true,
       width:150,
-      filter: true,
+      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
+      filter: "agDateColumnFilter",
+      filterParams: dateFilterParams,
     },
-    
+    // {
+    //   headerName: "Username",
+    //   field: "buyer.username",
+    //   sortable: true,
+    //   width:130,
+    //   filter: true,
+    // },
     {
       headerName: "Buyer",
       field: "buyer.bsName",
       sortable: true,
       width:300,
+      filter: true,
+    },
+    {
+      headerName: "Article No",
+      field: "articleName",
+      sortable: true,
+      width:125,
+      filter: true,
+    },
+    {
+      headerName: "Upper Color",
+      field: "upperColor",
+      sortable: true,
+      width:140,
+      filter: true,
+    },
+    {
+      headerName: "Lining Color",
+      field: "liningColor",
+      sortable: true,
+      width:140,
+      filter: true,
+    },
+    { headerName: "Last", width:140, field: "last", sortable: true, filter: true },
+    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
+
+    { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
+    { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
+    {
+      headerName: "Buyer Article",
+      field: "buyerArticle",
+      sortable: true,
+      width:150,
       filter: true,
     },
 
@@ -120,21 +158,6 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       width:100,
       filter: true,
     },
-    {
-      headerName: "Upper Color",
-      field: "upperColor",
-      sortable: true,
-      width:140,
-      filter: true,
-    },
-    {
-      headerName: "Lining Color",
-      field: "liningColor",
-      sortable: true,
-      width:140,
-      filter: true,
-    },
-    { headerName: "Last", width:140, field: "last", sortable: true, filter: true },
     { headerName: "Insole", width:140, field: "insole", sortable: true, filter: true },
     {
       headerName: "Sole Label",
@@ -225,19 +248,32 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
     },
-    {
-      headerName: "Date of Order",
-      field: "dateOfOrder",
-      sortable: true,
-      width:150,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
+   
     {
       headerName: "Financial Year",
       field: "finYear",
       width:150,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Internal Ref",
+      field: "internal_ref",
+      width:200,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Leather Remark",
+      field: "leather_remark",
+      width:200,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Sole Remark",
+      field: "sole_remark",
+      width:200,
       sortable: true,
       filter: true,
     },
@@ -252,8 +288,8 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
   return (
     isPopupVisible && (
       <div className={styles.popupOverlay}>
-        <div className={styles.sampleDirPopupContainer}>
-          <div className={styles.topsampleDirPopupContainer}>
+        <div className={styles.popupContainer}>
+          <div className={styles.topPopupContainer}>
             <div className={styles.topBarContainer}>
               <h1>Sample Directory</h1>
               <img
@@ -270,7 +306,7 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "5px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
@@ -280,13 +316,19 @@ const SampleDirPopup = ({ onCancel, onSubmitSampleData }) => {
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
+              onCellKeyDown={onCellKeyDown}
               onGridReady={onGridReady}
               onSelectionChanged={onRowSelected}
-              onRowDataChanged={onRowDataChanged}
+              overlayLoadingTemplate={
+                '<span class="ag-overlay-loading-center">Loading...</span>'
+              }
+              overlayNoRowsTemplate={
+                `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+              }
             />
           </div>
 
-          <div className={styles.bottomSampleButtonContainer}>
+          <div className={styles.bottomButtonContainer}>
             <button
               disabled={!rowSelect}
               className={styles.selectPopupButton}

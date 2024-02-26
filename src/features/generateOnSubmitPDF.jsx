@@ -1,11 +1,14 @@
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import QRCode from "qrcode";
-import DefaultShoesImage from "../assets/notFound.png";
 import {
   formatDDMMYYYYDate,
+  formatDate,
+  formatToLocalDDMMYYYY,
 } from "./convertDate";
+import DefaultShoesImage from "../assets/notFound.png";
 import { ARTICLE_IMAGE_PATH, SAMPLE_REQUEST_IMAGE_PATH } from "./url";
+
 const generateQR = async (text) => {
   try {
     return await QRCode.toDataURL(text);
@@ -38,26 +41,46 @@ const loadImageBase64 = async (src) => {
     });
   }
 };
-export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_image) => {
-  const now = new Date();
-  const currentDate = now.toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+export const generateOnSubmitPDF = async (sampleDetailsForm) => {
+  if (!Array.isArray(sampleDetailsForm)) {
+    console.error("sampleDetailsForm is not an array");
+    return;
+  }
+
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
   });
-  const imageSrc = await loadImageBase64(
-    `${SAMPLE_REQUEST_IMAGE_PATH}${image_url}`
-  );
-  const articleImageSrc = await loadImageBase64(
-    `${ARTICLE_IMAGE_PATH}${article_image}`
-  );
-  const qrCodeSrc = await generateQR(sr_no || "No Reference");
-  const currentTime = now.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+
+  for (const [index, data] of sampleDetailsForm.entries()) {
+    const invoiceElement = document.createElement("div");
+    invoiceElement.style.position = "absolute";
+    invoiceElement.style.left = "-9999px";
+    invoiceElement.style.width = "297mm";
+    invoiceElement.style.height = "210mm";
+    document.body.appendChild(invoiceElement);
+    const sectionHTML = await generateDocumentUI(data, index, sampleDetailsForm.length);
+    invoiceElement.innerHTML = `<div style="padding: 14px; color: #000;">${sectionHTML}</div>`;
+    const canvas = await html2canvas(invoiceElement, {
+      windowWidth: invoiceElement.scrollWidth,
+      windowHeight: invoiceElement.scrollHeight,
+    });
+    const imgData = canvas.toDataURL("image/png");
+
+    if (index > 0) {
+      pdf.addPage();
+    }
+    pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+    document.body.removeChild(invoiceElement); 
+  }
+  const pdfBlob = pdf.output("blob");
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, "_blank");
+  
+};
+
+const generateDocumentUI = async (data, index, totalPages) => {
   const headers = [
     { name: "BUYER ART.NO.", width: "12%" },
     { name: "ART.NO.", width: "8%" },
@@ -71,19 +94,40 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
     { name: "OWN", width: "5%" },
     { name: "TOTAL", width: "5%" },
   ];
+  const imageSrc = await loadImageBase64(
+    `${SAMPLE_REQUEST_IMAGE_PATH}${data.image_nm}`
+  );
+  const articleImageSrc = await loadImageBase64(
+    `${ARTICLE_IMAGE_PATH}${data.article_image}`
+  );
+  const qrCodeSrc = await generateQR(data.sr_no || "No Reference");
+  const now = new Date();
+  const currentDate = now.toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const currentTime = now.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+ 
   const tableRows = [
-    [{ content: sampleDetailsForm.articleNo || "N/A", width: "10%" }],
-    [{ content: sampleDetailsForm.articleNo || "N/A", width: "10%" }],
-    [{ content: sampleDetailsForm.upperColor || "N/A", width: "15%" }],
-    [{ content: sampleDetailsForm.insole || "N/A", width: "15%" }],
-    [{ content: sampleDetailsForm.last || "N/A", width: "15%" }],
-    [{ content: sampleDetailsForm.soleLabel || "N/A", width: "15%" }],
-    [{ content: sampleDetailsForm.heel || "N/A", width: "15%" }],
-    [{ content: sampleDetailsForm.size || "N/A", width: "5%" }],
-    [{ content: sampleDetailsForm.quantity || "N/A", width: "5%" }],
-    [{ content: sampleDetailsForm.own || "N/A", width: "5%" }],
-    [{ content: sampleDetailsForm.total || "N/A", width: "5%" }],
+    [{ content: data.articleNo || "N/A", width: "10%" }],
+    [{ content: data.articleNo || "N/A", width: "10%" }],
+    [{ content: data.upperColor || "N/A", width: "15%" }],
+    [{ content: data.insole || "N/A", width: "15%" }],
+    [{ content: data.last || "N/A", width: "15%" }],
+    [{ content: data.soleLabel || "N/A", width: "15%" }],
+    [{ content: data.heel || "N/A", width: "15%" }],
+    [{ content: data.size || "N/A", width: "5%" }],
+    [{ content: data.quantity || "N/A", width: "5%" }],
+    [{ content: data.own || "N/A", width: "5%" }],
+    [{ content: data.total || "N/A", width: "5%" }],
   ];
+  
 
   const generateHeaders = (headers) => {
     return `
@@ -117,15 +161,9 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
       </table>
     `;
   };
+  
 
-  const invoiceElement = document.createElement("div");
-  invoiceElement.style.position = "absolute";
-  invoiceElement.style.left = "-9999px";
-  invoiceElement.style.width = "297mm";
-  invoiceElement.style.height = "210mm";
-  document.body.appendChild(invoiceElement);
-
-  invoiceElement.innerHTML =`<div style="font-family: Arial, sans-serif; page-break-after: always;padding: 14px;">
+  return ` <div key=${index} style="font-family: Arial, sans-serif; page-break-after: always;">
   <div style="display: flex; flex-direction:column;  ">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h1>GUPTA H.C. OVERSEAS (I) PVT. LTD</h1>
@@ -133,32 +171,32 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
           <div style="display:flex; gap:10px;">
           <p style="font-size: 11px;">DATE: ${currentDate}</p>
           <p style="font-size: 11px;">Time: ${currentTime}</p>
-          <p style="font-size: 11px;">Page 1 of 1</p>
+          <p style="font-size: 11px;">Page ${index + 1} of ${totalPages}</p>
           </div>
         </div>
         <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
         <div style="display: flex; justify-content: space-between; width:100%; align-items: top;font-size: 15px; ">
            <div style="display: flex; flex-direction:column; width:34%">
-           <p style="word-wrap: break-word; "><strong style="margin-right:12px;">BUYER NAME</strong> : ${sampleDetailsForm.buyer.bsName}</p>
-           <p style="word-wrap: break-word; "><strong>INTERNAL REF</strong> : ${sampleDetailsForm.internal_ref || "N/A"}</p>
-           <p style="word-wrap: break-word; "><strong style="margin-right:27px;">BUYER REF</strong> : ${sampleDetailsForm.internal_ref || "N/A"}</p>
+           <p style="word-wrap: break-word; "><strong style="margin-right:12px;">BUYER NAME</strong> : ${data.buyer.bsName}</p>
+           <p style="word-wrap: break-word; "><strong>INTERNAL REF</strong> : ${data.internal_ref || "N/A"}</p>
+           <p style="word-wrap: break-word; "><strong style="margin-right:27px;">BUYER REF</strong> : ${data.internal_ref || "N/A"}</p>
            <p><strong>INITIAL</strong></p>
            </div>
 
 
            <div style="display: flex; flex-direction:column; margin-right:160px; align-items:center;  ">
-           <strong>SR NO : ${sr_no || "N/A"}</strong>
-           <p><strong>TYPE OF SAMPLE : </strong>${sampleDetailsForm.sampleType || "N/A"}</p>
+           <strong>SR NO : ${data.sr_no || "N/A"}</strong>
+           <p><strong>TYPE OF SAMPLE : </strong>${data.sampleType || "N/A"}</p>
            <div style="display:flex; gap:10px;">
-           <p><strong>PATTERN : </strong>${sampleDetailsForm.pattern || "N/A"}</p>
-           <p><strong>SEASON : </strong>${sampleDetailsForm.season || "N/A"}</p>
+           <p><strong>PATTERN : </strong>${data.pattern || "N/A"}</p>
+           <p><strong>SEASON : </strong>${data.season || "N/A"}</p>
            </div>
            </div>
 
            <div style="display: flex; flex-direction:column;  ">
-           <p><strong style="margin-right:11px;">DATE OF ORDER</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.dateOfOrder) || "N/A"}</p>
-           <p><strong>PROD EX-FACT Dt</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.prodExDate) || "N/A"}</p>
-           <p><strong style="margin-right:18.7px;">DELIVERY DATE</strong> : ${formatDDMMYYYYDate(sampleDetailsForm.deliveryDate) || "N/A"}</p>
+           <p><strong style="margin-right:11px;">DATE OF ORDER</strong> : ${formatDDMMYYYYDate(data.dateOfOrder) || "N/A"}</p>
+           <p><strong>PROD EX-FACT Dt</strong> : ${formatDDMMYYYYDate(data.prodExDate) || "N/A"}</p>
+           <p><strong style="margin-right:18.7px;">DELIVERY DATE</strong> : ${formatDDMMYYYYDate(data.deliveryDate) || "N/A"}</p>
            </div>
 
         </div>
@@ -172,27 +210,27 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
       <div style="border-top: 2px solid #000; margin-top: 5px;"></div>
       <div style="display:flex; width:100%;  justify-content: space-between ;align-items: center;  font-size: 13px;  ">
        <div style="display:flex; flex-direction:column;" >
-       <p><strong style="margin-right:2px">UPPER</strong> : ${sampleDetailsForm.upperColor || "N/A"}</p>
-       <p><strong>LINING</strong> : ${sampleDetailsForm.liningColor || "N/A"}</p>
+       <p><strong style="margin-right:2px">UPPER</strong> : ${data.upperColor || "N/A"}</p>
+       <p><strong>LINING</strong> : ${data.liningColor || "N/A"}</p>
        </div>
        <div style="display:flex; flex-direction:column;" >
-       <p><strong>SOLE LABEL</strong> : ${sampleDetailsForm.soleLabel || "N/A"}</p>
-       <p><strong style="margin-right:44px">SOCK</strong> : ${sampleDetailsForm.socks || "N/A"}</p>
+       <p><strong>SOLE LABEL</strong> : ${data.soleLabel || "N/A"}</p>
+       <p><strong style="margin-right:44px">SOCK</strong> : ${data.socks || "N/A"}</p>
        </div>
        <div style="display:flex;flex-direction:column; width:65%;">
-       <p style="word-wrap: normal;"><strong style="margin-right:24px">SOLE REMARK</strong> : ${sampleDetailsForm.sole_remark|| "N/A"}</p>
-       <p style="word-wrap: break-word;"><strong>LEATHER REMARK</strong> : ${sampleDetailsForm.leather_remark|| "N/A"}</p>
+       <p style="word-wrap: normal;"><strong style="margin-right:24px">SOLE REMARK</strong> : ${data.sole_remark|| "N/A"}</p>
+       <p style="word-wrap: break-word;"><strong>LEATHER REMARK</strong> : ${data.leather_remark|| "N/A"}</p>
        </div>
        </div>
        <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
       <div style="display: flex; margin-top: 2px;">
       <div style="display: flex;flex-direction:column;width:60%;">
         <div style="display: flex; gap:20px;  font-size: 13px; ">
-        <p><strong>Buyer Upper Color : </strong>${sampleDetailsForm.upperColor || "N/A"}</p>
-        <p><strong>Buyer Lining Color : </strong>${sampleDetailsForm.liningColor || "N/A"}</p>
+        <p><strong>Buyer Upper Color : </strong>${data.upperColor || "N/A"}</p>
+        <p><strong>Buyer Lining Color : </strong>${data.liningColor || "N/A"}</p>
         </div>
         <div style="margin-top:20px;">
-        <strong style="font-size: 18px; word-wrap: break-word; margin-right:30px">${sampleDetailsForm.comments || "N/A"}</strong>
+        <strong style="font-size: 18px; word-wrap: break-word; margin-right:30px">${data.comments || "N/A"}</strong>
         </div>
         </div>
         <div style="width:50%; display: flex; margin-top:20px; justify-content: end;">
@@ -213,7 +251,7 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
       </div>
       <div style="border-top: 2px solid #000; margin-top: 10px;"></div>
     </div>
-    <div style="display: flex; padding:14px; justify-content: space-between; margin-top:30px">
+    <div style="display: flex; justify-content: space-between; margin-top:30px">
     <div style="text-align: left;">
       <p style="color: #000;">Seller Signature</p>
       <div style="width: 180px; height: 40px; border: 1px solid #000000; margin-top: 15px;"></div>
@@ -224,22 +262,7 @@ export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_imag
     </div>
         </div>
 `;
-
-  const canvas = await html2canvas(invoiceElement, {
-    windowWidth: invoiceElement.scrollWidth,
-    windowHeight: invoiceElement.scrollHeight,
-  });
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4",
-  });
-  pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
-
-  const pdfBlob = pdf.output("blob");
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-  window.open(pdfUrl, "_blank");
-
-  document.body.removeChild(invoiceElement);
 };
+const InvoiceComponent = () => null;
+
+export default InvoiceComponent;

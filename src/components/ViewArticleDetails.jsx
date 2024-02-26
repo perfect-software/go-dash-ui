@@ -5,31 +5,30 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import Cross from "../assets/cross.svg";
+import Back from "../assets/back.png";
 import {  formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
-import { fetchAllSamples } from "../reducer/sampleSlice";
+import { fetchAllArticles } from "../reducer/articleSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
+import { ARTICLE_IMAGE_PATH } from "../features/url";
+import ArticleDetailsPopup from "../popups/ArticleDetailsPopup";
 
 
-const ViewSr = ({ onSampleSelect }) => {
-  const navigate = useNavigate();
+const ViewArticleDetails = () => {
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
-  const { samples, loaded, loading, error } = useSelector(
-    (state) => state.sample
+  const { articles, loaded, loading, error } = useSelector(
+    (state) => state.article
   );
-
   const [gridApi, setGridApi] = useState(null);
 
-  
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
     if (!loaded && !loading) {
-      dispatch(fetchAllSamples());
+      dispatch(fetchAllArticles());
     }
   }, [loaded, loading, dispatch]);
   
@@ -39,16 +38,15 @@ const ViewSr = ({ onSampleSelect }) => {
         gridApi.showLoadingOverlay();
       } else if (error) {
         gridApi.showNoRowsOverlay();
-      } else if (loaded && samples.length === 0) {
+      } else if (loaded && articles.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
         gridApi.hideOverlay();
       }
     }
-  }, [gridApi, loaded, loading, error, samples]);
+  }, [gridApi, loaded, loading, error, articles]);
+
   
-
-
   const dateFilterParams = {
     comparator: function(filterLocalDateAtMidnight, cellValue) {
       if (!cellValue) return -1;
@@ -84,190 +82,137 @@ const ViewSr = ({ onSampleSelect }) => {
       }
     }
   }, []);
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    onSampleSelect(selectedData.length > 0 ? selectedData : null);
-  };
+ 
   const actionButton = (params) => {
     setIsImagePopup(true);
     setImagePreview(params.data.image_nm)
   };
   const columnDefs = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,  headerCheckboxSelection: true,
-    checkboxSelection: true,
-    showDisabledCheckboxes: true},
-    { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
+    // { headerName: "Edit",  field:'edit' , maxWidth: 80,
+    // checkboxSelection: true,
+    // showDisabledCheckboxes: true},
+    
+    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
     {
-      headerName: "Date of Order",
-      field: "dateOfOrder",
+        headerName: "Last No",
+        field: "lastNo",
+        width:140,
+        sortable: true,
+        filter: true,
+      },
+    {
+      headerName: "Animal",
+      field: "animal",
       sortable: true,
-      width:150,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
+      width:130,
+      filter: true,
     },
-    // {
-    //   headerName: "Username",
-    //   field: "username",
-    //   sortable: true,
-    //   width:130,
-    //   filter: true,
-    // },
     {
-      headerName: "SR Image",
+      headerName: "Article Image",
       field: "image_nm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {
-        return params.value ? (
-       
-          <img 
-            src={`${SAMPLE_REQUEST_IMAGE_PATH}${params.value}`} 
-            alt="Image" 
+        const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
+          return params.value ? (
+          <img
+            src={imageUrl}
+            alt="Image"
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-        ):'No Image';
+        ): 'No Image';
       },
     },
     {
-      headerName: "Buyer",
-      field: "buyer.bsName",
+      headerName: "Color",
+      field: "color",
       sortable: true,
-      width:300,
+      width:130,
+      filter: true,
+    },
+    { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
+    {
+      headerName: "Sole Type",
+      field: "soleType",
+      sortable: true,
+      width:130,
       filter: true,
     },
     {
-      headerName: "Article No",
-      field: "articleName",
+      headerName: "Toe Shape",
+      field: "toeShape",
       sortable: true,
-      width:125,
+      width:130,
       filter: true,
     },
     {
-      headerName: "Upper Color",
-      field: "upperColor",
+      headerName: "Category",
+      field: "category",
       sortable: true,
-      width:140,
+      width:130,
       filter: true,
     },
     {
-      headerName: "Lining Color",
-      field: "liningColor",
+      headerName: "Platform Type",
+      field: "platformType",
       sortable: true,
-      width:140,
       filter: true,
+      width:150,
     },
-    { headerName: "Last", width:140, field: "last", sortable: true, filter: true },
-    { headerName: "Sample Type",  width:150, field: "sampleType", sortable: true, filter: true },
-
-    { headerName: "Season", width:110, field: "season", sortable: true, filter: true },
-   
-    { headerName: "Sample Refrence", width:170, field: "sampleRef", sortable: true, filter: true },
     {
-      headerName: "Buyer Article",
-      field: "buyerArticle",
+      headerName: "Platform No",
+      field: "platformNo",
       sortable: true,
       width:150,
       filter: true,
     },
-
     {
-      headerName: "Size",
-      field: "size",
-      sortable: true,
-      width:100,
-      filter: true,
-    },
-    {
-      headerName: "Quantity",
-      field: "quantity",
-      sortable: true,
-      width:120,
-      filter: true,
-    },
-    {
-      headerName: "Pair",
-      field: "pair",
-      sortable: true,
-      width:100,
-      filter: true,
-    },
-    { headerName: "Insole", width:140, field: "insole", sortable: true, filter: true },
-    {
-      headerName: "Sole Label",
-      field: "soleLabel",
-      sortable: true,
-      width:140,
-      filter: true,
-    },
-    {
-      headerName: "Socks",
-      field: "socks",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Heel",
-      field: "heel",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Pattern",
-      field: "pattern",
+      headerName: "Heel Type",
+      field: "heelType",
       width:140,
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Buyer Refrence",
-      field: "buyerRef",
-      sortable: true,
-      width:160,
-      filter: true,
-    },
-    {
-      headerName: "Upper Leather",
-      field: "inUpperLeather",
-      width:160,
+      headerName: "Heel No",
+      field: "heelNo",
+      width:140,
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Internal Lining",
-      field: "inLining",
+      headerName: "Heel Height",
+      field: "heelHeight",
       sortable: true,
-      width:160,
-      filter: true,
-    },
-    {
-      headerName: "Internal Socks",
-      field: "inSocks",
-      sortable: true,
-      width:160,
-      filter: true,
-    },
-    {
-      headerName: "Internal Quantity",
-      field: "inQuantity",
-      sortable: true,
-      width:180,
-      filter: true,
-    },
-    {
-      headerName: "Comments",
-      field: "comments",
-      width:250,
-      sortable: true,
+      width:140,
       filter: true,
     },
     
     {
-      headerName: "Delivery Date",
-      field: "deliveryDate",
+      headerName: "Lining Material",
+      field: "liningMaterial",
+      sortable: true,
+      width:160,
+      filter: true,
+    },
+    {
+      headerName: "Socks Material",
+      field: "socksMaterial",
+      sortable: true,
+      width:160,
+      filter: true,
+    },
+    {
+      headerName: "Comment",
+      field: "comment",
+      sortable: true,
+      width:250,
+      filter: true,
+    },
+    {
+      headerName: "Entry Date",
+      field: "entDate",
       sortable: true,
       width:150,
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
@@ -275,42 +220,25 @@ const ViewSr = ({ onSampleSelect }) => {
       filterParams: dateFilterParams,
     },
     {
-      headerName: "ProdEx Date",
-      field: "prodExDate",
-      sortable: true,
-      width:150,
-      valueFormatter: (params) => formatDDMMYYYYDate(params.value),
-      filter: "agDateColumnFilter",
-      filterParams: dateFilterParams,
-    },
-   
-    {
-      headerName: "Financial Year",
-      field: "finYear",
-      width:150,
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Internal Ref",
-      field: "internal_ref",
-      width:200,
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Leather Remark",
-      field: "leather_remark",
-      width:200,
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Sole Remark",
-      field: "sole_remark",
-      width:200,
-      sortable: true,
-      filter: true,
+      headerName: "Go Back",
+      field:'goBack',
+      width:120,
+      cellRenderer: function (params) {
+        return (
+          <div style={{
+            height: '100%', 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center' 
+          }}>
+            <img className={styles.viewButton2}
+             src={Back}
+             onClick={()=>setArticlePopup(false)}
+            >
+            </img>
+          </div>
+        );
+      },
     },
   ];
 
@@ -326,7 +254,7 @@ const ViewSr = ({ onSampleSelect }) => {
       >
         <AgGridReact
           columnDefs={columnDefs}
-          rowData={samples}
+          rowData={articles}
           pagination={true}
           paginationPageSize={12}
           paginationPageSizeSelector={[10, 12, 20, 50, 100]}
@@ -334,8 +262,6 @@ const ViewSr = ({ onSampleSelect }) => {
           filter={true}
           onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
-          rowSelection={"multiple"}
-          onSelectionChanged={onRowSelected}
           overlayLoadingTemplate={
             '<span class="ag-overlay-loading-center">Loading...</span>'
           }
@@ -349,7 +275,7 @@ const ViewSr = ({ onSampleSelect }) => {
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
-              src={`${SAMPLE_REQUEST_IMAGE_PATH}${imagePreview}`}
+              src={`${ARTICLE_IMAGE_PATH}${imagePreview}`}
               className={inputStyles.imagepreviewPopup}
               alt=""
             />
@@ -363,8 +289,10 @@ const ViewSr = ({ onSampleSelect }) => {
             />
           </div>
         </div>
-      )}</>
+      )}
+ 
+      </>
   );
 };
 
-export default ViewSr;
+export default ViewArticleDetails;

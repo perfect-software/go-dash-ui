@@ -57,7 +57,7 @@ function App() {
               </Route>
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
-              <Route path="/bom" element={<Bom/>}/>
+              <Route path="/srbom" element={<Bom/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />

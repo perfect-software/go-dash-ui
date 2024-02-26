@@ -29,19 +29,21 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
     if (!loaded && !loading) {
       dispatch(fetchAllBuyers());
     }
-  }, []);
-
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
+  }, [loaded, loading, dispatch]);
+  
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
+    if (gridApi) {
+      if (loading) {
+        gridApi.showLoadingOverlay();
+      } else if (error) {
+        gridApi.showNoRowsOverlay();
+      } else if (loaded && buyers.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
     }
-  }, [ loaded, loading, gridApi]);
+  }, [gridApi, loaded, loading, error, buyers]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -63,9 +65,22 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
       return 0;
     },
   };
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
+    }
+  }, []);
   const columnDefs = [
     { headerName: "Select", field:'select', maxWidth: 80, checkboxSelection: true },
-    { headerName: "Buyer Code",width:135, field: "bsCode", sortable: true, filter: true },
     { headerName: "Buyer", width:300, field: "bsName", sortable: true, filter: true },
     { headerName: "Buyer Abbreviation", field: "bsAbbreviation", sortable: true, filter: true },
     {
@@ -193,7 +208,7 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ height: 550, width: "100%", marginTop: "5px" }}
           >
             <AgGridReact
               columnDefs={columnDefs}
@@ -203,15 +218,21 @@ const  BuyerPopup = ({ onCancel, onSubmitBuyerData }) => {
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
+              onCellKeyDown={onCellKeyDown}
               onGridReady={onGridReady}
               onSelectionChanged={onRowSelected}
-              onRowDataChanged={onRowDataChanged}
+              overlayLoadingTemplate={
+                '<span class="ag-overlay-loading-center">Loading...</span>'
+              }
+              overlayNoRowsTemplate={
+                `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
+              }
             />
           </div>
           <div className={styles.bottomButtonContainer}>
             <h3>Couldn't find the Buyer ?</h3>
             <button
-              className={styles.popupButton}
+              className={styles.navigatePopupButton}
               onClick={() => navigate("/buyer")}
             >
               Add New Buyer
