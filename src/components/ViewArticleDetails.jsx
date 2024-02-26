@@ -92,10 +92,17 @@ const ViewArticleDetails = () => {
     // checkboxSelection: true,
     // showDisabledCheckboxes: true},
     
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
     {
         headerName: "Last No",
         field: "lastNo",
+        width:140,
+        sortable: true,
+        filter: true,
+      },
+      {
+        headerName: "Article Name",
+        field: "articleName",
         width:140,
         sortable: true,
         filter: true,

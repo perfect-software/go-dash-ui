@@ -80,10 +80,10 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
 
 
   const columnDefsMst = [
-    { headerName: "Article No",  width:200, field: "article_no", sortable: true, filter: true },
+    { headerName: "Article No",  width:200, field: "articleNo", sortable: true, filter: true },
     {
       headerName: "Last No",
-      field: "last_no",
+      field: "lastNo",
       sortable: true,
       width:200,
       filter: true,
@@ -119,10 +119,17 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
 
   const columnDefs = [
     { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
     {
       headerName: "Last No",
       field: "lastNo",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Article Name",
+      field: "articleName",
       width:140,
       sortable: true,
       filter: true,

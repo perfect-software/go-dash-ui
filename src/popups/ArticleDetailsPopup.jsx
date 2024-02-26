@@ -102,6 +102,13 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
       filter: true,
     },
     {
+      headerName: "Article Name",
+      field: "articleName",
+      width:140,
+      sortable: true,
+      filter: true,
+    },
+    {
       headerName: "Animal",
       field: "animal",
       sortable: true,
