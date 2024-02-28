@@ -93,22 +93,53 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
   };
   const columnDefs = [
     { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
     {
-      headerName: "Last No",
-      field: "lastNo",
-      width:140,
-      sortable: true,
+        headerName: "Last No",
+        field: "lastNo",
+        width:140,
+        sortable: true,
+        filter: true,
+     }, 
+     {
+        headerName: "Last Type",
+        field: "lastType",
+        width:140,
+        sortable: true,
+        filter: true,
+     },
+     {
+        headerName: "Article Name",
+        field: "articleName",
+        width:140,
+        sortable: true,
+        filter: true,
+     },
+     {
+      headerName: "Article Image",
+      field: "image_nm",
+      width: 150,
       filter: true,
-    },
-    {
-      headerName: "Article Name",
-      field: "articleName",
-      width:140,
+      cellRenderer: (params) => {
+        const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
+          return params.value ? (
+          <img
+            src={imageUrl}
+            alt="Image"
+            style={{ height: '50px', width: '50px' }}
+            onClick={() => actionButton(params)}
+          />
+        ): 'No Image';
+      },
+      },
+      {
+      headerName: "Season",
+      field: "season",
       sortable: true,
+      width:130,
       filter: true,
-    },
-    {
+      },
+      {
       headerName: "Animal",
       field: "animal",
       sortable: true,
@@ -116,25 +147,36 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
       filter: true,
     },
     {
-      headerName: "Image",
-      field: "image_nm",
-      width: 150,
+      headerName: "Leather",
+      field: "leather",
+      sortable: true,
+      width:130,
       filter: true,
-      cellRenderer: (params) => {
-        const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
-        return params.value ? (
-          <img
-            src={imageUrl}
-            alt="Image"
-            style={{ height: '50px', width: '50px' }}
-            onClick={() => actionButton(params)}
-          />
-          ): 'No Image';
-      },
+    },
+    {
+      headerName: "Sole",
+      field: "sole",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Insole",
+      field: "insole",
+      sortable: true,
+      width:130,
+      filter: true,
     },
     {
       headerName: "Color",
       field: "color",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Color code",
+      field: "colorCode",
       sortable: true,
       width:130,
       filter: true,
@@ -157,6 +199,13 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
     {
       headerName: "Category",
       field: "category",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Sub Category",
+      field: "subCategory",
       sortable: true,
       width:130,
       filter: true,
@@ -196,6 +245,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
       width:140,
       filter: true,
     },
+    
     {
       headerName: "Lining Material",
       field: "liningMaterial",
@@ -226,8 +276,9 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
     },
- 
+
   ];
+
   const actionButton = (params) => {
     setIsImagePopup(true);
     setImagePreview(params.data.image_nm)

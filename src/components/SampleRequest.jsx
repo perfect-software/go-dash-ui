@@ -110,7 +110,7 @@ const SampleRequest = () => {
           sampleRef: "",
           sampleType: "",
           bsName: "",
-          articleNo:"",
+          articleNo: "",
           deliveryAddress: "",
           buyerArticle: "",
           size: "",
@@ -146,6 +146,11 @@ const SampleRequest = () => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
     setAllowPrint(false);
+    if (allowPrint) {
+      resetAllFields();
+      setImageUrl("");
+      setArticleURL("");
+    }
   };
 
   const autosize = (el) => {
@@ -404,7 +409,9 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
-      const articleImageUrl = selectedArticle.image_nm ? `${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}` : null;
+      const articleImageUrl = selectedArticle.image_nm
+        ? `${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`
+        : null;
       setArticleImageView(articleImageUrl);
       setArticleURL(selectedArticle.image_nm);
       setTempArticeNo(selectedArticle.articleId);
@@ -439,8 +446,8 @@ const SampleRequest = () => {
         articleName,
         ...restOfSelectedSample
       } = selectedSample;
-      setSampleDetailsForm({
-        ...sampleDetailsForm,
+      setSampleDetailsForm((prevForm) => ({
+        ...prevForm,
         ...restOfSelectedSample,
         articleNo: articleName,
         bsName: selectedSample.buyer?.bsName,
@@ -451,9 +458,13 @@ const SampleRequest = () => {
         prodExDate: selectedSample.prodExDate
           ? getformatDate(selectedSample.prodExDate)
           : "",
-      });
-      const articleImageUrl = selectedSample.article_image ? `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}` : null;
+        }));
+     
+      const articleImageUrl = selectedSample.article_image
+        ? `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}`
+        : null;
       setArticleImageView(articleImageUrl);
+      setImageUrl("");
       setArticleURL(selectedSample.article_image);
       setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
@@ -614,7 +625,7 @@ const SampleRequest = () => {
       JSON.stringify(sampleDetailsForm)
     );
   };
-  
+
   const uploadImage = async (srno) => {
     if (!imageFile) {
       console.log("No image file selected for upload");
@@ -623,14 +634,13 @@ const SampleRequest = () => {
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("fileName", srno);
-    formData.append("type", 'sample');
+    formData.append("type", "sample");
 
     try {
       const response = await axios.post(
         "http://localhost:8081/api/generic/upload",
         formData,
         {
-
           headers: {
             "Content-Type": "multipart/form-data ",
           },
@@ -651,7 +661,7 @@ const SampleRequest = () => {
       return null;
     }
   };
- 
+
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
@@ -664,18 +674,25 @@ const SampleRequest = () => {
       articleNo: tempArticleNo,
       finYear: "2024",
     };
+    console.log(updatedSampleDetailsForm);
     try {
       const createSampleResponse = await postApiService(
         updatedSampleDetailsForm,
         "sample/create"
       );
-      if (createSampleResponse.responseStatus &&
-        createSampleResponse.responseStatus.description) {
+      if (
+        createSampleResponse.responseStatus &&
+        createSampleResponse.responseStatus.description
+      ) {
         const srno = createSampleResponse.response;
         console.log(srno);
-        const imageResponseData = await uploadImage(srno);
+        if(imageFile)
+        {
+          const imageResponseData = await uploadImage(srno);
         if (imageResponseData && imageResponseData.response) {
           setImageUrl(imageResponseData.response);
+          console.log(imageResponseData.response);
+        }
         }
         setPrintSrNo(srno);
         togglePopup(
@@ -698,6 +715,7 @@ const SampleRequest = () => {
       setLoading(false);
       setArticleImageView(null);
       setRemoveImage(false);
+      setImageFile(null);
       setImagePreview(null);
       setBsID("");
       setTempArticeNo("");
@@ -728,8 +746,12 @@ const SampleRequest = () => {
   }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-    const imageUrl = editSample.image_nm ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}` : null;
-     const articleImageUrl = editSample.article_image ? `${ARTICLE_IMAGE_PATH}${editSample.article_image}` : null;
+      const imageUrl = editSample.image_nm
+        ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}`
+        : null;
+      const articleImageUrl = editSample.article_image
+        ? `${ARTICLE_IMAGE_PATH}${editSample.article_image}`
+        : null;
       setImagePreview(imageUrl);
       setArticleImageView(articleImageUrl);
       setRemoveImage(true);
@@ -751,7 +773,7 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         sample_id: editSample.sampleId,
         articleNo: tempArticleNo,
-        image_nm: imageNm,  
+        image_nm: imageNm,
       };
       const responseData = await putApiService(
         updatedSampleDetailsForm,
@@ -1151,8 +1173,11 @@ const SampleRequest = () => {
             articleNo: selectedItem.articleName,
           });
           setTempArticeNo(selectedItem.articleId);
-          const articleImageUrl = selectedItem.imageUrl ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}` : null;
-          setArticleURL(articleImageUrl);
+          const articleImageUrl = selectedItem.imageUrl
+            ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}`
+            : null;
+          setArticleURL(selectedItem.imageUrl);
+          setArticleImageView(articleImageUrl);
           toggleSuggestVisibility("articleNo", false);
         }
       }}
@@ -1623,11 +1648,11 @@ const SampleRequest = () => {
                       </div>
                     ) : (
                       <div className={styles.imagepreview2}>
-                       <img
-                        src={BlankImage}
-                        alt="Image Placeholder"
-                        className={styles.blankImagePlaceholder}
-                      />
+                        <img
+                          src={BlankImage}
+                          alt="Image Placeholder"
+                          className={styles.blankImagePlaceholder}
+                        />
                       </div>
                     )}
                   </div>
@@ -2226,17 +2251,18 @@ const SampleRequest = () => {
                   className={styles.popupButton}
                   onClick={() => {
                     togglePopup();
-                    {
-                      allowPrint && resetAllFields();
-                      setImageUrl("");
-                    }
+                  
                   }}
                 >
                   OK
                 </button>
+
                 {allowPrint &&
                   (printLoading ? (
-                    <div style={{marginLeft:'35px', marginTop:'15px'}} className={styles.loader}></div>
+                    <div
+                      style={{ marginLeft: "35px", marginTop: "15px" }}
+                      className={styles.loader}
+                    ></div>
                   ) : (
                     <button
                       className={styles.popupButtonPrint}

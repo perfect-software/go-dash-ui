@@ -77,6 +77,7 @@ const ArticleDirectory = () => {
           category: "",
           platformType: "",
           platformNo: "",
+          username:"",
           heelType: "",
           heelNo: "",
           heelHeight: "",
@@ -479,11 +480,11 @@ const ArticleDirectory = () => {
       const concatenatedString = `${name}List`;
       const filtered = articleMst
         .filter((item) =>
-          item.article_no.toLowerCase().includes(value.trim().toLowerCase())
+          item.articleNo.includes(value.trim().toLowerCase())
         )
         .map((item) => ({
-          article_no: item.article_no,
-          last_no: item.last_no,
+          article_no: item.articleNo,
+          last_no: item.lastNo,
         }));
 
       setFilteredList((prevList) => ({
@@ -507,10 +508,10 @@ const ArticleDirectory = () => {
       const selectedArticle = articleMst[0];
       setArticleForm({
         ...articleForm,
-        articleNo: selectedArticle.article_no,
-        lastNo: selectedArticle.last_no,
+        articleNo: selectedArticle.articleNo,
+        lastNo: selectedArticle.lastNo,
       });
-      if (selectedArticle.last_no) {
+      if (selectedArticle.lastNo) {
         setValidation((prev) => ({ ...prev, lastNo: "valid" }));
       }
       setValidation((prev) => ({ ...prev, articleNo: "valid" }));

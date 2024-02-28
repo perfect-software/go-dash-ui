@@ -118,132 +118,182 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
 
 
   const columnDefs = [
-    { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
-    {
-      headerName: "Last No",
-      field: "lastNo",
-      width:140,
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Article Name",
-      field: "articleName",
-      width:140,
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Animal",
-      field: "animal",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
-    {
-      headerName: "Image",
+  { headerName: "Select", maxWidth: 80, checkboxSelection: true },
+  { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
+  {
+        headerName: "Last No",
+        field: "lastNo",
+        width:140,
+        sortable: true,
+        filter: true,
+  },
+  {
+        headerName: "Last Type",
+        field: "lastType",
+        width:140,
+        sortable: true,
+        filter: true,
+  },
+  {
+        headerName: "Article Name",
+        field: "articleName",
+        width:140,
+        sortable: true,
+        filter: true,
+  },
+  {
+      headerName: "Article Image",
       field: "image_nm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {
         const imageUrl = `${ARTICLE_IMAGE_PATH}${params.value}`;
-        return params.value ? (
+          return params.value ? (
           <img
             src={imageUrl}
             alt="Image"
             style={{ height: '50px', width: '50px' }}
             onClick={() => actionButton(params)}
           />
-          ): 'No Image';
-      },
-    },
-    {
+        ): 'No Image';
+  },
+  },
+  {
+      headerName: "Season",
+      field: "season",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
+      headerName: "Animal",
+      field: "animal",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
+      headerName: "Leather",
+      field: "leather",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
+      headerName: "Sole",
+      field: "sole",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
+      headerName: "Insole",
+      field: "insole",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
       headerName: "Color",
       field: "color",
       sortable: true,
       width:130,
       filter: true,
-    },
-    { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
-    {
+  },
+  {
+      headerName: "Color code",
+      field: "colorCode",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  { headerName: "Gender",  width:110, field: "gender", sortable: true, filter: true },
+  {
       headerName: "Sole Type",
       field: "soleType",
       sortable: true,
       width:130,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Toe Shape",
       field: "toeShape",
       sortable: true,
       width:130,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Category",
       field: "category",
       sortable: true,
       width:130,
       filter: true,
-    },
-    {
+  },
+  {
+      headerName: "Sub Category",
+      field: "subCategory",
+      sortable: true,
+      width:130,
+      filter: true,
+  },
+  {
       headerName: "Platform Type",
       field: "platformType",
       sortable: true,
       filter: true,
       width:150,
-    },
-    {
+  },
+  {
       headerName: "Platform No",
       field: "platformNo",
       sortable: true,
       width:150,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Heel Type",
       field: "heelType",
       width:140,
       sortable: true,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Heel No",
       field: "heelNo",
       width:140,
       sortable: true,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Heel Height",
       field: "heelHeight",
       sortable: true,
       width:140,
       filter: true,
-    },
-    {
+  },
+    
+  {
       headerName: "Lining Material",
       field: "liningMaterial",
       sortable: true,
       width:160,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Socks Material",
       field: "socksMaterial",
       sortable: true,
       width:160,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Comment",
       field: "comment",
       sortable: true,
       width:250,
       filter: true,
-    },
-    {
+  },
+  {
       headerName: "Entry Date",
       field: "entDate",
       sortable: true,
@@ -251,9 +301,10 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
-    },
- 
+  },
+    
   ];
+
   const actionButton = (params) => {
     setIsImagePopup(true);
     setImagePreview(params.data.image_nm)
@@ -279,7 +330,6 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
     }
   };
   const viewActionButton = async (params) => {
-    console.log(params);
     fetchArticleDetails(params); 
   };
   const onCellKeyDown = useCallback((e) => {
@@ -300,9 +350,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
     const selectedData = event.api.getSelectedRows();
     setRowSelect(selectedData.length > 0);
     setSelectedArticle(selectedData);
-
-  };
-
+  }; 
   return (
     isPopupVisible && (
       <div className={styles.popupOverlay}>

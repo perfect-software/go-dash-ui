@@ -5,6 +5,7 @@ import {
   getApiService,
   getDataApiService,
   postApiService,
+  putApiService,
 } from "../service/apiService";
 import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
@@ -297,6 +298,41 @@ const Bom = () => {
     return transformedData;
   };
 
+  const handleUpdateBomClick = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+    const dataToSubmit = await prepareDataForSubmission(bomData);
+    const updatedForm = {
+      ...dataToSubmit,
+      bomId: tempBomDetails[0].bomId,
+    };
+    console.log(updatedForm);
+    const BASE_URL = "bom/update";
+    try {
+      const responseData = await putApiService(updatedForm, BASE_URL);
+      togglePopup(responseData.responseStatus.description);
+      resetAllFields();
+      dispatch(fetchAllBom());
+    } catch (error) {
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const handleSubmitBomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -569,7 +605,7 @@ const Bom = () => {
                 {isEditClicked ? (
                   <>
                     <button
-                    onClick={handleSubmitBomClick}
+                    onClick={handleUpdateBomClick}
                       className={styles.submitButton}
                     >
                       Submit

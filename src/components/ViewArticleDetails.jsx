@@ -101,19 +101,19 @@ const ViewArticleDetails = () => {
         filter: true,
       },
       {
+        headerName: "Last Type",
+        field: "lastType",
+        width:140,
+        sortable: true,
+        filter: true,
+      },
+      {
         headerName: "Article Name",
         field: "articleName",
         width:140,
         sortable: true,
         filter: true,
       },
-    {
-      headerName: "Animal",
-      field: "animal",
-      sortable: true,
-      width:130,
-      filter: true,
-    },
     {
       headerName: "Article Image",
       field: "image_nm",
@@ -132,8 +132,50 @@ const ViewArticleDetails = () => {
       },
     },
     {
+      headerName: "Season",
+      field: "season",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Animal",
+      field: "animal",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Leather",
+      field: "leather",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Sole",
+      field: "sole",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Insole",
+      field: "insole",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
       headerName: "Color",
       field: "color",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Color code",
+      field: "colorCode",
       sortable: true,
       width:130,
       filter: true,
@@ -156,6 +198,13 @@ const ViewArticleDetails = () => {
     {
       headerName: "Category",
       field: "category",
+      sortable: true,
+      width:130,
+      filter: true,
+    },
+    {
+      headerName: "Sub Category",
+      field: "subCategory",
       sortable: true,
       width:130,
       filter: true,
@@ -225,27 +274,6 @@ const ViewArticleDetails = () => {
       valueFormatter: (params) => formatDDMMYYYYDate(params.value),
       filter: "agDateColumnFilter",
       filterParams: dateFilterParams,
-    },
-    {
-      headerName: "Go Back",
-      field:'goBack',
-      width:120,
-      cellRenderer: function (params) {
-        return (
-          <div style={{
-            height: '100%', 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center' 
-          }}>
-            <img className={styles.viewButton2}
-             src={Back}
-             onClick={()=>setArticlePopup(false)}
-            >
-            </img>
-          </div>
-        );
-      },
     },
   ];
 
