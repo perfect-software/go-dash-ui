@@ -9,9 +9,12 @@ import tableStyles from "../../styles/bom.module.css";
 const SizeRoles = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "size", headerName: "Size" , width:200},
-      { field: "quantity", headerName: "Quantity" },
-      { field: "extra", headerName: "Extra" },
+      { field: "size", headerName: "Morder No." , width:200},
+      { field: "quantity", headerName: "Size" },
+      { field: "extra", headerName: "Bal. Qty" },
+      { field: "extra", headerName: "Qty" },
+      { field: "extra", headerName: "Print Size" },
+      { field: "extra", headerName: "Length" },
       {
         field: 'action',
         headerName: 'Action',
@@ -57,60 +60,7 @@ const SizeRoles = () => {
 
   return (
     <>
-      <div className={styles.topGrid}>
-      <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
-            Size
-          </label>
-          <input
-            name="size"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.size}
-          />
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
-           Quantity
-          </label>
-          <input
-            name="quantity"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.quantity}
-          />
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
-           Extra
-          </label>
-          <input
-            name="extra"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-             value={newItem.extra}
-          />
-        </div>
-        <div className={styles.colSpan}>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-               handleAddMaterial();
-            }}
-            className={tableStyles.addBtn}
-            aria-label="Search"
-          >
-            {" "}
-            ADD{" "}
-          </button>
-        </div>
-      </div>
+      
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
