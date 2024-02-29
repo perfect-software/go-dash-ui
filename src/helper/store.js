@@ -6,6 +6,8 @@ import itemRateSlice from '../reducer/itemRateSlice';
 import articleSlice from '../reducer/articleSlice';
 import bomSlice from '../reducer/bomSlice';
 import articleMstSlice from '../reducer/articleMstSlice';
+import itemHeadSlice from '../reducer/itemHeadSlice';
+
 
 
 export const store = configureStore({
@@ -16,6 +18,7 @@ export const store = configureStore({
     itemRate: itemRateSlice,
     article:articleSlice,
     bom:bomSlice,
-    articleMst:articleMstSlice
+    articleMst:articleMstSlice,
+    itemHead:itemHeadSlice
   }
 });

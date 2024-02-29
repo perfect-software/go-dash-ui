@@ -6,15 +6,11 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const SizeRoles = () => {
+const Remarks = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "size", headerName: "Morder No." , width:200},
-      { field: "quantity", headerName: "Size" },
-      { field: "extra", headerName: "Bal. Qty" },
-      { field: "extra", headerName: "Qty" },
-      { field: "extra", headerName: "Print Size" },
-      { field: "extra", headerName: "Length" },
+      { field: "header", headerName: "Remark label" , width:200},
+      { field: "comment", headerName: "Remark Name" },
       {
         field: 'action',
         headerName: 'Action',
@@ -28,7 +24,7 @@ const SizeRoles = () => {
               alignItems: 'center' 
             }}>
               <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.size)}
+              onClick={() => handleRemoveItem(params.data.header)}
               >
               </button>
             </div>
@@ -40,13 +36,12 @@ const SizeRoles = () => {
   );
   const [rowData, setRowData] = useState([]);
   const [newItem, setNewItem] = useState({
-    size: '',
-    quantity: '',
-    extra: '',
+    comment: '',
+    header: '',
   });
   const handleAddMaterial = () => {
     setRowData([...rowData, newItem]);
-    setNewItem({ size: '', quantity: '',extra: ''});
+    setNewItem({ comment: '', header: ''});
   };
 
   const handleInputChange = (e) => {
@@ -54,14 +49,13 @@ const SizeRoles = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (size) => {
-    setRowData(rowData.filter((item) => item.size !== size));
+  const handleRemoveItem = (header) => {
+    setRowData(rowData.filter((item) => item.header !== header));
   };
 
   return (
     <>
-      
-
+   
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
@@ -72,4 +66,4 @@ const SizeRoles = () => {
   );
 };
 
-export default SizeRoles;
+export default Remarks;

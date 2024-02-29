@@ -6,11 +6,15 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const Comments = () => {
+const Size = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "header", headerName: "Remark label" , width:200},
-      { field: "comment", headerName: "Remark Name" },
+      { field: "size", headerName: "Morder No." , width:200},
+      { field: "quantity", headerName: "Size" },
+      { field: "extra", headerName: "Bal. Qty" },
+      { field: "extra", headerName: "Qty" },
+      { field: "extra", headerName: "Print Size" },
+      { field: "extra", headerName: "Length" },
       {
         field: 'action',
         headerName: 'Action',
@@ -24,7 +28,7 @@ const Comments = () => {
               alignItems: 'center' 
             }}>
               <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.header)}
+              onClick={() => handleRemoveItem(params.data.size)}
               >
               </button>
             </div>
@@ -36,12 +40,13 @@ const Comments = () => {
   );
   const [rowData, setRowData] = useState([]);
   const [newItem, setNewItem] = useState({
-    comment: '',
-    header: '',
+    size: '',
+    quantity: '',
+    extra: '',
   });
   const handleAddMaterial = () => {
     setRowData([...rowData, newItem]);
-    setNewItem({ comment: '', header: ''});
+    setNewItem({ size: '', quantity: '',extra: ''});
   };
 
   const handleInputChange = (e) => {
@@ -49,13 +54,14 @@ const Comments = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (header) => {
-    setRowData(rowData.filter((item) => item.header !== header));
+  const handleRemoveItem = (size) => {
+    setRowData(rowData.filter((item) => item.size !== size));
   };
 
   return (
     <>
-   
+      
+
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
@@ -66,4 +72,4 @@ const Comments = () => {
   );
 };
 
-export default Comments;
+export default Size;

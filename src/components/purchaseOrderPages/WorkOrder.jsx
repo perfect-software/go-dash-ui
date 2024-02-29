@@ -6,7 +6,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const OverHead = () => {
+const WorkOrder = () => {
   const columnDefs = useMemo(
     () => [
       { field: "code", headerName: "Morder No." },
@@ -69,4 +69,4 @@ const OverHead = () => {
   );
 };
 
-export default OverHead;
+export default WorkOrder;
