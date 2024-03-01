@@ -19,6 +19,7 @@ import ViewPurchaseOrder from "./viewPurchaseOrder";
 import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
 import Remarks from "./purchaseOrderPages/Remarks";
 import WorkOrder from "./purchaseOrderPages/WorkOrder";
+import BuyerPopup from "../popups/BuyerPopup";
 const PurchaseOrder = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -31,13 +32,17 @@ const PurchaseOrder = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [bomDetails, setBomDetails] = useState([]);
+  const [isBuyerPopup, setIsBuyerPopup] = useState(false);
   const [editDetails, setEditDetails] = useState(null);
   const [tempBomDetails, setTempBomDetails] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
+  const [selectedRowData, setSelectedRowData] = useState([]);
   const [buyers, setBuyers] = useState([]);
+  const [bsId ,setBsId]= useState('');
+  const [showOrder,setShowOrder] = useState(false);
   const [currencyList, setCurrencyList] = useState([]);
   const [purchaseData, SetPurchaseData] = useState({
     po_no: "",
@@ -97,7 +102,7 @@ const PurchaseOrder = () => {
     currency:false,
     season:false,
   });
-  const [activePage, setActivePage] = useState("graphAverage");
+  const [activePage, setActivePage] = useState("workOrder");
   const toggleInputLoaderVisibility = (key, value) => {
     setShowInputLoading((prevSuggestions) => ({
       ...prevSuggestions,
@@ -273,12 +278,13 @@ const PurchaseOrder = () => {
   const downshiftBuyer = (
     <Downshift
       onChange={(selectedItem) => {
+        console.log(selectedItem);
         if (selectedItem) {
           SetPurchaseData({
             ...purchaseData,
-            buyer: selectedItem.buyer,
+            buyer: selectedItem.bsName,
           });
-         
+          setBsId(selectedItem.bsId);
           toggleSuggestVisibility("buyer", false);
         }
       }}
@@ -298,12 +304,23 @@ const PurchaseOrder = () => {
             }
             className={styles.basicInput2}
             disabled={isEditClicked}
-            placeholder="Click on Search"
+            placeholder="Type 3 words"
             value={purchaseData.buyer}
           />
-          {showInputLoading.buyer && (
+         {showInputLoading.buyer ? (
             <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button
+               // disabled={isEditClicked}
+                onClick={() => setIsBuyerPopup(true)}
+                className={styles.searchBtn}
+                aria-label="Search"
+              ></button>{" "}
+            </div>
           )}
+
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
@@ -438,6 +455,37 @@ const PurchaseOrder = () => {
       )}
     </Downshift>
   );
+
+  const handleBuyerSubmit = (selectedBuyers) => {
+    if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
+      const selectedBuyer = selectedBuyers[0];
+      setBsId(selectedBuyer.bs_id);
+      SetPurchaseData({
+        ...purchaseData,
+        buyer: selectedBuyer.bsName,
+      });
+      toggleSuggestVisibility("buyer", false);
+      setIsBuyerPopup(false);
+    }
+    setValidation((prev) => ({ ...prev, bsName: "valid" }));
+  };
+
+
+ 
+  const handleBOMSelect = (bom) => {
+    console.log(bom);
+    if(bom)
+    {
+      const bomArray = Array.isArray(bom) ? bom : [bom];
+      setSelectedRowData(bomArray);
+    }
+  };
+
+
+
+
+
+
   useEffect(() => {
     fetchSRNo();
   }, []);
@@ -755,7 +803,7 @@ const PurchaseOrder = () => {
                 type="text"
                 name="buyerName"
                 className={styles.basicInput}
-                placeholder="Buyer Name"
+                placeholder="Enter Unit"
                 style={
                   validation.buyerName === "invalid"
                     ? { border: "2px solid red" }
@@ -850,6 +898,14 @@ const PurchaseOrder = () => {
           </div>
           <div className={styles.middleContainerBottom}>
             <div className={styles.topButtons}>
+            <button
+                className={`${styles.screenChangeButton} ${
+                  activePage === "workOrder" ? styles.active : ""
+                }`}
+                onClick={() => setActivePage("workOrder")}
+              >
+                Work Order
+              </button>
               <button
                 className={`${styles.screenChangeButton} ${
                   activePage === "graphAverage" ? styles.active : ""
@@ -858,14 +914,7 @@ const PurchaseOrder = () => {
               >
                 Graph Average
               </button>
-              <button
-                className={`${styles.screenChangeButton} ${
-                  activePage === "workOrder" ? styles.active : ""
-                }`}
-                onClick={() => setActivePage("workOrder")}
-              >
-                Work Order
-              </button>
+            
               <button
                 className={`${styles.screenChangeButton} ${
                   activePage === "remark" ? styles.active : ""
@@ -895,6 +944,7 @@ const PurchaseOrder = () => {
                   editDetails={editDetails}
                   setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
+                  selectedData={selectedRowData}
                   onResetDone={() => setResetTrigger(false)}
                 />
               </div>
@@ -904,7 +954,7 @@ const PurchaseOrder = () => {
           {activePage === "workOrder" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <WorkOrder />
+                <WorkOrder bsId={bsId} onBomSelect={handleBOMSelect}  />
               </div>
             </div>
           )}
@@ -991,6 +1041,14 @@ const PurchaseOrder = () => {
           </div>
         </div>
       )}
+          {isBuyerPopup && (
+            <BuyerPopup
+              onCancel={() => {
+                setIsBuyerPopup(false);
+              }}
+              onSubmitBuyerData={handleBuyerSubmit}
+            />
+          )}
       {isInventoryPopup && (
         <InventoryCheckPopup
           onCancel={() => {
