@@ -1,72 +1,49 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import styles from "../../styles/inputDetails.module.css";
+import React, { useState, useEffect, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const Size = () => {
-  const columnDefs = useMemo(
-    () => [
-      { field: "size", headerName: "Morder No." , width:200},
-      { field: "quantity", headerName: "Size" },
-      { field: "extra", headerName: "Bal. Qty" },
-      { field: "extra", headerName: "Qty" },
-      { field: "extra", headerName: "Print Size" },
-      { field: "extra", headerName: "Length" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.size)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
-    ],
-    []
-  );
-  const [rowData, setRowData] = useState([]);
-  const [newItem, setNewItem] = useState({
-    size: '',
-    quantity: '',
-    extra: '',
-  });
-  const handleAddMaterial = () => {
-    setRowData([...rowData, newItem]);
-    setNewItem({ size: '', quantity: '',extra: ''});
-  };
+const Size = ({ sizeDetails }) => {
+  const columnDefs = useMemo(() => [
+    { field: "orderNo", headerName: "Morder No.", width: 200, editable: false }, 
+    { field: "size", headerName: "Size", editable: true,cellStyle: {'background-color': '#e9f7f7'}, },
+    { field: "balqty", headerName: "Bal. Qty", editable: true ,cellStyle: {'background-color': '#e9f7f7'},},
+    { field: "qty", headerName: "Qty", editable: true,cellStyle: {'background-color': '#e9f7f7'}, },
+    { field: "printSize", headerName: "Print Size", editable: true, cellStyle: {'background-color': '#e9f7f7'}, },
+  ], []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: value });
-  };
+  // const [rowData, setRowData] = useState([]);
+  const [rowData, setRowData] = useState([
+    { orderNo: "001", size: "Medium", balqty: "10", qty: "100", printSize: "A4" },
+    { orderNo: "002", size: "Small", balqty: "15", qty: "150", printSize: "A5" },
+    { orderNo: "003", size: "Large", balqty: "5", qty: "200", printSize: "A3" },
+  ]);
 
-  const handleRemoveItem = (size) => {
-    setRowData(rowData.filter((item) => item.size !== size));
-  };
+  // useEffect(() => {
+  //   if (Array.isArray(sizeDetails)) {
+  //     setRowData(sizeDetails);
+  //   } else if (sizeDetails !== null) {
+  //     console.error("sizeDetails is not in expected format");
+
+  //   }
+  // }, [sizeDetails]);
 
   return (
     <>
-      
-
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          domLayout='autoHeight'
+          pagination={true}
+          paginationPageSize={12}
+          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+          animateRows={true}
+        />
       </div>
     </>
   );

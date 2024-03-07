@@ -87,15 +87,16 @@ const WorkOrder = ({bsId,onBomSelect}) => {
     headerCheckboxSelection: true,
     showDisabledCheckboxes: true},
     { headerName: 'ID', field: 'id', sortable: true, filter: true, },
-    
-    { headerName: 'Value', field: 'value', sortable: true, filter: true }
+    { headerName: 'Value', field: 'value', sortable: true, filter: true },
+    { headerName: 'Date', field: 'delDate', sortable: true, filter: true },
+    { headerName: 'Rate', field: 'rate', sortable: true, filter: true }
   ], []);
 
 
   const rowDa  = useMemo(() => [
-    { id: 1, value: 'Row 1' },
-    { id: 2, value: 'Row 2' },
-    { id: 3, value: 'Row 3' },
+    { id: 1, value: 'Row 1',delDate:'20-12-2001',rate:'200' },
+    { id: 2, value: 'Row 2',delDate:'22-12-2001',rate:'233'},
+    { id: 3, value: 'Row 3',delDate:'23-12-2001' ,rate:'233'},
   ], []);
  const fetchBomDetails = async () => {
     setIsFetching(true);

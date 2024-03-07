@@ -14,7 +14,7 @@ import Downshift from "downshift";
 import { useDispatch, useSelector } from "react-redux";
 import GraphAverage from "./purchaseOrderPages/GraphAverage";
 import { fetchAllBom } from "../reducer/bomSlice";
-import SizeRoles from "./purchaseOrderPages/Size";
+import Size from "./purchaseOrderPages/Size";
 import ViewPurchaseOrder from "./viewPurchaseOrder";
 import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
 import Remarks from "./purchaseOrderPages/Remarks";
@@ -42,23 +42,29 @@ const PurchaseOrder = () => {
   const [selectedRowData, setSelectedRowData] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [bsId ,setBsId]= useState('');
+  const [poDetails, setPODetails] = useState(null);
+  const [sizeDetails, setSizeDetails] = useState(null);
   const [showOrder,setShowOrder] = useState(false);
   const [currencyList, setCurrencyList] = useState([]);
   const [purchaseData, SetPurchaseData] = useState({
     po_no: "",
     buyer: "",
     currency:"",
+    poType:"",
+    type:"",
     season:"",
     buyerName: "",
   });
   const [tempList, setTempList] = useState({
     currencyList: [],
     seasonList:[],
+    poTypeList:[],
   });
   const dispatch = useDispatch();
   const [showInputLoading, setShowInputLoading] = useState({
     po_no: false,
     season:false,
+    poType:false,
     buyer:false,
     currency:false,
   });
@@ -77,7 +83,7 @@ const PurchaseOrder = () => {
     let isValid = true;
     let newValidation = {};
 
-    const requiredFields = ["po_no","buyer","currency","season","buyerName"];
+    const requiredFields = ["po_no","buyer","currency","season","buyerName","poType"];
 
     requiredFields.forEach((field) => {
       if (!purchaseData[field] || purchaseData[field].trim() === "") {
@@ -99,6 +105,7 @@ const PurchaseOrder = () => {
   const [showSuggestions, setShowSuggestions] = useState({
     po_no: false,
     buyer:false,
+    poType:false,
     currency:false,
     season:false,
   });
@@ -146,6 +153,33 @@ const PurchaseOrder = () => {
   useEffect(() => {
     getCurrency();
   }, []);
+
+  const fetchByPO = async (poType) => {
+    toggleInputLoaderVisibility("poType", true);
+    try {
+      const BASE_URL = "purchaseOrder/getRemarkbyPoType";
+      const response = await getDataApiService({ poType: poType }, BASE_URL);
+      setPODetails(response)
+      if (response) {
+        setValidation((prev) => ({ ...prev, poType: "valid" }));
+      }
+    } catch (error) {
+      console.error(error);
+      togglePopup("Failed To Fetch");
+    } finally {
+      toggleInputLoaderVisibility("poType", false);
+    }
+  };
+  const fetchBySize = async () => {
+    try {
+      const BASE_URL = "purchaseOrder/getRemarkbyPoType";
+      const response = await getDataApiService({ size }, BASE_URL);
+      setSizeDetails(response)
+    } catch (error) {
+      console.error(error);
+      togglePopup("Failed To Fetch");
+    } 
+  };
   const handleLocationChange = (e) => {
     const { name, value } = e.target;
 
@@ -197,16 +231,17 @@ const PurchaseOrder = () => {
   };
   const handleDropItemClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
+    const concatenatedString = `${name}List`;
     const filtered = itemHeads
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
       .map((item) => ({
         name: item.value,
       }));
 
-    const updatedList = {
-      ...tempList,
-      seasonList: filtered,
-    };
+      const updatedList = {
+        ...tempList,
+        [concatenatedString]: filtered,
+      };
     setTempList(updatedList);
     toggleSuggestVisibility(name, !showSuggestions[name]);
     toggleInputLoaderVisibility(`${name}`, false);
@@ -407,6 +442,74 @@ const PurchaseOrder = () => {
       )}
     </Downshift>
   );
+
+  const poTypeInputRef = useRef(null);
+  const downshiftPoType = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          SetPurchaseData({
+            ...purchaseData,
+            poType: selectedItem.name,
+          });
+          fetchByPO(selectedItem.name);
+          toggleSuggestVisibility("poType", false);
+        }
+      }}
+      selectedItem={purchaseData.poType}
+      itemToString={(item) => (item ? item.name : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleDropItemChange,
+              name: "poType",
+            })}
+            type="text"
+            maxLength="20"
+            ref={poTypeInputRef}
+            className={styles.buttonBasicInput}
+            placeholder="Insert First Letter"
+            value={purchaseData.poType}
+          />
+
+          {showInputLoading.poType ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button
+                onClick={() => {
+                  handleDropItemClick("poType");
+                  poTypeInputRef.current?.focus();
+                }}
+                className={styles.dropBtn}
+                aria-label="dropDorn"
+              ></button>{" "}
+            </div>
+          )}
+
+          {showSuggestions.poType && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {tempList.poTypeList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
   const downshiftCurrency = (
     <Downshift
       onChange={(selectedItem) => {
@@ -478,6 +581,7 @@ const PurchaseOrder = () => {
     {
       const bomArray = Array.isArray(bom) ? bom : [bom];
       setSelectedRowData(bomArray);
+      //fetchBySize();
     }
   };
 
@@ -797,13 +901,13 @@ const PurchaseOrder = () => {
 
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="articleNo">
-                Unit
+                Delivery At
               </label>
               <input
                 type="text"
                 name="buyerName"
                 className={styles.basicInput}
-                placeholder="Enter Unit"
+                placeholder="Enter Here"
                 style={
                   validation.buyerName === "invalid"
                     ? { border: "2px solid red" }
@@ -837,26 +941,10 @@ const PurchaseOrder = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.impsampleLabel} htmlFor="city">
-                  PO Type
+              <label className={styles.impsampleLabel} htmlFor="season">
+                 Po Type
                 </label>
-                <div className={styles.selectWrapper}>
-                  <select
-                    className={styles.selectInput}
-                    value={purchaseData.buyerType}
-                    name="type"
-                    style={
-                      validation.type === "invalid" ? { border: "2px solid red" } : {}
-                    }
-                    onChange={handleBomChange}
-                  >
-                    <option value="" selected disabled hidden>
-                      Select Type
-                    </option>
-                    <option value="Domestic">Domestic</option>
-                    <option value="International">International</option>
-                  </select>
-                </div>
+                {downshiftPoType}
               </div>
               <div className={styles.colSpan2}>
                 <label className={styles.impsampleLabel} htmlFor="buyer">
@@ -962,7 +1050,7 @@ const PurchaseOrder = () => {
           {activePage === "remark" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <Remarks />
+                <Remarks poDetails={poDetails} />
               </div>
             </div>
           )}
@@ -970,7 +1058,7 @@ const PurchaseOrder = () => {
           {activePage === "size" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <SizeRoles />
+                <Size sizeDetails={sizeDetails} />
               </div>
             </div>
           )}

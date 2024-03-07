@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "../../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -6,61 +6,62 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const Remarks = () => {
-  const columnDefs = useMemo(
-    () => [
-      { field: "header", headerName: "Remark label" , width:200},
-      { field: "comment", headerName: "Remark Name" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.header)}
-              >
-              </button>
-            </div>
-          );
-        },
+const Remarks = ({ poDetails }) => {
+  const initialRowData = [
+    { remarkLabel: "Remark 1", remarkName: "" },
+    { remarkLabel: "Remark 2", remarkName: "" },
+    { remarkLabel: "Remark 3", remarkName: "" },
+  ];
+  const [rowData, setRowData] = useState(initialRowData);
+  // Column definitions
+  // const columnDefs = useMemo(() => [
+  //   { field: "remarkLabel", headerName: "Remark Label", width: 200 },
+  //   { 
+  //     field: "remarkName", 
+  //     headerName: "Remark Name", 
+  //     editable: true,
+  //   },
+  // ], []);
+  const columnDefs = [
+    { field: "remarkLabel", headerName: "Remark Label", width: 200 },
+    { field: "remarkName", headerName: "Remark Name", editable: true, cellStyle: {'background-color': '#e9f7f7'}, }, 
+  ];
+
+  useEffect(() => {
+    if (poDetails && poDetails.length > 0) {
+      const initialRowData = poDetails.map((remark, index) => ({
+        id: index, 
+        remarkLabel: `Remark ${index + 1}`,
+        remarkName: '',
+      }));
+      setRowData(initialRowData);
+    }
+  }, [poDetails]);
+
+ // const [rowData, setRowData] = useState([]);
+
+  const gridOptions = useMemo(() => ({
+    onCellValueChanged: (event) => {
+      console.log('Data after change:', event.data);
     },
-    ],
-    []
-  );
-  const [rowData, setRowData] = useState([]);
-  const [newItem, setNewItem] = useState({
-    comment: '',
-    header: '',
-  });
-  const handleAddMaterial = () => {
-    setRowData([...rowData, newItem]);
-    setNewItem({ comment: '', header: ''});
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: value });
-  };
-
-  const handleRemoveItem = (header) => {
-    setRowData(rowData.filter((item) => item.header !== header));
-  };
+  }), []);
 
   return (
     <>
-   
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          pagination={true}
+          gridOptions={gridOptions}
+          domLayout='autoHeight'
+          paginationPageSize={12}
+          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
+          animateRows={true}
+        />
       </div>
     </>
   );

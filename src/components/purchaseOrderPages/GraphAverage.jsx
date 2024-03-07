@@ -12,7 +12,10 @@ import { useSidebar } from "../../context/SidebarContext";
 import { getApiService } from "../../service/apiService";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
-import { CustomHeader } from "../../helper/print";
+import { CustomDateHeader } from "../../helper/customDateHeader";
+import DateEditor from "../../helper/dateEditor";
+import CellEditor from "../../helper/cellValueEditor";
+import { CustomHeader } from "../../helper/customHeader";
 const GraphAverage = ({
   bomData,
   setBomData,
@@ -91,11 +94,6 @@ const GraphAverage = ({
     }
   }, [resetTrigger, onResetDone]);
 
-  useEffect(() => {
-    if (selectedData) {
-      console.log(selectedData);
-    }
-  }, [selectedData]);
 
   const validateForm = () => {
     let isValid = true;
@@ -202,7 +200,20 @@ const GraphAverage = ({
     toggleInputLoaderVisibility(`${name}`, false);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
+  const [gridData, setGridData] = useState(selectedData);
 
+  useEffect(() => {
+    setGridData(selectedData); 
+  }, [selectedData]);
+
+  const handleDateChange = (newDate) => {
+    const updatedRows = gridData.map(row => ({ ...row, delDate: newDate }));
+    setGridData(updatedRows);
+  };
+  const handleRateChange = (newRate) => {
+    const updatedRows = gridData.map(row => ({ ...row, rate: newRate }));
+    setGridData(updatedRows);
+  };
   const downshiftItemName = (
     <Downshift
       onChange={(selectedItem) => {
@@ -310,22 +321,6 @@ const GraphAverage = ({
       filter: true,
     },
     {
-      headerName: "Del. Date",
-      field: "deliveryDate",
-      width: 260,
-      sortable: true,
-      filter: true,
-      headerComponent: CustomHeader,
-    },
-    {
-      headerName: "Ex Factory Date",
-      field: "exFactoryDate",
-      width: 180,
-      sortable: true,
-      filter: true,
-      headerComponent: CustomHeader,
-    },
-    {
       headerName: "Qty",
       field: "quantity",
       width: 100,
@@ -335,9 +330,32 @@ const GraphAverage = ({
     {
       headerName: "Rate",
       field: "rate",
-      width: 100,
+      cellEditor: CellEditor,
+      editable: true,
+      width: 200,
+      sortable: true,
+      filter: true, headerComponent: (params) => <CustomHeader {...params} onRateChange={handleRateChange} />
+    },
+   
+    {
+      headerName: "Del. Date",
+      field: "delDate",
+      width: 260,
+      cellEditor: DateEditor,
+      editable: true,
       sortable: true,
       filter: true,
+      headerComponent: (params) => <CustomDateHeader {...params} onDateChange={handleDateChange} />,
+    },
+    {
+      headerName: "Ex Factory Date",
+      field: "exFactoryDate",
+      width: 300,
+      cellEditor: DateEditor,
+      editable: true,
+      sortable: true,
+      filter: true,
+      headerComponent: (params) => <CustomDateHeader {...params} onDateChange={handleDateChange} />
     },
    
     {
@@ -351,6 +369,7 @@ const GraphAverage = ({
       headerName: "Sup. Del. Date",
       field: "supplementaryDeliveryDate",
       width: 150,
+
       sortable: true,
       filter: true,
     },
@@ -362,7 +381,17 @@ const GraphAverage = ({
       filter: true,
     },
   ];
-
+  const defaultColDef = {
+    editable: true,
+    resizable: true,
+  };
+  const onCellClicked = (event) => {
+    if (event.column.getColId() !== 'delDate' && event.column.getColId() !== 'rate') {
+      let node = event.node;
+      node.setSelected(!node.isSelected());
+    }
+    
+  };
   return (
     <>
       <div className={styles.purchaseTopGrid}>
@@ -372,7 +401,7 @@ const GraphAverage = ({
           </label>
           {downshiftItemName}
         </div>
-        <div className={styles.colSpan}>
+        <div className={styles.colSpan2}>
           <label className={styles.sampleLabel} htmlFor="supplierId">
             Supplier
           </label>
@@ -411,12 +440,17 @@ const GraphAverage = ({
         >
           <AgGridReact
             columnDefs={columnDefs}
-            rowData={selectedData && selectedData}
+            rowData={gridData}
             pagination={true}
             paginationPageSize={12}
             paginationPageSizeSelector={[10, 12, 20, 50, 100]}
             animateRows={true}
+            suppressRowClickSelection= {true}
+            defaultColDef={defaultColDef}
+            frameworkComponents={{ dateEditor: DateEditor }}
+            reactiveCustomComponents
             rowSelection={"multiple"}
+            onCellClicked={onCellClicked}
             //  onSelectionChanged={onRowSelected}
             filter={true}
 
