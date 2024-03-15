@@ -123,7 +123,7 @@ const Grading = () => {
       { field: "itemsubgrp.id", headerName: "Subgroup Code" },
       { field: "sizePlan", headerName: "Size Plan" },
       { field: "itemsubgrp.name", headerName: "Subgroup Name" },
-      { field: "grading", headerName: "Quantity Grading" },
+      { field: "total", headerName: "Req. Qunatity" },
       {
         field: "action",
         headerName: "Action",
@@ -183,7 +183,8 @@ const Grading = () => {
     console.log(minSize,maxSize);
     const matchingItems = data.filter(item => item.size >= minSize && item.size <= maxSize);
     const totalQuantity = matchingItems.reduce((acc, item) => acc + item.qty, 0);
-    return totalQuantity;
+    setNewItem({...newItem,total:totalQuantity*newItem.quantity});
+    return totalQuantity*newItem.quantity;
   }
 
   const [rowData, setRowData] = useState([]);
@@ -196,6 +197,7 @@ const Grading = () => {
     quantity:"",
     rangeFrom:"",
     rangeTo:"",
+    total:"",
   });
   const handleAddMaterial = () => {
     setRowData([...rowData, newItem]);
@@ -224,6 +226,7 @@ const Grading = () => {
     if (newItem.rangeFrom && newItem.rangeTo) {
       timeoutId = setTimeout(() => {
         setTotal(getQuantityBySizeRange(newItem.rangeFrom, newItem.rangeTo));
+     
       }, 1000); // 5-second delay
     }
 
@@ -308,6 +311,7 @@ const Grading = () => {
               onChange: handleInputChange,
               name: "sizePlan",
             })}
+            disabled={!newItem.quantity}
             type="text"
             className={styles.basicInput}
             // style={
@@ -322,6 +326,7 @@ const Grading = () => {
             <button
               onClick={() => setIsSizePlanPopup(true)}
               className={tableStyles.searchBtn2}
+              disabled={!newItem.quantity}
               aria-label="Search"
             ></button>
           )}
