@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import tableStyles from "../styles/bom.module.css";
@@ -12,15 +13,17 @@ import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 import Downshift from "downshift";
 import { useDispatch, useSelector } from "react-redux";
-import GraphAverage from "./purchaseOrderPages/GraphAverage";
+import GraphAverage from "./productionPurchaseOrderPages/GraphAverage";
 import { fetchAllBom } from "../reducer/bomSlice";
-import Size from "./purchaseOrderPages/Size";
+import Size from "./productionPurchaseOrderPages/Size";
 import ViewPurchaseOrder from "./viewPurchaseOrder";
 import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
-import Remarks from "./purchaseOrderPages/Remarks";
-import WorkOrder from "./purchaseOrderPages/WorkOrder";
+import Remarks from "./productionPurchaseOrderPages/Remarks";
+import WorkOrder from "./productionPurchaseOrderPages/WorkOrder";
 import BuyerPopup from "../popups/BuyerPopup";
-const PurchaseOrder = () => {
+import ViewProductionPurchaseOrder from "./ViewProductionPurchaseOrder";
+
+const ProductionPurchaseOrder = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -46,7 +49,7 @@ const PurchaseOrder = () => {
   const [sizeDetails, setSizeDetails] = useState(null);
   const [showOrder,setShowOrder] = useState(false);
   const [currencyList, setCurrencyList] = useState([]);
-  const [purchaseData, SetPurchaseData] = useState({
+  const [purchaseData, setPurchaseData] = useState({
     po_no: "",
     buyer: "",
     currency:"",
@@ -128,7 +131,7 @@ const PurchaseOrder = () => {
   const handleSampleNoChange = async (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    SetPurchaseData({ ...purchaseData, po_no: value });
+    setPurchaseData({ ...purchaseData, po_no: value });
     toggleSuggestVisibility(name, value.length > 0);
     const filteredItems = srList.filter((item) =>
       item.toLowerCase().includes(value.toLowerCase())
@@ -157,7 +160,7 @@ const PurchaseOrder = () => {
   const fetchByPO = async (poType) => {
     toggleInputLoaderVisibility("poType", true);
     try {
-      const BASE_URL = "purchaseOrder/getRemarkbyPoType";
+      const BASE_URL = "productionPurchaseOrder/getRemarkbyPoType";
       const response = await getDataApiService({ poType: poType }, BASE_URL);
       setPODetails(response)
       if (response) {
@@ -172,7 +175,7 @@ const PurchaseOrder = () => {
   };
   const fetchBySize = async () => {
     try {
-      const BASE_URL = "purchaseOrder/getRemarkbyPoType";
+      const BASE_URL = "productionPurchaseOrder/getRemarkbyPoType";
       const response = await getDataApiService({ articleNO }, BASE_URL);
       setSizeDetails(response)
     } catch (error) {
@@ -183,7 +186,7 @@ const PurchaseOrder = () => {
   const handleLocationChange = (e) => {
     const { name, value } = e.target;
 
-    SetPurchaseData({ ...purchaseData, [name]: value });
+    setPurchaseData({ ...purchaseData, [name]: value });
 
     if (value.length < 1) {
       toggleSuggestVisibility(`${name}`, false);
@@ -205,7 +208,7 @@ const PurchaseOrder = () => {
   const handleDropItemChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    SetPurchaseData({ ...purchaseData, [name]: value });
+    setPurchaseData({ ...purchaseData, [name]: value });
     const concatenatedString = `${name}List`;
     const filtered = itemHeads
       .filter(
@@ -253,7 +256,7 @@ const PurchaseOrder = () => {
       onChange={(selectedItem) => {
         if (selectedItem) {
           toggleSuggestVisibility("po_no", false);
-          SetPurchaseData({ ...purchaseData, po_no: selectedItem });
+          setPurchaseData({ ...purchaseData, po_no: selectedItem });
           fetchBySrNo(selectedItem);
         }
       }}
@@ -315,7 +318,7 @@ const PurchaseOrder = () => {
       onChange={(selectedItem) => {
         console.log(selectedItem);
         if (selectedItem) {
-          SetPurchaseData({
+          setPurchaseData({
             ...purchaseData,
             buyer: selectedItem.bsName,
           });
@@ -381,7 +384,7 @@ const PurchaseOrder = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          SetPurchaseData({
+          setPurchaseData({
             ...purchaseData,
             season: selectedItem.name,
           });
@@ -448,7 +451,7 @@ const PurchaseOrder = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          SetPurchaseData({
+          setPurchaseData({
             ...purchaseData,
             poType: selectedItem.name,
           });
@@ -514,7 +517,7 @@ const PurchaseOrder = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          SetPurchaseData({
+          setPurchaseData({
             ...purchaseData,
             currency: selectedItem.code,
           });
@@ -563,7 +566,7 @@ const PurchaseOrder = () => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
       const selectedBuyer = selectedBuyers[0];
       setBsId(selectedBuyer.bs_id);
-      SetPurchaseData({
+      setPurchaseData({
         ...purchaseData,
         buyer: selectedBuyer.bsName,
       });
@@ -601,7 +604,7 @@ const PurchaseOrder = () => {
   };
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
-    SetPurchaseData({ ...purchaseData, buyer: value });
+    setPurchaseData({ ...purchaseData, buyer: value });
     if (value.length >= 3) {
       toggleInputLoaderVisibility("buyer", true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -647,7 +650,7 @@ const PurchaseOrder = () => {
 
   const handleBomChange = (e) => {
     const { name, value } = e.target;
-    SetPurchaseData({
+    setPurchaseData({
       ...purchaseData,
       [name]: value,
     });
@@ -659,7 +662,7 @@ const PurchaseOrder = () => {
     try {
       const BASE_URL = "bom/getSamplebySrNo";
       const response = await getDataApiService({ srno: SRNo }, BASE_URL);
-      SetPurchaseData({
+      setPurchaseData({
         ...purchaseData,
         buyerName: response.buyerName,
         articleNo: response.articleNo,
@@ -680,7 +683,7 @@ const PurchaseOrder = () => {
   };
 
   const resetAllFields = () => {
-    SetPurchaseData({
+    setPurchaseData({
       po_no: "",
       articleNo: "",
       buyerName: "",
@@ -804,7 +807,7 @@ const PurchaseOrder = () => {
             {activeButton === "details"
               ? isEditClicked
                 ? `Update PO:`
-                : "Purchase Order"
+                : "Production Purchase Order"
               : "Purchase Order Search"}
           </h1>
         </div>
@@ -817,7 +820,7 @@ const PurchaseOrder = () => {
                 }`}
                 onClick={() => setActiveButton("details")}
               >
-                Purchase Details
+                Production Purchase Details
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
@@ -829,7 +832,7 @@ const PurchaseOrder = () => {
                   }
                 }}
               >
-                View Purchase Order
+                View Production Purchase Order
               </button>
             </div>
             <div className={styles.editContainer}>
@@ -1028,7 +1031,7 @@ const PurchaseOrder = () => {
               <div className={styles.materialTableContainer}>
                 <GraphAverage
                   purchaseData={purchaseData}
-                  SetPurchaseData={SetPurchaseData}
+                  setPurchaseData={setPurchaseData}
                   editDetails={editDetails}
                   setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
@@ -1115,7 +1118,7 @@ const PurchaseOrder = () => {
       ) : (
         <div>
           {" "}
-          <ViewPurchaseOrder />
+          <ViewProductionPurchaseOrder />
         </div>
       )}
 
@@ -1148,4 +1151,4 @@ const PurchaseOrder = () => {
   );
 };
 
-export default PurchaseOrder;
+export default ProductionPurchaseOrder;

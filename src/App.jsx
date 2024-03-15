@@ -21,6 +21,8 @@ import ItemQuotation from "./components/ItemQuotation";
 import SamplePipeline from "./components/SamplePipeline";
 import SamplePipelineProgressView from "./components/SamplePipelineProgressView";
 import PurchaseOrder from "./components/PurchaseOrder";
+import ProductionBom from "./components/productionBom";
+import ProductionPurchaseOrder from "./components/ProductionPurchaseOrder";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -58,7 +60,9 @@ function App() {
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
               <Route path="/srbom" element={<Bom/>}/>
+              <Route path="/prbom" element={<ProductionBom/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
+              <Route path="/prodpurchaseorder" element={<ProductionPurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />
               <Route path="/login" element={<LoginRegister />} />

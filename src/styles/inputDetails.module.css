@@ -384,7 +384,9 @@ select {
   height: 20px;
   animation: spin 1s linear infinite;
 }
-
+.rangeInputs{
+  @apply flex gap-2;
+}
 .searchBtn:hover {
   opacity: 0.8;
 }

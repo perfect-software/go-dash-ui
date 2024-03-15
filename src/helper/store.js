@@ -7,6 +7,7 @@ import articleSlice from '../reducer/articleSlice';
 import bomSlice from '../reducer/bomSlice';
 import articleMstSlice from '../reducer/articleMstSlice';
 import itemHeadSlice from '../reducer/itemHeadSlice';
+import productionBomSlice from '../reducer/productionBomSlice';
 
 
 
@@ -19,6 +20,7 @@ export const store = configureStore({
     article:articleSlice,
     bom:bomSlice,
     articleMst:articleMstSlice,
-    itemHead:itemHeadSlice
+    itemHead:itemHeadSlice,
+    productionBom:productionBomSlice
   }
 });
