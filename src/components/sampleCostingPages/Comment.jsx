@@ -6,7 +6,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const Comments = ({productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
+const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
       { field: "header", headerName: "Header" },
@@ -43,13 +43,13 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
   
   useEffect(() => {
     if (gridApi) {
-  if ( productionBomData.comments && productionBomData.comments.length === 0) {
+  if ( sampleCostingData.comments && sampleCostingData.comments.length === 0) {
         gridApi.showNoRowsOverlay();
       } else {
         gridApi.hideOverlay();
       }
     }
-  }, [gridApi, productionBomData.comments]);
+  }, [gridApi, sampleCostingData.comments]);
 
   const resetNewItemState = () => {
     setNewItem({
@@ -59,7 +59,7 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
   };
   useEffect(() => {
     if (resetTrigger) {
-      setProductionBomData({ comments: [] });
+      setSampleCostingData({ comments: [] });
       onResetDone();
       resetNewItemState();
     }
@@ -69,22 +69,22 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
     comment: '',
   });
   const handleAddMaterial = () => {
-    setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.comments) ? [...prevData.comments, newItem] : [newItem];
+    setSampleCostingData((prevData) => {
+      const updatedComment = Array.isArray(prevData.comments) ? [...prevData.comments, newItem] : [newItem];
       return {
         ...prevData,
-        comments: updatedProduction,
+        comments: updatedComment,
       };
     });
     resetNewItemState();
   };
   
   const handleRemoveItem = (code) => {
-    setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.comments) ? prevData.comments.filter((item) => item.code !== code) : [];
+    setSampleCostingData((prevData) => {
+      const updatedComment = Array.isArray(prevData.comments) ? prevData.comments.filter((item) => item.code !== code) : [];
       return {
         ...prevData,
-        comments: updatedProduction,
+        comments: updatedComment,
       };
     });
   }; 
@@ -146,7 +146,7 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
         style={{ height: 250, width: "100%", marginTop: "10px" }}
       >
   <AgGridReact 
-          rowData={productionBomData.comments} 
+          rowData={sampleCostingData.comments} 
           onGridReady={onGridReady}
           columnDefs={columnDefs}
           overlayNoRowsTemplate={

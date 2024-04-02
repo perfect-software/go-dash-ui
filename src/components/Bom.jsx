@@ -18,8 +18,11 @@ import { fetchAllBom } from "../reducer/bomSlice";
 import SizeRoles from "./bomPages/SizeRole";
 import Specifications from "./bomPages/Specification";
 import ViewBom from "./ViewBom";
+import { fetchAllItemRates } from "../reducer/itemRateSlice";
+import { fetchItemGroupsAndSubGroups } from "../reducer/grpSubgrpSlice";
 const Bom = () => {
   const [loading, setLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [srList, setSrList] = useState([]);
@@ -28,6 +31,7 @@ const Bom = () => {
   const initialValidationState = {};
   const [updateLoading, setUpdateLoading] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
+  const [isPrintSelected, setIsPrintSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [bomDetails, setBomDetails] = useState([]);
   const [editDetails, setEditDetails] = useState(null);
@@ -48,7 +52,27 @@ const Bom = () => {
   const [showInputLoading, setShowInputLoading] = useState({
     sr_no: false,
   });
+  const { itemGroups, itemSubGroups, itemLoaded, itemLoading, error } = useSelector(
+    (state) => state.data
+  );
 
+
+  const { itemRates, loadedRate, loadingRate, errorRate } = useSelector(
+    (state) => state.itemRate
+  );
+  useEffect(() => {
+    if (!itemLoaded && !itemLoading) {
+      dispatch(fetchItemGroupsAndSubGroups());
+    }
+
+  }, [itemLoaded, itemLoading, dispatch]);
+
+  useEffect(() => {
+    if (!loadedRate && !loadingRate) {
+      dispatch(fetchAllItemRates());
+    }
+  }, [loadedRate, loadingRate, dispatch]);
+  
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
@@ -194,6 +218,7 @@ const Bom = () => {
     setIsEditSelected(false);
     if (bom) {
       setIsEditSelected(true);
+      setIsPrintSelected(true);
       setTempBomDetails(bom);
     }
   };
@@ -260,10 +285,86 @@ const Bom = () => {
   };
 
   const handleViewPDF = async () => {
-    const jsonData = JSON.stringify(bomData);
-    console.log(jsonData);
-    await generatePDF(bomData);
+    setPrintLoading(true);
+    await fetchBySrNo(tempBomDetails[0].srno);
+    try {
+      const response = await fetchBomDetails(tempBomDetails[0].bomId);
+      if (response) {
+        await handleUpdateMaterial(response);
+      }
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setPrintLoading(false);
+      setIsPrintSelected(false);
+    }
   };
+
+  const handleUpdateMaterial = async (response) => {
+    setBomData((prevData) => {
+      let newData = JSON.parse(JSON.stringify(prevData));
+      response.forEach((editItem) => {
+        let group = newData.groups.find((g) => g.id === editItem.itemGrp);
+        if (!group) {
+          const groupName = itemGroups[editItem.itemGrp];
+        
+          group = {
+            id: editItem.itemGrp,
+            name: groupName, 
+            subgroups: [],
+          };
+          newData.groups.push(group);
+        }
+  
+        let subgroup = group.subgroups.find((sg) => sg.id === editItem.itemSubGrp);
+        if (!subgroup) {
+          const subgroupName = itemSubGroups[editItem.itemSubGrp];
+          subgroup = {
+            id: editItem.itemSubGrp,
+            name: subgroupName.name,
+            items: [],
+          };
+          group.subgroups.push(subgroup);
+        }
+        const itemDetails = itemRates.find(item => item.itemId === editItem.item_id);
+        const tempItemName = itemDetails ? itemDetails.itemName : null;
+        let itemIndex = subgroup.items.findIndex(i => i.itemId === editItem.item_id);
+      if (itemIndex !== -1) {
+        subgroup.items[itemIndex] = {
+          ...subgroup.items[itemIndex],
+          itemName: tempItemName || 'Unknown',
+          usedIn: editItem.usedIn,
+          pair: editItem.pair,
+          bomQty: editItem.bomQty,
+          supplierId: editItem.supplier_id,
+          unit: editItem.unit,
+          requiredQty: editItem.reqQty,
+          rate: editItem.rate,
+          cost: editItem.rate * editItem.reqQty,
+        }
+        } else {
+          subgroup.items.push({
+            itemId: editItem.item_id,
+            itemName: tempItemName || 'Unknown',
+            usedIn: editItem.usedIn,
+            pair: editItem.pair,
+            bomQty: editItem.bomQty,
+            supplierId: editItem.supplier_id,
+            supplierName: editItem.supplierName,
+            unit: editItem.unit,
+            requiredQty: editItem.reqQty,
+            rate: editItem.rate,
+            cost: editItem.rate * editItem.reqQty,
+          });
+        }
+      });
+
+    generatePDF(newData);
+    return newData;
+  });
+  setBomData([]);
+  };
+  
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -421,9 +522,10 @@ const Bom = () => {
                       Update
                     </button>
                   )}
-                  <button className={styles.headButton} onClick={handleViewPDF}>
+                  {printLoading ? ( <div className={styles.loader}></div>):( <button className={styles.headButton}   disabled={!isPrintSelected} onClick={handleViewPDF}>
                     Print
-                  </button>
+                  </button>)}
+                 
                 </div>
               )}
               {activeButton === "details" && (

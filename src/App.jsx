@@ -23,6 +23,9 @@ import SamplePipelineProgressView from "./components/SamplePipelineProgressView"
 import PurchaseOrder from "./components/PurchaseOrder";
 import ProductionBom from "./components/productionBom";
 import ProductionPurchaseOrder from "./components/ProductionPurchaseOrder";
+import SampleCosting from "./components/SampleCosting";
+import NewPurchaseOrder from "./components/NewPurchaseOrder";
+import NewPurchaseOrderDetails from "./components/NewPurchaseOrderDetails";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -60,8 +63,11 @@ function App() {
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
               <Route path="/srbom" element={<Bom/>}/>
+              <Route path="/samplecosting" element={<SampleCosting/>}/>
+              <Route path="/newpurchaseorderdetails/:orderId" element={<NewPurchaseOrderDetails />} /> 
               <Route path="/prbom" element={<ProductionBom/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
+              <Route path="/newpo" element={<NewPurchaseOrder/>}/>
               <Route path="/prodpurchaseorder" element={<ProductionPurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />

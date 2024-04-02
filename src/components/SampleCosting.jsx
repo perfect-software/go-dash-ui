@@ -11,17 +11,15 @@ import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
 import Downshift from "downshift";
 import { useDispatch, useSelector } from "react-redux";
-import GraphAverage from "./productionBomPages/GraphAverage";
-import Comments from "./productionBomPages/Comment";
+import GraphAverage from "./sampleCostingPages/GraphAverage";
+import Comments from "./sampleCostingPages/Comment";
 import { fetchAllBom } from "../reducer/bomSlice";
-import SizeRoles from "./productionBomPages/SizeRole";
-import Specifications from "./productionBomPages/Specification";
-import ViewProductionBom from "./ViewProductionBom";
-import Grading from "./productionBomPages/Grading";
+import SizeRoles from "./sampleCostingPages/SizeRole";
+import Specifications from "./sampleCostingPages/Specification";
+import OverHead from "./sampleCostingPages/OverHead";
 import BuyerPopup from "../popups/BuyerPopup";
 import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
-import BuyerDetails from "./productionBomPages/Specification";
-const ProductionBom = () => {
+const SampleCosting = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -32,43 +30,51 @@ const ProductionBom = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
-  const [productionBomDetails, setProductionBomDetails] = useState([]);
+  const [sampleCostingDetails, setSampleCostingDetails] = useState([]);
   const [editDetails, setEditDetails] = useState(null);
-  const [tempProductionBomDetails, setTempProductionBomDetails] =
-    useState(null);
+  const [tempSampleCostingDetails, setTempSampleCostingDetails] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
   const [bottomGrids, setBottomGrids] = useState([{}]);
   const [colors, setColors] = useState([]);
-  const [productionBomData, setProductionBomData] = useState({
-    sr_no: "",
-    articleNo: "",
-    productionBomType: "",
-    buyerName: "",
-    season: "",
-    color: "",
-    extraQty: "",
-    totalQty: "",
-    groups: [],
-    grading: [],
-    comments: [],
-    buyerDetails: [],
-    sizeRoles: [],
+  const [sampleCostingData, setSampleCostingData] = useState(() => {
+    const savedData = localStorage.getItem("sampleCostingData");
+    return savedData ? JSON.parse(savedData) : {
+      articleNo: "",
+      buyer: "",
+      season: "",
+      color: "",
+      size: "",
+      dateOfOrder: "",
+      sampleType: "",
+      gradingType: "",
+      totalQty: "",
+      extraQty: "",
+      groups: [],
+      overhead: [],
+      comments:[],
+      specifications:[],
+      sizeRoles:[],
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem("sampleCostingData", JSON.stringify(sampleCostingData));
+  }, [sampleCostingData]);
   const [tempList, setTempList] = useState({
-    seasonList: [],
+    seasonList:[],
   });
   const dispatch = useDispatch();
   const [showInputLoading, setShowInputLoading] = useState({
-    sr_no: false,
-    season: false,
-    buyer: false,
-    color: false,
+    season:false,
+    buyer:false,
+    sampleType:false,
+    color:false,
   });
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
-    setProductionBomData({ ...productionBomData, [name]: value });
+    setSampleCostingData({ ...sampleCostingData, [name]: value });
     if (value.length >= 2) {
       toggleInputLoaderVisibility(`${name}`, true);
       const BASE_URL = `sample/color/{input}?input=${encodeURIComponent(
@@ -88,7 +94,7 @@ const ProductionBom = () => {
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
-    // setValidation((prev) => ({ ...prev, [name]: "valid" }));
+   setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
@@ -96,10 +102,10 @@ const ProductionBom = () => {
     let isValid = true;
     let newValidation = {};
 
-    const requiredFields = ["sr_no", "articleNo", "buyerName"];
+    const requiredFields = ["sampleType", "articleNo", "buyer","gradingType"];
 
     requiredFields.forEach((field) => {
-      if (!productionBomData[field] || productionBomData[field].trim() === "") {
+      if (!sampleCostingData[field] || sampleCostingData[field].trim() === "") {
         isValid = false;
         newValidation[field] = "invalid";
       } else {
@@ -118,22 +124,23 @@ const ProductionBom = () => {
     if (Array.isArray(selectedBuyers) && selectedBuyers.length > 0) {
       const selectedBuyer = selectedBuyers[0];
       //setBsId(selectedBuyer.bs_id);
-      setProductionBomData({
-        ...productionBomData,
+      setSampleCostingData({
+        ...sampleCostingData,
         buyer: selectedBuyer.bsName,
       });
       toggleSuggestVisibility("buyer", false);
       setIsBuyerPopup(false);
     }
-    //   setValidation((prev) => ({ ...prev, bsName: "valid" }));
+    setValidation((prev) => ({ ...prev, bsName: "valid" }));
   };
-
+  const [formattedDate, setFormattedDate] = useState("");
   const [showSuggestions, setShowSuggestions] = useState({
-    sr_no: false,
-    season: false,
-    color: false,
-    buyer: false,
+    season:false,
+    color:false,
+    buyer:false,
+    sampleType:false,
   });
+  const [sampleType, setSampleType] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [activePage, setActivePage] = useState("graphAverage");
   const toggleInputLoaderVisibility = (key, value) => {
@@ -142,7 +149,11 @@ const ProductionBom = () => {
       [key]: value,
     }));
   };
-
+  useEffect(() => {
+    const today = new Date();
+    const currentDate = today.toISOString().split("T")[0];
+    setFormattedDate(currentDate);
+  }, []);
   const handleButtonClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
     setfilteredSrList(srList);
@@ -154,7 +165,7 @@ const ProductionBom = () => {
   const handleSampleNoChange = async (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    setProductionBomData({ ...productionBomData, sr_no: value });
+    setSampleCostingData({ ...sampleCostingData, sr_no: value });
     toggleSuggestVisibility(name, value.length > 0);
     const filteredItems = srList.filter((item) =>
       item.toLowerCase().includes(value.toLowerCase())
@@ -164,87 +175,21 @@ const ProductionBom = () => {
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
-  const sampleRef = useRef(null);
-  const downshiftsampleRef = (
-    <Downshift
-      onChange={(selectedItem) => {
-        if (selectedItem) {
-          toggleSuggestVisibility("sr_no", false);
-          setProductionBomData({ ...productionBomData, sr_no: selectedItem });
-          fetchBySrNo(selectedItem);
-        }
-      }}
-      selectedItem={productionBomData.sr_no}
-      itemToString={(item) => (item ? item.sr_no : "")}
-    >
-      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
-        <div className={styles.inputWithIcon}>
-          <input
-            {...getInputProps({
-              onChange: handleSampleNoChange,
-              name: "sr_no",
-            })}
-            type="text"
-            ref={sampleRef}
-            style={
-              validation.sr_no === "invalid" ? { border: "2px solid red" } : {}
-            }
-            className={styles.basicInput}
-            placeholder="Insert First Letter"
-            value={productionBomData.sr_no}
-          />
-
-          {showInputLoading.sr_no ? (
-            <div className={styles.dropLoader}></div>
-          ) : (
-            <button
-              onClick={() => {
-                handleButtonClick("sr_no");
-                sampleRef.current?.focus();
-              }}
-              className={tableStyles.searchBtn}
-              aria-label="dropDorn"
-            ></button>
-          )}
-
-          {showSuggestions.sr_no && (
-            <div {...getMenuProps()} className={styles.suggestions}>
-              {filteredsrList.map((item, index) => (
-                <div
-                  {...getItemProps({ key: index, index, item })}
-                  className={
-                    highlightedIndex === index
-                      ? styles.highlighted
-                      : styles.suggestionItem
-                  }
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </Downshift>
-  );
-
+  
   useEffect(() => {
     fetchSRNo();
   }, []);
 
   const fetchSRNo = async () => {
-    const BASE_URL = "productionBom/getSrNoList";
+    const BASE_URL = "sampleCosting/getSrNoList";
     const response = await getApiService(BASE_URL);
     setSrList(response);
   };
-  const fetchProductionBomDetails = async (productionBomId) => {
+  const fetchSampleCostingDetails = async (sampleCostingId) => {
     try {
-      if (productionBomId) {
-        const BASE_URL = "productionBom/viewproductionBomdetails";
-        const response = await getDataApiService(
-          { productionBomId: productionBomId },
-          BASE_URL
-        );
+      if (sampleCostingId) {
+        const BASE_URL = "sampleCosting/viewsampleCostingdetails";
+        const response = await getDataApiService({ sampleCostingId: sampleCostingId }, BASE_URL);
         return response;
       }
     } catch (error) {
@@ -253,22 +198,20 @@ const ProductionBom = () => {
     }
   };
 
-  const handleBOMEdit = (productionBom) => {
+  const handleBOMEdit = (sampleCosting) => {
     setIsEditSelected(false);
-    if (productionBom) {
+    if (sampleCosting) {
       setIsEditSelected(true);
-      setTempProductionBomDetails(productionBom);
+      setTempSampleCostingDetails(sampleCosting);
     }
   };
   const handleEditClick = async () => {
     setIsEditClicked(true);
     setUpdateLoading(true);
     setActiveButton("details");
-    await fetchBySrNo(tempProductionBomDetails[0].srno);
+    await fetchBySrNo(tempSampleCostingDetails[0].srno);
     try {
-      const response = await fetchProductionBomDetails(
-        tempProductionBomDetails[0].productionBomId
-      );
+      const response = await fetchSampleCostingDetails(tempSampleCostingDetails[0].sampleCostingId);
       if (response) {
         setEditDetails(response);
       }
@@ -279,10 +222,10 @@ const ProductionBom = () => {
     }
   };
 
-  const handleProductionBomChange = (e) => {
+  const handleSampleCostingChange = (e) => {
     const { name, value } = e.target;
-    setProductionBomData({
-      ...productionBomData,
+    setSampleCostingData({
+      ...sampleCostingData,
       [name]: value,
     });
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
@@ -291,16 +234,15 @@ const ProductionBom = () => {
   const fetchBySrNo = async (SRNo) => {
     toggleInputLoaderVisibility("sr_no", true);
     try {
-      const BASE_URL = "productionBom/getSamplebySrNo";
+      const BASE_URL = "sampleCosting/getSamplebySrNo";
       const response = await getDataApiService({ srno: SRNo }, BASE_URL);
-      setProductionBomData({
-        ...productionBomData,
-        buyerName: response.buyerName,
+      setSampleCostingData({
+        ...sampleCostingData,
+        buyer: response.buyerName,
         articleNo: response.articleNo,
-        sr_no: SRNo,
       });
-      if (response.buyerName) {
-        setValidation((prev) => ({ ...prev, buyerName: "valid" }));
+      if (response.buyer) {
+        setValidation((prev) => ({ ...prev, buyer: "valid" }));
       }
       if (response.articleNo) {
         setValidation((prev) => ({ ...prev, articleNo: "valid" }));
@@ -312,22 +254,40 @@ const ProductionBom = () => {
       toggleInputLoaderVisibility("sr_no", false);
     }
   };
-
+  const handleSampleType = async (name) => {
+    toggleInputLoaderVisibility(`${name}`, true);
+    const BASE_URL = "sample/getSampleType";
+    try {
+      const fetchedType = await getApiService(BASE_URL);
+      setSampleType(fetchedType);
+      toggleInputLoaderVisibility(`${name}`, false);
+    } catch (error) {
+      console.error("Failed to fetch Sample Type:", error);
+    } finally {
+      toggleInputLoaderVisibility(`${name}`, false);
+    }
+    toggleSuggestVisibility(name, !showSuggestions[name]);
+  };
   const resetAllFields = () => {
-    setProductionBomData({
-      sr_no: "",
+    setSampleCostingData({
       articleNo: "",
-      buyerName: "",
-      productionBomType: "",
+    buyer: "",
+    season:"",
+    color:"",
+    size:"",
+    sampleType:"",
+    gradingType:"",
+    totalQty:"",
+    extraQty:"",
     });
     setValidation(initialValidationState);
-    setResetTrigger(true);
+   // setResetTrigger(true);
   };
 
   const handleViewPDF = async () => {
-    const jsonData = JSON.stringify(productionBomData);
+    const jsonData = JSON.stringify(sampleCostingData);
     console.log(jsonData);
-    await generatePDF(productionBomData);
+    await generatePDF(sampleCostingData);
   };
 
   const toggleSuggestVisibility = (key, value) => {
@@ -337,11 +297,14 @@ const ProductionBom = () => {
     }));
   };
 
-  const prepareDataForSubmission = (productionBomData) => {
+  const prepareDataForSubmission = (sampleCostingData) => {
+    if (!sampleCostingData || !sampleCostingData.groups) {
+      return {}; // or return any default value that makes sense in your context
+    }
+  
     const transformedData = {
-      ...productionBomData,
-
-      groups: productionBomData.groups.map((group) => ({
+      ...sampleCostingData,
+      groups: sampleCostingData.groups.map((group) => ({
         itemgrp: group.id,
         subgroups: group.subgroups.map((subgroup) => ({
           itemsubgrp: subgroup.id,
@@ -349,9 +312,7 @@ const ProductionBom = () => {
             itemId: item.itemId,
             usedIn: item.usedIn,
             pair: item.pair,
-            supplierId: item.supplierId,
-            stockConsumedQty: item.stockConsumedQty,
-            productionBomQty: item.productionBomQty,
+            qty: item.qty,
             unit: item.unit,
             requiredQty: item.requiredQty,
             rate: item.rate,
@@ -359,29 +320,30 @@ const ProductionBom = () => {
         })),
       })),
     };
-
+  
     return transformedData;
   };
-
-  const handleUpdateProductionBomClick = async (e) => {
+  
+ 
+  const handleUpdateSampleCostingClick = async (e) => {
     e.preventDefault();
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-    const dataToSubmit = await prepareDataForSubmission(productionBomData);
+    const dataToSubmit = await prepareDataForSubmission(sampleCostingData);
     const updatedForm = {
       ...dataToSubmit,
-      productionBomId: tempProductionBomDetails[0].productionBomId,
+      sampleCostingId: tempSampleCostingDetails[0].sampleCostingId,
     };
     console.log(updatedForm);
-    const BASE_URL = "productionBom/update";
+    const BASE_URL = "sampleCosting/update";
     try {
       const responseData = await putApiService(updatedForm, BASE_URL);
       togglePopup(responseData.responseStatus.description);
       resetAllFields();
-      dispatch(fetchAllProductionBom());
+      dispatch(fetchAllSampleCosting());
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
@@ -409,7 +371,7 @@ const ProductionBom = () => {
   const handleDropItemChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
-    setProductionBomData({ ...productionBomData, [name]: value });
+    setSampleCostingData({ ...sampleCostingData, [name]: value });
     const concatenatedString = `${name}List`;
     const filtered = itemHeads
       .filter(
@@ -431,23 +393,27 @@ const ProductionBom = () => {
     } else {
       toggleSuggestVisibility(`${name}`, false);
     }
-    // setValidation((prev) => ({ ...prev, [name]: "valid" }));
+   setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-  const handleSubmitProductionBomClick = async (e) => {
+  const handleSubmitSampleCostingClick = async (e) => {
     e.preventDefault();
     setLoading(true);
     // if (!validateForm()) {
     //   setLoading(false);
     //   return;
     // }
-    const dataToSubmit = await prepareDataForSubmission(productionBomData);
+    const updatedSampleCostingData = {
+      ...sampleCostingData,
+      dateOfOrder: formattedDate,
+    };
+    const dataToSubmit = await prepareDataForSubmission(updatedSampleCostingData);
+    const BASE_URL = "sampleCosting/create";
     console.log(dataToSubmit);
-    const BASE_URL = "productionBom/create";
     try {
       const responseData = await postApiService(dataToSubmit, BASE_URL);
       togglePopup(responseData.responseStatus.description);
       resetAllFields();
-      dispatch(fetchAllProductionBom());
+      dispatch(fetchAllSampleCosting());
     } catch (error) {
       let errorMessage;
       if (error.response && error.response.data.responseStatus) {
@@ -464,7 +430,7 @@ const ProductionBom = () => {
   };
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
-    setProductionBomData({ ...productionBomData, buyer: value });
+   setSampleCostingData({ ...sampleCostingData, buyer: value });
     if (value.length >= 3) {
       toggleInputLoaderVisibility("buyer", true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -481,7 +447,7 @@ const ProductionBom = () => {
     } else {
       toggleSuggestVisibility("buyer", false);
     }
-    // setValidation((prev) => ({ ...prev, [name]: "valid" }));
+   setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handleDropItemClick = (name) => {
@@ -493,29 +459,30 @@ const ProductionBom = () => {
         name: item.value,
       }));
 
-    const updatedList = {
-      ...tempList,
-      [concatenatedString]: filtered,
-    };
+      const updatedList = {
+        ...tempList,
+        [concatenatedString]: filtered,
+      };
     setTempList(updatedList);
     toggleSuggestVisibility(name, !showSuggestions[name]);
     toggleInputLoaderVisibility(`${name}`, false);
-    // setValidation((prev) => ({ ...prev, [name]: "valid" }));
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const downshiftBuyer = (
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          setProductionBomData({
-            ...productionBomData,
+          setSampleCostingData({
+            ...sampleCostingData,
             buyer: selectedItem.bsName,
           });
-          //  setBsId(selectedItem.bsId);
+          setValidation((prev) => ({ ...prev, buyer: "valid" }));
+        //  setBsId(selectedItem.bsId);
           toggleSuggestVisibility("buyer", false);
         }
       }}
-      selectedItem={productionBomData.buyer}
+      selectedItem={sampleCostingData.buyer}
       itemToString={(item) => (item ? item.buyer : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
@@ -531,21 +498,22 @@ const ProductionBom = () => {
             }
             className={styles.basicInput2}
             placeholder="Type 3 words"
-            value={productionBomData.buyer}
+            value={sampleCostingData.buyer}
           />
-          {showInputLoading.buyer ? (
+         {showInputLoading.buyer ? (
             <div className={styles.dropLoader}></div>
           ) : (
             <div>
               {" "}
               <button
-                // disabled={isEditClicked}
+               // disabled={isEditClicked}
                 onClick={() => setIsBuyerPopup(true)}
                 className={styles.searchBtn}
                 aria-label="Search"
               ></button>{" "}
             </div>
           )}
+
 
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.buyer &&
@@ -566,19 +534,87 @@ const ProductionBom = () => {
       )}
     </Downshift>
   );
+  const sampleTypeRef = useRef(null);
+  const downshiftSampleType = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleCostingData({
+            ...sampleCostingData,
+            sampleType: selectedItem,
+          });
+         setValidation((prev) => ({ ...prev, sampleType: "valid" }));
+          toggleSuggestVisibility("sampleType", false);
+        }
+      }}
+      selectedItem={sampleCostingData.sampleType}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleSampleCostingChange,
+              name: "sampleType",
+            })}
+            type="text"
+            ref={sampleTypeRef}
+            className={styles.basicInput2}
+            placeholder="Click on Search"
+            style={
+              validation.sampleType === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
+            value={sampleCostingData.sampleType}
+            readOnly
+          />
+          {showInputLoading.sampleType ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              <button
+                onClick={() => {
+                  handleSampleType("sampleType");
+                  sampleTypeRef.current?.focus();
+                }}
+                className={styles.dropBtn}
+                aria-label="Search"
+              ></button>
+            </div>
+          )}
+
+          <div {...getMenuProps()} className={styles.suggestions}>
+            {showSuggestions.sampleType &&
+              sampleType.map((type, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item: type })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {type}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </Downshift>
+  );
   const seasonInputRef = useRef(null);
   const downshiftSeason = (
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          setProductionBomData({
-            ...productionBomData,
+          setSampleCostingData({
+            ...sampleCostingData,
             season: selectedItem.name,
           });
           toggleSuggestVisibility("season", false);
         }
       }}
-      selectedItem={productionBomData.season}
+      selectedItem={sampleCostingData.season}
       itemToString={(item) => (item ? item.name : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
@@ -593,7 +629,7 @@ const ProductionBom = () => {
             ref={seasonInputRef}
             className={styles.buttonBasicInput}
             placeholder="Insert First Letter"
-            value={productionBomData.season}
+            value={sampleCostingData.season}
           />
 
           {showInputLoading.season ? (
@@ -636,16 +672,16 @@ const ProductionBom = () => {
     <Downshift
       onChange={(selectedItem) => {
         if (selectedItem) {
-          setProductionBomData({
-            ...productionBomData,
+          setSampleCostingData({
+            ...sampleCostingData,
             color: selectedItem,
           });
           toggleSuggestVisibility("color", false);
-          // setValidation((prev) => ({ ...prev, color: "valid" }));
+          setValidation((prev) => ({ ...prev, color: "valid" }));
         }
       }}
       itemToString={(item) => (item ? item : "")}
-      selectedItem={productionBomData.color}
+      selectedItem={sampleCostingData.color}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
@@ -660,7 +696,7 @@ const ProductionBom = () => {
               validation.color === "invalid" ? { border: "2px solid red" } : {}
             }
             placeholder="Type "
-            value={productionBomData.color}
+            value={sampleCostingData.color}
           />
           {showInputLoading.color && <div className={styles.dropLoader}></div>}
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -693,13 +729,13 @@ const ProductionBom = () => {
           >
             {activeButton === "details"
               ? isEditClicked
-                ? `Update Production BOM: ${
+                ? `Update S.Costing: ${
                     isEditClicked &&
-                    tempProductionBomDetails[0].productionBomId &&
-                    tempProductionBomDetails[0].productionBomId
+                    tempSampleCostingDetails[0].sampleCostingId &&
+                    tempSampleCostingDetails[0].sampleCostingId
                   }`
-                : "Production BOM"
-              : "Production BOM Search"}
+                : "Sample Costing"
+              : "Sample Costing Search"}
           </h1>
         </div>
         <div className={styles.subHeadContainerTwo}>
@@ -711,7 +747,7 @@ const ProductionBom = () => {
                 }`}
                 onClick={() => setActiveButton("details")}
               >
-                BOM Details
+                Sample Costing Details
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
@@ -723,7 +759,7 @@ const ProductionBom = () => {
                   }
                 }}
               >
-                View BOM
+                View Sample Costing
               </button>
             </div>
             <div className={styles.editContainer}>
@@ -768,108 +804,59 @@ const ProductionBom = () => {
       {activeButton === "details" ? (
         <>
           <div className={styles.topGrid}>
+          <div className={styles.colSpan}>
+                <label className={styles.sampleLabel} htmlFor="season">
+                  Season
+                </label>
+                {downshiftSeason}
+                </div>
+                <div className={styles.colSpan}>
+                  <label
+                    className={styles.impsampleLabel}
+                    htmlFor="dateOfOrder"
+                  >
+                    Date Of Order
+                  </label>
+                  <input
+                    type="date"
+                    className={`${styles.basicInput} ${styles.dateInput}`}
+                    readOnly
+                    defaultValue={formattedDate}
+                    name="dateOfOrder"
+                    style={{ backgroundColor: "#F7F7F7" }}
+                  />
+                </div>
+           
             <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="articleName">
-                W. Order
-              </label>
-              {downshiftsampleRef}
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
-                FO NO.
+              <label className={styles.sampleLabel} htmlFor="size">
+                Size
               </label>
               <input
-                type="text"
-                name="productionBomType"
+                type="number"
+                name="size"
                 className={styles.basicInput}
                 placeholder="BOM Type"
-                onChange={handleProductionBomChange}
-                value={productionBomData.productionBomType}
-              />
-            </div>
-
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
-                Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                className={styles.basicInput}
-                placeholder="dte"
-                onChange={handleProductionBomChange}
-                value={productionBomData.date}
+                onChange={handleSampleCostingChange}
+                value={sampleCostingData.size}
               />
             </div>
             <div className={styles.colSpan}>
-              <label className={styles.impsampleLabel} htmlFor="city">
-                Size Pattern
-              </label>
-              <div className={styles.selectWrapper}>
-                <select
-                  className={styles.selectInput}
-                  value={productionBomData.sizePattern}
-                  name="type"
-                  // style={
-                  //   validation.type === "invalid" ? { border: "2px solid red" } : {}
-                  // }
-                  onChange={handleProductionBomChange}
-                >
-                  <option value="" selected disabled hidden>
-                    Select Type
-                  </option>
-                  <option value="UK">UK</option>
-                  <option value="US">US</option>
-                  <option value="EU">EU</option>
-                </select>
+                <label className={styles.impsampleLabel} htmlFor="sampleType">
+                  Type of Sample
+                </label>
+                {downshiftSampleType}
               </div>
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="season">
-                Season
-              </label>
-              {downshiftSeason}
-            </div>
-
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="season">
-                BOM Serial
-              </label>
-              {downshiftsampleRef}
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
-                Port Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                className={styles.basicInput}
-                placeholder="dte"
-                onChange={handleProductionBomChange}
-                value={productionBomData.date}
-              />
-            </div>
-            <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
-                Ex Factory Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                className={styles.basicInput}
-                placeholder="dte"
-                onChange={handleProductionBomChange}
-                value={productionBomData.date}
-              />
-            </div>
             <div className={styles.colSpan2}>
-              <label className={styles.impsampleLabel} htmlFor="buyer">
-                Buyer Name
-              </label>
-              {downshiftBuyer}
-            </div>
+                <label className={styles.impsampleLabel} htmlFor="buyer">
+                  Buyer Name
+                </label>
+                {downshiftBuyer}
+              </div>
 
+      
+
+           
+            
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="articleNo">
                 Article No
@@ -884,54 +871,66 @@ const ProductionBom = () => {
                     ? { border: "2px solid red" }
                     : {}
                 }
-                onChange={handleProductionBomChange}
-                value={productionBomData.articleNo}
+                onChange={handleSampleCostingChange}
+                value={sampleCostingData.articleNo}
               />
             </div>
-
+           
+         
             <div className={styles.colSpan}>
               <label className={styles.sampleLabel} htmlFor="articleNo">
-                Sample Size
+                Color
               </label>
-              <input
-                type="number"
-                name="size"
-                className={styles.basicInput}
-                placeholder="size"
-                onChange={handleProductionBomChange}
-                value={productionBomData.size}
-              />
+            {downshiftColor}
             </div>
             <div className={styles.colSpan}>
-              <label className={styles.sampleLabel} htmlFor="articleNo">
-                Art.Color
-              </label>
-              {downshiftColor}
-            </div>
+                <label className={styles.impsampleLabel} htmlFor="city">
+                  Grading Type
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.selectInput}
+                    value={sampleCostingData.gradingType}
+                    name="gradingType"
+                    style={
+                      validation.gradingType === "invalid" ? { border: "2px solid red" } : {}
+                    }
+                    onChange={handleSampleCostingChange}
+                  >
+                    <option value="" selected disabled hidden>
+                      Select Type
+                    </option>
+                    <option value="English">English</option>
+                    <option value="French">French</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </div>
+              </div>
+             
             <div className={styles.colSpan}>
               <label className={styles.sampleLabel} htmlFor="articleNo">
-                Total Qty.
+               Total Qty.
               </label>
               <input
                 type="number"
                 name="totalQty"
                 className={styles.basicInput}
                 placeholder="totalQty"
-                onChange={handleProductionBomChange}
-                value={productionBomData.totalQty}
+                onChange={handleSampleCostingChange}
+                value={sampleCostingData.totalQty}
               />
             </div>
             <div className={styles.colSpan}>
               <label className={styles.sampleLabel} htmlFor="articleNo">
-                Total Extra Qty.
+             Extra
               </label>
               <input
                 type="number"
                 name="extraQty"
                 className={styles.basicInput}
                 placeholder="extraQty"
-                onChange={handleProductionBomChange}
-                value={productionBomData.extraQty}
+                onChange={handleSampleCostingChange}
+                value={sampleCostingData.extraQty}
               />
             </div>
           </div>
@@ -947,11 +946,11 @@ const ProductionBom = () => {
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
-                  activePage === "grading" ? styles.active : ""
+                  activePage === "overHead" ? styles.active : ""
                 }`}
-                onClick={() => setActivePage("grading")}
+                onClick={() => setActivePage("overHead")}
               >
-                Grading
+                Over Head
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
@@ -963,11 +962,11 @@ const ProductionBom = () => {
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
-                  activePage === "buyerDetails" ? styles.active : ""
+                  activePage === "specification" ? styles.active : ""
                 }`}
-                onClick={() => setActivePage("buyerDetails")}
+                onClick={() => setActivePage("specification")}
               >
-                Buyer Details
+                Specification
               </button>
               <button
                 className={`${styles.screenChangeButton} ${
@@ -984,8 +983,8 @@ const ProductionBom = () => {
             <div>
               <div className={styles.materialTableContainer}>
                 <GraphAverage
-                  productionBomData={productionBomData}
-                  setProductionBomData={setProductionBomData}
+                  sampleCostingData={sampleCostingData}
+                  setSampleCostingData={setSampleCostingData}
                   editDetails={editDetails}
                   setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
@@ -995,16 +994,16 @@ const ProductionBom = () => {
             </div>
           )}
 
-          {activePage === "grading" && (
+          {activePage === "overHead" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <Grading
-                productionBomData={productionBomData}
-                setProductionBomData={setProductionBomData}
-                editDetails={editDetails}
-                setEditDetails={setEditDetails}
-                resetTrigger={resetTrigger}
-                onResetDone={() => setResetTrigger(false)} 
+                <OverHead
+                 sampleCostingData={sampleCostingData}
+                 setSampleCostingData={setSampleCostingData}
+                 editDetails={editDetails}
+                 setEditDetails={setEditDetails}
+                 resetTrigger={resetTrigger}
+                 onResetDone={() => setResetTrigger(false)} 
                 />
               </div>
             </div>
@@ -1013,14 +1012,13 @@ const ProductionBom = () => {
           {activePage === "comment" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <Comments
-                productionBomData={productionBomData}
-                setProductionBomData={setProductionBomData}
-                editDetails={editDetails}
-                setEditDetails={setEditDetails}
-                resetTrigger={resetTrigger}
-                onResetDone={() => setResetTrigger(false)} 
-                />
+                <Comments 
+                 sampleCostingData={sampleCostingData}
+                 setSampleCostingData={setSampleCostingData}
+                 editDetails={editDetails}
+                 setEditDetails={setEditDetails}
+                 resetTrigger={resetTrigger}
+                 onResetDone={() => setResetTrigger(false)} />
               </div>
             </div>
           )}
@@ -1028,29 +1026,26 @@ const ProductionBom = () => {
           {activePage === "size" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <SizeRoles
-                productionBomData={productionBomData}
-                setProductionBomData={setProductionBomData}
-                editDetails={editDetails}
-                setEditDetails={setEditDetails}
-                resetTrigger={resetTrigger}
-                onResetDone={() => setResetTrigger(false)} 
-                />
+                <SizeRoles sampleCostingData={sampleCostingData}
+                 setSampleCostingData={setSampleCostingData}
+                 editDetails={editDetails}
+                 setEditDetails={setEditDetails}
+                 resetTrigger={resetTrigger}
+                 onResetDone={() => setResetTrigger(false)}
+                 />
               </div>
             </div>
           )}
 
-          {activePage === "buyerDetails" && (
+          {activePage === "specification" && (
             <div>
               <div className={styles.materialTableContainer}>
-                <BuyerDetails
-                productionBomData={productionBomData}
-                setProductionBomData={setProductionBomData}
-                editDetails={editDetails}
-                setEditDetails={setEditDetails}
-                resetTrigger={resetTrigger}
-                onResetDone={() => setResetTrigger(false)} 
-                />
+                <Specifications  sampleCostingData={sampleCostingData}
+                 setSampleCostingData={setSampleCostingData}
+                 editDetails={editDetails}
+                 setEditDetails={setEditDetails}
+                 resetTrigger={resetTrigger}
+                 onResetDone={() => setResetTrigger(false)}/>
               </div>
             </div>
           )}
@@ -1064,7 +1059,7 @@ const ProductionBom = () => {
                 {isEditClicked ? (
                   <>
                     <button
-                      onClick={handleUpdateProductionBomClick}
+                    onClick={handleUpdateSampleCostingClick}
                       className={styles.submitButton}
                     >
                       Submit
@@ -1075,6 +1070,7 @@ const ProductionBom = () => {
                         resetAllFields();
                         setIsEditClicked(false);
                         setIsEditSelected(false);
+                     
                       }}
                     >
                       Go Back
@@ -1091,11 +1087,8 @@ const ProductionBom = () => {
                     </button>
                     <button
                       className={styles.submitButton}
-                      disabled={
-                        productionBomData.groups &&
-                        !productionBomData.groups.length > 0
-                      }
-                      onClick={handleSubmitProductionBomClick}
+                      disabled={sampleCostingData.groups && !sampleCostingData.groups.length > 0}
+                      onClick={handleSubmitSampleCostingClick}
                     >
                       Submit
                     </button>
@@ -1108,7 +1101,7 @@ const ProductionBom = () => {
       ) : (
         <div>
           {" "}
-          <ViewProductionBom onBOMSelect={handleBOMEdit} />
+          {/* <ViewSampleCosting onBOMSelect={handleBOMEdit} /> */}
         </div>
       )}
 
@@ -1129,16 +1122,16 @@ const ProductionBom = () => {
           }}
         />
       )}
-      {isBuyerPopup && (
-        <BuyerPopup
-          onCancel={() => {
-            setIsBuyerPopup(false);
-          }}
-          onSubmitBuyerData={handleBuyerSubmit}
-        />
-      )}
+       {isBuyerPopup && (
+            <BuyerPopup
+              onCancel={() => {
+                setIsBuyerPopup(false);
+              }}
+              onSubmitBuyerData={handleBuyerSubmit}
+            />
+          )}
     </div>
   );
 };
 
-export default ProductionBom;
+export default SampleCosting;

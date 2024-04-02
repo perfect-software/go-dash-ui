@@ -340,7 +340,9 @@ select {
   @apply flex items-center bg-[#00A5AD] justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 
 }
-
+.addBtn:disabled {
+  @apply cursor-not-allowed;
+}
 .addBtn:hover {
   opacity: 0.8;
 }

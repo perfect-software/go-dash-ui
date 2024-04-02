@@ -110,6 +110,7 @@
 .headButtonPrint:disabled {
   @apply cursor-not-allowed;
 }
+
 .submitButton:disabled {
   @apply cursor-not-allowed;
 }
@@ -228,6 +229,11 @@ select {
   @apply grid sm:grid-cols-1 sml:grid-cols-2 grid-cols-4  mt-2;
   grid-gap: 4px 10px;
 }
+.rollGrid {
+  @apply grid sm:grid-cols-1 sml:grid-cols-2 grid-cols-5  mt-2;
+  grid-gap: 4px 10px;
+}
+
 .purchaseTopGrid {
   @apply grid sm:grid-cols-1 sml:grid-cols-2 grid-cols-5  mt-2;
   grid-gap: 4px 10px;

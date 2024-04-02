@@ -20,11 +20,10 @@ const SizePlanPopup = ({ onCancel, onSubmitSizeData }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [rowSelect, setRowSelect] = useState(false);
   const dispatch = useDispatch();
-
+  const [midSizeError, setMidSizeError] = useState(false);
   const [sizePlans, setSizePlans] = useState([
     { code: "L1", from: "23", to: "34", midSize: 50 },
     { code: "L2", from: "56", to: "44", midSize: 70 },
-   
   ]);
 
   const [newItem, setNewItem] = useState({
@@ -38,7 +37,11 @@ const SizePlanPopup = ({ onCancel, onSubmitSizeData }) => {
     const { name, value } = event.target;
     setNewItem({ ...newItem, [name]: value });
   };
-
+  useEffect(() => {
+    // Validation logic
+    const isMidSizeValid = newItem.midSize >= newItem.from && newItem.midSize <= newItem.to;
+    setMidSizeError(!isMidSizeValid); 
+  }, [newItem.from, newItem.to, newItem.midSize]); 
   const handleAddItem = () => {
     setSizePlans([...sizePlans, { ...newItem }]);
     setNewItem({ code: "", from: "", to: "", midSize: "" });
@@ -203,10 +206,11 @@ const SizePlanPopup = ({ onCancel, onSubmitSizeData }) => {
                   onChange={handleInputChange}
                   placeholder="Mid Size"
                   className={inputStyles.basicInput}
+                  style={midSizeError ? { border: "2px solid red" } : null} 
                 />
               </div>
               <div className={inputStyles.colSpan}>
-                <button onClick={handleAddItem} className={tableStyles.addBtn}>
+                <button disabled={midSizeError} onClick={handleAddItem} className={tableStyles.addBtn}>
                   ADD
                 </button>
               </div>
@@ -225,10 +229,10 @@ const SizePlanPopup = ({ onCancel, onSubmitSizeData }) => {
               paginationPageSizeSelector={[10, 12, 20, 50, 100]}
               animateRows={true}
               filter={true}
-            // onGridReady={onGridReady}
-            //  onSelectionChanged={onRowSelected}
-            // onRowDataChanged={onRowDataChanged}
-            onRowSelected={onRowSelected}
+              // onGridReady={onGridReady}
+              //  onSelectionChanged={onRowSelected}
+              // onRowDataChanged={onRowDataChanged}
+              onRowSelected={onRowSelected}
             />
           </div>
           <div className={styles.bottomButtonContainer}>

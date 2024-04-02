@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styles from "../../styles/inputDetails.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -6,16 +6,12 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
 
-const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
+const SizeRoles = ({sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
       { field: "size", headerName: "Size" , width:200},
       { field: "quantity", headerName: "Quantity" },
-      { field: "soleNumber", headerName: "Sole Number" },
-      { field: "print", headerName: "Print" },
       { field: "extra", headerName: "Extra" },
-      { field: "rate", headerName: "Rate" },
-      { field: "sizeLimit", headerName: "Size Limit" },
       {
         field: 'action',
         headerName: 'Action',
@@ -39,53 +35,70 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
     ],
     []
   );
-  const [rowData, setRowData] = useState([]);
+  const [gridApi, setGridApi] = useState(null);
+  const onGridReady = useCallback((params) => {
+    setGridApi(params.api);
+  }, []);
+  
+  useEffect(() => {
+    if (gridApi) {
+  if ( sampleCostingData.sizeRoles && sampleCostingData.sizeRoles.length === 0) {
+        gridApi.showNoRowsOverlay();
+      } else {
+        gridApi.hideOverlay();
+      }
+    }
+  }, [gridApi, sampleCostingData.sizeRoles]);
+
   const [newItem, setNewItem] = useState({
     size: '',
     quantity: '',
     extra: '',
   });
+  const resetNewItemState = () => {
+    setNewItem({
+       size: '',
+    quantity: '',
+    extra: '',
+    });
+  };
+  useEffect(() => {
+    if (resetTrigger) {
+      setSampleCostingData({ sizeRoles: [] });
+      onResetDone();
+      resetNewItemState();
+    }
+  }, [resetTrigger, onResetDone]);
+
   const handleAddMaterial = () => {
-    setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.sizeRoles) ? [...prevData.sizeRoles, newItem] : [newItem];
+    setSampleCostingData((prevData) => {
+      const updatedSizeRole = Array.isArray(prevData.sizeRoles) ? [...prevData.sizeRoles, newItem] : [newItem];
       return {
         ...prevData,
-        sizeRoles: updatedProduction,
+        sizeRoles: updatedSizeRole,
       };
     });
     resetNewItemState();
   };
-  const resetNewItemState = () => {
-    setNewItem({
-      size: '',
-      quantity: '',
-      extra: '',
+  
+  const handleRemoveItem = (code) => {
+    setSampleCostingData((prevData) => {
+      const updatedSizeRole = Array.isArray(prevData.sizeRoles) ? prevData.sizeRoles.filter((item) => item.code !== code) : [];
+      return {
+        ...prevData,
+        sizeRoles: updatedSizeRole,
+      };
     });
-  };
+  }; 
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (size) => {
-    setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.sizeRoles) ? prevData.sizeRoles.filter((item) => item.size !== size) : [];
-      return {
-        ...prevData,
-        sizeRoles: updatedProduction,
-      };
-    });
-  };
-  useEffect(() => {
-    if (resetTrigger) {
-      setProductionBomData({ sizeRoles: [] });
-      onResetDone();
-      resetNewItemState();
-    }
-  }, [resetTrigger, onResetDone]);
   return (
     <>
-      <div className={styles.rollGrid}>
+      <div className={styles.topGrid}>
       <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
             Size
@@ -113,34 +126,8 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
-           Our Size
-          </label>
-          <input
-            name="ourSize"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.ourSize}
-          />
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="itemgrp">
-          Print Size
-          </label>
-          <input
-            name="printSize"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-            value={newItem.printSize}
-          />
-        </div>
-        <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="unit">
-           Extra Pair
+           Extra
           </label>
           <input
             name="extra"
@@ -149,19 +136,6 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
             className={styles.basicInput}
             placeholder="Enter unit"
              value={newItem.extra}
-          />
-        </div>
-        <div className={styles.colSpan}>
-          <label className={styles.sampleLabel} htmlFor="unit">
-           Rate/Pair
-          </label>
-          <input
-            name="rate"
-            type="text"
-            onChange={handleInputChange}
-            className={styles.basicInput}
-            placeholder="Enter unit"
-             value={newItem.rate}
           />
         </div>
         <div className={styles.colSpan}>
@@ -183,9 +157,14 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={productionBomData.sizeRoles} columnDefs={columnDefs} overlayNoRowsTemplate={
+        <AgGridReact 
+          rowData={sampleCostingData.sizeRoles} 
+          onGridReady={onGridReady}
+          columnDefs={columnDefs}
+          overlayNoRowsTemplate={
             `<span class="ag-overlay-loading-center">No data found</span>`
-          }/>
+          }
+        />
       </div>
     </>
   );

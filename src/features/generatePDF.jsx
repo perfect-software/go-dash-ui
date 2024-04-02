@@ -28,14 +28,7 @@ const loadImageBase64 = async (src) => {
     });
   } catch (error) {
     console.error("Failed to load image, loading default image:", error);
-    const response = await fetch(DefaultShoesImage);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+
   }
 };
 export const generatePDF = async (sampleDetailsForm,image_url,sr_no,article_image) => {

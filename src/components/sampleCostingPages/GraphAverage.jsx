@@ -13,7 +13,7 @@ import { getApiService } from "../../service/apiService";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
 
-const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
+const GraphAverage = ({ sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
@@ -44,8 +44,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
     itemId: { name: "", id: "" },
     usedIn: "",
     pair: "",
-    supplierId: { name: "", id: "" },
-    bomQty: "",
+    qty: "",
     unit: "",
     requiredQty: "",
     rate: "",
@@ -54,7 +53,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
 
   useEffect(() => {
     if (resetTrigger) {
-      setProductionBomData({
+      setSampleCostingData({
         groups: []
     });
       onResetDone(); 
@@ -64,7 +63,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
   }, [resetTrigger, onResetDone]);
 
   const handleUpdateMaterial = (editDetails) => {
-    setProductionBomData((prevData) => {
+    setSampleCostingData((prevData) => {
       let newData = JSON.parse(JSON.stringify(prevData));
   
       editDetails.forEach((editItem) => {
@@ -99,7 +98,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
           itemName: editItem.itemName,
           usedIn: editItem.usedIn,
           pair: editItem.pair,
-          bomQty: editItem.bomQty,
+          qty: editItem.qty,
           supplierId: editItem.supplier_id,
           unit: editItem.unit,
           requiredQty: editItem.reqQty,
@@ -112,7 +111,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
             itemName: tempItemName || 'Unknown',
             usedIn: editItem.usedIn,
             pair: editItem.pair,
-            bomQty: editItem.bomQty,
+            qty: editItem.qty,
             supplierId: editItem.supplier_id,
             supplierName: editItem.supplierName,
             unit: editItem.unit,
@@ -161,7 +160,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
     const requiredFields = [
       "itemId",
       "supplierId",
-      "bomQty",
+      "qty",
       "unit",
       "requiredQty",
       "rate",
@@ -374,15 +373,58 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
     toggleInputLoaderVisibility(`${name}`, false);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
+  const handleRemoveItem = (groupId, subgroupId, itemId) => {
+    setSampleCostingData((prevData) => {
+      const newData = { ...prevData };
+  
+      newData.groups = newData.groups.map((group) => {
+        if (group.id === groupId) {
+          group.subgroups = group.subgroups.map((subgroup) => {
+            if (subgroup.id === subgroupId) {
+              subgroup.items = subgroup.items.filter(
+                (item) => item.itemId !== itemId
+              );
+            }
+            return subgroup;
+          }).filter((subgroup) => subgroup.items.length > 0);
+        }
+        return group;
+      }).filter((group) => group.subgroups.length > 0);
+  
+      let totalCost = newData.groups.reduce(
+        (total, group) =>
+          total +
+          group.subgroups.reduce(
+            (subTotal, subgroup) =>
+              subTotal +
+              subgroup.items.reduce(
+                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
+                0
+              ),
+            0
+          ),
+        0
+      );
+  
+      newData.totalCost = totalCost.toFixed(2);
+  
+      return newData;
+    });
+  };
+  
   const handleAddMaterial = () => {
     if (!validateForm()) {
       return;
     }
+  
+    setSampleCostingData((prevData) => {
+      const newData = { ...prevData };
 
-    setProductionBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-      let group = newData.groups.find((g) => g.id === newItem.itemgrp.id);
+      if (!newData.groups) {
+        newData.groups = [];
+      }
+  
+      let group = newData.groups.find((g) => g?.id === newItem?.itemgrp?.id);
       if (!group) {
         group = {
           id: newItem.itemgrp.id,
@@ -407,20 +449,19 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
         console.warn("Item already exists with ID:", newItem.itemId.id);
         return newData;
       }
-
+  
       subgroup.items.push({
         itemId: newItem.itemId.id,
         itemName: newItem.itemId.name,
         usedIn: newItem.usedIn,
         pair: newItem.pair,
-        bomQty: newItem.bomQty,
-        supplierId: newItem.supplierId.id,
-        supplierName: newItem.supplierId.name,
+        qty: newItem.qty,
         unit: newItem.unit,
         requiredQty: newItem.requiredQty,
         rate: newItem.rate,
         cost: newItem.cost,
       });
+  
       let totalCost = newData.groups.reduce(
         (total, group) =>
           total +
@@ -435,15 +476,15 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
           ),
         0
       );
-
+  
       newData.totalCost = totalCost.toFixed(2);
-
+  
       return newData;
     });
-
+  
     resetNewItemState();
   };
-
+  
   const resetNewItemState = () => {
     setNewItem({
       itemgrp: { name: "", id: "" },
@@ -452,54 +493,14 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
       usedIn: "",
       pair: "",
       supplierId: { name: "", id: "" },
-      bomQty: "",
+      qty: "",
       unit: "",
       requiredQty: "",
       rate: "",
     });
   };
 
-  const handleRemoveItem = (groupId, subgroupId, itemId) => {
-    setProductionBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-      newData.groups = newData.groups
-        .map((group) => {
-          if (group.id === groupId) {
-            group.subgroups = group.subgroups
-              .map((subgroup) => {
-                if (subgroup.id === subgroupId) {
-                  subgroup.items = subgroup.items.filter(
-                    (item) => item.itemId !== itemId
-                  );
-                }
-                return subgroup;
-              })
-              .filter((subgroup) => subgroup.items.length > 0);
-          }
-          return group;
-        })
-        .filter((group) => group.subgroups.length > 0);
-      let totalCost = newData.groups.reduce(
-        (total, group) =>
-          total +
-          group.subgroups.reduce(
-            (subTotal, subgroup) =>
-              subTotal +
-              subgroup.items.reduce(
-                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
-                0
-              ),
-            0
-          ),
-        0
-      );
-
-      newData.totalCost = totalCost.toFixed(2);
-
-      return newData;
-    });
-  };
-
+ 
   const handleGrpButtonClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
     if (name === "itemgrp") {
@@ -528,14 +529,14 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
 
   const renderTableBody = () => {
     let rows = [];
-    if (!productionBomData || !Array.isArray(productionBomData.groups) || productionBomData.groups.length === 0) {
+    if (!sampleCostingData || !Array.isArray(sampleCostingData.groups) || sampleCostingData.groups.length === 0) {
       return (
         <tr>
           <td colSpan="12" style={{ textAlign: "center" }}>No data available</td>
         </tr>
       );
     }
-    productionBomData.groups.forEach((group) => {
+    sampleCostingData.groups.forEach((group) => {
       let totalItemsInGroup = group.subgroups.reduce(
         (sum, subgroup) => sum + subgroup.items.length,
         0
@@ -556,12 +557,12 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
 
               <td>{item.pair}</td>
 
-              <td>{item.bomQty}</td>
+              <td>{item.qty}</td>
               <td>{item.requiredQty}</td>
               <td>{item.rate}</td>
               <td>{item.unit}</td>
-              <td>{item.supplierName}</td>
-              <td style={{maxWidth:'100px'}}>{item.cost}</td>
+              {/* <td>{item.supplierName}</td> */}
+              {/* <td style={{maxWidth:'100px'}}>{item.cost}</td> */}
               <td style={{ textAlign: "center" }}>
                 <button
                   onClick={() =>
@@ -845,22 +846,22 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
           />
         </div>
         <div className={styles.colSpan}>
-          <label className={styles.impsampleLabel} htmlFor="bomQty">
-            BOM Qty
+          <label className={styles.impsampleLabel} htmlFor="qty">
+            Qty
           </label>
           <input
             type="number"
-            name="bomQty"
-            value={newItem.bomQty}
+            name="qty"
+            value={newItem.qty}
             onChange={handleInputChange}
             style={
-              validation.bomQty === "invalid" ? { border: "2px solid red" } : {}
+              validation.qty === "invalid" ? { border: "2px solid red" } : {}
             }
-            placeholder="BOM Qty"
+            placeholder="Qty"
             className={styles.basicInput}
           />
         </div>
-        {/* <div className={styles.colSpan}>
+        <div className={styles.colSpan}>
           <label className={styles.impsampleLabel} htmlFor="unit">
             Unit
           </label>
@@ -875,7 +876,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
             placeholder="Enter unit"
             value={newItem.unit}
           />
-        </div> */}
+        </div>
         <div className={styles.colSpan}>
           <label className={styles.impsampleLabel} htmlFor="requiredQty">
             Extra
@@ -922,7 +923,7 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
           </label>
           {downshiftItemSubGrp}
         </div>
-        <div className={styles.colSpan}>
+        {/* <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="supplierId">
             Supplier
           </label>
@@ -939,7 +940,30 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
             placeholder="Enter supplier"
             value={newItem.supplierId.name}
           />
-        </div>
+        </div> */}
+         <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="city">
+                  Grading Type
+                </label>
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.selectInput}
+                    value={newItem.gradingType}
+                    name="type"
+                    // style={
+                    //   validation.type === "invalid" ? { border: "2px solid red" } : {}
+                    // }
+                    onChange={handleInputChange}
+                  >
+                    <option value="" selected disabled hidden>
+                      Select Type
+                    </option>
+                    <option value="Type 1">Type 1</option>
+                    <option value="Type 2">Type 2</option>
+                  
+                  </select>
+                </div>
+              </div>
         <div className={styles.colSpan}>
           <button
             onClick={(e) => {
@@ -964,22 +988,22 @@ const GraphAverage = ({ productionBomData, setProductionBomData ,editDetails, se
               <th style={{maxWidth:'200px'}}>Item Name</th>
               <th>Used In</th>
               <th>Pair</th>
-              <th>BOM Qty</th>
+              <th> Qty</th>
               <th>Extra</th>
               <th>Rate</th>
               <th>Unit</th>
-              <th>Supplier</th>
-              <th style={{maxWidth:'100px'}}>Cost</th>
+            
+              {/* <th style={{maxWidth:'100px'}}>Cost</th> */}
               <th style={{ textAlign: "center" }}>Action</th>
             </tr>
           </thead>
           <tbody>{renderTableBody()}</tbody>
-          {!productionBomData || !Array.isArray(productionBomData.groups) || productionBomData.groups.length > 0 && (
+          {!sampleCostingData || !Array.isArray(sampleCostingData.groups) || sampleCostingData.groups.length > 0 && (
             <tfoot>
               <tr>
                 <td colSpan="10"></td>
                 <td>
-                  <strong>Total: {productionBomData.totalCost}</strong>
+                  <strong>Total: {sampleCostingData.totalCost}</strong>
                 </td>
                 <td></td>
               </tr>

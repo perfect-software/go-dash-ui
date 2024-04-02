@@ -9,13 +9,26 @@ import tableStyles from "../../styles/bom.module.css";
 import SizePlanPopup from "../../popups/SizePlanPopup";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
+import { fetchItemGroupsAndSubGroups } from "../../reducer/grpSubgrpSlice";
 
-const Grading = () => {
+const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const [showSuggestions, setShowSuggestions] = useState({
     sizePlan: false,
     itemId: false,
     itemgrp: false,
     itemsubgrp: false,
+  });
+  const [rowData, setRowData] = useState([]);
+  const [isSizePlanPopup, setIsSizePlanPopup] = useState(false);
+  const [newItem, setNewItem] = useState({
+    itemgrp: { name: "", id: "" },
+    itemsubgrp: { name: "", id: "" },
+    itemId: { name: "", id: "" },
+    sizePlan:"",
+    quantity:"",
+    rangeFrom:"",
+    rangeTo:"",
+    total:"",
   });
   const [itemNames, setItemNames] = useState([]);
   const [total,setTotal] = useState(null);
@@ -25,6 +38,25 @@ const Grading = () => {
     itemgrp: false,
     itemsubgrp: false,
   });
+  const resetNewItemState = () => {
+    setNewItem({
+      itemgrp: { name: "", id: "" },
+      itemsubgrp: { name: "", id: "" },
+      itemId: { name: "", id: "" },
+      sizePlan: "",
+      quantity: "",
+      rangeFrom: "",
+      rangeTo: "",
+      total: "",
+    });
+  };
+  useEffect(() => {
+    if (resetTrigger) {
+      setProductionBomData({ grading: [] });
+      onResetDone();
+      resetNewItemState();
+    }
+  }, [resetTrigger, onResetDone]);
   const [isRatePopup, setIsRatePopup] = useState(false);
   const dispatch = useDispatch();
   const toggleInputLoaderVisibility = (key, value) => {
@@ -42,7 +74,7 @@ const Grading = () => {
 
   useEffect(() => {
     if (!loaded && !loading) {
-      dispatch(fetchItemGroupsAndSubGroups());
+    dispatch(fetchItemGroupsAndSubGroups());
     }
 
   }, [loaded, loading, dispatch]);
@@ -118,9 +150,8 @@ const Grading = () => {
   const columnDefs = useMemo(
     () => [
       { field: "code", headerName: "Code" },
-      { field: "itemId.name", headerName: "Description" },
+      { field: "itemId.name", headerName: "Item description",width:350 },
       { field: "quantity", headerName: "Quantity" },
-      { field: "itemsubgrp.id", headerName: "Subgroup Code" },
       { field: "sizePlan", headerName: "Size Plan" },
       { field: "itemsubgrp.name", headerName: "Subgroup Name" },
       { field: "total", headerName: "Req. Qunatity" },
@@ -187,21 +218,16 @@ const Grading = () => {
     return totalQuantity*newItem.quantity;
   }
 
-  const [rowData, setRowData] = useState([]);
-  const [isSizePlanPopup, setIsSizePlanPopup] = useState(false);
-  const [newItem, setNewItem] = useState({
-    itemgrp: { name: "", id: "" },
-    itemsubgrp: { name: "", id: "" },
-    itemId: { name: "", id: "" },
-    sizePlan:"",
-    quantity:"",
-    rangeFrom:"",
-    rangeTo:"",
-    total:"",
-  });
+
   const handleAddMaterial = () => {
-    setRowData([...rowData, newItem]);
-   // setNewItem({ code: "", head: "", percent: "", rate: "" });
+    setProductionBomData((prevData) => {
+      const updatedProduction = Array.isArray(prevData.grading) ? [...prevData.grading, newItem] : [newItem];
+      return {
+        ...prevData,
+        grading: updatedProduction,
+      };
+    });
+    resetNewItemState();
   };
   const handleSizeSubmit = (selectedSizes) => {
     if (Array.isArray(selectedSizes) && selectedSizes.length > 0) {
@@ -238,7 +264,13 @@ const Grading = () => {
   };
 
   const handleRemoveItem = (code) => {
-    setRowData(rowData.filter((item) => item.code !== code));
+    setProductionBomData((prevData) => {
+      const updatedProduction = Array.isArray(prevData.grading) ? prevData.grading.filter((item) => item.code !== code) : [];
+      return {
+        ...prevData,
+        grading: updatedProduction,
+      };
+    });
   };
   const updateSelectionState = (itemName, isSelected) => {
     setSelectionStates((prevStates) => ({
@@ -646,7 +678,9 @@ const Grading = () => {
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
         style={{ height: 250, width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+        <AgGridReact rowData={productionBomData.grading} columnDefs={columnDefs} overlayNoRowsTemplate={
+            `<span class="ag-overlay-loading-center">No data found</span>`
+          } />
       </div>
       {isSizePlanPopup && (
         <SizePlanPopup
