@@ -26,6 +26,10 @@ import ProductionPurchaseOrder from "./components/ProductionPurchaseOrder";
 import SampleCosting from "./components/SampleCosting";
 import NewPurchaseOrder from "./components/NewPurchaseOrder";
 import NewPurchaseOrderDetails from "./components/NewPurchaseOrderDetails";
+import Dmtr from "./components/Dmtr";
+import GatePass from "./components/GatePass";
+import GatePassReceive from "./components/GatePassReceive";
+import GenieEffect from "./components/GenieEffect";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -68,6 +72,10 @@ function App() {
               <Route path="/prbom" element={<ProductionBom/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
               <Route path="/newpo" element={<NewPurchaseOrder/>}/>
+              <Route path="/dmtr" element={<Dmtr/>}/>
+              <Route path="/genieeffect" element={<GenieEffect/>}/>
+              <Route path="/gatepassreceive" element={<GatePassReceive/>}/>
+              <Route path="/gatepass" element={<GatePass/>}/>
               <Route path="/prodpurchaseorder" element={<ProductionPurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />

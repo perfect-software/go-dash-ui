@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/newPo.module.css";
 import { useSidebar } from "../context/SidebarContext";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import MenuIcon from "../assets/menuIcon.svg";
 
 const NewPurchaseOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { isCollapsed } = useSidebar();
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(-1);
+
+  const toggleDropdown = (index) => {
+    if (dropdownOpen === index) {
+      setDropdownOpen(-1);
+    } else {
+      setDropdownOpen(index);
+    }
+  };
   const orders = [
     {
       orderNumber: "ORD001",
@@ -99,13 +109,12 @@ const NewPurchaseOrder = () => {
       stisRecorded: "No",
     },
   ];
- 
+
   useEffect(() => {
     if (selectedOrder) {
-        navigate(`/newpurchaseorderdetails/${selectedOrder.orderNumber}`);
+      navigate(`/newpurchaseorderdetails/${selectedOrder.orderNumber}`);
     }
-}, [selectedOrder, navigate]);
-
+  }, [selectedOrder, navigate]);
 
   return (
     <div className={styles.pOMainContainer}>
@@ -151,15 +160,13 @@ const NewPurchaseOrder = () => {
           </div>
         </div>
 
-
-
-
-
-
-
         <div className={styles.bodyContainer}>
-          <div className={isCollapsed ? styles.tableContainerOpen : styles.tableContainer}>
-            <table>
+          <div
+            className={
+              isCollapsed ? styles.tableContainerOpen : styles.tableContainer
+            }
+          >
+            <table className={styles.customTable}>
               <thead>
                 <tr>
                   <th style={{ minWidth: "200px" }}>Order Number</th>
@@ -179,15 +186,18 @@ const NewPurchaseOrder = () => {
               </thead>
               <tbody>
                 {orders.map((order, index) => (
-                  <tr className={styles.dataRow} key={index} onClick={() => setSelectedOrder(order)}>
+                  <tr
+                    className={styles.dataRow}
+                    key={index}
+                    onClick={() => setSelectedOrder(order)}
+                  >
                     <td style={{ minWidth: "200px" }}>{order.orderNumber}</td>
-                    <td style={{ minWidth: "200px" }}>{order.contact}
-                    <span className={styles.gstinTag}>{order.gstin}</span>
-                    <span className={styles.supplierTag}>Supplier</span>
-                    </td>
                     <td style={{ minWidth: "200px" }}>
-                      {order.creationDate}
+                      {order.contact}
+                      <span className={styles.gstinTag}>{order.gstin}</span>
+                      <span className={styles.supplierTag}>Supplier</span>
                     </td>
+                    <td style={{ minWidth: "200px" }}>{order.creationDate}</td>
                     <td style={{ minWidth: "200px" }}>{order.paymentTerms}</td>
                     <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
                     <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
@@ -197,15 +207,49 @@ const NewPurchaseOrder = () => {
                     <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
                     <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
                     <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
-                    <td>
-                      <button className={styles.actionButton}>
-                        <i className="fa-solid fa-ellipsis-vertical"></i>
+                    <td
+                      onClick={(event) => {
+                        event.stopPropagation();
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          toggleDropdown(index);
+                        }}
+                        className={styles.actionButton}
+                      >
+                         <img className={styles.menuIcon} src={MenuIcon} alt="" />
                       </button>
+                      {dropdownOpen === index && (
+                        <div className={styles.dropdownMenu}>
+                          <button>
+                            <i className="fas fa-truck"></i> Create Delivery
+                          </button>
+                          <button>
+                            <i className="fas fa-clone"></i> Duplicate
+                          </button>
+                          <button>
+                            <i className="fas fa-share-square"></i> Share Po
+                          </button>
+                          <button>
+                            <i className="fas fa-download"></i> Download PDF
+                          </button>
+                          <button>
+                            <i className="fas fa-receipt"></i> Record Purchase
+                            Bill
+                          </button>
+                          <button>
+                            <i className="fas fa-money-bill"></i> Record Expense
+                            Bill
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            
           </div>
         </div>
       </div>

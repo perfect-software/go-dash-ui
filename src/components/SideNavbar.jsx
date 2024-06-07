@@ -35,7 +35,7 @@ const MENU_ITEMS = {
   sales: {
     title: "Sales",
     icon: SalesIcon,
-    subItems: ["Buyer", "Buyer Order"],
+    subItems: ["Buyer", "Buyer Order","Dmtr","Gate Pass","Gate Pass Receive","Genie Effect"],
   },
   purchase: {
     title: "Purchase",
@@ -64,7 +64,10 @@ const SUBITEM_ICONS = {
   "Prod Purchase Order":PurchaseOrder,
   "ICR Challan": IcrIcon,
   "New PO":PurchaseOrder,
-  Gatepass: GatePassIcon,
+  "Genie Effect":ItemIcon,
+  "Dmtr":PurchaseOrder,
+  "Gate Pass":GatePassIcon,
+  "Gate Pass Receive":NewWorkIcon,
   "New Work Order": NewWorkIcon,
   "New Job": NewJobIcon,
   "SR BOM": BomIcon,
