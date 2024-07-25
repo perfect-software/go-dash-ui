@@ -61,7 +61,7 @@ import tableStyles from "../styles/bom.module.css";
 //   );
 // };
 
-const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
+const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
   const [itemNames, setItemNames] = useState([]);
@@ -70,8 +70,9 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
   );
   const [showSuggestions, setShowSuggestions] = useState({
     itemId: false,
-  
   });
+  const [gridApi, setGridApi] = useState(null);
+
   useEffect(() => {
     if (!loadedRate && !loadingRate) {
       dispatch(fetchAllItemRates());
@@ -98,12 +99,14 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
     size: '',
     work: ''
   });
+
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
       ...prevSuggestions,
       [key]: value,
     }));
   };
+
   const handleItemNameChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prevItem) => ({
@@ -113,6 +116,7 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
         name: value,
       },
     }));
+
     toggleSuggestVisibility(name, value.length > 0);
     const filteredItems = itemRates
       .filter((item) =>
@@ -127,8 +131,6 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
         unit: item.unit,
       }));
     setItemNames(filteredItems);
-  
-    
   };
 
   const [gridData, setGridData] = useState([]);
@@ -197,10 +199,36 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
     setEditIndex(index);
   };
 
-  const handleDeleteItem = (index) => {
-    const updatedGridData = gridData.filter((_, i) => i !== index);
-    setGridData(updatedGridData);
+  const handleDeleteItem = (rowIndex) => {
+    const rowElement = document.querySelector(`div[row-index="${rowIndex}"]`);
+    rowElement.style.borderRadius = '16px';
+    rowElement.style.boxShadow = 'rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset';
+    slideOutRightAnimation(rowElement, () => {
+      const updatedRowData = gridData.filter((_, index) => index!== rowIndex);
+      setGridData(updatedRowData);
+    });
   };
+  
+  function slideOutRightAnimation(element, callback) {
+    let start;
+    const animate = timestamp => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progressPercent = Math.min(elapsed / 1000 * 100, 100);
+  
+      const subProgress = progressPercent / 100; 
+     
+      element.style.transform = `translateX(${subProgress * 100}%)`; 
+      if (elapsed < 1000) {
+        requestAnimationFrame(animate);
+      } else {
+        callback();
+      }
+    };
+  
+    requestAnimationFrame(animate);
+  }
+  
 
   const handleCancelEdit = () => {
     setFormData({
@@ -237,8 +265,8 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
       setActivePage("otherDetails");
     }
   };
+
   useEffect(() => {
-    // Preserve checkbox states across navigation
     const storedSizeChecked = localStorage.getItem('isSizeChecked') === 'true';
     const storedWorkChecked = localStorage.getItem('isWorkChecked') === 'true';
     setIsSizeChecked(storedSizeChecked);
@@ -249,8 +277,8 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
     localStorage.setItem('isSizeChecked', isSizeChecked);
     localStorage.setItem('isWorkChecked', isWorkChecked);
   }, [isSizeChecked, isWorkChecked]);
+
   const handleWorkCheckboxChange = () => {
-   
     setIsWorkChecked(!isWorkChecked);
     if (!isWorkChecked) {
       handleButtonClick(formData, "mOrder");
@@ -270,7 +298,7 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
     { headerName: "Rate", field: "rate", width: "80px" },
     { headerName: "QTY (Ft)", field: "qtyFt", width: "85px" },
     { headerName: "Rate (Ft)", field: "rateFt", width: "85px" },
-    { headerName: "Pieces", field: "pcs", width: "75px" },
+    { headerName: "Pieces", field: "pcs", width: "70px" },
     { headerName: "CGST", field: "cgst", width: "70px" },
     { headerName: "SGST", field: "sgst", width: "70px" },
     { headerName: "IGST", field: "igst", width: "70px" },
@@ -318,22 +346,22 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
       ),
     },
   ];
+
   const downshiftItemName = (
     <Downshift
-    onChange={(selectedItem) => {
-      if (selectedItem) {
-        setFormData((prevItem) => ({
-          ...prevItem,
-          itemId: {
-            ...prevItem.itemId,
-            name: selectedItem.itemName,
-            id: selectedItem.itemId,
-          },
-          
-        }));
-        toggleSuggestVisibility("itemId", false);
-      }
-    }}
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setFormData((prevItem) => ({
+            ...prevItem,
+            itemId: {
+              ...prevItem.itemId,
+              name: selectedItem.itemName,
+              id: selectedItem.itemId,
+            },
+          }));
+          toggleSuggestVisibility("itemId", false);
+        }
+      }}
       itemToString={(itemId) => (itemId ? itemId.name : '')}
       selectedItem={formData.itemId}
     >
@@ -352,12 +380,10 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
             })}
             className={styles.basicInput}
             required
-            value={ formData.itemId.name}
+            value={formData.itemId.name}
             style={{ width: '270px' }}
-           
           />
           <span>Item Name</span>
-      
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.itemId &&
               itemNames.map((name, idx) => (
@@ -377,25 +403,23 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
       )}
     </Downshift>
   );
+
   const defaultColDef = {
     tooltipComponent: "customTooltip",
   };
 
+  const onGridReady = (params) => {
+    setGridApi(params.api);
+  };
+
   return (
     <div className={styles.itemDetailsTableContainer}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className={styles.inputLinerGrid}>
+      <div className={styles.colSpanInputLiner}>
         <div
-          className={
-            isCollapsed ? styles.itemDetailsInputOpen : styles.itemDetailsInput
-          }
+          className={styles.itemDetailsInput}
         >
-           {headerNames.map((header, index) => (
+          {headerNames.map((header, index) => (
             header.field !== 'itemName' && (
               <div key={index} className={styles.inputboxScroll}>
                 <input
@@ -462,21 +486,22 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
           )}
         </div>
       </div>
+      </div>
       <div
-        className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
+        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
         style={{ height: 500, width: "100%" }}
       >
         <AgGridReact
           columnDefs={columnDefs}
           rowData={gridData}
           defaultColDef={defaultColDef}
+          onGridReady={onGridReady}
           tooltipShowDelay={500}
         />
       </div>
     </div>
   );
 };
-
 const SupplierDetails = ({ orders }) => {
   return (
     <div className={styles.dmtrparentOthersDiv}>

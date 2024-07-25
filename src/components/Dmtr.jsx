@@ -61,7 +61,7 @@ import tableStyles from "../styles/bom.module.css";
 //   );
 // };
 
-const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
+const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
   const [itemNames, setItemNames] = useState([]);
@@ -70,7 +70,6 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
   );
   const [showSuggestions, setShowSuggestions] = useState({
     itemId: false,
-  
   });
   useEffect(() => {
     if (!loadedRate && !loadingRate) {
@@ -79,24 +78,24 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
   }, [loadedRate, loadingRate, dispatch]);
 
   const [formData, setFormData] = useState({
-    poType: '',
-    docType: '',
-    poNo: '',
+    poType: "",
+    docType: "",
+    poNo: "",
     itemId: { name: "", id: "" },
-    unit: '',
-    hsn: '',
-    poQty: '',
-    balQty: '',
-    rate: '',
-    qtyFt: '',
-    rateFt: '',
-    pcs: '',
-    cgst: '',
-    sgst: '',
-    igst: '',
-    packet: '',
-    size: '',
-    work: ''
+    unit: "",
+    hsn: "",
+    poQty: "",
+    balQty: "",
+    rate: "",
+    qtyFt: "",
+    rateFt: "",
+    pcs: "",
+    cgst: "",
+    sgst: "",
+    igst: "",
+    packet: "",
+    size: "",
+    work: "",
   });
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -127,8 +126,6 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
         unit: item.unit,
       }));
     setItemNames(filteredItems);
-  
-    
   };
 
   const [gridData, setGridData] = useState([]);
@@ -170,24 +167,24 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
       setGridData([...gridData, { ...formData }]);
     }
     setFormData({
-      poType: '',
-      docType: '',
-      poNo: '',
+      poType: "",
+      docType: "",
+      poNo: "",
       itemId: { name: "", id: "" },
-      unit: '',
-      hsn: '',
-      poQty: '',
-      balQty: '',
-      rate: '',
-      qtyFt: '',
-      rateFt: '',
-      pcs: '',
-      cgst: '',
-      sgst: '',
-      igst: '',
-      packet: '',
-      size: '',
-      work: ''
+      unit: "",
+      hsn: "",
+      poQty: "",
+      balQty: "",
+      rate: "",
+      qtyFt: "",
+      rateFt: "",
+      pcs: "",
+      cgst: "",
+      sgst: "",
+      igst: "",
+      packet: "",
+      size: "",
+      work: "",
     });
   };
 
@@ -204,24 +201,24 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
 
   const handleCancelEdit = () => {
     setFormData({
-      poType: '',
-      docType: '',
-      poNo: '',
+      poType: "",
+      docType: "",
+      poNo: "",
       itemId: { name: "", id: "" },
-      unit: '',
-      hsn: '',
-      poQty: '',
-      balQty: '',
-      rate: '',
-      qtyFt: '',
-      rateFt: '',
-      pcs: '',
-      cgst: '',
-      sgst: '',
-      igst: '',
-      packet: '',
-      size: '',
-      work: ''
+      unit: "",
+      hsn: "",
+      poQty: "",
+      balQty: "",
+      rate: "",
+      qtyFt: "",
+      rateFt: "",
+      pcs: "",
+      cgst: "",
+      sgst: "",
+      igst: "",
+      packet: "",
+      size: "",
+      work: "",
     });
     setIsEditing(false);
     setEditIndex(null);
@@ -239,18 +236,17 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
   };
   useEffect(() => {
     // Preserve checkbox states across navigation
-    const storedSizeChecked = localStorage.getItem('isSizeChecked') === 'true';
-    const storedWorkChecked = localStorage.getItem('isWorkChecked') === 'true';
+    const storedSizeChecked = localStorage.getItem("isSizeChecked") === "true";
+    const storedWorkChecked = localStorage.getItem("isWorkChecked") === "true";
     setIsSizeChecked(storedSizeChecked);
     setIsWorkChecked(storedWorkChecked);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('isSizeChecked', isSizeChecked);
-    localStorage.setItem('isWorkChecked', isWorkChecked);
+    localStorage.setItem("isSizeChecked", isSizeChecked);
+    localStorage.setItem("isWorkChecked", isWorkChecked);
   }, [isSizeChecked, isWorkChecked]);
   const handleWorkCheckboxChange = () => {
-   
     setIsWorkChecked(!isWorkChecked);
     if (!isWorkChecked) {
       handleButtonClick(formData, "mOrder");
@@ -320,21 +316,20 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
   ];
   const downshiftItemName = (
     <Downshift
-    onChange={(selectedItem) => {
-      if (selectedItem) {
-        setFormData((prevItem) => ({
-          ...prevItem,
-          itemId: {
-            ...prevItem.itemId,
-            name: selectedItem.itemName,
-            id: selectedItem.itemId,
-          },
-          
-        }));
-        toggleSuggestVisibility("itemId", false);
-      }
-    }}
-      itemToString={(itemId) => (itemId ? itemId.name : '')}
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setFormData((prevItem) => ({
+            ...prevItem,
+            itemId: {
+              ...prevItem.itemId,
+              name: selectedItem.itemName,
+              id: selectedItem.itemId,
+            },
+          }));
+          toggleSuggestVisibility("itemId", false);
+        }
+      }}
+      itemToString={(itemId) => (itemId ? itemId.name : "")}
       selectedItem={formData.itemId}
     >
       {({
@@ -348,16 +343,15 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
           <input
             {...getInputProps({
               onChange: handleItemNameChange,
-              name: 'itemId',
+              name: "itemId",
             })}
             className={styles.basicInput}
             required
-            value={ formData.itemId.name}
-            style={{ width: '270px' }}
-           
+            value={formData.itemId.name}
+            style={{ width: "270px" }}
           />
           <span>Item Name</span>
-      
+
           <div {...getMenuProps()} className={styles.suggestions}>
             {showSuggestions.itemId &&
               itemNames.map((name, idx) => (
@@ -383,83 +377,79 @@ const ItemDetails = ({ handleButtonClick ,setActivePage}) => {
 
   return (
     <div className={styles.itemDetailsTableContainer}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div
-          className={
-            isCollapsed ? styles.itemDetailsInputOpen : styles.itemDetailsInput
-          }
-        >
-           {headerNames.map((header, index) => (
-            header.field !== 'itemName' && (
-              <div key={index} className={styles.inputboxScroll}>
-                <input
-                  type="text"
-                  name={header.field}
-                  className={styles.basicInput}
-                  required
-                  value={formData[header.field]}
-                  onChange={handleInputChange}
-                  style={{ width: header.width }}
-                />
-                <span>{header.name}</span>
-              </div>
-            )
-          ))}
-          <div className={styles.inputboxScroll} style={{ width: '270px' }}>
-            {downshiftItemName}
-          </div>
-          <div className={styles.checkboxWrapper}>
-            <input
-              id="cbx-size"
-              type="checkbox"
-              checked={isSizeChecked}
-              onChange={handleSizeCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-size"></label>
-            <label className={styles.lbl} htmlFor="cbx-size">
-              Add Size
-            </label>
-          </div>
-          <div className={styles.checkboxWrapper} style={{ marginLeft: '20px' }}>
-            <input
-              id="cbx-work"
-              type="checkbox"
-              checked={isWorkChecked}
-              onChange={handleWorkCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-work"></label>
-            <label className={styles.lbl} htmlFor="cbx-work">
-              Add Work Order
-            </label>
-          </div>
-          <button
-            onClick={handleAddItem}
-            className={styles.button50}
-            aria-label="Add"
-          >
-            <span className={styles.button50__Content}>
-              <span className={styles.button50__Text}>
-                {isEditing ? "Edit" : "Add Entry"}
-              </span>
-            </span>
-          </button>
-          {isEditing && (
+      <div className={styles.inputLinerGrid}>
+        <div className={styles.colSpanInputLiner}>
+          <div className={styles.itemDetailsInput}>
+            {headerNames.map(
+              (header, index) =>
+                header.field !== "itemName" && (
+                  <div key={index} className={styles.inputboxScroll}>
+                    <input
+                      type="text"
+                      name={header.field}
+                      className={styles.basicInput}
+                      required
+                      value={formData[header.field]}
+                      onChange={handleInputChange}
+                      style={{ width: header.width }}
+                    />
+                    <span>{header.name}</span>
+                  </div>
+                )
+            )}
+            <div className={styles.inputboxScroll} style={{ width: "270px" }}>
+              {downshiftItemName}
+            </div>
+            <div className={styles.checkboxWrapper}>
+              <input
+                id="cbx-size"
+                type="checkbox"
+                checked={isSizeChecked}
+                onChange={handleSizeCheckboxChange}
+              />
+              <label className={styles.cbx} htmlFor="cbx-size"></label>
+              <label className={styles.lbl} htmlFor="cbx-size">
+                Add Size
+              </label>
+            </div>
+            <div
+              className={styles.checkboxWrapper}
+              style={{ marginLeft: "20px" }}
+            >
+              <input
+                id="cbx-work"
+                type="checkbox"
+                checked={isWorkChecked}
+                onChange={handleWorkCheckboxChange}
+              />
+              <label className={styles.cbx} htmlFor="cbx-work"></label>
+              <label className={styles.lbl} htmlFor="cbx-work">
+                Add Work Order
+              </label>
+            </div>
             <button
-              onClick={handleCancelEdit}
+              onClick={handleAddItem}
               className={styles.button50}
-              aria-label="Cancel"
+              aria-label="Add"
             >
               <span className={styles.button50__Content}>
-                <span className={styles.button50__Text}>Cancel</span>
+                <span className={styles.button50__Text}>
+                  {isEditing ? "Edit" : "Add Entry"}
+                </span>
               </span>
             </button>
-          )}
+            {isEditing && (
+              <button
+                onClick={handleCancelEdit}
+                className={styles.button50}
+                aria-label="Cancel"
+              >
+                <span className={styles.button50__Content}>
+                  <span className={styles.button50__Text}>Cancel</span>
+                </span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       <div
@@ -575,7 +565,7 @@ const OtherDetails = ({
   updateMOrder,
   updateSizeOrder,
   mColumnDefs,
-  sizeColumnDefs
+  sizeColumnDefs,
 }) => {
   const [currentBalQty, setCurrentBalQty] = useState(tempBal);
 
@@ -648,13 +638,13 @@ const OtherDetails = ({
   const onCellValueChanged = (params, orderType) => {
     const updatedRow = params.data;
     let updatedData;
-    if (orderType === 'mOrder') {
-      updatedData = mOrder.map(row =>
+    if (orderType === "mOrder") {
+      updatedData = mOrder.map((row) =>
         row.mOrderNo === updatedRow.mOrderNo ? updatedRow : row
       );
       updateMOrder(updatedData);
     } else {
-      updatedData = sizeOrder.map(row =>
+      updatedData = sizeOrder.map((row) =>
         row.size === updatedRow.size ? updatedRow : row
       );
       updateSizeOrder(updatedData);
@@ -664,37 +654,43 @@ const OtherDetails = ({
   };
 
   const editableColumnDefs = (columnDefs, orderType) => {
-    return columnDefs.map(col => ({
+    return columnDefs.map((col) => ({
       ...col,
-      editable: col.field === 'useQty',
-      onCellValueChanged: (params) => onCellValueChanged(params, orderType)
+      editable: col.field === "useQty",
+      onCellValueChanged: (params) => onCellValueChanged(params, orderType),
     }));
   };
 
-  const mColumnDefsWithTempBal = mColumnDefs.map(col => {
-    if (col.field === 'balQty') {
+  const mColumnDefsWithTempBal = mColumnDefs.map((col) => {
+    if (col.field === "balQty") {
       return {
         ...col,
         headerName: `Bal Qty (${currentBalQty})`,
-        editable: false
+        editable: false,
       };
     }
     return { ...col };
   });
 
-  const sizeColumnDefsWithTempBal = sizeColumnDefs.map(col => {
-    if (col.field === 'balQty') {
+  const sizeColumnDefsWithTempBal = sizeColumnDefs.map((col) => {
+    if (col.field === "balQty") {
       return {
         ...col,
         headerName: `Bal Qty (${currentBalQty})`,
-        editable: false
+        editable: false,
       };
     }
     return { ...col };
   });
 
-  const mColumnDefsEditable = editableColumnDefs(mColumnDefsWithTempBal, 'mOrder');
-  const sizeColumnDefsEditable = editableColumnDefs(sizeColumnDefsWithTempBal, 'sizeOrder');
+  const mColumnDefsEditable = editableColumnDefs(
+    mColumnDefsWithTempBal,
+    "mOrder"
+  );
+  const sizeColumnDefsEditable = editableColumnDefs(
+    sizeColumnDefsWithTempBal,
+    "sizeOrder"
+  );
 
   return (
     <div className={styles.dmtrparentOthersDiv}>
@@ -719,7 +715,9 @@ const OtherDetails = ({
           <AgGridReact
             columnDefs={mColumnDefsEditable}
             rowData={mOrder}
-            onCellValueChanged={(params) => onCellValueChanged(params, 'mOrder')}
+            onCellValueChanged={(params) =>
+              onCellValueChanged(params, "mOrder")
+            }
           />
         </div>
       </div>
@@ -744,15 +742,15 @@ const OtherDetails = ({
           <AgGridReact
             columnDefs={sizeColumnDefsEditable}
             rowData={sizeOrder}
-            onCellValueChanged={(params) => onCellValueChanged(params, 'sizeOrder')}
+            onCellValueChanged={(params) =>
+              onCellValueChanged(params, "sizeOrder")
+            }
           />
         </div>
       </div>
     </div>
   );
 };
-
-
 
 const Dmtr = () => {
   const navigate = useNavigate();
@@ -824,61 +822,37 @@ const Dmtr = () => {
           <div className={styles.topGrid}>
             <div className={styles.colSpan3}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Supplier Name</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Invoice No.</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="date"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="date" className={styles.basicInput} required />
                 <span>Invoice Date</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Bility No.</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Gate GRN</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>EWay Bill No.</span>
               </div>
             </div>
@@ -888,19 +862,25 @@ const Dmtr = () => {
           <div className={styles.midDetailsTitle}>
             <div className={styles.toggleButtons}>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "supplier" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "supplier" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("supplier")}
               >
                 Supplier & Financial Details
               </button>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "itemDetails" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "itemDetails" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("itemDetails")}
               >
                 Item Details
               </button>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "otherDetails" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "otherDetails" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("otherDetails")}
               >
                 Other Details
@@ -908,7 +888,12 @@ const Dmtr = () => {
             </div>
           </div>
         </div>
-        {activePage === "itemDetails" && <ItemDetails handleButtonClick={handleButtonClick} setActivePage={setActivePage} />}
+        {activePage === "itemDetails" && (
+          <ItemDetails
+            handleButtonClick={handleButtonClick}
+            setActivePage={setActivePage}
+          />
+        )}
         {activePage === "supplier" && <SupplierDetails />}
         {activePage === "otherDetails" && (
           <OtherDetails

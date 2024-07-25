@@ -1,7 +1,7 @@
 .pOMainContainer {
   height: calc(100vh - 2.5rem);
 
-  @apply  bg-[#fff] pb-5 w-full overflow-auto flex-grow;
+  @apply bg-[#fff] pb-5 w-full overflow-auto flex-grow;
 }
 
 .pOSubContainer {
@@ -20,12 +20,25 @@
     rgba(0, 0, 0, 0.3) 0px 3px 4px -3px;
 }
 
+.titleContainerTwo {
+  @apply bg-white flex p-3 mb-1 items-center justify-between;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.viewDataButton {
+  @apply flex justify-center items-center text-[0.8rem] font-[700] px-[0.5rem] py-1 text-white 
+    leading-4 bg-[#00A5AD] rounded-[0.3125rem];
+}
 .detailsTitleContainer {
   @apply bg-white flex p-3 gap-3 items-center justify-start;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 6px -2px,
     rgba(0, 0, 0, 0.3) 0px 3px 4px -3px;
 }
 .titleContainer h1 {
+  font-size: 17px;
+  @apply font-semibold;
+}
+.titleContainerTwo h1 {
   font-size: 17px;
   @apply font-semibold;
 }
@@ -140,7 +153,7 @@
 
 .tableContainer {
   @apply scroll-smooth h-fit;
-  border: 1px solid #E5E7EB; 
+  border: 1px solid #e5e7eb;
   position: relative;
 
   width: 85vw;
@@ -148,11 +161,10 @@
 }
 .tableContainerOpen {
   position: relative;
-  border: 1px solid #E5E7EB; 
+  border: 1px solid #e5e7eb;
   @apply scroll-smooth h-fit;
   width: 95vw;
   overflow: auto;
-
 }
 .detailsTableContainer {
   position: relative;
@@ -160,33 +172,44 @@
   width: 58.4rem;
   overflow: auto;
   @apply scroll-smooth bg-white rounded-md my-2;
-
 }
 .DmtrdetailsTableContainer {
   position: relative;
   overflow: auto;
   @apply scroll-smooth h-[15.7rem] bg-white rounded-md my-1;
-
 }
-.itemDetailsTableContainer{
-@apply flex flex-col px-[10px] rounded-md;
+.itemDetailsTableContainer {
+  @apply flex flex-col px-[10px] rounded-md;
 }
 
 .itemDetailsInput {
-  @apply flex flex-wrap px-1 py-2 gap-3 w-[85vw];
+  @apply flex flex-wrap py-2 gap-3;
+}
+.materialIssueDetailsInput {
+  @apply flex flex-wrap gap-3;
+}
+.karigarTopHighDetailsInput {
+  @apply flex flex-wrap p-2 pt-3 gap-3 rounded-md;
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+    rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+    rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+}
+.creditDetailsInput {
+  @apply flex flex-wrap py-1 gap-3;
+}
+.inputLinerGrid {
+  @apply grid grid-cols-1;
+}
+.colSpanInputLiner {
+  @apply col-span-1;
 }
 
-.itemDetailsInputOpen {
-  @apply flex flex-wrap px-1 py-2 gap-3 w-[95vw];
-}
-  
 .detailsTableContainerOpen {
   position: relative;
   height: 15.7rem;
   width: 65.5rem;
   overflow: auto;
   @apply scroll-smooth bg-white rounded-md my-2;
- 
 }
 .customTable {
   width: 100%;
@@ -195,7 +218,7 @@
 
 .customTable th {
   @apply py-4 text-black;
-  background-color: #F1F4F9;
+  background-color: #f1f4f9;
 }
 
 .customTable th:first-child {
@@ -210,13 +233,15 @@
   white-space: nowrap;
   border-bottom: 10px solid transparent;
 }
-.customTableInput{
+.customTableInput {
   padding: 12px;
-  border: 2px solid #DBEAFE;
+  border: 2px solid #dbeafe;
   text-align: left;
-  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;}
-.customTableInput:focus{
-  outline:none;
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset,
+    rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+.customTableInput:focus {
+  outline: none;
 }
 .customTable .dataRow {
   @apply bg-white py-2;
@@ -262,7 +287,16 @@
   @apply rounded-md w-[40px] h-[40px];
   transition: background-color 0.3s ease; /* Add transition for background-color */
 }
-
+.headBorder {
+  @apply border-t-[3px] rounded my-2;
+  stroke-width: 3px;
+  stroke: rgba(58, 71, 80, 0.13);
+}
+.receiveheadBorder {
+  @apply border-t-[3px] rounded mt-2;
+  stroke-width: 3px;
+  stroke: rgba(58, 71, 80, 0.13);
+}
 .actionButton:hover {
   background-color: #efefef;
 }
@@ -322,8 +356,8 @@
   color: #92989e;
   font-size: 15px;
 }
-.parentGateReceive{
-@apply flex gap-3;
+.parentGateReceive {
+  @apply flex gap-3;
 }
 .detailsContainer {
   @apply bg-[#F5F5F5] p-3 flex flex-col w-[74%];
@@ -361,14 +395,11 @@
 }
 .sizeButton {
   @apply h-[26px] w-[26px] cursor-pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease; 
-
- 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .sizeButton:hover {
-  transform: scale(1.1); 
-  
+  transform: scale(1.1);
 }
 .tabletitle {
   @apply flex items-center p-1  justify-between;
@@ -381,15 +412,6 @@
   @apply text-xs gap-2 font-semibold;
   display: flex;
   align-items: center;
-
-}
-
-.checkboxContainer input[type="checkbox"] {
-  /* Style checkbox input */
-}
-
-.checkboxContainer .checkmark {
-  /* Style the checkmark */
 }
 .gridContainer p {
   margin-right: 30px;
@@ -400,7 +422,8 @@
   @apply flex flex-col mt-2 bg-[#F6FAFD] rounded-md;
   gap: 8px;
   padding: 6px 10px;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 .priceGridContainer > div {
   @apply flex justify-between;
@@ -409,7 +432,8 @@
   @apply flex flex-col mt-2 bg-[#F6FAFD] rounded-md;
   gap: 8px;
   padding: 6px 10px;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 .supplierGridContainer > div {
   @apply flex justify-between;
@@ -504,12 +528,28 @@
   width: 100%;
   @apply flex px-[10px] my-2 bg-[#fff] gap-2;
 }
+.MiparentDiv {
+  width: 100%;
+  @apply flex px-[10px] my-1 bg-[#fff] gap-2;
+}
+.gatePassReceiveParentDiv {
+  width: 100%;
+  @apply flex px-[10px] mt-1 bg-[#fff] gap-2;
+}
+.stockTransferParentDiv {
+  width: 100%;
+  @apply flex px-[10px] mt-1 bg-[#fff] gap-2;
+}
+.dmtrKarigarparentOthersDiv {
+  width: 100%;
+  @apply flex px-[10px] bg-[#fff];
+}
 .leftOthersDiv {
   @apply flex flex-col w-[50%] rounded-md;
 }
 .leftDmtrOthersDiv {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[50%] bg-[#F8F7F8] rounded-md;
 }
 .viewButton {
@@ -522,45 +562,98 @@
 }
 .rightDmtrOthersDiv {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[50%] bg-[#F8F7F8] rounded-md;
 }
 
 .leftGatePassOthersDiv {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[33%] bg-[#F8F7F8] rounded-md;
+}
+
+.leftkarigarItemDiv {
+  text-align: end;
+
+  @apply flex h-fit  flex-col w-[40%]  rounded-md;
+}
+.leftFloorReturnItemDiv {
+  text-align: end;
+  @apply flex flex-col rounded-md;
+}
+.rightFloorReturnItemDiv {
+  text-align: end;
+  @apply flex flex-col rounded-md;
 }
 .midGatePassOthersDiv {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[33%] bg-[#F8F7F8] rounded-md;
 }
 .rightGatePassOthersDiv {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[34%] bg-[#F8F7F8] rounded-md;
+}
+.rightkarigarItemDiv {
+  text-align: end;
+
+  @apply flex h-fit  flex-col w-[30%]  rounded-md;
+}
+.midkarigarItemDiv {
+  text-align: end;
+
+  @apply flex h-fit  flex-col w-[30%]  rounded-md;
 }
 .rightGatePassReceive {
   text-align: end;
- 
+
   @apply flex h-fit  flex-col w-[30%] bg-[#F8F7F8] rounded-md;
 }
-.barcodeInputDiv
-{
-  @apply flex items-center gap-2 w-full px-2 py-[10px] bg-white;
+.barcodeInputDiv {
+  @apply flex items-center gap-2 w-full px-2 pt-[5px] bg-white;
 }
+.floorSizeInputDiv {
+  @apply flex items-center gap-2 w-full px-2 bg-white;
+}
+.itemNameKarigarInputDiv {
+  @apply flex items-center gap-2 w-full px-2 pt-[5px]  bg-white;
+}
+.materialIssueInputDiv {
+  @apply flex gap-2 w-full px-2 pt-[5px]  bg-white;
+}
+
+.gridSeperateParent {
+  @apply w-[100%] flex items-center gap-3;
+}
+.gridLeftInput {
+  @apply w-[90%] overflow-auto;
+}
+.gridRightInput {
+  @apply w-[10%]  overflow-y-auto;
+}
+
+.creditTopGrid {
+  @apply mt-1 flex flex-col gap-3 h-[380px];
+}
+
 .rightBillDmtrOthersDiv {
   text-align: end;
   padding: 5px 10px;
   @apply flex flex-col min-h-max w-[50%] bg-[#F8F7F8] rounded-md;
 }
+.rightKarigarOthersDiv {
+  @apply flex flex-col min-h-max w-[40%];
+}
+
 .leftSupplierDmtrOthersDiv {
   text-align: end;
   padding: 5px 10px;
   @apply flex flex-col min-h-max w-[50%] bg-[#F8F7F8] rounded-md;
 }
-
+.leftKarigarOthersDiv {
+  @apply flex flex-col min-h-max w-[25%] rounded-md;
+}
 .roundedDivider {
   @apply bg-[#d2cbcb];
   height: 1.7px;
@@ -578,6 +671,10 @@
 }
 .termsDiv {
   @apply flex items-center bg-[white] rounded-md justify-between;
+  padding: 5px 10px;
+}
+.materialIssueOtherssDiv {
+  @apply flex items-center mt-2 bg-[#609f2fd3] mx-[10px] rounded-md justify-between;
   padding: 5px 10px;
 }
 .remarksDiv {
@@ -644,7 +741,6 @@
 }
 .supplierInfo {
   @apply rounded-lg mt-2 p-2;
- 
 }
 .supplierTitle {
   @apply flex items-center gap-3 mb-3;
@@ -659,7 +755,6 @@
 .verifiedIcon {
   @apply h-[20x] w-[20px];
 }
-
 
 .popupOverlay {
   position: fixed;
@@ -686,19 +781,16 @@
   border-radius: 4px;
   padding: 8px 16px;
   border: 2px solid transparent;
-  
+
   background: rgb(251, 251, 251);
   transition: all 0.1s ease 0s;
- 
-
 }
-.selectInput:focus{
-  outline:none;
+.selectInput:focus {
+  outline: none;
   border: 2px solid rgb(124, 138, 255);
 }
 
 .basicInput {
- 
   width: 100%;
   color: rgb(36, 35, 42);
   font-size: 16px;
@@ -706,12 +798,13 @@
   min-height: 28px;
   border-radius: 4px;
   padding: 5px 8px;
-  border: 1px solid #DBEAFE;
-  
+  border: 1px solid #dbeafe;
+
   background: #fcfcfd;
   transition: all 0.1s ease 0s;
- 
-
+}
+.basicInput:disabled {
+  @apply bg-[#FCFCFD];
 }
 select {
   appearance: none;
@@ -748,11 +841,10 @@ select {
   box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
   background: rgb(251, 251, 251);
   transition: all 0.1s ease 0s;
- 
-
 }
-.selectInput:focus{
-  outline:none;
+
+.selectInput:focus {
+  outline: none;
   border: 2px solid rgb(124, 138, 255);
 }
 
@@ -771,6 +863,15 @@ select {
   top: 0;
   right: 0;
 }
+.otherHeadTitle {
+  @apply flex-col gap-3;
+}
+.otherHeadTitle h2 {
+  @apply text-green-600 font-semibold text-[1.1rem];
+}
+.otherHeadTitle h3 {
+  @apply text-blue-600 mb-1 font-semibold text-[0.9rem];
+}
 .colSpan {
   @apply col-span-1 flex flex-row items-center gap-1;
 }
@@ -786,6 +887,15 @@ select {
 .topContainer {
   @apply flex flex-col px-[10px] my-1;
 }
+.gatePassReceivetopContainer {
+  @apply flex flex-col p-2 pt-3 m-1 rounded-md;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.karigarTopContainer {
+  @apply flex px-[10px] gap-1 my-1;
+}
+
 .topGrid {
   @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-8  mt-2;
   grid-gap: 10px 10px;
@@ -794,15 +904,58 @@ select {
   @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-7  mt-2;
   grid-gap: 10px 10px;
 }
-.basicInput:focus{
-  outline:none;
+.karigarDetailsGridContainer {
+  @apply flex flex-col text-sm leading-3 rounded-md;
+  gap: 8px;
+}
+.karigarReceiveGridContainer {
+  @apply flex text-sm mt-2 rounded-md;
+}
+.karigarReceiveGridInputDiv {
+  @apply flex items-center gap-2;
+}
+
+.karigarDetailsGridContainer > div {
+  @apply flex justify-between;
+}
+.midKarigarOthersDiv {
+  padding: 5px 10px;
+  @apply flex flex-col w-[40%] bg-white my-2 rounded-md;
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+    rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+    rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+}
+.materialIssueOthersDiv {
+  padding: 5px 10px;
+  @apply flex flex-col bg-white my-2 rounded-md;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.gateOutTopGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-8  mt-2;
+  grid-gap: 10px 10px;
+}
+.orderCheckArticleGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-6  mt-2;
+  grid-gap: 10px 10px;
+}
+.stocktransferGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-7  mt-2;
+  grid-gap: 10px 10px;
+}
+.gatePassReceiveTopGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4;
+  grid-gap: 10px 10px;
+}
+
+.basicInput:focus {
+  outline: none;
   border: 2px solid rgb(124, 138, 255);
 }
-.popupTitle{
+.popupTitle {
   @apply flex justify-end;
 }
 .loader {
-
   border: 7px solid #f3f3f3;
   border-top: 5px solid #3498db;
   border-radius: 50%;
@@ -822,13 +975,21 @@ select {
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 @keyframes spin {
   0% {
@@ -851,16 +1012,17 @@ select {
 }
 .shareIcon {
   @apply h-[3rem] w-[3rem] cursor-pointer;
-  transition: transform 0.3s ease-in; 
+  transition: transform 0.3s ease-in;
 }
 .sendInfo {
   position: absolute;
   @apply p-1 rounded-md;
-  bottom: 10px; 
+  bottom: 10px;
   left: 50%;
-  transform: translateX(-50%); 
-  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
-
+  transform: translateX(-50%);
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+    rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+    rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 .shareIcon:hover {
   transform: scale(1.1);
@@ -872,52 +1034,53 @@ select {
 
 .customTable2 {
   width: 100%;
-  
+
   @apply whitespace-nowrap;
-  border-spacing: 0; 
+  border-spacing: 0;
   border-collapse: separate;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
 }
 
-.customTable2 th, .customTable2 td {
+.customTable2 th,
+.customTable2 td {
   padding: 15px 20px;
   text-align: left;
   vertical-align: middle;
-  border-right: 1px solid #E5E7EB; 
+  border-right: 1px solid #e5e7eb;
 }
 
 .customTable2 th {
-  background-color: #F9FAFB;
-  color: #1F2937; 
+  background-color: #f9fafb;
+  color: #1f2937;
   font-weight: 600;
-  text-transform: uppercase; 
-  border-bottom: 1px solid #E5E7EB;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .customTable2 td {
-  background-color: #FFFFFF; 
-  color: #4B5563;
+  background-color: #ffffff;
+  color: #4b5563;
 }
 
-
-.customTable2 th:last-child, .customTable2 td:last-child {
-  border-right: none; 
+.customTable2 th:last-child,
+.customTable2 td:last-child {
+  border-right: none;
 }
 .customTable2 tr:last-child td {
   border-bottom: none; /* Removes the bottom border from the last row of cells */
 }
 .customTableInput {
-  width: 100%; 
-  padding: 8px; 
-  border: 1px solid #D1D5DB;;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   box-shadow: none;
 }
 
 .customTableInput:focus {
-  outline: 2px solid #6366F1;
-  outline-offset: -1px; 
+  outline: 2px solid #6366f1;
+  outline-offset: -1px;
 }
 
 .customTable2 th:last-child {
@@ -952,21 +1115,17 @@ select {
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
-
-
-.inputbox{
+.inputbox {
   @apply relative text-sm w-[100%];
 }
 
 .inputbox input {
   @apply w-[100%]  p-[5px] rounded-[5px];
   border: 1px solid black;
-  background : white;
-  outline:none;
-  color:black;
-  font-size:1em;
-
-
+  background: white;
+  outline: none;
+  color: black;
+  font-size: 1em;
 }
 
 .inputbox span {
@@ -979,29 +1138,23 @@ select {
   color: #1d2b3a;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-
 }
 
 .inputbox input:valid,
 .inputbox input:focus {
-  
 }
 
-
-
-.inputboxScroll{
+.inputboxScroll {
   @apply relative text-sm;
 }
 
 .inputboxScroll input {
   @apply w-[100%]  p-[5px] rounded-[5px];
   border: 1px solid black;
-  background : white;
-  outline:none;
-  color:black;
-  font-size:1em;
-
-
+  background: white;
+  outline: none;
+  color: black;
+  font-size: 1em;
 }
 
 .inputboxScroll span {
@@ -1014,7 +1167,6 @@ select {
   color: #1d2b3a;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-
 }
 .searchBtn {
   @apply absolute top-1/2 right-0 w-[2.5rem] h-[90%] bg-[#eff3f4] cursor-pointer rounded-[0.3125rem] mr-[2.5px] ml-2 transition-all duration-300;
@@ -1027,7 +1179,6 @@ select {
 }
 .inputboxScroll input:valid,
 .inputboxScroll input:focus {
-  
 }
 
 .checkboxWrapper {
@@ -1054,7 +1205,7 @@ select {
 }
 
 .checkboxWrapper .cbx:after {
-  content: '';
+  content: "";
   position: absolute;
   top: 1px;
   left: 5px;
@@ -1109,16 +1260,16 @@ select {
   }
 }
 
-
 .button50 {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "San Francisco",
+    "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   box-sizing: border-box;
-  font-size: .8125rem;
+  font-size: 0.8125rem;
   font-weight: 450;
   letter-spacing: normal;
   -webkit-tap-highlight-color: transparent;
   align-items: center;
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   border-style: none;
   cursor: pointer;
   display: inline-flex;
@@ -1127,22 +1278,23 @@ select {
   margin: 0;
   min-height: 1.75rem;
   min-width: 1.75rem;
-  padding: .375rem .75rem;
+  padding: 0.375rem 0.75rem;
   text-align: center;
   text-decoration: none;
-  transition: background-color .075s cubic-bezier(.19, .91, .38, 1), box-shadow .075s cubic-bezier(.19, .91, .38, 1);
+  transition: background-color 0.075s cubic-bezier(0.19, 0.91, 0.38, 1),
+    box-shadow 0.075s cubic-bezier(0.19, 0.91, 0.38, 1);
   transition-behavior: normal, normal;
   user-select: none;
 
   background: #303030;
   border-color: transparent;
   border-width: 0;
-  box-shadow: 0 .1875rem .0625rem -.0625rem rgba(26, 26, 26, .07);
+  box-shadow: 0 0.1875rem 0.0625rem -0.0625rem rgba(26, 26, 26, 0.07);
   color: #fff;
   position: relative;
 }
 
-@media (-ms-high-contrast:active) {
+@media (-ms-high-contrast: active) {
   .button50 {
     border-image: none 100% 1 0 stretch;
     border-style: none;
@@ -1152,61 +1304,68 @@ select {
 .button50__Content {
   align-items: center;
   display: flex;
-  font-size: .8125rem;
+  font-size: 0.8125rem;
   justify-content: center;
   letter-spacing: normal;
   line-height: 1.25rem;
-  min-height: .0625rem;
-  min-width: .0625rem;
+  min-height: 0.0625rem;
+  min-width: 0.0625rem;
   position: relative;
-  transition: transform 75ms cubic-bezier(.19, .91, .38, 1);
+  transition: transform 75ms cubic-bezier(0.19, 0.91, 0.38, 1);
   transition-behavior: normal;
 }
 
 @media (min-width: 48em) {
   .button50__Content {
-    font-size: .75rem;
+    font-size: 0.75rem;
     line-height: 1rem;
   }
 }
 
 .button50::after {
-  border-radius: .25rem;
-  bottom: -.0625rem;
-  box-shadow: 0 0 0 -.0625rem #005bd3;
+  border-radius: 0.25rem;
+  bottom: -0.0625rem;
+  box-shadow: 0 0 0 -0.0625rem #005bd3;
   content: "";
   display: block;
-  left: -.0625rem;
+  left: -0.0625rem;
   pointer-events: none;
   position: absolute;
-  right: -.0625rem;
-  top: -.0625rem;
+  right: -0.0625rem;
+  top: -0.0625rem;
   z-index: 1;
 }
 
 .button50::before {
   background-color: initial;
-  background-image: linear-gradient(rgba(255, 255, 255, .07) 80%, rgba(255, 255, 255, .15));
-  border-radius: .5625rem;
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.07) 80%,
+    rgba(255, 255, 255, 0.15)
+  );
+  border-radius: 0.5625rem;
   bottom: 0;
-  box-shadow: 0 .125rem 0 0 rgba(255, 255, 255, .2) inset, .125rem 0 0 0 rgba(255, 255, 255, .2) inset, -.125rem 0 0 0 rgba(255, 255, 255, .2) inset, 0 -.0625rem 0 .0625rem #000 inset, 0 .0625rem 0 0 #000 inset;
+  box-shadow: 0 0.125rem 0 0 rgba(255, 255, 255, 0.2) inset,
+    0.125rem 0 0 0 rgba(255, 255, 255, 0.2) inset,
+    -0.125rem 0 0 0 rgba(255, 255, 255, 0.2) inset,
+    0 -0.0625rem 0 0.0625rem #000 inset, 0 0.0625rem 0 0 #000 inset;
   content: "";
   left: 0;
   position: absolute;
   right: 0;
   top: 0;
-  transition: opacity 75ms cubic-bezier(.19, .91, .38, 1);
+  transition: opacity 75ms cubic-bezier(0.19, 0.91, 0.38, 1);
   transition-behavior: normal;
 }
 
 .button50:focus-visible {
-  box-shadow: 0 .1875rem .0625rem -.0625rem rgba(26, 26, 26, .07);
+  box-shadow: 0 0.1875rem 0.0625rem -0.0625rem rgba(26, 26, 26, 0.07);
   outline: 2px solid rgb(0, 91, 211);
-  outline-offset: .0625rem;
+  outline-offset: 0.0625rem;
 }
 
 .button50:hover {
-  box-shadow: inset 0 -.0625rem 0 #ccc, inset .0625rem 0 0 #ebebeb, inset -.0625rem 0 0 #ebebeb, inset 0 .0625rem 0 #ebebeb;
+  box-shadow: inset 0 -0.0625rem 0 #ccc, inset 0.0625rem 0 0 #ebebeb,
+    inset -0.0625rem 0 0 #ebebeb, inset 0 0.0625rem 0 #ebebeb;
 }
 
 .button50:hover {
@@ -1217,7 +1376,7 @@ select {
 
 .button50:focus {
   border-color: transparent;
-  box-shadow: 0 .1875rem .0625rem -.0625rem rgba(26, 26, 26, .07);
+  box-shadow: 0 0.1875rem 0.0625rem -0.0625rem rgba(26, 26, 26, 0.07);
 }
 
 .button50:active {
@@ -1230,7 +1389,7 @@ select {
 
 .button50:active {
   background: #1a1a1a;
-  box-shadow: 0 .1875rem 0 0 #000 inset;
+  box-shadow: 0 0.1875rem 0 0 #000 inset;
   color: #ccc;
 }
 
@@ -1244,18 +1403,24 @@ select {
 }
 
 .button50:hover::before {
-  box-shadow: 0 .125rem 0 0 rgba(255, 255, 255, .2) inset, .125rem 0 0 0 rgba(255, 255, 255, .2) inset, -.125rem 0 0 0 rgba(255, 255, 255, .2) inset, 0 -.0625rem 0 .0625rem #000 inset, 0 .0625rem 0 0 #000 inset;
+  box-shadow: 0 0.125rem 0 0 rgba(255, 255, 255, 0.2) inset,
+    0.125rem 0 0 0 rgba(255, 255, 255, 0.2) inset,
+    -0.125rem 0 0 0 rgba(255, 255, 255, 0.2) inset,
+    0 -0.0625rem 0 0.0625rem #000 inset, 0 0.0625rem 0 0 #000 inset;
 }
 
 .button50:active::before {
   background-color: initial;
-  background-image: linear-gradient(rgba(255, 255, 255, .1), rgba(255, 255, 255, 0));
-  box-shadow: 0 .1875rem 0 0 #000 inset;
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  box-shadow: 0 0.1875rem 0 0 #000 inset;
   opacity: 1;
 }
 
 .button50:active .button50__Content {
-  transform: translateY(.0625rem);
+  transform: translateY(0.0625rem);
 }
 
 .button50 .button50__Content {
@@ -1268,4 +1433,172 @@ select {
 
 .button50__Text {
   /* Add additional text styles */
+}
+.switchContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.switch {
+  position: relative;
+  width: 100px; /* Adjust width as needed */
+  height: 30px; /* Adjust height as needed */
+  background-color: #ccc;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.switchWrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+.switchToggle {
+  position: absolute;
+  width: 50px; /* Adjust width as needed */
+  height: 28px; /* Adjust height as needed */
+  background-color: #4caf50; /* Green for "Production" */
+  border-radius: 15px;
+  top: 1px;
+  left: 1px;
+  transition: transform 0.3s, background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.switch input:checked + .switchWrapper .switchToggle {
+  transform: translateX(50px); /* Adjust to match the switch width */
+  background-color: #f44336; /* Red for "Sample" */
+}
+
+.rotateTerms180 {
+  transform: rotate(180deg);
+}
+
+.checkboxContainerIssue {
+  @apply flex items-center pt-1 justify-center;
+}
+.removeSwitch {
+  display: none;
+}
+.checkboxContainerIssue label {
+  @apply whitespace-nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.checkboxContainerIssue input[type="checkbox"] {
+  margin-right: 8px;
+}
+.materialOthersContent {
+  @apply px-[10px] py-[5px];
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  margin-top: 5px;
+  width: 100%; /* Full width */
+}
+
+.materialIssueOthersDetailsDiv {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Full width */
+}
+
+.materialOthersGridContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  width: 100%; /* Full width */
+}
+
+.balanceContainer {
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  padding: 3px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%; /* Full width */
+}
+
+.balanceHeader {
+  font-weight: normal; /* No bold */
+  font-size: 14px;
+  color: #333; /* Darker color for better visibility */
+  margin-right: 10px;
+  min-width: 150px; /* Adjust as necessary for alignment */
+  display: inline-block; /* Ensures all headers start from the same position */
+}
+
+.balanceContent {
+  font-size: 14px;
+  line-height: 1.4;
+  width: 100%; /* Full width */
+  display: inline-block; /* Ensures all content starts from the same position */
+}
+.imageInputBox input[type="file"],
+.imageInputBox input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.imageInputBox {
+  @apply relative text-sm w-[100%];
+}
+
+.imageInputBox input {
+  @apply w-[100%]  p-[5px] rounded-[5px];
+  border: 1px solid black;
+  background: white;
+  outline: none;
+  color: black;
+  font-size: 1em;
+}
+
+.imageInputBox span {
+  @apply absolute px-[2px] py-[0px] font-semibold rounded-sm;
+  left: 10px;
+  top: 0px;
+  transform: translateX(0px) translateY(-50%);
+  font-size: 0.65em;
+  background: #fff;
+  color: #1d2b3a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.imageInputBox input:valid,
+.imageInputBox input:focus {
+}
+.removeFileButton {
+  @apply cursor-pointer h-[25px] w-[25px] m-auto;
+}
+
+@keyframes vibrate {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.removeFileButton:hover {
+  animation: vibrate 0.2s linear infinite;
 }

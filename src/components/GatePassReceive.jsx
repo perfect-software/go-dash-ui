@@ -670,42 +670,7 @@ const GatePassReceive = () => {
         {activePage === "itemDetails" && <ItemDetails handleButtonClick={handleButtonClick} setActivePage={setActivePage} />}
     
       </div>
-      <div className={styles2.tableContainer}>
-      <table className={styles2.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id} id={`row-${item.id}`} className={styles2.row}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.age}</td>
-              <td>
-                <button
-                  className={styles2.deleteButton}
-                  onClick={() => handleDelete(item.id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
-      <svg xmlns="http://www.w3.org/2000/svg" style={{ display: 'none' }}>
-        <defs>
-          <path id="step-2" d="M270.136 122h237.356c2.758 0 4.36 2.15 3.577 4.8 0 0-23.333 86.246-92.842 174.822-69.51 88.575-66.458 185.37-66.458 185.37-.033 2.776-2.25 5.008-5.01 5.008H193.51c-2.76 0-4.977-2.232-5.01-5.008 0 0 3.05-96.795-66.458-185.37C52.534 213.046 29.202 126.8 29.202 126.8c-.783-2.65.82-4.8 3.578-4.8h237.356z" />
-          <path id="step-3" d="M186 561.005c0-2.764 2.234-5.005 4.998-5.005h157.004c2.76 0 4.998 2.242 4.998 5.005v33.99c0 2.764-2.234 5.005-4.998 5.005H190.998c-2.76 0-4.998-2.242-4.998-5.005v-33.99z" />
-        </defs>
-      </svg>
-    </div>
     </div>
   );
 };

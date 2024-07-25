@@ -1,51 +1,27 @@
-import React, { useState } from 'react';
-import styles from '../styles/outlinedInput.module.css';
+
+import React from "react";
+import AutoTable from "../features/AutoTable";
 
 const GenieEffect = () => {
-    const initialData = [
-        { id: 1, name: 'John Doe', age: 30 },
-        { id: 2, name: 'Jane Doe', age: 25 },
-        { id: 3, name: 'Jim Beam', age: 40 }
-    ];
+  const data = [
+    { id: 1, name: "John Doe", email: "john@example.com" },
+    { id: 2, name: "Jane Doe", email: "jane@example.com" },
+    { id: 3, name: "Alice Smith", email: "alice@example.com" },
+    { id: 4, name: "Bob Johnson", email: "bob@example.com" },
+  ];
 
-    const [data, setData] = useState(initialData);
-    const [deleting, setDeleting] = useState(null);
+  const columns = {
+    id: { label: "ID", width: "50px", visible: false },
+    name: { label: "Name", width: "150px", visible: true },
+    email: { label: "Email", width: "200px", visible: true },
+  };
 
-    const handleDelete = (id) => {
-        setDeleting(id);
-        setTimeout(() => {
-            setData(prevData => prevData.filter(item => item.id !== id));
-            setDeleting(null);
-        }, 500); 
-    };
-
-    return (
-        <table className={styles.table}>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                {data.map(row => (
-                    <tr key={row.id} className={deleting === row.id ? styles.rowDeleting : ''}>
-                        <td>{row.name}</td>
-                        <td>{row.age}</td>
-                        <td>
-                            <button 
-                                className={styles.deleteButton}
-                                onClick={() => handleDelete(row.id)}
-                            >
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
+  return (
+    <div>
+      <h1>My Table Page</h1>
+      <AutoTable data={data} columns={columns} delete={true}  />
+    </div>
+  );
 };
 
 export default GenieEffect;
