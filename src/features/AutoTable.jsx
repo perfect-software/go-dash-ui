@@ -212,23 +212,23 @@ const AutoTable = ({
     setIsEditing(true);
     setEditIndex(index);
   };
-  const handleCheckboxChange = (index, checked) => {
-    const updatedData = [...data];
-    updatedData[index].checkbox = checked;
-    setData(updatedData);
+  // const handleCheckboxChange = (index, checked) => {
+  //   const updatedData = [...data];
+  //   updatedData[index].checkbox = checked;
+  //   setData(updatedData);
   
-    const updatedSelectedRows = checked
-      ? [...selectedRows, index]
-      : selectedRows.filter((i) => i !== index);
+  //   const updatedSelectedRows = checked
+  //     ? [...selectedRows, index]
+  //     : selectedRows.filter((i) => i !== index);
   
-    setSelectedRows(updatedSelectedRows);
-  };
-  const handleCheckboxClick = (index) => {
-    const updatedData = [...data];
-    updatedData[index].checkbox = !updatedData[index].checkbox;
-    setData(updatedData);
-    handleCheckboxChange(index, updatedData[index].checkbox);
-  };
+  //   setSelectedRows(updatedSelectedRows);
+  // };
+  // const handleCheckboxClick = (index) => {
+  //   const updatedData = [...data];
+  //   updatedData[index].checkbox = !updatedData[index].checkbox;
+  //   setData(updatedData);
+  //   handleCheckboxChange(index, updatedData[index].checkbox);
+  // };
 
 
   
@@ -306,23 +306,7 @@ const AutoTable = ({
         <table ref={tableRef} className={styles.table}>
         <thead>
   <tr>
-    {columns.select && (
-      <th>
-        <input
-          type="checkbox"
-          onChange={(e) => {
-            const checked = e.target.checked;
-            const updatedSelectedRows = checked ? data.map((_, idx) => idx) : [];
-            setSelectedRows(updatedSelectedRows);
-            const updatedData = data.map((row) => ({
-              ...row,
-              checkbox: checked,
-            }));
-            setData(updatedData);
-          }}
-        />
-      </th>
-    )}
+
     {Object.keys(visibleColumns).map(
       (column) =>
         visibleColumns[column].visible && (
@@ -460,7 +444,7 @@ AutoTable.propTypes = {
   setFormData: PropTypes.func,
   setIsEditing: PropTypes.func,
   setEditIndex: PropTypes.func,
-  handleCheckboxChange: PropTypes.func,
+  // handleCheckboxChange: PropTypes.func,
   selectedRows: PropTypes.arrayOf(PropTypes.number).isRequired,
   setSelectedRows: PropTypes.func.isRequired,
 };

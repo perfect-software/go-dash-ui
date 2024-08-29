@@ -25,7 +25,8 @@ import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
-
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 
 const ItemDetails = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +48,27 @@ const ItemDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  const columns = {
+  const columns = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Item Name", field: "itemName", width: 250 },
+    { headerName: "Description", field: "itemDescription", width: 250 },
+    { headerName: "Unit", field: "unit", width: 80 },
+    { headerName: "Quantity", field: "qty", width: 100 },
+    { headerName: "Rate", field: "rate", width: 100 },
+    { headerName: "Quantity (Sqft)", field: "qtySqft", width: 120 },
+    { headerName: "Rate (Sqft)", field: "rateSqft", width: 120 },
+    { headerName: "HSN Code", field: "hsnCode", width: 100 },
+    { headerName: "IGST", field: "igst", width: 80 },
+    { headerName: "CGST", field: "cgst", width: 80 },
+    { headerName: "SGST", field: "sgst", width: 80 }
+  ];
+  const headcolumns = {
     itemName: { label: "Item Name", path: "itemName", width: "250px" },
     itemDescription: { label: "Description", path: "itemDescription", width: "250px" },
     unit: { label: "Unit", path: "unit", width: "80px" },
@@ -70,15 +91,17 @@ const ItemDetails = () => {
 
   const handleAddItem = () => {
     if (isEditing) {
-      const updatedGridData = [...gridData];
-      updatedGridData[editIndex] = { ...formData };
+      const updatedGridData = gridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setGridData([...gridData, { ...formData }]);
+      setGridData([...gridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       itemName: '',
       itemDescription: '',
       unit: '',
@@ -90,7 +113,6 @@ const ItemDetails = () => {
       igst: '',
       cgst: '',
       sgst: '',
-    
     });
   };
 
@@ -118,7 +140,7 @@ const ItemDetails = () => {
       <div className={styles.inputLinerGrid}>
         <div className={styles.colSpanInputLiner}>
           <div className={styles.creditDetailsInput}>
-            {Object.keys(columns).map((key, index) => (
+            {Object.keys(headcolumns).map((key, index) => (
               <div key={index} className={styles.inputboxScroll}>
                 <input
                   type={key === "invDate" ? "date" : "text"}
@@ -127,9 +149,9 @@ const ItemDetails = () => {
                   required
                   value={formData[key]}
                   onChange={handleInputChange}
-                  style={{ width: columns[key].width }}
+                  style={{ width: headcolumns[key].width }}
                 />
-                <span>{columns[key].label}</span>
+                <span>{headcolumns[key].label}</span>
               </div>
             ))}
             <button
@@ -161,17 +183,17 @@ const ItemDetails = () => {
       <div className={styles.gridSeperateParent}>
 
         <div className={styles.gridLeftInput}>
-        <AutoTable
-          tableHeight='300px'
-          columns={columns}
-          data={gridData}
-          setData={setGridData}
-          canEdit={true}
-          canDelete={true}
-          setFormData={setFormData}
-          setIsEditing={setIsEditing}
-          setEditIndex={setEditIndex}
-        />
+        <CustomAgGrid
+                rowData={gridData}
+                setIsEditing={setIsEditing}
+                setRowData={setGridData}
+                columnDefs={columns}
+                setFormData={setFormData}
+                gridHeight="350px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
         </div>
         <div className={styles.gridRightInput}>
         <div className={styles.creditTopGrid}>

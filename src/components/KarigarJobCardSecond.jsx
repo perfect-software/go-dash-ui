@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/newPo.module.css";
 import { useNavigate } from "react-router-dom";
-
-import AutoTable from "../features/AutoTable";
-
+import { v4 as uuidv4 } from 'uuid';
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 
 const ItemDetails = () => {
@@ -26,19 +25,6 @@ const ItemDetails = () => {
   }, [selectedRows]);
 
 
-  const handleCheckboxChange = (index, checked) => {
-    const updatedData = [...data];
-    updatedData[index].checkbox = checked;
-    setData(updatedData);
-  
-    const updatedSelectedRows = checked
-      ? [...selectedRows, index]
-      : selectedRows.filter((i) => i !== index);
-  
-    setSelectedRows(updatedSelectedRows);
-  };
-  
-
   const [itemGridData, setItemGridData] = useState([]);
   const [barcodeGridData, setBarcodeGridData] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -49,41 +35,26 @@ const ItemDetails = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleBarcodeInputChange = (e) => {
-    const { name, value } = e.target;
-    setBarcodeData({ ...barcodeData, [name]: value });
-  };
 
   const handleAddItem = () => {
     if (isEditing) {
-      const updatedGridData = [...itemGridData];
-      updatedGridData[editIndex] = { ...formData };
+      const updatedGridData = itemGridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setItemGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setItemGridData([...itemGridData, { ...formData }]);
+      setItemGridData([...itemGridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       itemName: '',
       itemQty: '',
       reqQty: ''
     });
   };
 
-  const handleAddBarcode = () => {
-    setBarcodeGridData([...barcodeGridData, { ...barcodeData }]);
-    setBarcodeData({
-      barcode: '',
-      dm: ''
-    });
-  };
-
-  const handleEditItem = (index) => {
-    setIsEditing(true);
-    setEditIndex(index);
-    setFormData({ ...itemGridData[index] });
-  };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -95,26 +66,31 @@ const ItemDetails = () => {
     });
   };
 
-  const itemColumns = {
-    select: { label: "Select", path: "checkbox", width: "70px", type: "checkbox" },
-    itemName: { label: "Item Name", path: "itemName", width: "140px" },
-    itemQty: { label: "Item Qty", path: "itemQty", width: "100px" },
-    reqQty: { label: "Req Qty", path: "reqQty", width: "100px" }
-  };
-
- 
-
-  const sizeColumns = {
-    size: { label: "Size", path: "size", width: "100px" },
-    balanceQty: { label: "Balance Qty", path: "balanceQty", width: "150px" },
-    qty: { label: "Qty", path: "qty", width: "100px" }
-  };
+  const itemColumns = [
+    {
+      headerName: "Select",
+      field: "select",
+      width: 120,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+    },
+    { headerName: "Item Name", field: "itemName", width: 350 },
+    { headerName: "Item Qty", field: "itemQty", width: 150 },
+    { headerName: "Req Qty", field: "reqQty", width: 150 }
+  ];
+  
+  const sizeColumns = [
+    { headerName: "Size", field: "size", width: 100 },
+    { headerName: "Balance Qty", field: "balanceQty", width: 150 },
+    { headerName: "Qty", field: "qty", width: 100 }
+  ];
   
   const sizeRowData = [
     { size: 'Small', balanceQty: 10, qty: 5 },
     { size: 'Medium', balanceQty: 20, qty: 10 },
     { size: 'Large', balanceQty: 30, qty: 15 }
   ];
+  
 
   return (
     <div className={styles.dmtrparentOthersDiv}>
@@ -180,33 +156,33 @@ const ItemDetails = () => {
           )}
         </div>
         <div>
-          <AutoTable
-            tableHeight='315px'
-            data={itemGridData}
-            setData={setItemGridData}
-            columns={itemColumns}
-            canDelete={true}
-            canEdit={true}
-            setFormData={setFormData}
-          setIsEditing={setIsEditing}
-          setEditIndex={setEditIndex}
-      
-          selectedRows={selectedRows}
-          setSelectedRows={setSelectedRows}
-          />
+        <CustomAgGrid
+                rowData={itemGridData}
+                setIsEditing={setIsEditing}
+                setRowData={setItemGridData}
+                columnDefs={itemColumns}
+                setFormData={setFormData}
+                gridHeight="354px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
         </div>
       </div>
   
       <div className={styles.rightkarigarItemDiv} style={{width:'40%'}}>
         <div
           className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-          style={{ height: 305, width: '100%' }}
+          style={{  width: '100%' }}
         >
-          <AutoTable
-            tableHeight='360px'
-            data={sizeRowData}
-            columns={sizeColumns}
-          />
+          <CustomAgGrid
+                gridHeight="390px"
+                rowData={sizeRowData}
+                columnDefs={sizeColumns}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+              />
         </div>
       </div>
     </div>

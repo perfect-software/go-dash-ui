@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/newPo.module.css";
-
-
-import AutoTable from "../features/AutoTable";
-
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -43,15 +41,17 @@ const StockTransfer = () => {
 
   const handleAddItem = () => {
     if (isEditing) {
-      const updatedGridData = [...itemGridData];
-      updatedGridData[editIndex] = { ...formData };
+      const updatedGridData = itemGridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setItemGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setItemGridData([...itemGridData, { ...formData }]);
+      setItemGridData([...itemGridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       date: '',
       itemSubGroupName: '',
       itemName: '',
@@ -63,12 +63,29 @@ const StockTransfer = () => {
     });
   };
 
-  const handleEditItem = (index) => {
-    setIsEditing(true);
-    setEditIndex(index);
-    setFormData({ ...itemGridData[index] });
+  const CustomCellRenderer = (props) => {
+    const { value } = props;
+  
+    const cellStyle = {
+      backgroundColor: value === "Out" ? "#f44336" : "#4caf50",
+      color: "white",
+      fontWeight: "bold",
+      textAlign: "center",
+      borderRadius: '10px',
+      width: '100%',
+      marginTop: '15%',
+      height: '50%', 
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center' 
+    };
+  
+    return (
+      <div style={cellStyle}>
+        {value === "Out" ? "Out" : "In"}
+      </div>
+    );
   };
-
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditIndex(null);
@@ -84,22 +101,36 @@ const StockTransfer = () => {
     });
   };
 
-  const itemColumns = {
-    date: { label: "DATE", path: "date", width: "140px" },
-    itemSubGroupName: { label: "ITEM SUB GROUP NAME", path: "itemSubGroupName", width: "200px" },
-    itemName: { label: "ITEM NAME", path: "itemName", width: "200px" },
-    supplierName: { label: "SUPPLIER NAME", path: "supplierName", width: "200px" },
-    stockQty: { label: "STOCK QTY", path: "stockQty", width: "100px" },
-    qty: { label: "QTY", path: "qty", width: "100px" },
-    rate: { label: "RATE", path: "rate", width: "100px" },
-    caption: { label: "Toggle", path: "caption", width: "100px", type: "toggle" }
-  };
+  const itemColumns = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Date", field: "date", width: 140 },
+    { headerName: "Item Sub Group Name", field: "itemSubGroupName", width: 200 },
+    { headerName: "Item Name", field: "itemName", width: 200 },
+    {
+      headerName: "Caption",
+      field: "caption",
+      width: 100,
+      cellRenderer: CustomCellRenderer, // Use the custom cell renderer here
+    },
+    { headerName: "Supplier Name", field: "supplierName", width: 200 },
+    { headerName: "Stock Qty", field: "stockQty", width: 100 },
+    { headerName: "Qty", field: "qty", width: 100 },
+    { headerName: "Rate", field: "rate", width: 100 },
 
-  const sizeColumns = {
-    size: { label: "Size", path: "size", width: "100px" },
-    balanceQty: { label: "Balance Qty", path: "balanceQty", width: "150px" },
-    qty: { label: "Qty", path: "qty", width: "100px" }
-  };
+  ];
+  
+
+  const sizeColumns = [
+    { headerName: "Size", field: "size", width: 100 },
+    { headerName: "Balance Qty", field: "balanceQty", width: 150 },
+    { headerName: "Qty", field: "qty", width: 100 }
+  ];
 
   const sizeRowData = [
     { size: 'Small', balanceQty: 10, qty: 5 },
@@ -264,29 +295,30 @@ const StockTransfer = () => {
         <div className={styles.leftkarigarItemDiv} style={{ width: '75%' }}>
         
           <div>
-            <AutoTable
-              tableHeight='420px'
-              data={itemGridData}
-              setData={setItemGridData}
-              columns={itemColumns}
-              canDelete={true}
-              canEdit={true}
-              setFormData={setFormData}
-              setIsEditing={setIsEditing}
-              setEditIndex={setEditIndex}
-              selectedRows={selectedRows}
-              setSelectedRows={setSelectedRows}
-            />
+          <CustomAgGrid
+                rowData={itemGridData}
+                setIsEditing={setIsEditing}
+                setRowData={setItemGridData}
+                columnDefs={itemColumns}
+                setFormData={setFormData}
+                gridHeight="435px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
           </div>
         </div>
         <div className={styles.rightkarigarItemDiv} style={{ width: '25%' }}>
-          <div style={{ height: 305, width: '100%' }}>
-            <AutoTable
-              tableHeight='420px'
-              data={sizeRowData}
-              columns={sizeColumns}
-            />
-          </div>
+        
+          <CustomAgGrid
+                gridHeight="435px"
+                rowData={sizeRowData}
+                columnDefs={sizeColumns}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+              />
+         
         </div>
         </div>
       </div>

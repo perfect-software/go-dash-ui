@@ -10,23 +10,24 @@ import Cross from "../assets/cross.svg";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import { getApiService, getDataApiService } from "../service/apiService";
 import AutoTable from "../features/AutoTable";
+import CustomAgGrid from "../features/CustomAgGrid";
 const KarigarDataViewPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const columns = {
-    date: { label: "Date", path: "date", width: "140px" },
-    group: { label: "Group", path: "group", width: "140px" },
-    department: { label: "Department", path: "department", width: "140px" },
-    karigarName: { label: "Karigar Name", path: "karigarName", width: "140px" },
-    articleNo: { label: "Article No.", path: "articleNo", width: "140px" },
-    workOrderNo: { label: "Work Order No.", path: "workOrderNo", width: "140px" },
-    activityName: { label: "Activity Name", path: "activityName", width: "140px" },
-    sampleRequestNo: { label: "Sample Request No.", path: "sampleRequestNo", width: "140px" },
-    repairSlipNo: { label: "Repair Slip No.", path: "repairSlipNo", width: "140px" },
-    remark: { label: "Remark", path: "remark", width: "140px" },
-    qty: { label: "Qty", path: "qty", width: "140px" },
-    rate: { label: "Rate", path: "rate", width: "140px" }
-  };
+  const columns = [
+    { headerName: "Date", field: "date", width: 140 },
+    { headerName: "Group", field: "group", width: 140 },
+    { headerName: "Department", field: "department", width: 140 },
+    { headerName: "Karigar Name", field: "karigarName", width: 140 },
+    { headerName: "Article No.", field: "articleNo", width: 140 },
+    { headerName: "Work Order No.", field: "workOrderNo", width: 140 },
+    { headerName: "Activity Name", field: "activityName", width: 140 },
+    { headerName: "Sample Request No.", field: "sampleRequestNo", width: 140 },
+    { headerName: "Repair Slip No.", field: "repairSlipNo", width: 140 },
+    { headerName: "Remark", field: "remark", width: 140 },
+    { headerName: "Qty", field: "qty", width: 140 },
+    { headerName: "Rate", field: "rate", width: 140 }
+  ];
   
   const rowData = [
     {
@@ -107,13 +108,14 @@ const KarigarDataViewPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) =>
 
 
             <div >
-    <AutoTable
-     tableHeight='500px'
-      data={rowData}
-    
-      columns={columns}
-    
-    />
+            <CustomAgGrid
+                gridHeight="500px"
+                rowData={rowData}
+                columnDefs={columns}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={true}
+              />
   </div>
        
    

@@ -25,131 +25,38 @@ import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 const ItemDetails = () => {
-  const [formData, setFormData] = useState({
-    itemName: "",
-    itemQty: "",
-    reqQty: "",
-  });
 
-  const [barcodeData, setBarcodeData] = useState({
-    barcode: "",
-    dm: "",
-  });
-  const [data, setData] = useState([]);
-  const [selectedRows, setSelectedRows] = useState([]);
-
-  useEffect(() => {
-    console.log(
-      "Selected Rows Data:",
-      selectedRows.map((index) => data[index])
-    );
-  }, [selectedRows]);
 
   const [ticketData, setTicketData] = useState([
-    { checkbox: false, ticketNo: "00350/01/001-00001", pairQty: 10 },
-    { checkbox: false, ticketNo: "00350/01/001-00002", pairQty: 10 },
-    { checkbox: true, ticketNo: "00350/01/001-00002", pairQty: 30 },
-    // Add more rows as needed
+    { select: false, ticketNo: "00350/01/001-00001", pairQty: 10 },
+    { select: false, ticketNo: "00350/01/001-00002", pairQty: 10 },
+    { select: true, ticketNo: "00350/01/001-00002", pairQty: 30 },
+  
   ]);
 
-  const columns = {
-    select: {
-      label: "Select",
-      path: "checkbox",
-      width: "70px",
-      type: "checkbox",
+  const columns = [
+    {
+      headerName: "Select",
+      field: "select",
+      width: 180,
+      cellRendererFramework: (params) => (
+        <input type="checkbox" checked={params.value} onChange={(e) => params.context.handleSelectChange(params.node.id, e.target.checked)} />
+      ),
+      editable: true,
     },
-    ticketNo: { label: "Ticket No.", path: "ticketNo", width: "150px" },
-    pairQty: { label: "Pair Qty", path: "pairQty", width: "70px" },
-  };
+    { headerName: "Ticket No.", field: "ticketNo", width: 250 },
+    { headerName: "Pair Qty", field: "pairQty", width: 100 },
+  ];
 
-  const handleCheckboxChange = (index, checked) => {
-    const updatedData = [...data];
-    updatedData[index].checkbox = checked;
-    setData(updatedData);
 
-    const updatedSelectedRows = checked
-      ? [...selectedRows, index]
-      : selectedRows.filter((i) => i !== index);
-
-    setSelectedRows(updatedSelectedRows);
-  };
-
-  const [itemGridData, setItemGridData] = useState([]);
-  const [barcodeGridData, setBarcodeGridData] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleBarcodeInputChange = (e) => {
-    const { name, value } = e.target;
-    setBarcodeData({ ...barcodeData, [name]: value });
-  };
-
-  const handleAddItem = () => {
-    if (isEditing) {
-      const updatedGridData = [...itemGridData];
-      updatedGridData[editIndex] = { ...formData };
-      setItemGridData(updatedGridData);
-      setIsEditing(false);
-      setEditIndex(null);
-    } else {
-      setItemGridData([...itemGridData, { ...formData }]);
-    }
-    setFormData({
-      itemName: "",
-      itemQty: "",
-      reqQty: "",
-    });
-  };
-
-  const handleAddBarcode = () => {
-    setBarcodeGridData([...barcodeGridData, { ...barcodeData }]);
-    setBarcodeData({
-      barcode: "",
-      dm: "",
-    });
-  };
-
-  const handleEditItem = (index) => {
-    setIsEditing(true);
-    setEditIndex(index);
-    setFormData({ ...itemGridData[index] });
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditIndex(null);
-    setFormData({
-      itemName: "",
-      itemQty: "",
-      reqQty: "",
-    });
-  };
-
-  const itemColumns = {
-    select: {
-      label: "Select",
-      path: "checkbox",
-      width: "70px",
-      type: "checkbox",
-    },
-    itemName: { label: "Item Name", path: "itemName", width: "140px" },
-    itemQty: { label: "Item Qty", path: "itemQty", width: "100px" },
-    reqQty: { label: "Req Qty", path: "reqQty", width: "100px" },
-  };
-
-  const sizeColumns = {
-    size: { label: "Size", path: "size", width: "100px" },
-    balanceQty: { label: "Balance Qty", path: "balanceQty", width: "150px" },
-    qty: { label: "Qty", path: "qty", width: "100px" },
-  };
+  const sizeColumns = [
+    { headerName: "Size", field: "size", width: 100 },
+    { headerName: "Balance Qty", field: "balanceQty", width: 150 },
+    { headerName: "Qty", field: "qty", width: 100 },
+  ];
 
   const sizeRowData = [
     { size: "Small", balanceQty: 10, qty: 5 },
@@ -159,26 +66,33 @@ const ItemDetails = () => {
 
   return (
     <div className={styles.gatePassReceiveParentDiv}>
-  
-      <div className={styles.leftkarigarItemDiv} style={{width:'60%'}}>
+      <div className={styles.leftkarigarItemDiv} style={{ width: "60%" }}>
         <div>
-          <AutoTable
-            tableHeight="340px"
-            data={ticketData}
-            setData={setTicketData}
-            columns={columns}
+          <CustomAgGrid
+            rowData={ticketData}
+            setRowData={setTicketData}
+            columnDefs={columns}
+            gridHeight="340px"
+            editEnabled={false}
+            deleteEnabled={false}
+            pagination={true}
+            gridOpt={true}
+          
           />
         </div>
       </div>
       <div className={styles.rightkarigarItemDiv} style={{ width: "40%" }}>
         <div
           className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-          style={{ height: 305, width: "100%" }}
+          style={{  width: "100%" }}
         >
-          <AutoTable
-            tableHeight="340px"
-            data={sizeRowData}
-            columns={sizeColumns}
+          <CustomAgGrid
+            gridHeight="340px"
+            rowData={sizeRowData}
+            columnDefs={sizeColumns}
+            editEnabled={false}
+            deleteEnabled={false}
+            pagination={false}
           />
         </div>
       </div>

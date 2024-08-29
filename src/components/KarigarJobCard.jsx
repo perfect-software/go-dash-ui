@@ -25,6 +25,8 @@ import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
+import { v4 as uuidv4 } from 'uuid';
+import CustomAgGrid from "../features/CustomAgGrid";
 
 
 const ItemDetails = () => {
@@ -56,15 +58,17 @@ const ItemDetails = () => {
 
   const handleAddItem = () => {
     if (isEditing) {
-      const updatedGridData = [...itemGridData];
-      updatedGridData[editIndex] = { ...formData };
+      const updatedGridData = itemGridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setItemGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setItemGridData([...itemGridData, { ...formData }]);
+      setItemGridData([...itemGridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       itemName: '',
       itemQty: '',
       reqQty: ''
@@ -95,29 +99,45 @@ const ItemDetails = () => {
     });
   };
 
-  const itemColumns = {
-    itemName: { label: "Item Name", path: "itemName", width: "140px" },
-    itemQty: { label: "Item Qty", path: "itemQty", width: "100px" },
-    reqQty: { label: "Req Qty", path: "reqQty", width: "100px" }
-  };
-
-  const barcodeColumns = {
-    barcode: { label: "Barcode", path: "barcode", width: "150px" },
-    dm: { label: "DM", path: "dm", width: "150px" }
-  };
-
-  const sizeColumns = {
-    size: { label: "Size", path: "size", width: "100px" },
-    balanceQty: { label: "Balance Qty", path: "balanceQty", width: "150px" },
-    qty: { label: "Qty", path: "qty", width: "100px" }
-  };
+  const itemColumns = [
+    {
+      headerName: "Select",
+      field: "select",
+      width: 140,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+    },
+    { headerName: "Item Name", field: "itemName", width: 180 },
+    { headerName: "Item Qty", field: "itemQty", width: 100 },
+    { headerName: "Req Qty", field: "reqQty", width: 100 }
+  ];
   
+
+  const barcodeColumns = [
+    {
+      headerName: "Select",
+      field: "select",
+      width: 150,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+    },
+    { headerName: "Barcode", field: "barcode", width: 150 },
+    { headerName: "DM", field: "dm", width: 150 }
+  ];
+  
+  
+  const sizeColumns = [
+    { headerName: "Size", field: "size", width: 100 },
+    { headerName: "Balance Qty", field: "balanceQty", width: 150 },
+    { headerName: "Qty", field: "qty", width: 100 }
+  ];
+  
+
   const sizeRowData = [
     { size: 'Small', balanceQty: 10, qty: 5 },
     { size: 'Medium', balanceQty: 20, qty: 10 },
     { size: 'Large', balanceQty: 30, qty: 15 }
   ];
-
   return (
     <div className={styles.dmtrparentOthersDiv}>
       <div className={styles.leftkarigarItemDiv}>
@@ -180,17 +200,17 @@ const ItemDetails = () => {
           )}
         </div>
         <div>
-          <AutoTable
-            tableHeight='315px'
-            data={itemGridData}
-            setData={setItemGridData}
-            columns={itemColumns}
-            canDelete={true}
-            canEdit={true}
-            setFormData={setFormData}
-          setIsEditing={setIsEditing}
-          setEditIndex={setEditIndex}
-          />
+        <CustomAgGrid
+                rowData={itemGridData}
+                setIsEditing={setIsEditing}
+                setRowData={setItemGridData}
+                columnDefs={itemColumns}
+                setFormData={setFormData}
+                gridHeight="345px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
         </div>
       </div>
       <div className={styles.midkarigarItemDiv}>
@@ -229,25 +249,30 @@ const ItemDetails = () => {
           </button>
         </div>
         <div>
-          <AutoTable
-            tableHeight='315px'
-            data={barcodeGridData}
-            setData={setBarcodeGridData}
-            columns={barcodeColumns}
-            canDelete={true}
-          />
+        <CustomAgGrid
+                gridHeight="345px"
+                rowData={barcodeGridData}
+                setRowData={setBarcodeGridData}
+                columnDefs={barcodeColumns}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
         </div>
       </div>
       <div className={styles.rightkarigarItemDiv}>
         <div
           className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-          style={{ height: 305, width: '100%' }}
+          style={{width: '100%' }}
         >
-          <AutoTable
-            tableHeight='360px'
-            data={sizeRowData}
-            columns={sizeColumns}
-          />
+         <CustomAgGrid
+                gridHeight="378px"
+                rowData={sizeRowData}
+                columnDefs={sizeColumns}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+              />
         </div>
       </div>
     </div>
@@ -256,46 +281,54 @@ const ItemDetails = () => {
 
 
 const OtherDetails = () => {
-
   const [data, setData] = useState([
-    { checkbox: false, ticketNo: "00350/01/001-00001", pairQty: 10 },
-    { checkbox: false, ticketNo: "00350/01/001-00002", pairQty: 10 },
-    { checkbox: true, ticketNo: "00350/01/001-00002", pairQty: 30 },
-    // Add more rows as needed
+    { select: false, ticketNo: "00350/01/001-00001", pairQty: 10 },
+    { select: false, ticketNo: "00350/01/001-00002", pairQty: 10 },
+    { select: true, ticketNo: "00350/01/001-00002", pairQty: 30 },
+   
   ]);
 
-  const columns = {
-    checkbox: { label: "Check Box", path: "checkbox", width: "70px", type: "checkbox" },
-    ticketNo: { label: "Ticket No.", path: "ticketNo", width: "150px" },
-    pairQty: { label: "Pair Qty", path: "pairQty", width: "70px" },
-  };
 
-  const handleCheckboxChange = (index, checked) => {
-    const updatedData = [...data];
-    updatedData[index].checkbox = checked;
-    setData(updatedData);
-  };
+  const columns = [
+    {
+      headerName: "Select",
+      field: "select",
+      width: 180,
+      cellRendererFramework: (params) => (
+        <input type="checkbox" checked={params.value} onChange={(e) => params.context.handleSelectChange(params.node.id, e.target.checked)} />
+      ),
+      editable: true,
+    },
+    {
+      headerName: "Ticket No.",
+      field: "ticketNo",
+      width: 250
+    },
+    {
+      headerName: "Pair Qty",
+      field: "pairQty",
+      width: 150
+    }
+  ];
 
-  const getSelectedRows = () => {
-    return data.filter(row => row.checkbox);
-  };
+
 
   return (
     <div className={styles.dmtrKarigarparentOthersDiv}>
-
-   
       <div className={styles.rightKarigarOthersDiv}>
-       
-      <div>
-     
-      <AutoTable
-       tableHeight='360px'
-        data={data}
-        setData={setData}
-        columns={columns}
-        handleCheckboxChange={handleCheckboxChange}
-      />
-    </div>
+        <div>
+        <CustomAgGrid
+            rowData={data}
+            setRowData={setData}
+            columnDefs={columns}
+            gridHeight="360px"
+            editEnabled={false}
+            deleteEnabled={false}
+            pagination={true}
+            gridOpt={true}
+          
+          />
+        </div>
       </div>
     </div>
   );

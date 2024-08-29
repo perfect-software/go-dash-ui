@@ -43,6 +43,10 @@ import OrderCheckList from "./components/OrderCheckList";
 import MaterialFloorReturn from "./components/MaterialFloorReturn";
 import StockTransfer from "./components/StockTransfer";
 import StockAdjustment from "./components/StockAdjustment";
+import Reinspection from "./components/Reinspection";
+import TestPO from "./components/TestPO";
+import WorkerAdvance from "./components/WorkerAdvance";
+import WorkerMaster from "./components/WorkMaster";
 
 
 function App() {
@@ -81,6 +85,10 @@ function App() {
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
               <Route path="/srbom" element={<Bom/>}/>
+              <Route path="/testpo" element={<TestPO/>}/>
+              <Route path="/workermaster" element={<WorkerMaster/>}/>
+              <Route path="/workerAdvance" element={<WorkerAdvance/>}/>
+              <Route path="/reinspection" element={<Reinspection/>}/>
               <Route path="/samplecosting" element={<SampleCosting/>}/>
               <Route path="/newpurchaseorderdetails/:orderId" element={<NewPurchaseOrderDetails />} /> 
               <Route path="/prbom" element={<ProductionBom/>}/>

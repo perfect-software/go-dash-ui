@@ -1537,12 +1537,12 @@ const SampleRequest = () => {
                 View SRs
               </button>
             </div>
-            {activeButton === "view" && (
+            {/* {activeButton === "view" && (
               <div className={styles.editContainer}>
                 <button
-                  disabled={!multipleSelected}
+               //   disabled={!multipleSelected}
                   className={styles.headButton}
-                  onClick={handleEditClick}
+                 // onClick={handleEditClick}
                 >
                   Update
                 </button>
@@ -1555,13 +1555,13 @@ const SampleRequest = () => {
                   <button
                     disabled={!isEditSelected}
                     className={styles.headButtonPrint}
-                    onClick={handlePrintClick}
+                  //  onClick={handlePrintClick}
                   >
                     Print
                   </button>
                 )}
               </div>
-            )}
+            )} */}
           </div>
 
           <div className={styles.headBorder}></div>
@@ -2356,7 +2356,7 @@ const SampleRequest = () => {
           )}
         </>
       ) : (
-        <ViewSr onSampleSelect={handleSampleEdit} />
+        <ViewSr onSampleSelect={handleSampleEdit} multipleSelected={multipleSelected} handleEditClick={handleEditClick} handlePrintClick={handlePrintClick} isEditSelected={isEditSelected} />
       )}
     </div>
   );

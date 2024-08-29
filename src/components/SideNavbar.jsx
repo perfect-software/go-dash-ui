@@ -35,12 +35,12 @@ const MENU_ITEMS = {
   sales: {
     title: "Sales",
     icon: SalesIcon,
-    subItems: ["Buyer", "Buyer Order","Dmtr","Gate Pass","Gate Pass Receive","Gate Pass Out Misc","Gate Pass Receive Misc"],
+    subItems: ["Buyer", "Buyer Order","Dmtr","Gate Pass","Gate Pass Receive","Gate Pass Out Misc","Gate Pass Receive Misc","Worker Master","Worker Advance"],
   },
   purchase: {
     title: "Purchase",
     icon: PurchaseIcon,
-    subItems: ["Supplier", "Purchase Order","New PO", "ICR Challan", "Gate Pass","Performa Invoice","Order Check List","Material Floor Return"],
+    subItems: ["Supplier", "Purchase Order","New PO", "ICR Challan", "Gate Pass","Performa Invoice","Order Check List","Material Floor Return","Test Po"],
   },
   production: {
     title: "Production",
@@ -50,7 +50,7 @@ const MENU_ITEMS = {
   stock: {
     title: "Stock",
     icon: StockIcon,
-    subItems: ["Article Directory", "Item Directory" , "Item Quotation","Credit Note","Invoice Without WO","Material Issue","Stock Transfer","Stock Adjustment"],
+    subItems: ["Article Directory", "Item Directory" , "Item Quotation","Credit Note","Invoice Without WO","Material Issue","Stock Transfer","Stock Adjustment","Re Inspection"],
   },
 };
 const SUBITEM_ICONS = {
@@ -59,11 +59,15 @@ const SUBITEM_ICONS = {
   "Sample Progress":NewJobIcon,
   Buyer: BuyerIcon,
   "Buyer Order": BuyerOrder,
+  "Worker Master":BomIcon,
+  "Worker Advance":IcrIcon,
   Supplier: BuyerIcon,
   "Purchase Order": PurchaseOrder,
   "Performa Invoice": IcrIcon,
   "Prod Purchase Order":PurchaseOrder,
   "ICR Challan": IcrIcon,
+  "Re Inspection":IcrIcon,
+  "Test Po":BuyerIcon,
   "New PO":PurchaseOrder,
   "Stock Adjustment":BuyerIcon,
   "Order Check List":BomIcon,

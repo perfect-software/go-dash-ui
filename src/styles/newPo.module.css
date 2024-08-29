@@ -556,6 +556,16 @@
   @apply flex items-center rounded-sm bg-[#0de37f] font-bold justify-center h-[1.4rem] w-[4rem];
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
+.saveButtonContainer
+{
+ @apply flex justify-end items-center mr-3 ;
+}
+.saveDataButton
+{
+  @apply text-[1.125vw] sml:text-sm font-[300] p-[0.5rem] text-white 
+  leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+  sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
 .viewButton2 {
   @apply flex items-center rounded-sm bg-[#feb9e2] font-bold justify-center h-[1.4rem] w-[5.5rem];
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -891,6 +901,14 @@ select {
   @apply flex flex-col p-2 pt-3 m-1 rounded-md;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.workerAdvancetopContainer {
+  @apply flex flex-col p-2 pt-3 m-1 rounded-md;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.workerAdvancetopContainerH1{
+@apply m-auto text-green-500 pb-4 font-bold;
 }
 .karigarTopContainer {
   @apply flex px-[10px] gap-1 my-1;
@@ -1483,6 +1501,13 @@ select {
 .switch input:checked + .switchWrapper .switchToggle {
   transform: translateX(50px); /* Adjust to match the switch width */
   background-color: #f44336; /* Red for "Sample" */
+}
+.greenBackground {
+  border : 3px dashed #4caf50;
+}
+
+.redBackground {
+  border : 3px dashed #f44336;
 }
 
 .rotateTerms180 {

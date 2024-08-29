@@ -5,15 +5,21 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import Cross from "../assets/cross.svg";
+import Delete3dIcon from "../assets/delete3d.svg";
+import Edit3dIcon from "../assets/edit3d.svg";
+import SearchIcon from "../assets/search.svg";
+import { FaFilePdf, FaFileExcel } from "react-icons/fa";
+import DotsIcon from "../assets/exportPrinter.svg";
+import FilterIcon from "../assets/filter.svg";
 import {  formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
+import styles3 from "../styles/outlinedInput.module.css";
 
-
-const ViewSr = ({ onSampleSelect }) => {
+const ViewSr = ({ onSampleSelect,multipleSelected,handleEditClick,handlePrintClick,isEditSelected}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
@@ -24,13 +30,28 @@ const ViewSr = ({ onSampleSelect }) => {
   );
 
   const [gridApi, setGridApi] = useState(null);
-
+  const [columnApi, setColumnApi] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState({});
   
   const onGridReady = useCallback((params) => {
     setGridApi(params.api);
+    setColumnApi(params.columnApi);
+
     if (!loaded && !loading) {
       dispatch(fetchAllSamples());
     }
+    const allColumns = params.columnApi.getAllColumns();
+    const visibleColumnsState = {};
+    allColumns.forEach((col) => {
+      const colId = col.getColId();
+      visibleColumnsState[colId] = {
+        visible: params.columnApi.getColumnState().find((c) => c.colId === colId).hide !== true,
+      };
+    });
+    setVisibleColumns(visibleColumnsState);
   }, [loaded, loading, dispatch]);
   
   useEffect(() => {
@@ -84,8 +105,8 @@ const ViewSr = ({ onSampleSelect }) => {
       }
     }
   }, []);
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
+  const onRowSelected = (params) => {
+    const selectedData = params.data;
     onSampleSelect(selectedData.length > 0 ? selectedData : null);
   };
   const actionButton = (params) => {
@@ -93,7 +114,7 @@ const ViewSr = ({ onSampleSelect }) => {
     setImagePreview(params.data.image_nm)
   };
   const columnDefs = [
-    { headerName: "Edit",  field:'edit' , maxWidth: 80,  headerCheckboxSelection: true,
+    { headerName: "Select",  field:'edit' , maxWidth: 90,  headerCheckboxSelection: true,
     checkboxSelection: true,
     showDisabledCheckboxes: true},
     { headerName: "SR No.", width:150, field: "sr_no", sortable: true, filter: true },
@@ -312,19 +333,112 @@ const ViewSr = ({ onSampleSelect }) => {
       sortable: true,
       filter: true,
     },
+ 
   ];
+  const exportToExcel = () => {
+    if (!gridApi) return;
+    const params = {
+      fileName: "export.csv",
+      allColumns: true,
+    };
+    gridApi.exportDataAsCsv(params);
+  };
 
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleColumnVisibilityChange = (column) => {
+    if (!columnApi) return;
+    const col = columnApi.getColumn(column);
+    const newVisibility = !visibleColumns[column]?.visible;
+    columnApi.setColumnVisible(col, !newVisibility);
+    setVisibleColumns({
+      ...visibleColumns,
+      [column]: { ...visibleColumns[column], visible: newVisibility },
+    });
+  };
 
   return (
     <><div
     className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
   >
   
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
+  <div className={styles3.tableContainer} style={{ height: '100%', width: '100%',paddingBottom:"60px" }}>
+  <div style={{ marginTop: '10px',height:400}} className={`ag-theme-quartz ${styles.agGridWrapper}`}>
+    <div className={styles3.header}>
+      <div className={styles3.searchContainer}>
+        <img src={SearchIcon} className={styles3.searchIcon} alt="Search" />
+        <input
+          className={styles3.searchInput}
+          type="search"
+          placeholder="Search"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
+      <div className={styles3.export}>
+        <button
+          className={styles3.menuButton}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          disabled={!isEditSelected}
+             title="Export"
+        >
+          <img className={styles3.menuIcon} src={DotsIcon} alt="Menu" />
+        </button>
+        {isMenuOpen && (
+          <div className={styles3.dropdownMenu}>
+            <button className={styles3.dropdownItem} onClick={handlePrintClick}>
+              <FaFilePdf /> Export to PDF
+            </button>
+            <button className={styles3.dropdownItem} onClick={exportToExcel}>
+              <FaFileExcel /> Export to Excel
+            </button>
+          </div>
+        )}
+        <button
+          className={styles3.menuButton2}
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+             title="Filter"
+        >
+          <img className={styles3.filterIcon} src={FilterIcon} alt="Filter" />
+        </button>
+        {isFilterOpen && (
+                    <div className={styles3.filterMenu}>
+                      {columnDefs.map(
+                        (col) =>
+                          col.headerName && (
+                            <label key={col.field}>
+                              <input
+                                type="checkbox"
+                                checked={!visibleColumns[col.field]?.visible}
+                                onChange={() => handleColumnVisibilityChange(col.field)}
+                              />
+                              {col.headerName}
+                            </label>
+                          )
+                      )}
+          </div>
+        )}
+         <button
+          className={styles3.menuButton3}
+          //onClick={() => setIsFilterOpen(!isFilterOpen)}
+          title="Edit"
+          disabled={!multipleSelected}
+        >
+         <img
+            src={Edit3dIcon}
+            alt="Edit"
+            className={styles3.actionIcon}
+            onClick={handleEditClick}
+          />
+         
+        </button>
+   
+      </div>
+    </div>
+
+    <AgGridReact
           columnDefs={columnDefs}
           rowData={samples}
           pagination={true}
@@ -334,8 +448,8 @@ const ViewSr = ({ onSampleSelect }) => {
           filter={true}
           onCellKeyDown={onCellKeyDown}
           onGridReady={onGridReady}
-          rowSelection={"multiple"}
           onSelectionChanged={onRowSelected}
+          rowSelection={"multiple"}
           overlayLoadingTemplate={
             '<span class="ag-overlay-loading-center">Loading...</span>'
           }
@@ -343,7 +457,8 @@ const ViewSr = ({ onSampleSelect }) => {
             `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
           }
         />
-      </div>
+  </div>
+</div>
   </div>
       {isImagePopup && (
         <div className={inputStyles.popupOverlay}>

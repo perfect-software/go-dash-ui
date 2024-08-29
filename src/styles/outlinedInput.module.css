@@ -44,7 +44,9 @@
 .filterIcon {
   @apply rounded-md h-[18px] w-[18px];
 }
-
+.actionIcon {
+  @apply rounded-md h-[18px] w-[18px];
+}
 .export {
   @apply flex gap-3 items-center;
   position: relative;
@@ -54,17 +56,24 @@
   @apply flex items-center gap-3;
 }
 
-.menuButton {
-  @apply rounded-md p-2;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.3s ease;
+.menuButton, .menuButton2, .menuButton3, .menuButton4 {
+  @apply rounded-[50%] p-2 border-none cursor-pointer transition-[background-color_0.3s_ease];
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
-.menuButton:hover {
-  background-color: #efefef;
+.menuButton { background-color: #FFBD44; }
+.menuButton2 { background-color: #00CA4E; }
+.menuButton3 { background-color: lightseagreen; }
+.menuButton4 { background-color: #262525; }
+
+.menuButton:hover, .menuButton2:hover, .menuButton3:hover, .menuButton4:hover {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.menuButton:disabled, .menuButton2:disabled, .menuButton3:disabled, .menuButton4:disabled {
+  @apply cursor-not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .menuIcon {
@@ -247,7 +256,6 @@
 .rowDeleting {
   animation: slideOutGlassy 1s forwards;
   transition: all 1s ease-out;
-  @apply rounded-xl;
   border-radius: 16px;
   box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
