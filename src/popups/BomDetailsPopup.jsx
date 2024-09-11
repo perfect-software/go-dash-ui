@@ -8,6 +8,7 @@ import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 
 import { getDataApiService } from "../service/apiService";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 const  BomDetailsPopup = ({ bomId,onCancel }) => {
   const navigate = useNavigate();
@@ -188,25 +189,17 @@ const  BomDetailsPopup = ({ bomId,onCancel }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{ width: "100%", marginTop: "10px" }}
           >
-            <AgGridReact
-              columnDefs={columnDefs}
-            //  rowData={bomDetails}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-             onGridReady={onGridReady}
-             overlayLoadingTemplate={
-                '<span class="ag-overlay-loading-center">Loading...</span>'
-              }
-              overlayNoRowsTemplate={
-                `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
-              }
-      
-            />
+            <CustomAgGrid
+                gridHeight="500px"
+                rowData={bomDetails}
+                columnDefs={columnDefs}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+               
+              />
           </div>
           {/* <div className={styles.bottomButtonContainer}>
             <button

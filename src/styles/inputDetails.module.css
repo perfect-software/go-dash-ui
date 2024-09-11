@@ -230,7 +230,7 @@ select {
   grid-gap: 4px 10px;
 }
 .rollGrid {
-  @apply grid sm:grid-cols-1 sml:grid-cols-2 grid-cols-5  mt-2;
+  @apply grid sm:grid-cols-1 sml:grid-cols-3 grid-cols-7  mt-2;
   grid-gap: 4px 10px;
 }
 

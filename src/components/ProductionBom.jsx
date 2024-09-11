@@ -291,7 +291,7 @@ const ProductionBom = () => {
   const fetchBySrNo = async (SRNo) => {
     toggleInputLoaderVisibility("sr_no", true);
     try {
-      const BASE_URL = "productionBom/getSamplebySrNo";
+      const BASE_URL = "bom/getSamplebySrNo";
       const response = await getDataApiService({ srno: SRNo }, BASE_URL);
       setProductionBomData({
         ...productionBomData,
@@ -727,7 +727,7 @@ const ProductionBom = () => {
               </button>
             </div>
             <div className={styles.editContainer}>
-              {activeButton === "view" && (
+              {/* {activeButton === "view" && (
                 <div className={styles.editContainer}>
                   {updateLoading ? (
                     <div className={styles.buttonContainer}>
@@ -746,7 +746,7 @@ const ProductionBom = () => {
                     Print
                   </button>
                 </div>
-              )}
+              )} */}
               {activeButton === "details" && (
                 <div className={styles.editContainer}>
                   <button
@@ -1108,7 +1108,7 @@ const ProductionBom = () => {
       ) : (
         <div>
           {" "}
-          <ViewProductionBom onBOMSelect={handleBOMEdit} />
+          <ViewProductionBom onBOMSelect={handleBOMEdit} handleEditClick={handleEditClick} handleViewPDF={handleViewPDF} />
         </div>
       )}
 

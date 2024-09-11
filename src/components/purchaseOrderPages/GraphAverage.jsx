@@ -16,6 +16,8 @@ import { CustomDateHeader } from "../../helper/customDateHeader";
 import DateEditor from "../../helper/dateEditor";
 import CellEditor from "../../helper/cellValueEditor";
 import { CustomHeader } from "../../helper/customHeader";
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const GraphAverage = ({
   bomData,
   setBomData,
@@ -118,7 +120,18 @@ const GraphAverage = ({
       supplierId: { name: "", id: "" },
     });
   };
-
+  const handleAddMaterial = () => {
+    const newMaterial = {
+      ...newItem,
+      id: uuidv4(), 
+    };
+  
+    setGridData([...gridData, newMaterial]);
+    setNewItem({
+      itemId: { name: "", id: "" },
+      supplierId: { name: "", id: "" },
+    });
+  };
   const toggleInputLoaderVisibility = (key, value) => {
     setShowInputLoading((prevSuggestions) => ({
       ...prevSuggestions,
@@ -292,8 +305,8 @@ const GraphAverage = ({
   const columnDefs = [
     {
       headerName: "Select",
-      field: "edit",
-      maxWidth: 100,
+      field: "select",
+      maxWidth: 150,
       checkboxSelection: true,
       headerCheckboxSelection: true,
       showDisabledCheckboxes: true,
@@ -341,7 +354,7 @@ const GraphAverage = ({
       headerName: "Del. Date",
       field: "delDate",
       width: 260,
-      cellEditor: DateEditor,
+   
       editable: true,
       sortable: true,
       filter: true,
@@ -351,7 +364,7 @@ const GraphAverage = ({
       headerName: "Ex Factory Date",
       field: "exFactoryDate",
       width: 300,
-      cellEditor: DateEditor,
+    
       editable: true,
       sortable: true,
       filter: true,
@@ -436,32 +449,18 @@ const GraphAverage = ({
       <>
         <div
           className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-          style={{ height: 250, width: "100%", marginTop: "10px" }}
+          style={{ width: "100%", marginTop: "10px" }}
         >
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={gridData}
-            pagination={true}
-            paginationPageSize={12}
-            paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-            animateRows={true}
-            suppressRowClickSelection= {true}
-            defaultColDef={defaultColDef}
-            frameworkComponents={{ dateEditor: DateEditor }}
-            reactiveCustomComponents
-            rowSelection={"multiple"}
-            onCellClicked={onCellClicked}
-            //  onSelectionChanged={onRowSelected}
-            filter={true}
-
-            //  onGridReady={onGridReady}
-            //  overlayLoadingTemplate={
-            //     '<span class="ag-overlay-loading-center">Loading...</span>'
-            //   }
-            //   overlayNoRowsTemplate={
-            //     `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
-            //   }
-          />
+          <CustomAgGrid
+                gridHeight="250px"
+                rowData={gridData}
+                setRowData={setGridData}
+                columnDefs={columnDefs}
+                cellClicked={true}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={true}
+              />
         </div>
       </>
       {isRatePopup && (

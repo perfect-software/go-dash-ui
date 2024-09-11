@@ -5,32 +5,21 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
+      {
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
       { field: "header", headerName: "Header" },
       { field: "comment", headerName: "Comment",width:400 },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.header)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
+   
     ],
     []
   );
@@ -57,6 +46,13 @@ const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
       comment: '',
     });
   };
+
+  const updateOverheadData = (newOverheadData) => {
+    setSampleCostingData((prevData) => ({
+      ...prevData,
+      comments: newOverheadData, 
+    }));
+  };
   useEffect(() => {
     if (resetTrigger) {
       setSampleCostingData({ comments: [] });
@@ -70,7 +66,10 @@ const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
   });
   const handleAddMaterial = () => {
     setSampleCostingData((prevData) => {
-      const updatedComment = Array.isArray(prevData.comments) ? [...prevData.comments, newItem] : [newItem];
+      const updatedComment = Array.isArray(prevData.comments) 
+        ? [...prevData.comments, { ...newItem, id: uuidv4() }]
+        : [{ ...newItem, id: uuidv4() }];
+      
       return {
         ...prevData,
         comments: updatedComment,
@@ -79,16 +78,7 @@ const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
     resetNewItemState();
   };
   
-  const handleRemoveItem = (code) => {
-    setSampleCostingData((prevData) => {
-      const updatedComment = Array.isArray(prevData.comments) ? prevData.comments.filter((item) => item.code !== code) : [];
-      return {
-        ...prevData,
-        comments: updatedComment,
-      };
-    });
-  }; 
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem({ ...newItem, [name]: value });
@@ -143,16 +133,18 @@ const Comments = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-  <AgGridReact 
-          rowData={sampleCostingData.comments} 
-          onGridReady={onGridReady}
-          columnDefs={columnDefs}
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          }
-        />
+ <CustomAgGrid
+  rowData={sampleCostingData?.comments || []}  // Fallback to empty array
+  setRowData={updateOverheadData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="250px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
       </div>
     </>
   );

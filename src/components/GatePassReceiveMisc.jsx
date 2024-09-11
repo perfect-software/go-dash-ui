@@ -25,12 +25,14 @@ import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import AutoTable from "../features/AutoTable";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 const ItemDetails = () => {
   const { isCollapsed } = useSidebar();
 
   const [gridData, setGridData] = useState([
     {
+      id:'1',
       itemId: { name: 'Item 1' },
       unit: 'kg',
       articleNo: 'A001',
@@ -45,6 +47,7 @@ const ItemDetails = () => {
       remark: 'First item remark'
     },
     {
+      id:'2',
       itemId: { name: 'Item 2' },
       unit: 'ltr',
       articleNo: 'A002',
@@ -59,6 +62,7 @@ const ItemDetails = () => {
       remark: 'Second item remark'
     },
     {
+      id:'3',
       itemId: { name: 'Item 3' },
       unit: 'pcs',
       articleNo: 'A003',
@@ -74,32 +78,44 @@ const ItemDetails = () => {
     }
   ]);
 
-  const columns = {
-    itemName: { label: "Item Name", path: "itemId.name", width: "150px" },
-    unit: { label: "Unit", path: "unit", width: "70px" },
-    articleNo: { label: "Article No", path: "articleNo", width: "100px" },
-    qty: { label: "Qty", path: "qty", width: "50px" },
-    balQty: { label: "Bal Qty", path: "balQty", width: "50px" },
-    reqQty: { label: "Req Qty", path: "reqQty", width: "50px" },
-    rate: { label: "Rate", path: "rate", width: "70px" },
-    hsn: { label: "HSN", path: "hsn", width: "80px" },
-    cgst: { label: "CGST", path: "cgst", width: "50px" },
-    sgst: { label: "SGST", path: "sgst", width: "50px" },
-    igst: { label: "IGST", path: "igst", width: "50px" },
-    remark: { label: "Remark", path: "remark", width: "200px" },
-  };
+  const columns = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Item Name", field: "itemId.name", width: 200 },
+    { headerName: "Unit", field: "unit", width: 100 },
+    { headerName: "Article No", field: "articleNo",  },
+    { headerName: "Qty", field: "qty",  },
+    { headerName: "Bal Qty", field: "balQty", },
+    { headerName: "Req Qty", field: "reqQty",  },
+    { headerName: "Rate", field: "rate", },
+    { headerName: "HSN", field: "hsn",  },
+    { headerName: "CGST", field: "cgst", },
+    { headerName: "SGST", field: "sgst", },
+    { headerName: "IGST", field: "igst", },
+    { headerName: "Remark", field: "remark", }
+  ];
+  
 
   return (
     <div className={styles.itemDetailsTableContainer}>
       <div
         className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%" }}
+        style={{  width: "100%" }}
       >
-        <AutoTable
-          columns={columns}
-          data={gridData}
-          canDelete={true}
-        />
+       <CustomAgGrid
+                gridHeight="500px"
+                rowData={gridData}
+                setRowData={setGridData}
+                columnDefs={columns}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
       </div>
     </div>
   );

@@ -6,27 +6,38 @@ import styles from "../styles/popupTable.module.css";
 import styles2 from "../styles/newPo.module.css";
 import Cross from "../assets/cross.svg";
 import AutoTable from "../features/AutoTable";
+import CustomAgGrid from "../features/CustomAgGrid";
 
-const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormData }) => {
+const WorkerAdvanceViewPopup = ({ onClose, setFormData ,  setIsEditing}) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [isPopup, setIsPopup] = useState(true);
   const [karigarGroup, setKarigarGroup] = useState("");
   const [department, setDepartment] = useState("");
   const [contractor, setContractor] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
-  const columns = {
-    karigarGroup: { label: "KARIGAR GROUP", path: "karigarGroup", width: "140px" },
-    contractorName: { label: "CONTRACTOR NAME", path: "contractorName", width: "140px" },
-    karigarName: { label: "KARIGAR NAME", path: "karigarName", width: "140px" },
-    fatherName: { label: "FATHER NAME", path: "fatherName", width: "140px" },
-    loanAmt: { label: "LOAN AMT", path: "loanAmt", width: "120px" },
-    advanceAmt: { label: "ADVANCE AMT", path: "advanceAmt", width: "120px" },
-    lessLoanAmt: { label: "LESS LOAN AMT", path: "lessLoanAmt", width: "120px" },
-    lessAdvanceAmt: { label: "LESS ADVANCE AMT", path: "lessAdvanceAmt", width: "120px" },
-  };
+  const columns = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Karigar Group", field: "karigarGroup",  },
+    { headerName: "Contractor Name", field: "contractorName",  },
+    { headerName: "Karigar Name", field: "karigarName",  },
+    { headerName: "Father Name", field: "fatherName",  },
+    { headerName: "Loan Amt", field: "loanAmt",  },
+    { headerName: "Advance Amt", field: "advanceAmt",  },
+    { headerName: "Less Loan Amt", field: "lessLoanAmt",  },
+    { headerName: "Less Advance Amt", field: "lessAdvanceAmt",  }
+  ];
+  
+  
 
   const rowData = [
     {
@@ -38,7 +49,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
       advanceAmt: '4000',
       lessLoanAmt: '2500',
       lessAdvanceAmt: '1800',
-      date: '2024-08-01', // YYYY-MM-DD format for the date
+      date: '2024-08-01', 
     },
     {
       karigarGroup: 'Group C',
@@ -49,7 +60,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
       advanceAmt: '3000',
       lessLoanAmt: '2000',
       lessAdvanceAmt: '1000',
-      date: '2024-08-05', // YYYY-MM-DD format for the date
+      date: '2024-08-05', 
     },
     {
       karigarGroup: 'Group A',
@@ -60,7 +71,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
       advanceAmt: '2000',
       lessLoanAmt: '1500',
       lessAdvanceAmt: '1200',
-      date: '2024-08-10', // YYYY-MM-DD format for the date
+      date: '2024-08-10', 
     },
     {
       karigarGroup: 'Group B',
@@ -71,7 +82,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
       advanceAmt: '5000',
       lessLoanAmt: '3500',
       lessAdvanceAmt: '2700',
-      date: '2024-08-15', // YYYY-MM-DD format for the date
+      date: '2024-08-15', 
     },
     {
       karigarGroup: 'Group E',
@@ -82,7 +93,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
       advanceAmt: '3500',
       lessLoanAmt: '2800',
       lessAdvanceAmt: '2100',
-      date: '2024-08-20', // YYYY-MM-DD format for the date
+      date: '2024-08-20', 
     }
   ];
   
@@ -90,10 +101,10 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
   useEffect(() => {
     let filtered = rowData;
   
-    // Filter by date range if both dates are selected
+    
     if (startDate && endDate) {
       filtered = filtered.filter(row => {
-        const date = new Date(row.date); // 'date' field from the row
+        const date = new Date(row.date); 
         return date >= startDate && date <= endDate;
       });
     }
@@ -122,7 +133,7 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
               <img
                 onClick={() => {
                   setIsPopupVisible(false);
-                  onCancel();
+                  onClose();
                 }}
                 src={Cross}
                 alt="Close Icon"
@@ -213,14 +224,15 @@ const WorkerAdvanceViewPopup = ({ onCancel, setIsEditing, setEditIndex, setFormD
               </div>
             </div>
             <div>
-              <AutoTable
-                tableHeight="500px"
+            <CustomAgGrid
+                gridHeight="500px"
+                rowData={filteredData&&filteredData}
+                columnDefs={columns}
                 setIsEditing={setIsEditing}
-                setEditIndex={setEditIndex}
                 setFormData={setFormData}
-                data={filteredData}
-                canEdit={true}
-                columns={columns}
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
               />
             </div>
           </div>

@@ -5,7 +5,8 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import { v4 as uuidv4 } from 'uuid';
+import CustomAgGrid from "../../features/CustomAgGrid";
 const Comments = ({productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
@@ -70,13 +71,22 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
   });
   const handleAddMaterial = () => {
     setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.comments) ? [...prevData.comments, newItem] : [newItem];
+      const updatedComment = Array.isArray(prevData.comments) 
+        ? [...prevData.comments, { ...newItem, id: uuidv4() }]
+        : [{ ...newItem, id: uuidv4() }];
+      
       return {
         ...prevData,
-        comments: updatedProduction,
+        comments: updatedComment,
       };
     });
     resetNewItemState();
+  };
+  const updateCommentsData = (newCommentsData) => {
+    setProductionBomData((prevData) => ({
+      ...prevData,
+      comments: newCommentsData, // Update only the overhead
+    }));
   };
   
   const handleRemoveItem = (code) => {
@@ -143,16 +153,18 @@ const Comments = ({productionBomData, setProductionBomData ,editDetails, setEdit
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{  width: "100%", marginTop: "10px" }}
       >
-  <AgGridReact 
-          rowData={productionBomData.comments} 
-          onGridReady={onGridReady}
-          columnDefs={columnDefs}
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          }
-        />
+ <CustomAgGrid
+  rowData={productionBomData?.comments || []}  // Fallback to empty array
+  setRowData={updateCommentsData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="210px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
       </div>
     </>
   );

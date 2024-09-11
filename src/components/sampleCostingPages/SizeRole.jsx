@@ -5,33 +5,23 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const SizeRoles = ({sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
+      {
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
+   
       { field: "size", headerName: "Size" , width:200},
       { field: "quantity", headerName: "Quantity" },
       { field: "extra", headerName: "Extra" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.size)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
+
     ],
     []
   );
@@ -72,24 +62,24 @@ const SizeRoles = ({sampleCostingData, setSampleCostingData ,editDetails, setEdi
 
   const handleAddMaterial = () => {
     setSampleCostingData((prevData) => {
-      const updatedSizeRole = Array.isArray(prevData.sizeRoles) ? [...prevData.sizeRoles, newItem] : [newItem];
+      const updatedSizeRoles = Array.isArray(prevData.sizeRoles) 
+        ? [...prevData.sizeRoles, { ...newItem, id: uuidv4() }]
+        : [{ ...newItem, id: uuidv4() }];
+      
       return {
         ...prevData,
-        sizeRoles: updatedSizeRole,
+        sizeRoles: updatedSizeRoles,
       };
     });
     resetNewItemState();
   };
-  
-  const handleRemoveItem = (code) => {
-    setSampleCostingData((prevData) => {
-      const updatedSizeRole = Array.isArray(prevData.sizeRoles) ? prevData.sizeRoles.filter((item) => item.code !== code) : [];
-      return {
-        ...prevData,
-        sizeRoles: updatedSizeRole,
-      };
-    });
-  }; 
+  const updateOverheadData = (newOverheadData) => {
+    setSampleCostingData((prevData) => ({
+      ...prevData,
+      sizeRoles: newOverheadData,
+    }));
+  };
+
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -155,16 +145,18 @@ const SizeRoles = ({sampleCostingData, setSampleCostingData ,editDetails, setEdi
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact 
-          rowData={sampleCostingData.sizeRoles} 
-          onGridReady={onGridReady}
-          columnDefs={columnDefs}
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          }
-        />
+     <CustomAgGrid
+  rowData={sampleCostingData?.sizeRoles || []}  // Fallback to empty array
+  setRowData={updateOverheadData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="250px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
       </div>
     </>
   );

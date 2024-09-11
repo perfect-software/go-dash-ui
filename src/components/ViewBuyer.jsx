@@ -9,8 +9,9 @@ import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewBuyer.module.css";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
-const ViewBuyer = ({onBuyerSelect}) => {
+const ViewBuyer = ({onBuyerSelect,handlePrintClick}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
@@ -20,26 +21,14 @@ const ViewBuyer = ({onBuyerSelect}) => {
 
   const [gridApi, setGridApi] = useState(null);
 
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllBuyers());
-    }
-  }, [loaded, loading, dispatch]);
-  
   useEffect(() => {
-    if (gridApi) {
-      if (loading) {
-        gridApi.showLoadingOverlay();
-      } else if (error) {
-        gridApi.showNoRowsOverlay();
-      } else if (loaded && buyers.length === 0) {
-        gridApi.showNoRowsOverlay();
-      } else {
-        gridApi.hideOverlay();
-      }
-    }
-  }, [gridApi, loaded, loading, error, buyers]);
+    dispatch(fetchAllBuyers());
+  }, [dispatch]);
+
+  const handleDelete = (id) => {
+    dispatch(deleteSample(id));
+  };
+
 
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {
@@ -84,9 +73,9 @@ const ViewBuyer = ({onBuyerSelect}) => {
   };
   const columnDefs = [
     {
-      headerName: "Print",
-      field: "print",
-      maxWidth: 50,
+      headerName: "Select",
+      field: "select",
+      maxWidth: 100,
       headerCheckboxSelection: true,
       checkboxSelection: true,
       showDisabledCheckboxes: true,
@@ -192,34 +181,24 @@ const ViewBuyer = ({onBuyerSelect}) => {
   ];
 
   return (
-    <div
-      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-    >
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={buyers}
-          pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onGridReady={onGridReady}
-          rowSelection={"multiple"}
-          onCellKeyDown={onCellKeyDown}
-          onSelectionChanged={onRowSelected}
-          overlayLoadingTemplate={
-            '<span class="ag-overlay-loading-center">Loading...</span>'
-          }
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
-          }
-        />
-      </div>
-    </div>
+    <div>
+    {loading ? (
+      <p>Loading...</p>
+    ) : error ? (
+      <p>Error loading data: {error}</p>
+    ) : (
+      <CustomAgGridSecond
+        columnDefs={columnDefs}
+        rowData={buyers}
+        handleDelete={handleDelete}
+        handlePrintClick={handlePrintClick}
+        onRowSelect={onRowSelected}
+        deleteEnabled={false}
+        editEnabled={false}
+        pagination={true}
+      />
+    )}
+  </div>
   );
 };
 

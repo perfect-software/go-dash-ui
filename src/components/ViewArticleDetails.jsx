@@ -13,6 +13,7 @@ import { fetchAllArticles } from "../reducer/articleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import ArticleDetailsPopup from "../popups/ArticleDetailsPopup";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 
 const ViewArticleDetails = () => {
@@ -25,26 +26,9 @@ const ViewArticleDetails = () => {
   );
   const [gridApi, setGridApi] = useState(null);
 
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllArticles());
-    }
-  }, [loaded, loading, dispatch]);
-  
   useEffect(() => {
-    if (gridApi) {
-      if (loading) {
-        gridApi.showLoadingOverlay();
-      } else if (error) {
-        gridApi.showNoRowsOverlay();
-      } else if (loaded && articles.length === 0) {
-        gridApi.showNoRowsOverlay();
-      } else {
-        gridApi.hideOverlay();
-      }
-    }
-  }, [gridApi, loaded, loading, error, articles]);
+    dispatch(fetchAllArticles());
+  }, [dispatch]);
 
   
   const dateFilterParams = {
@@ -88,10 +72,7 @@ const ViewArticleDetails = () => {
     setImagePreview(params.data.image_nm)
   };
   const columnDefs = [
-    // { headerName: "Edit",  field:'edit' , maxWidth: 80,
-    // checkboxSelection: true,
-    // showDisabledCheckboxes: true},
-    
+
     { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
     {
         headerName: "Last No",
@@ -280,31 +261,27 @@ const ViewArticleDetails = () => {
 
   return (
     <><div
-    className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
   >
   
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
+  <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
           columnDefs={columnDefs}
           rowData={articles}
+          // handleEditClick={handleEditClick}
+          // handleDelete={handleDelete}
+          // handlePrintClick={handlePrintClick}
+          // onRowSelect={onRowSelected}
+          deleteEnabled={false}
+          editEnabled={false}
           pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onCellKeyDown={onCellKeyDown}
-          onGridReady={onGridReady}
-          overlayLoadingTemplate={
-            '<span class="ag-overlay-loading-center">Loading...</span>'
-          }
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
-          }
         />
-      </div>
+      )}
+    </div>
   </div>
       {isImagePopup && (
         <div className={inputStyles.popupOverlay}>

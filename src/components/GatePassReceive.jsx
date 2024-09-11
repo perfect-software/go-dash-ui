@@ -25,6 +25,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 
 const ItemDetails = () => {
@@ -63,27 +64,7 @@ const ItemDetails = () => {
     { headerName: "Pieces", field: "pcs", width: "100px" },
     { headerName: "Item Remark", field: "packet", width: "200px" },
 
-    {
-      headerName: "Show",
-      field: "delete",
-      width: 150,
-      cellRenderer: (params) => (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={Delete3dIcon}
-            className={styles.sizeButton}
-         //   onClick={() => handleDeleteItem(params.node.rowIndex)}
-          />
-        </div>
-      ),
-    },
+    
   ];
 
   const defaultColDef = {
@@ -96,26 +77,32 @@ const ItemDetails = () => {
      <div className={styles.parentGateReceive}>
      <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 325, width: "100%" }}
+        style={{  width: "100%" }}
       >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={gridData}
-          defaultColDef={defaultColDef}
-          tooltipShowDelay={500}
-        />
+       <CustomAgGrid
+                gridHeight="325px"
+                rowData={gridData}
+                columnDefs={columnDefs}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
       </div>
 
-      <div className={styles.rightGatePassReceive}>
-      <div className={styles.tabletitle}>
-        <h2>Item Name</h2>
-      </div>
-      
+      <div  style={{width:'45%'}}>
+   
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 300, width: '100%' }}
+        style={{  width: '100%' }}
       >
-        <AgGridReact columnDefs={columnDefs2} rowData={gridData} />
+        <CustomAgGrid
+                 gridHeight="325px"
+                rowData={gridData}
+                columnDefs={columnDefs2}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              /> 
       </div>
     </div>
      </div>

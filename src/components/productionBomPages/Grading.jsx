@@ -10,6 +10,7 @@ import SizePlanPopup from "../../popups/SizePlanPopup";
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
 import { fetchItemGroupsAndSubGroups } from "../../reducer/grpSubgrpSlice";
+import CustomAgGrid from "../../features/CustomAgGrid";
 
 const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const [showSuggestions, setShowSuggestions] = useState({
@@ -149,7 +150,13 @@ const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEdit
   });
   const columnDefs = useMemo(
     () => [
-      { field: "code", headerName: "Code" },
+      {
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
       { field: "itemId.name", headerName: "Item description",width:350 },
       { field: "quantity", headerName: "Quantity" },
       { field: "sizePlan", headerName: "Size Plan" },
@@ -263,6 +270,13 @@ const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEdit
     setNewItem({ ...newItem, [name]: value });
   };
 
+  const updateGradingData = (newGradingData) => {
+    setProductionBomData((prevData) => ({
+      ...prevData,
+      grading: newGradingData, // Update only the overhead
+    }));
+  };
+  
   const handleRemoveItem = (code) => {
     setProductionBomData((prevData) => {
       const updatedProduction = Array.isArray(prevData.grading) ? prevData.grading.filter((item) => item.code !== code) : [];
@@ -607,19 +621,19 @@ const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEdit
   return (
     <>
       <div className={styles.topGrid}>
-        <div className={styles.colSpan2}>
+        <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="itemgrp">
             Item Name
           </label>
           {downshiftItemName}
         </div>
-        <div className={styles.colSpan2}>
+        <div className={styles.colSpan}>
           <label className={styles.impsampleLabel} htmlFor="itemgrp">
             Group
           </label>
           {downshiftItemGrp}
         </div>
-        <div className={styles.colSpan2}>
+        <div className={styles.colSpan}>
           <label className={styles.impsampleLabel} htmlFor="itemsubgrp">
             Sub Group
           </label>
@@ -676,11 +690,18 @@ const Grading = ({ productionBomData, setProductionBomData ,editDetails, setEdit
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={productionBomData.grading} columnDefs={columnDefs} overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          } />
+        <CustomAgGrid
+  rowData={productionBomData?.grading || []}  // Fallback to empty array
+  setRowData={updateGradingData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="180px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
       </div>
       {isSizePlanPopup && (
         <SizePlanPopup

@@ -1,24 +1,16 @@
-import React, { useState, useEffect , useCallback} from "react";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
-import { useNavigate } from "react-router-dom";
-import { useSidebar } from "../context/SidebarContext";
+import React, { useEffect,useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
+import { fetchAllBom } from "../reducer/bomSlice";
+import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
+import { formatDDMMYYYYDate } from "../features/convertDate";
 import Cross from "../assets/cross.svg";
-import {  formatDDMMYYYYDate } from "../features/convertDate";
+import BomDetailsPopup from "../popups/BomDetailsPopup";
 import styles from "../styles/viewDetails.module.css";
 import inputStyles from "../styles/inputDetails.module.css";
-import { fetchAllBom } from "../reducer/bomSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
-import BomDetailsPopup from "../popups/BomDetailsPopup";
-
-
-const ViewBom = ({onBOMSelect}) => {
-  const navigate = useNavigate();
-  const { isCollapsed } = useSidebar();
-  const [bomDetailsPopup,setBomDetailsPopup] = useState(false);
+const ViewBom = ({ onBOMSelect ,handleEditClick,handleViewPDF}) => {
   const dispatch = useDispatch();
+  const [bomDetailsPopup,setBomDetailsPopup] = useState(false);
   const [bomId, setBomId] = useState('');
   const [isImagePopup, setIsImagePopup] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
@@ -26,72 +18,43 @@ const ViewBom = ({onBOMSelect}) => {
     (state) => state.bom
   );
 
-  const [gridApi, setGridApi] = useState(null);
-
-  
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllBom());
-    }
-  }, [loaded, loading, dispatch]);
-  
   useEffect(() => {
-    if (gridApi) {
-      if (loading) {
-        gridApi.showLoadingOverlay();
-      } else if (error) {
-        gridApi.showNoRowsOverlay();
-      } else if (loaded && bom.length === 0) {
-        gridApi.showNoRowsOverlay();
-      } else {
-        gridApi.hideOverlay();
-      }
-    }
-  }, [gridApi, loaded, loading, error, bom]);
-  
+    dispatch(fetchAllBom());
+  }, [dispatch]);
 
+  const handleDelete = (id) => {
+    dispatch(deleteBom(id));
+  };
 
+  const onRowSelected = (event) => {
+    const selectedData = event.api.getSelectedRows();
+    onBOMSelect(selectedData.length > 0 ? selectedData : null);
+  };
   const dateFilterParams = {
-    comparator: function(filterLocalDateAtMidnight, cellValue) {
+    comparator: function (filterLocalDateAtMidnight, cellValue) {
       if (!cellValue) return -1;
       const formattedCellValue = formatDDMMYYYYDate(cellValue);
-      const formattedFilterDate = filterLocalDateAtMidnight.toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).replace(/\//g, '-');
+      const formattedFilterDate = filterLocalDateAtMidnight
+        .toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-");
       if (formattedCellValue < formattedFilterDate) {
         return -1;
       } else if (formattedCellValue > formattedFilterDate) {
         return 1;
       }
       return 0;
-    }
+    },
+  };
+   const actionButton = (params) => {
+    setBomId(params);
+     setBomDetailsPopup(true);
+    console.log(params);
   };
 
-  const onCellKeyDown = useCallback((e) => {
-  
-    if (!e.event) {
-      return;
-    }
-    const keyboardEvent = e.event;
-    const key = keyboardEvent.key;
-    if (key.length) {
-     
-      if (key === 'Enter') {
-        var rowNode = e.node;
-        var newSelection = !rowNode.isSelected();
-       
-        rowNode.setSelected(newSelection);
-      }
-    }
-  }, []);
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    onBOMSelect(selectedData.length > 0 ? selectedData : null);
-  };
- 
   const columnDefs = [
     { headerName: "Edit",  field:'edit' , maxWidth: 80,
     checkboxSelection: true,
@@ -158,42 +121,28 @@ const ViewBom = ({onBOMSelect}) => {
      
       },
   ];
- 
-  const actionButton = (params) => {
-    setBomId(params);
-     setBomDetailsPopup(true);
-    console.log(params);
-  };
   return (
-    <><div
-    className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-  >
-  
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
+    <>
+    <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
           columnDefs={columnDefs}
           rowData={bom}
+          handleEditClick={handleEditClick}
+          handleDelete={handleDelete}
+          handlePrintClick={handleViewPDF}
+          onRowSelect={onRowSelected}
+          deleteEnabled={true}
+          editEnabled={true}
           pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onCellKeyDown={onCellKeyDown}
-          onGridReady={onGridReady}
-          onSelectionChanged={onRowSelected}
-          overlayLoadingTemplate={
-            '<span class="ag-overlay-loading-center">Loading...</span>'
-          }
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
-          }
         />
-      </div>
-  </div>
-      {isImagePopup && (
+      )}
+    </div>
+    {isImagePopup && (
         <div className={inputStyles.popupOverlay}>
           <div className={inputStyles.imagePopupContent}>
             <img
@@ -213,7 +162,7 @@ const ViewBom = ({onBOMSelect}) => {
         </div>
       )}
  {bomDetailsPopup && (<BomDetailsPopup bomId={bomId && bomId} onCancel={()=> setBomDetailsPopup(false)} />)}
-      </>
+    </>
   );
 };
 

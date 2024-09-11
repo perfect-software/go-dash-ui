@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 const SamplePipeline = () => {
   const [activeButton, setActiveButton] = useState("input");
@@ -43,25 +44,12 @@ const SamplePipeline = () => {
     localStorage.setItem("samplePipeline", JSON.stringify(samplePipeline));
   }, [samplePipeline]);
 
-  const toggleSuggestVisibility = (key, value) => {
-    setShowSuggestions((prevSuggestions) => ({
-      ...prevSuggestions,
-      [key]: value,
-    }));
-  };
-  const [gridApiInput, setGridApiInput] = useState(null);
-  const onGridReadyInput = useCallback((params) => {
-    setGridApiInput(params.api);
-    if (!loaded && !loading) {
- dispatch(fetchAllSamples());
-    }
-  }, []);
-
   useEffect(() => {
-    if (gridApiInput && !loaded && loading) {
-      gridApiInput.showLoadingOverlay();
-    }
-  }, [ loaded, loading, gridApiInput]);
+    dispatch(fetchAllSamples());
+  }, [dispatch]);
+
+ 
+
 
   useEffect(() => {
     const toggleActiveButton = (event) => {
@@ -252,26 +240,22 @@ const SamplePipeline = () => {
             </div>{" "}
           </div>
             
-        <div
-        className={isCollapsed ? viewStyles.topContainer : viewStyles.topContainerOpen}
-      >
-      
-          <div
-            className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-            style={{ height: 500, width: "100%", marginTop: "20px" }}
-          >
-            <AgGridReact
-              columnDefs={columnDefsInput}
-              rowData={samples}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-              onGridReady={onGridReadyInput}
-            />
-          </div>
-      </div>
+      <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
+          columnDefs={columnDefsInput}
+          rowData={samples}
+          gridHeight="400px"
+          deleteEnabled={false}
+          editEnabled={false}
+          pagination={true}
+        />
+      )}
+    </div>
           <div className={styles.parentButtonContainer}>
           <div className={styles.buttonContainer}>
             <button className={styles.submitButton}>Accept</button>
@@ -319,25 +303,21 @@ const SamplePipeline = () => {
           </div>{" "}
         </div>
           
-      <div
-      className={isCollapsed ? viewStyles.topContainer : viewStyles.topContainerOpen}
-    >
-    
-        <div
-          className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-          style={{ height: 500, width: "100%", marginTop: "20px" }}
-        >
-          <AgGridReact
-            columnDefs={columnDefsOutput}
-            rowData={samples}
-            pagination={true}
-            paginationPageSize={12}
-            paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-            animateRows={true}
-            filter={true}
-            onGridReady={onGridReadyOutput}
-          />
-        </div>
+        <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
+          columnDefs={columnDefsOutput}
+          rowData={samples}
+            gridHeight="400px"
+          deleteEnabled={false}
+          editEnabled={false}
+          pagination={true}
+        />
+      )}
     </div>
         <div className={styles.parentButtonContainer}>
         <div className={styles.buttonContainer}>

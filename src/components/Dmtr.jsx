@@ -24,7 +24,8 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
-
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from "uuid";
 // const EditableCell = ({ value, onValueChange, isEditable = true }) => {
 //   const [editing, setEditing] = useState(false);
 //   const [inputValue, setInputValue] = useState(value);
@@ -157,16 +158,18 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   };
 
   const handleAddItem = () => {
-    if (editIndex !== null) {
-      const updatedGridData = [...gridData];
-      updatedGridData[editIndex] = { ...formData };
+    if (isEditing) {
+      const updatedGridData = gridData.map((item) =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setGridData([...gridData, { ...formData }]);
+      setGridData([...gridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: "",
       poType: "",
       docType: "",
       poNo: "",
@@ -255,6 +258,13 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   };
 
   const columnDefs = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
     { headerName: "Po Type", field: "poType", width: "65px" },
     { headerName: "Doc Type", field: "docType", width: "73px" },
     { headerName: "PO Number", field: "poNo", width: "130px" },
@@ -271,48 +281,7 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
     { headerName: "SGST", field: "sgst", width: "70px" },
     { headerName: "IGST", field: "igst", width: "70px" },
     { headerName: "Item Remark", field: "packet", width: "60px" },
-    {
-      headerName: "Edit",
-      field: "edit",
-      width: 70,
-      cellRenderer: (params) => (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={Edit3dIcon}
-            className={styles.sizeButton}
-            onClick={() => handleEditItem(params.node.rowIndex)}
-          />
-        </div>
-      ),
-    },
-    {
-      headerName: "Delete",
-      field: "delete",
-      width: 70,
-      cellRenderer: (params) => (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={Delete3dIcon}
-            className={styles.sizeButton}
-            onClick={() => handleDeleteItem(params.node.rowIndex)}
-          />
-        </div>
-      ),
-    },
+
   ];
   const downshiftItemName = (
     <Downshift
@@ -454,13 +423,18 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
       </div>
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%" }}
+        style={{  width: "100%" }}
       >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={gridData}
-          defaultColDef={defaultColDef}
-          tooltipShowDelay={500}
+        <CustomAgGrid
+           rowData={gridData}
+           setIsEditing={setIsEditing}
+           setRowData={setGridData}
+           columnDefs={columnDefs}
+           setFormData={setFormData}
+           gridHeight="350px"
+           editEnabled={true}
+           deleteEnabled={true}
+           pagination={false}
         />
       </div>
     </div>
@@ -692,9 +666,51 @@ const OtherDetails = ({
     "sizeOrder"
   );
 
+  const [barcode, setBarcode] = useState("");
+  const [dm, setDm] = useState("");
+  const [gridData, setGridData] = useState([]);
+
+  const handleAddItem = () => {
+    const newItem = { barcode, dm };
+    setGridData([...gridData, newItem]);
+    setBarcode("");
+    setDm("");
+  };
+
+  const handleDeleteItem = (index) => {
+    const updatedData = gridData.filter((_, i) => i !== index);
+    setGridData(updatedData);
+  };
+
+  const columnDefs = [
+    { headerName: "Barcode", field: "barcode" },
+    { headerName: "DM", field: "dm" },
+    {
+      headerName: "Delete",
+      field: "delete",
+      width: 70,
+      cellRenderer: (params) => (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src={Delete3dIcon}
+            className={styles.sizeButton}
+            onClick={() => handleDeleteItem(params.node.rowIndex)}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className={styles.dmtrparentOthersDiv}>
-      <div className={styles.leftDmtrOthersDiv}>
+      <div className={styles.leftGatePassOthersDiv} style={{width:'50%'}}>
         <div className={styles.tabletitle}>
           <h2>PO Number: {selectedPoNo}</h2>
           <label className={styles.checkboxContainer}>
@@ -710,18 +726,23 @@ const OtherDetails = ({
 
         <div
           className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-          style={{ height: 250, width: "100%" }}
+          style={{  width: "100%" }}
         >
-          <AgGridReact
-            columnDefs={mColumnDefsEditable}
-            rowData={mOrder}
-            onCellValueChanged={(params) =>
-              onCellValueChanged(params, "mOrder")
-            }
-          />
+          <CustomAgGrid
+                gridHeight="325px"
+                rowData={mOrder}
+                columnDefs={mColumnDefsEditable}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+                cellChange={true}
+                onCellValueChanged={(params) =>
+                  onCellValueChanged(params, "mOrder")
+                }
+              />
         </div>
       </div>
-      <div className={styles.rightDmtrOthersDiv}>
+      <div className={styles.rightGatePassOthersDiv} style={{width:'50%'}}>
         <div className={styles.tabletitle}>
           <h2>PO Number: {selectedSizePoNo}</h2>
           <label className={styles.checkboxContainer}>
@@ -737,17 +758,23 @@ const OtherDetails = ({
 
         <div
           className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-          style={{ height: 250, width: "100%" }}
+          style={{  width: "100%" }}
         >
-          <AgGridReact
-            columnDefs={sizeColumnDefsEditable}
-            rowData={sizeOrder}
-            onCellValueChanged={(params) =>
-              onCellValueChanged(params, "sizeOrder")
-            }
-          />
+         <CustomAgGrid
+                gridHeight="325px"
+                rowData={sizeOrder}
+                columnDefs={sizeColumnDefsEditable}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+                cellChange={true}
+                onCellValueChanged={(params) =>
+                  onCellValueChanged(params, "sizeOrder")
+                }
+              />
         </div>
       </div>
+      
     </div>
   );
 };

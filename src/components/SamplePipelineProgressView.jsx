@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 const SamplePipelineProgressView = () => {
   const [activeButton, setActiveButton] = useState("progress");
@@ -49,19 +50,14 @@ const SamplePipelineProgressView = () => {
       [key]: value,
     }));
   };
-  const [gridApiInput, setGridApiInput] = useState(null);
-  const onGridReadyInput = useCallback((params) => {
-    setGridApiInput(params.api);
-    if (!loaded && !loading) {
- dispatch(fetchAllSamples());
-    }
-  }, []);
-
   useEffect(() => {
-    if (gridApiInput && !loaded && loading) {
-      gridApiInput.showLoadingOverlay();
-    }
-  }, [ loaded, loading, gridApiInput]);
+    dispatch(fetchAllSamples());
+  }, [dispatch]);
+
+  const handleDelete = (id) => {
+    dispatch(deleteSample(id));
+  };
+
 
   useEffect(() => {
     const toggleActiveButton = (event) => {
@@ -265,26 +261,22 @@ const SamplePipelineProgressView = () => {
             </div>{" "}
           </div>
             
-        <div
-        className={isCollapsed ? viewStyles.topContainer : viewStyles.topContainerOpen}
-      >
-      
-          <div
-            className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-            style={{ height: 500, width: "100%", marginTop: "20px" }}
-          >
-            <AgGridReact
-              columnDefs={columnDefsInput}
-              rowData={samples}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-              onGridReady={onGridReadyInput}
-            />
-          </div>
-      </div>
+              <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
+          columnDefs={columnDefsInput}
+          rowData={samples}
+            gridHeight="400px"
+          deleteEnabled={false}
+          editEnabled={false}
+          pagination={true}
+        />
+      )}
+    </div>
          
         </>
       ) : (

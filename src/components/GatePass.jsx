@@ -24,42 +24,8 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
-
-// const EditableCell = ({ value, onValueChange, isEditable = true }) => {
-//   const [editing, setEditing] = useState(false);
-//   const [inputValue, setInputValue] = useState(value);
-
-//   const handleFocus = (event) => event.target.select();
-
-//   const handleChange = (event) => {
-//     setInputValue(event.target.value);
-//   };
-
-//   const handleBlur = () => {
-//     setEditing(false);
-//     onValueChange(inputValue);
-//   };
-
-//   return isEditable ? (
-//     editing ? (
-//       <input
-//         type="text"
-//         value={inputValue}
-//         onChange={handleChange}
-//         onBlur={handleBlur}
-//         autoFocus
-//         onFocus={handleFocus}
-//         className={styles.customTableInput}
-//       />
-//     ) : (
-//       <div onClick={() => setEditing(true)} className={styles.cell}>
-//         {value}
-//       </div>
-//     )
-//   ) : (
-//     <div className={styles.cell}>{value}</div>
-//   );
-// };
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from "uuid";
 
 const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   const { isCollapsed } = useSidebar();
@@ -71,7 +37,6 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   const [showSuggestions, setShowSuggestions] = useState({
     itemId: false,
   });
-  const [gridApi, setGridApi] = useState(null);
 
   useEffect(() => {
     if (!loadedRate && !loadingRate) {
@@ -80,32 +45,25 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   }, [loadedRate, loadingRate, dispatch]);
 
   const [formData, setFormData] = useState({
-    poType: '',
-    docType: '',
-    poNo: '',
+    poType: "",
+    docType: "",
+    poNo: "",
     itemId: { name: "", id: "" },
-    unit: '',
-    hsn: '',
-    poQty: '',
-    balQty: '',
-    rate: '',
-    qtyFt: '',
-    rateFt: '',
-    pcs: '',
-    cgst: '',
-    sgst: '',
-    igst: '',
-    packet: '',
-    size: '',
-    work: ''
+    unit: "",
+    hsn: "",
+    poQty: "",
+    balQty: "",
+    rate: "",
+    qtyFt: "",
+    rateFt: "",
+    pcs: "",
+    cgst: "",
+    sgst: "",
+    igst: "",
+    packet: "",
+    size: "",
+    work: "",
   });
-
-  const toggleSuggestVisibility = (key, value) => {
-    setShowSuggestions((prevSuggestions) => ({
-      ...prevSuggestions,
-      [key]: value,
-    }));
-  };
 
   const handleItemNameChange = async (e) => {
     const { name, value } = e.target;
@@ -162,94 +120,59 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   };
 
   const handleAddItem = () => {
-    if (editIndex !== null) {
-      const updatedGridData = [...gridData];
-      updatedGridData[editIndex] = { ...formData };
+    if (isEditing) {
+      const updatedGridData = gridData.map((item) =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setGridData([...gridData, { ...formData }]);
+      setGridData([...gridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
-      poType: '',
-      docType: '',
-      poNo: '',
+      id: "",
+      poType: "",
+      docType: "",
+      poNo: "",
       itemId: { name: "", id: "" },
-      unit: '',
-      hsn: '',
-      poQty: '',
-      balQty: '',
-      rate: '',
-      qtyFt: '',
-      rateFt: '',
-      pcs: '',
-      cgst: '',
-      sgst: '',
-      igst: '',
-      packet: '',
-      size: '',
-      work: ''
+      unit: "",
+      hsn: "",
+      poQty: "",
+      balQty: "",
+      rate: "",
+      qtyFt: "",
+      rateFt: "",
+      pcs: "",
+      cgst: "",
+      sgst: "",
+      igst: "",
+      packet: "",
+      size: "",
+      work: "",
     });
   };
-
-  const handleEditItem = (index) => {
-    setFormData({ ...gridData[index] });
-    setIsEditing(true);
-    setEditIndex(index);
-  };
-
-  const handleDeleteItem = (rowIndex) => {
-    const rowElement = document.querySelector(`div[row-index="${rowIndex}"]`);
-    rowElement.style.borderRadius = '16px';
-    rowElement.style.boxShadow = 'rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset';
-    slideOutRightAnimation(rowElement, () => {
-      const updatedRowData = gridData.filter((_, index) => index!== rowIndex);
-      setGridData(updatedRowData);
-    });
-  };
-  
-  function slideOutRightAnimation(element, callback) {
-    let start;
-    const animate = timestamp => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      const progressPercent = Math.min(elapsed / 1000 * 100, 100);
-  
-      const subProgress = progressPercent / 100; 
-     
-      element.style.transform = `translateX(${subProgress * 100}%)`; 
-      if (elapsed < 1000) {
-        requestAnimationFrame(animate);
-      } else {
-        callback();
-      }
-    };
-  
-    requestAnimationFrame(animate);
-  }
-  
 
   const handleCancelEdit = () => {
     setFormData({
-      poType: '',
-      docType: '',
-      poNo: '',
+      poType: "",
+      docType: "",
+      poNo: "",
       itemId: { name: "", id: "" },
-      unit: '',
-      hsn: '',
-      poQty: '',
-      balQty: '',
-      rate: '',
-      qtyFt: '',
-      rateFt: '',
-      pcs: '',
-      cgst: '',
-      sgst: '',
-      igst: '',
-      packet: '',
-      size: '',
-      work: ''
+      unit: "",
+      hsn: "",
+      poQty: "",
+      balQty: "",
+      rate: "",
+      qtyFt: "",
+      rateFt: "",
+      pcs: "",
+      cgst: "",
+      sgst: "",
+      igst: "",
+      packet: "",
+      size: "",
+      work: "",
     });
     setIsEditing(false);
     setEditIndex(null);
@@ -267,15 +190,15 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   };
 
   useEffect(() => {
-    const storedSizeChecked = localStorage.getItem('isSizeChecked') === 'true';
-    const storedWorkChecked = localStorage.getItem('isWorkChecked') === 'true';
+    const storedSizeChecked = localStorage.getItem("isSizeChecked") === "true";
+    const storedWorkChecked = localStorage.getItem("isWorkChecked") === "true";
     setIsSizeChecked(storedSizeChecked);
     setIsWorkChecked(storedWorkChecked);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('isSizeChecked', isSizeChecked);
-    localStorage.setItem('isWorkChecked', isWorkChecked);
+    localStorage.setItem("isSizeChecked", isSizeChecked);
+    localStorage.setItem("isWorkChecked", isWorkChecked);
   }, [isSizeChecked, isWorkChecked]);
 
   const handleWorkCheckboxChange = () => {
@@ -287,6 +210,13 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
   };
 
   const columnDefs = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
     { headerName: "Po Type", field: "poType", width: "65px" },
     { headerName: "Doc Type", field: "docType", width: "73px" },
     { headerName: "PO Number", field: "poNo", width: "130px" },
@@ -303,48 +233,7 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
     { headerName: "SGST", field: "sgst", width: "70px" },
     { headerName: "IGST", field: "igst", width: "70px" },
     { headerName: "Item Remark", field: "packet", width: "60px" },
-    {
-      headerName: "Edit",
-      field: "edit",
-      width: 70,
-      cellRenderer: (params) => (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={Edit3dIcon}
-            className={styles.sizeButton}
-            onClick={() => handleEditItem(params.node.rowIndex)}
-          />
-        </div>
-      ),
-    },
-    {
-      headerName: "Delete",
-      field: "delete",
-      width: 70,
-      cellRenderer: (params) => (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={Delete3dIcon}
-            className={styles.sizeButton}
-            onClick={() => handleDeleteItem(params.node.rowIndex)}
-          />
-        </div>
-      ),
-    },
+
   ];
 
   const downshiftItemName = (
@@ -362,7 +251,7 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
           toggleSuggestVisibility("itemId", false);
         }
       }}
-      itemToString={(itemId) => (itemId ? itemId.name : '')}
+      itemToString={(itemId) => (itemId ? itemId.name : "")}
       selectedItem={formData.itemId}
     >
       {({
@@ -376,12 +265,12 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
           <input
             {...getInputProps({
               onChange: handleItemNameChange,
-              name: 'itemId',
+              name: "itemId",
             })}
             className={styles.basicInput}
             required
             value={formData.itemId.name}
-            style={{ width: '270px' }}
+            style={{ width: "270px" }}
           />
           <span>Item Name</span>
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -404,99 +293,97 @@ const ItemDetails = ({ handleButtonClick, setActivePage }) => {
     </Downshift>
   );
 
-  const defaultColDef = {
-    tooltipComponent: "customTooltip",
-  };
-
-  const onGridReady = (params) => {
-    setGridApi(params.api);
-  };
-
   return (
     <div className={styles.itemDetailsTableContainer}>
       <div className={styles.inputLinerGrid}>
-      <div className={styles.colSpanInputLiner}>
-        <div
-          className={styles.itemDetailsInput}
-        >
-          {headerNames.map((header, index) => (
-            header.field !== 'itemName' && (
-              <div key={index} className={styles.inputboxScroll}>
-                <input
-                  type="text"
-                  name={header.field}
-                  className={styles.basicInput}
-                  required
-                  value={formData[header.field]}
-                  onChange={handleInputChange}
-                  style={{ width: header.width }}
-                />
-                <span>{header.name}</span>
-              </div>
-            )
-          ))}
-          <div className={styles.inputboxScroll} style={{ width: '270px' }}>
-            {downshiftItemName}
-          </div>
-          <div className={styles.checkboxWrapper}>
-            <input
-              id="cbx-size"
-              type="checkbox"
-              checked={isSizeChecked}
-              onChange={handleSizeCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-size"></label>
-            <label className={styles.lbl} htmlFor="cbx-size">
-              Add Size
-            </label>
-          </div>
-          <div className={styles.checkboxWrapper} style={{ marginLeft: '20px' }}>
-            <input
-              id="cbx-work"
-              type="checkbox"
-              checked={isWorkChecked}
-              onChange={handleWorkCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-work"></label>
-            <label className={styles.lbl} htmlFor="cbx-work">
-              Add Work Order
-            </label>
-          </div>
-          <button
-            onClick={handleAddItem}
-            className={styles.button50}
-            aria-label="Add"
-          >
-            <span className={styles.button50__Content}>
-              <span className={styles.button50__Text}>
-                {isEditing ? "Edit" : "Add Entry"}
-              </span>
-            </span>
-          </button>
-          {isEditing && (
+        <div className={styles.colSpanInputLiner}>
+          <div className={styles.itemDetailsInput}>
+            {headerNames.map(
+              (header, index) =>
+                header.field !== "itemName" && (
+                  <div key={index} className={styles.inputboxScroll}>
+                    <input
+                      type="text"
+                      name={header.field}
+                      className={styles.basicInput}
+                      required
+                      value={formData[header.field]}
+                      onChange={handleInputChange}
+                      style={{ width: header.width }}
+                    />
+                    <span>{header.name}</span>
+                  </div>
+                )
+            )}
+            <div className={styles.inputboxScroll} style={{ width: "270px" }}>
+              {downshiftItemName}
+            </div>
+            <div className={styles.checkboxWrapper}>
+              <input
+                id="cbx-size"
+                type="checkbox"
+                checked={isSizeChecked}
+                onChange={handleSizeCheckboxChange}
+              />
+              <label className={styles.cbx} htmlFor="cbx-size"></label>
+              <label className={styles.lbl} htmlFor="cbx-size">
+                Add Size
+              </label>
+            </div>
+            <div
+              className={styles.checkboxWrapper}
+              style={{ marginLeft: "20px" }}
+            >
+              <input
+                id="cbx-work"
+                type="checkbox"
+                checked={isWorkChecked}
+                onChange={handleWorkCheckboxChange}
+              />
+              <label className={styles.cbx} htmlFor="cbx-work"></label>
+              <label className={styles.lbl} htmlFor="cbx-work">
+                Add Work Order
+              </label>
+            </div>
             <button
-              onClick={handleCancelEdit}
+              onClick={handleAddItem}
               className={styles.button50}
-              aria-label="Cancel"
+              aria-label="Add"
             >
               <span className={styles.button50__Content}>
-                <span className={styles.button50__Text}>Cancel</span>
+                <span className={styles.button50__Text}>
+                  {isEditing ? "Edit" : "Add Entry"}
+                </span>
               </span>
             </button>
-          )}
+            {isEditing && (
+              <button
+                onClick={handleCancelEdit}
+                className={styles.button50}
+                aria-label="Cancel"
+              >
+                <span className={styles.button50__Content}>
+                  <span className={styles.button50__Text}>Cancel</span>
+                </span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
       </div>
       <div
         className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%" }}
+        style={{ width: "100%" }}
       >
-        <AgGridReact
-          columnDefs={columnDefs}
+        <CustomAgGrid
           rowData={gridData}
-          defaultColDef={defaultColDef}
-          onGridReady={onGridReady}
-          tooltipShowDelay={500}
+          setIsEditing={setIsEditing}
+          setRowData={setGridData}
+          columnDefs={columnDefs}
+          setFormData={setFormData}
+          gridHeight="300px"
+          editEnabled={true}
+          deleteEnabled={true}
+          pagination={false}
         />
       </div>
     </div>
@@ -600,7 +487,7 @@ const OtherDetails = ({
   updateMOrder,
   updateSizeOrder,
   mColumnDefs,
-  sizeColumnDefs
+  sizeColumnDefs,
 }) => {
   const [currentBalQty, setCurrentBalQty] = useState(tempBal);
 
@@ -673,13 +560,13 @@ const OtherDetails = ({
   const onCellValueChanged = (params, orderType) => {
     const updatedRow = params.data;
     let updatedData;
-    if (orderType === 'mOrder') {
-      updatedData = mOrder.map(row =>
+    if (orderType === "mOrder") {
+      updatedData = mOrder.map((row) =>
         row.mOrderNo === updatedRow.mOrderNo ? updatedRow : row
       );
       updateMOrder(updatedData);
     } else {
-      updatedData = sizeOrder.map(row =>
+      updatedData = sizeOrder.map((row) =>
         row.size === updatedRow.size ? updatedRow : row
       );
       updateSizeOrder(updatedData);
@@ -689,47 +576,53 @@ const OtherDetails = ({
   };
 
   const editableColumnDefs = (columnDefs, orderType) => {
-    return columnDefs.map(col => ({
+    return columnDefs.map((col) => ({
       ...col,
-      editable: col.field === 'useQty',
-      onCellValueChanged: (params) => onCellValueChanged(params, orderType)
+      editable: col.field === "useQty",
+      onCellValueChanged: (params) => onCellValueChanged(params, orderType),
     }));
   };
 
-  const mColumnDefsWithTempBal = mColumnDefs.map(col => {
-    if (col.field === 'balQty') {
+  const mColumnDefsWithTempBal = mColumnDefs.map((col) => {
+    if (col.field === "balQty") {
       return {
         ...col,
         headerName: `Bal Qty (${currentBalQty})`,
-        editable: false
+        editable: false,
       };
     }
     return { ...col };
   });
 
-  const sizeColumnDefsWithTempBal = sizeColumnDefs.map(col => {
-    if (col.field === 'balQty') {
+  const sizeColumnDefsWithTempBal = sizeColumnDefs.map((col) => {
+    if (col.field === "balQty") {
       return {
         ...col,
         headerName: `Bal Qty (${currentBalQty})`,
-        editable: false
+        editable: false,
       };
     }
     return { ...col };
   });
 
-  const mColumnDefsEditable = editableColumnDefs(mColumnDefsWithTempBal, 'mOrder');
-  const sizeColumnDefsEditable = editableColumnDefs(sizeColumnDefsWithTempBal, 'sizeOrder');
+  const mColumnDefsEditable = editableColumnDefs(
+    mColumnDefsWithTempBal,
+    "mOrder"
+  );
+  const sizeColumnDefsEditable = editableColumnDefs(
+    sizeColumnDefsWithTempBal,
+    "sizeOrder"
+  );
 
-  const [barcode, setBarcode] = useState('');
-  const [dm, setDm] = useState('');
+  const [barcode, setBarcode] = useState("");
+  const [dm, setDm] = useState("");
   const [gridData, setGridData] = useState([]);
 
   const handleAddItem = () => {
     const newItem = { barcode, dm };
     setGridData([...gridData, newItem]);
-    setBarcode('');
-    setDm('');
+    setBarcode("");
+    setDm("");
   };
 
   const handleDeleteItem = (index) => {
@@ -738,19 +631,19 @@ const OtherDetails = ({
   };
 
   const columnDefs = [
-    { headerName: 'Barcode', field: 'barcode' },
-    { headerName: 'DM', field: 'dm' },
+    { headerName: "Barcode", field: "barcode" },
+    { headerName: "DM", field: "dm" },
     {
-      headerName: 'Delete',
-      field: 'delete',
+      headerName: "Delete",
+      field: "delete",
       width: 70,
       cellRenderer: (params) => (
         <div
           style={{
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'left',
-            alignItems: 'center',
+            height: "100%",
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "center",
           }}
         >
           <img
@@ -762,7 +655,6 @@ const OtherDetails = ({
       ),
     },
   ];
-
 
   return (
     <div className={styles.dmtrparentOthersDiv}>
@@ -782,13 +674,20 @@ const OtherDetails = ({
 
         <div
           className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-          style={{ height: 305, width: "100%" }}
+          style={{  width: "100%" }}
         >
-          <AgGridReact
-            columnDefs={mColumnDefsEditable}
-            rowData={mOrder}
-            onCellValueChanged={(params) => onCellValueChanged(params, 'mOrder')}
-          />
+          <CustomAgGrid
+                gridHeight="325px"
+                rowData={mOrder}
+                columnDefs={mColumnDefsEditable}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+                cellChange={true}
+                onCellValueChanged={(params) =>
+                  onCellValueChanged(params, "mOrder")
+                }
+              />
         </div>
       </div>
       <div className={styles.midGatePassOthersDiv}>
@@ -807,62 +706,74 @@ const OtherDetails = ({
 
         <div
           className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-          style={{ height: 305, width: "100%" }}
+          style={{  width: "100%" }}
         >
-          <AgGridReact
-            columnDefs={sizeColumnDefsEditable}
-            rowData={sizeOrder}
-            onCellValueChanged={(params) => onCellValueChanged(params, 'sizeOrder')}
-          />
+         <CustomAgGrid
+                gridHeight="325px"
+                rowData={sizeOrder}
+                columnDefs={sizeColumnDefsEditable}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+                cellChange={true}
+                onCellValueChanged={(params) =>
+                  onCellValueChanged(params, "sizeOrder")
+                }
+              />
         </div>
       </div>
       <div className={styles.rightGatePassOthersDiv}>
-      <div className={styles.tabletitle}>
-        <h2>PO Number: {selectedSizePoNo}</h2>
-      </div>
-      <div className={styles.barcodeInputDiv}>
-        <div className={styles.inputbox}>
-          <input
-            type="text"
-            className={styles.basicInput}
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            required
-          />
-          <span>Barcode</span>
+        <div className={styles.tabletitle}>
+          <h2>PO Number: {selectedSizePoNo}</h2>
         </div>
-        <div className={styles.inputbox}>
-          <input
-            type="text"
-            className={styles.basicInput}
-            value={dm}
-            onChange={(e) => setDm(e.target.value)}
-            required
-          />
-          <span>DM</span>
+        <div className={styles.barcodeInputDiv}>
+          <div className={styles.inputbox}>
+            <input
+              type="text"
+              className={styles.basicInput}
+              value={barcode}
+              onChange={(e) => setBarcode(e.target.value)}
+              required
+            />
+            <span>Barcode</span>
+          </div>
+          <div className={styles.inputbox}>
+            <input
+              type="text"
+              className={styles.basicInput}
+              value={dm}
+              onChange={(e) => setDm(e.target.value)}
+              required
+            />
+            <span>DM</span>
+          </div>
+          <button
+            onClick={handleAddItem}
+            className={styles.button50}
+            aria-label="Add"
+          >
+            <span className={styles.button50__Content}>
+              <span className={styles.button50__Text}>Add</span>
+            </span>
+          </button>
         </div>
-        <button
-          onClick={handleAddItem}
-          className={styles.button50}
-          aria-label="Add"
+        <div
+          className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
+          style={{  width: "100%" }}
         >
-          <span className={styles.button50__Content}>
-            <span className={styles.button50__Text}>Add</span>
-          </span>
-        </button>
+          <CustomAgGrid
+                gridHeight="286px"
+                rowData={gridData}
+                columnDefs={columnDefs}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+              />
+        </div>
       </div>
-      <div
-        className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 252, width: '100%' }}
-      >
-        <AgGridReact columnDefs={columnDefs} rowData={gridData} />
-      </div>
-    </div>
     </div>
   );
 };
-
-
 
 const GatePass = () => {
   const navigate = useNavigate();
@@ -934,111 +845,77 @@ const GatePass = () => {
           <div className={styles.gateTopGrid}>
             <div className={styles.colSpan2}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Supplier Name</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>SR No.</span>
               </div>
             </div>
-         
+
             <div className={styles.colSpan2}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Supplier Address</span>
               </div>
             </div>
-           
+
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="date"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="date" className={styles.basicInput} required />
                 <span>SR Date</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Inv No.</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Vehicle No.</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Remark</span>
               </div>
             </div>
             <div className={styles.colSpan}>
               <div className={styles.inputbox}>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  required
-                />
+                <input type="text" className={styles.basicInput} required />
                 <span>Mode of Transport</span>
               </div>
             </div>
-            <div className={styles.colSpan} style={{gap:'11px'}}>
-            <div className={styles.checkboxWrapper}>
-            <input
-              id="cbx-size"
-              type="checkbox"
-             // checked={isSizeChecked}
-             // onChange={handleSizeCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-size"></label>
-            <label className={styles.lbl} htmlFor="cbx-size">
-             Returnable
-            </label>
-          </div>
-          <div className={styles.checkboxWrapper}>
-            <input
-              id="cbx-size"
-              type="checkbox"
-            //  checked={isSizeChecked}
-            //  onChange={handleSizeCheckboxChange}
-            />
-            <label className={styles.cbx} htmlFor="cbx-size"></label>
-            <label className={styles.lbl} htmlFor="cbx-size">
-             Barcode
-            </label>
-          </div>
+            <div className={styles.colSpan} style={{ gap: "11px" }}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                
+                  type="checkbox"
+                
+                />
+                <label className={styles.cbx} htmlFor=""></label>
+                <label className={styles.lbl} htmlFor="">
+                  Returnable
+                </label>
+              </div>
+              <div className={styles.checkboxWrapper}>
+                <input
+                 
+                  type="checkbox"
+                 
+                />
+                <label className={styles.cbx} htmlFor=""></label>
+                <label className={styles.lbl} htmlFor="">
+                  Barcode
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -1046,19 +923,25 @@ const GatePass = () => {
           <div className={styles.midDetailsTitle}>
             <div className={styles.toggleButtons}>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "supplier" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "supplier" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("supplier")}
               >
                 Supplier & Financial Details
               </button>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "itemDetails" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "itemDetails" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("itemDetails")}
               >
                 Item Details
               </button>
               <button
-                className={`${styles.screenChangeButton} ${activePage === "otherDetails" ? styles.active : ""}`}
+                className={`${styles.screenChangeButton} ${
+                  activePage === "otherDetails" ? styles.active : ""
+                }`}
                 onClick={() => setActivePage("otherDetails")}
               >
                 Other Details
@@ -1066,7 +949,12 @@ const GatePass = () => {
             </div>
           </div>
         </div>
-        {activePage === "itemDetails" && <ItemDetails handleButtonClick={handleButtonClick} setActivePage={setActivePage} />}
+        {activePage === "itemDetails" && (
+          <ItemDetails
+            handleButtonClick={handleButtonClick}
+            setActivePage={setActivePage}
+          />
+        )}
         {activePage === "supplier" && <SupplierDetails />}
         {activePage === "otherDetails" && (
           <OtherDetails

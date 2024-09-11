@@ -24,6 +24,11 @@ const CustomAgGrid = ({
   editEnabled = true,
   deleteEnabled = true,
   gridOpt=false,
+  cellChange=false,
+  rowTransferSelect=false,
+  onBomSelect,
+  cellClicked=false,
+  onCellValueChanged
 }) => {
   const [filteredData, setFilteredData] = useState(rowData);
   const [gridApi, setGridApi] = useState(null);
@@ -63,6 +68,7 @@ const CustomAgGrid = ({
   const onRowSelected = (event) => {
     const selectedRows = event.api.getSelectedRows();
     setSelectedRowData(selectedRows);
+    rowTransferSelect&&onBomSelect(selectedRows.length > 0 ? selectedRows : null)
   };
   const gridOptions = {
     columnDefs: columnDefs,
@@ -87,7 +93,13 @@ const CustomAgGrid = ({
       }
     }
   };
-  
+  const onCellClicked = (event) => {
+    if (event.column.getColId() !== 'delDate' && event.column.getColId() !== 'rate') {
+      let node = event.node;
+      node.setSelected(!node.isSelected());
+    }
+    
+  };
   const handleEdit = () => {
     if (selectedRowData.length === 1) {
       setIsEditing(true);
@@ -235,7 +247,9 @@ const CustomAgGrid = ({
             resizable: true,
             filter: true,
           }}
-          gridOptions={gridOpt&&gridOptions}
+          gridOptions={gridOpt&&gridOptions} 
+          onCellClicked={cellClicked&onCellClicked}
+          onCellValueChanged= {cellChange&&onCellValueChanged}
         />
       </div>
     </div>

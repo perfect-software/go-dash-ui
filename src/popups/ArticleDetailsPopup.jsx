@@ -9,6 +9,7 @@ import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import { getApiService, getDataApiService } from "../service/apiService";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => {
   const navigate = useNavigate();
@@ -23,27 +24,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
 
   const [gridApi, setGridApi] = useState(null);
 
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-  }, []);
-  
-  
-  useEffect(() => {
-    if (gridApi) {
-      if (isFetching) {
-        gridApi.showLoadingOverlay();
-      } else if (fetchError) {
-        gridApi.showNoRowsOverlay();
-      } else if (!isFetching && articleDetails.length === 0) {
-        gridApi.showNoRowsOverlay();
-      } else {
-        const rowDataToUpdate = [].concat(articleDetails);
-        gridApi.updateGridOptions({ rowData: rowDataToUpdate });
-        gridApi.hideOverlay();
-      }
-    }
-    
-  }, [gridApi, isFetching, fetchError, articleDetails]);
+
   
 
  const fetchArticleDetails = async () => {
@@ -321,44 +302,21 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
                 className={styles.crossIcon}
               />
             </div>
-            <div
-              className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-              style={{ height: 550, width: "100%", marginTop: "5px" }}
-            >
-              <AgGridReact
-                columnDefs={columnDefs}
-               // rowData={articles}
-                pagination={true}
-                paginationPageSize={12}
-                paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-                animateRows={true}
-                filter={true}
-                onCellKeyDown={onCellKeyDown}
-                onGridReady={onGridReady}
-                onSelectionChanged={onRowSelected}
-                overlayLoadingTemplate={
-                  '<span class="ag-overlay-loading-center">Loading...</span>'
-                }
-                overlayNoRowsTemplate={
-                  `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
-                }
-              />
-            </div>
+            <CustomAgGridSecond
+          columnDefs={columnDefs}
+          rowData={articleDetails}
+          deleteEnabled={true}
+          handleEditClick={() => {
+            onSubmitArticleData(selectedArticle);
+          }}
+          editEnabled={true}
+          onRowSelect={onRowSelected}
+          pagination={true}
+        />
           </div>
 
 
-          <div className={styles.bottomButtonContainer}>
-
-            <button
-           disabled={!rowSelect}
-              className={styles.selectPopupButton}
-              onClick={() => {
-                onSubmitArticleData(selectedArticle);
-              }}
-            >
-              Update
-            </button>
-          </div>
+        
         </div>
         {isImagePopup && (
         <div className={inputStyles.popupOverlay}>

@@ -5,32 +5,21 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import { v4 as uuidv4 } from 'uuid';
+import CustomAgGrid from "../../features/CustomAgGrid";
 const Comments = () => {
   const columnDefs = useMemo(
     () => [
+      {
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
       { field: "header", headerName: "Header" , width:200},
       { field: "comment", headerName: "Comment" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.header)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
+
     ],
     []
   );
@@ -40,8 +29,13 @@ const Comments = () => {
     header: '',
   });
   const handleAddMaterial = () => {
-    setRowData([...rowData, newItem]);
-    setNewItem({ comment: '', header: ''});
+    const newMaterial = {
+      ...newItem,
+      id: uuidv4(),  // Assign a unique ID
+    };
+  
+    setRowData([...rowData, newMaterial]);
+    setNewItem({ id:'',comment: '', header: ''});
   };
 
   const handleInputChange = (e) => {
@@ -99,9 +93,18 @@ const Comments = () => {
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{  width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+        <CustomAgGrid
+                rowData={rowData}
+                setRowData={setRowData}
+                columnDefs={columnDefs}
+                setFormData={setNewItem}
+                gridHeight="250px"
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
       </div>
     </>
   );

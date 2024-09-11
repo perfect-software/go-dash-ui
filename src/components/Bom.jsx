@@ -507,27 +507,6 @@ const Bom = () => {
               </button>
             </div>
             <div className={styles.editContainer}>
-              {activeButton === "view" && (
-                <div className={styles.editContainer}>
-                  {updateLoading ? (
-                    <div className={styles.buttonContainer}>
-                      <div className={styles.loader}></div>
-                    </div>
-                  ) : (
-                    <button
-                      disabled={!isEditSelected}
-                      className={styles.headButton}
-                      onClick={handleEditClick}
-                    >
-                      Update
-                    </button>
-                  )}
-                  {printLoading ? ( <div className={styles.loader}></div>):( <button className={styles.headButton}   disabled={!isPrintSelected} onClick={handleViewPDF}>
-                    Print
-                  </button>)}
-                 
-                </div>
-              )}
               {activeButton === "details" && (
                 <div className={styles.editContainer}>
                   <button
@@ -749,7 +728,7 @@ const Bom = () => {
       ) : (
         <div>
           {" "}
-          <ViewBom onBOMSelect={handleBOMEdit} />
+          <ViewBom onBOMSelect={handleBOMEdit} handleEditClick={handleEditClick} handleViewPDF={handleViewPDF} />
         </div>
       )}
 

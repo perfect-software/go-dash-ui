@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ARTICLE_IMAGE_PATH } from "../features/url";
 import ArticlePopup from "../popups/ArticlePopup";
 import ArticleDetailsPopup from "../popups/ArticleDetailsPopup";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 
 const ViewArticle = ({updateArticle}) => {
@@ -29,26 +30,9 @@ const ViewArticle = ({updateArticle}) => {
   );
   const [gridApi, setGridApi] = useState(null);
 
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllArticleMst());
-    }
-  }, [loaded, loading, dispatch]);
-  
   useEffect(() => {
-    if (gridApi) {
-      if (loading) {
-        gridApi.showLoadingOverlay();
-      } else if (error) {
-        gridApi.showNoRowsOverlay();
-      } else if (loaded && articleMst.length === 0) {
-        gridApi.showNoRowsOverlay();
-      } else {
-        gridApi.hideOverlay();
-      }
-    }
-  }, [gridApi, loaded, loading, error, articleMst]);
+    dispatch(fetchAllArticleMst());
+  }, [dispatch]);
 
   
   const dateFilterParams = {
@@ -290,32 +274,21 @@ const ViewArticle = ({updateArticle}) => {
 
 
   return (
-    <><div
-    className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-  >
-  
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
-          columnDefs={columnDefsMst}
-          rowData={articleMst}
-          pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onCellKeyDown={onCellKeyDown}
-          onGridReady={onGridReady}
-          overlayLoadingTemplate={
-            '<span class="ag-overlay-loading-center">Loading...</span>'
-          }
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">${error ? 'Failed to load data' : 'No data found'}</span>`
-          }
-        />
-      </div>
+    <> <div>
+    {loading ? (
+      <p>Loading...</p>
+    ) : error ? (
+      <p>Error loading data: {error}</p>
+    ) : (
+      <CustomAgGridSecond
+        columnDefs={columnDefsMst}
+        rowData={articleMst}
+    
+        deleteEnabled={false}
+        editEnabled={false}
+        pagination={true}
+      />
+    )}
   </div>
       {isImagePopup && (
         <div className={inputStyles.popupOverlay}>

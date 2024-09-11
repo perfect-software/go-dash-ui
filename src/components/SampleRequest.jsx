@@ -37,7 +37,6 @@ const SampleRequest = () => {
   const [articleURL, setArticleURL] = useState(null);
   const [printForm, setPrintForm] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
-  const [multipleSelected, setMultipleSelected] = useState(false);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
@@ -252,7 +251,6 @@ const SampleRequest = () => {
   };
   const handleSampleEdit = (sample) => {
     setIsEditSelected(false);
-    setMultipleSelected(false);
     setPrintForm([]);
     if (sample) {
       setIsEditSelected(true);
@@ -260,11 +258,10 @@ const SampleRequest = () => {
 
       if (sampleArray.length > 1) {
         setPrintForm(sampleArray);
-        setMultipleSelected(false);
+  
       } else {
         setEditSample(sampleArray[0]);
         setPrintForm(sampleArray);
-        setMultipleSelected(true);
       }
     }
   };
@@ -1517,7 +1514,7 @@ const SampleRequest = () => {
                 onClick={() => {
                   setActiveButton("details");
                   setIsEditSelected(false);
-                  setMultipleSelected(false);
+            
                   setPrintForm(null);
                 }}
               >
@@ -2356,7 +2353,7 @@ const SampleRequest = () => {
           )}
         </>
       ) : (
-        <ViewSr onSampleSelect={handleSampleEdit} multipleSelected={multipleSelected} handleEditClick={handleEditClick} handlePrintClick={handlePrintClick} isEditSelected={isEditSelected} />
+        <ViewSr onSampleSelect={handleSampleEdit} handleEditClick={handleEditClick} handlePrintClick={handlePrintClick} isEditSelected={isEditSelected} />
       )}
     </div>
   );

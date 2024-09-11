@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/newPo.module.css";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import AutoTable from "../features/AutoTable";
-
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
 
 const ItemDetails = () => {
@@ -28,21 +28,13 @@ const ItemDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  useEffect(() => {
-    console.log(
-      "Selected Rows Data:",
-      selectedRows.map((index) => data[index])
-    );
-  }, [selectedRows]);
+ 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCheckboxChange = (name, checked) => {
-    setFormData({ ...formData, [name]: checked });
-  };
 
   const handleToggleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -50,15 +42,17 @@ const ItemDetails = () => {
 
   const handleAddItem = () => {
     if (isEditing) {
-      const updatedGridData = [...data];
-      updatedGridData[editIndex] = { ...formData };
+      const updatedGridData = data.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setData([...data, { ...formData }]);
+      setData([...data, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       itemName: "",
       unit: "",
       supplierName: "",
@@ -67,18 +61,14 @@ const ItemDetails = () => {
       reqQty: "",
       itemQty: "",
       fromOpeningStock: "No",
-      productionSample: "P",
+      productionSample: "Prod",
       repair: false,
       extraIssue: "Repair",
       remark: "",
     });
   };
 
-  const handleEditItem = (index) => {
-    setIsEditing(true);
-    setEditIndex(index);
-    setFormData({ ...data[index] });
-  };
+ 
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -90,28 +80,63 @@ const ItemDetails = () => {
       suppInvNo: "",
       itemQty: "",
       fromOpeningStock: "No",
-      productionSample: "P",
+      productionSample: "Prod",
       totalIssued:"",
     
     });
   };
 
+  const sizeColumns = [
+    { headerName: "Size", field: "size", width: 150 },
+    { headerName: "Qty", field: "qty", width: 150 },
+  ];
+  const CustomCellRenderer = (props) => {
+    const { value } = props;
+  
+    const cellStyle = {
+      backgroundColor: value === "Samp" ? "#f44336" : "#4caf50",
+      color: "white",
+      fontWeight: "bold",
+      textAlign: "center",
+      borderRadius: '10px',
+      width: '100%',
+      marginTop: '15%',
+      height: '50%', 
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center' 
+    };
+  
+    return (
+      <div style={cellStyle}>
+        {value === "Samp" ? "Samp" : "Prod"}
+      </div>
+    );
+  };
   const itemColumns = [
     {
-      label: "From Opening Stock",
-      path: "fromOpeningStock",
-      width: "70px",
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
     },
-    { label: "Item Name", path: "itemName", width: "150px" },
-    { label: "Unit", path: "unit", width: "80px" },
-    { label: "Supplier Name", path: "supplierName", width: "150px" },
-    { label: "Item Qty", path: "itemQty", width: "80px" },
-    { label: "Supp. Inv. No", path: "suppInvNo", width: "80px" },
-    { label: "Total Issued", path: "totalIssued", width: "80px" },
-  
-    { label: "Production / Sample", path: "productionSample", width: "80px" },
-    
+    { headerName: "From Opening Stock", field: "fromOpeningStock", width: 100 },
+    { headerName: "Item Name", field: "itemName", width: 150 },
+    { headerName: "Unit", field: "unit", width: 80 },
+    {
+      headerName: "Caption",
+      field: "productionSample",
+      width: 100,
+      cellRenderer: CustomCellRenderer, // Use the custom cell renderer here
+    },
+    { headerName: "Supplier Name", field: "supplierName", width: 150 },
+    { headerName: "Item Qty", field: "itemQty", width: 80 },
+    { headerName: "Supp. Inv. No", field: "suppInvNo", width: 80 },
+    { headerName: "Total Issued", field: "totalIssued", width: 80 },
+   
   ];
+  
 
   const [sizeGridData, setSizeGridData] = useState([]);
   const [sizeData, setSizeData] = useState({
@@ -119,10 +144,7 @@ const ItemDetails = () => {
     qty: "",
   });
 
-  const sizeColumns = {
-    size: { label: "Size", path: "size", width: "150px" },
-    qty: { label: "Qty", path: "qty", width: "150px" },
-  };
+
   const handleAddSize = () => {
     setSizeGridData([...sizeGridData, { ...sizeData }]);
     setSizeData({
@@ -137,7 +159,7 @@ const ItemDetails = () => {
   return (
     <>
       <div className={styles.karigarTopContainer}>
-        <div className={styles.leftFloorReturnItemDiv} style={{ width: "75%" }}>
+        <div className={styles.leftFloorReturnItemDiv} style={{ width: "70%" }}>
           <div className={styles.inputLinerGrid}>
             <div className={styles.colSpanInputLiner}>
               <div className={styles.materialIssueDetailsInput}>
@@ -252,67 +274,63 @@ const ItemDetails = () => {
                     <input
                       type="checkbox"
                       hidden
-                      checked={formData.productionSample === "S"}
+                      checked={formData.productionSample === "Samp"}
                       onChange={(e) =>
                         handleToggleChange(
                           "productionSample",
-                          e.target.checked ? "S" : "P"
+                          e.target.checked ? "Samp" : "Prod"
                         )
                       }
                     />
                     <div className={styles.switchWrapper}>
                       <div className={styles.switchToggle}>
-                        {formData.productionSample === "S" ? "Samp" : "Prod"}
+                        {formData.productionSample === "Samp" ? "Samp" : "Prod"}
                       </div>
                     </div>
                   </label>
                 </div>
 
-                <div>
-                  <button
-                    onClick={handleAddItem}
-                    className={styles.button50}
-                    aria-label="Add"
-                    style={{ width: "100px" }}
-                  >
-                    <span className={styles.button50__Content}>
-                      <span className={styles.button50__Text}>
-                        {isEditing ? "Edit" : "Add"}
-                      </span>
-                    </span>
-                  </button>
-                  {isEditing && (
-                    <button
-                      onClick={handleCancelEdit}
-                      className={styles.button50}
-                      aria-label="Cancel"
-                      style={{ width: "100px" }}
-                    >
-                      <span className={styles.button50__Content}>
-                        <span className={styles.button50__Text}>Cancel</span>
-                      </span>
-                    </button>
-                  )}
-                </div>
+                <div className={styles.colSpan2}>
+              <button
+                onClick={handleAddItem}
+                className={styles.button50}
+                aria-label="Add"
+              
+              >
+                <span className={styles.button50__Content}>
+                  <span className={styles.button50__Text}>{isEditing ? "Edit" : "Add"}</span>
+                </span>
+              </button>
+              {isEditing && (
+                <button
+                  onClick={handleCancelEdit}
+                  className={styles.button50}
+                  aria-label="Cancel"
+                
+                >
+                  <span className={styles.button50__Content}>
+                    <span className={styles.button50__Text}>Cancel</span>
+                  </span>
+                </button>
+              )}
+            </div>
               </div>
             </div>
           </div>
-          <AutoTable
-            tableHeight="330px"
-            data={data}
-            setData={setData}
-            columns={itemColumns}
-            canDelete={true}
-            canEdit={true}
-            setFormData={setFormData}
-            setIsEditing={setIsEditing}
-            setEditIndex={setEditIndex}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-          />
+          <CustomAgGrid
+                rowData={data}
+                setIsEditing={setIsEditing}
+                setRowData={setData}
+                columnDefs={itemColumns}
+                setFormData={setFormData}
+                gridHeight="330px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
         </div>
 
-        <div className={styles.rightkarigarItemDiv} style={{ width: "25%" }}>
+        <div className={styles.rightkarigarItemDiv} style={{ width: "30%" }}>
           <div className={styles.floorSizeInputDiv}>
             <div className={styles.inputbox}>
               <input
@@ -347,13 +365,15 @@ const ItemDetails = () => {
             </button>
           </div>
           <div style={{ marginTop: "51px" }}>
-            <AutoTable
-              tableHeight="330px"
-              data={sizeGridData}
-              setData={setSizeGridData}
-              columns={sizeColumns}
-              canDelete={true}
-            />
+            <CustomAgGrid
+                gridHeight="330px"
+                rowData={sizeGridData}
+                setRowData={setSizeGridData}
+                columnDefs={sizeColumns}
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
           </div>
         </div>
       </div>

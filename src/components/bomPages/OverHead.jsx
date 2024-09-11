@@ -5,47 +5,40 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const OverHead = () => {
   const columnDefs = useMemo(
     () => [
-      { field: "code", headerName: "Code" },
-      { field: "head", headerName: "Head" },
-      { field: "percent", headerName: "%" },
-      { field: "rate", headerName: "rate" },
       {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
+    
+      { field: "head", headerName: "Head" },
+      { field: "percent", headerName: "Percent %" },
+      { field: "rate", headerName: "Rate" },
     ],
     []
   );
   const [rowData, setRowData] = useState([]);
   const [newItem, setNewItem] = useState({
-    code: '',
+    id: '',
     head: '',
     percent: '',
     rate: '',
   });
   const handleAddMaterial = () => {
-    setRowData([...rowData, newItem]);
-    setNewItem({ code: '', head: '', percent: '', rate: '' });
+    const newMaterial = {
+      ...newItem,
+      id: uuidv4(),  // Assign a unique ID
+    };
+  
+    setRowData([...rowData, newMaterial]);
+    setNewItem({ id: '', head: '', percent: '', rate: '' });
   };
 
   const handleInputChange = (e) => {
@@ -53,9 +46,6 @@ const OverHead = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleRemoveItem = (code) => {
-    setRowData(rowData.filter((item) => item.code !== code));
-  };
 
   return (
     <>
@@ -117,9 +107,18 @@ const OverHead = () => {
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={rowData} columnDefs={columnDefs} />
+      <CustomAgGrid
+                rowData={rowData}
+                setRowData={setRowData}
+                columnDefs={columnDefs}
+                setFormData={setNewItem}
+                gridHeight="250px"
+                editEnabled={false}
+                deleteEnabled={true}
+                pagination={false}
+              />
       </div>
     </>
   );

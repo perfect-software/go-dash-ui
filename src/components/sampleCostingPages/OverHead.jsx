@@ -5,34 +5,23 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEditDetails, resetTrigger, onResetDone}) => {
   const columnDefs = useMemo(
     () => [
-      { field: "code", headerName: "Code" },
-      { field: "head", headerName: "Head" },
-      { field: "percent", headerName: "%" },
-      { field: "amount", headerName: "amount" },
       {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
+        headerCheckboxSelection: true,
+        checkboxSelection: true,
+        width: 150,
+        field: "select",
+        headerName: "Select",
+      },
+   
+      { field: "head", headerName: "Head" },
+      { field: "percent", headerName: "Percent %" },
+      { field: "amount", headerName: "Amount" },
+   
     ],
     []
   );
@@ -50,11 +39,17 @@ const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
       gridApi.hideOverlay();
     }
   }, [gridApi, sampleCostingData.overhead]);
+  const updateOverheadData = (newOverheadData) => {
+    setSampleCostingData((prevData) => ({
+      ...prevData,
+      overhead: newOverheadData, // Update only the overhead
+    }));
+  };
   
 
   const resetNewItemState = () => {
     setNewItem({
-      code: '',
+      id: '',
       head: '',
       percent: '',
       amount: '',
@@ -68,31 +63,26 @@ const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
     }
   }, [resetTrigger, onResetDone]);
   const [newItem, setNewItem] = useState({
-    code: '',
+    id: '',
     head: '',
     percent: '',
     amount: '',
   });
-  const handleAddMaterial = () => {
-    setSampleCostingData((prevData) => {
-      const updatedOverhead = Array.isArray(prevData.overhead) ? [...prevData.overhead, newItem] : [newItem];
-      return {
-        ...prevData,
-        overhead: updatedOverhead,
-      };
-    });
-    resetNewItemState();
-  };
-  
-  const handleRemoveItem = (code) => {
-    setSampleCostingData((prevData) => {
-      const updatedOverhead = Array.isArray(prevData.overhead) ? prevData.overhead.filter((item) => item.code !== code) : [];
-      return {
-        ...prevData,
-        overhead: updatedOverhead,
-      };
-    });
-  }; 
+const handleAddMaterial = () => {
+  setSampleCostingData((prevData) => {
+    const updatedOverhead = Array.isArray(prevData.overhead) 
+      ? [...prevData.overhead, { ...newItem, id: uuidv4() }]
+      : [{ ...newItem, id: uuidv4() }];
+    
+    return {
+      ...prevData,
+      overhead: updatedOverhead,
+    };
+  });
+  resetNewItemState();
+};
+
+
   
   
   const handleInputChange = (e) => {
@@ -102,20 +92,20 @@ const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
   return (
     <>
       <div className={styles.rollGrid}>
-      <div className={styles.colSpan}>
+      {/* <div className={styles.colSpan}>
           
           <label className={styles.sampleLabel} htmlFor="itemgrp">
           Code
           </label>
           <input
-            name="code"
+            name="id"
             type="text"
             onChange={handleInputChange}
             className={styles.basicInput}
             placeholder="Enter unit"
             value={newItem.code}
           />
-        </div>
+        </div> */}
         <div className={styles.colSpan}>
 
           <label className={styles.sampleLabel} htmlFor="itemgrp">
@@ -146,7 +136,7 @@ const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
 
         <div className={styles.colSpan}>
           <label className={styles.sampleLabel} htmlFor="unit">
-            amount
+            Amount
           </label>
           <input
             name="amount"
@@ -174,16 +164,19 @@ const OverHead = ({sampleCostingData, setSampleCostingData ,editDetails, setEdit
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{  width: "100%", marginTop: "10px" }}
       >
-  <AgGridReact 
-          rowData={sampleCostingData.overhead} 
-          onGridReady={onGridReady}
-          columnDefs={columnDefs}
-          overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          }
-        />
+ <CustomAgGrid
+  rowData={sampleCostingData?.overhead || []}  // Fallback to empty array
+  setRowData={updateOverheadData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="250px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
+
       </div>
     </>
   );

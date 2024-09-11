@@ -23,7 +23,8 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
-import AutoTable from "../features/AutoTable";
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 
 const ItemDetails = () => {
   const { isCollapsed } = useSidebar();
@@ -54,16 +55,18 @@ const ItemDetails = () => {
   };
 
   const handleAddItem = () => {
-    if (editIndex !== null) {
-      const updatedGridData = [...gridData];
-      updatedGridData[editIndex] = { ...formData };
+    if (isEditing) {
+      const updatedGridData = gridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setGridData([...gridData, { ...formData }]);
+      setGridData([...gridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       buyerGroup: "",
       buyerOrderNo: "",
       articleNo: "",
@@ -78,11 +81,6 @@ const ItemDetails = () => {
       qty: "",
       rate: "",
     });
-  };
-
-  const handleDeleteRow = (id) => {
-    const updatedGridData = gridData.filter((item) => item.id !== id);
-    setGridData(updatedGridData);
   };
 
   const handleCancelEdit = () => {
@@ -136,7 +134,29 @@ const ItemDetails = () => {
     qty: { label: "Qty", path: "qty", width: "50px" },
     rate: { label: "Rate", path: "rate", width: "70px" },
   };
-
+  const columnDefs = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Buyer Group", field: "buyerGroup", width: 200 },
+    { headerName: "Buyer Order No", field: "buyerOrderNo", width: 150 },
+    { headerName: "Article No", field: "articleNo", width: 100 },
+    { headerName: "Color", field: "color", width: 100 },
+    { headerName: "Buyer Article No", field: "buyerArticleNo", width: 150 },
+    { headerName: "Buyer Article Color", field: "buyerArticleColor", width: 150 },
+    { headerName: "Order No.", field: "orderNo", width: 100 },
+    { headerName: "Stock No.", field: "stockNo", width: 100 },
+    { headerName: "Work Order", field: "workOrder", width: 100 },
+    { headerName: "Delivery Date", field: "deliveryDate", width: 120 },
+    { headerName: "Size Range", field: "sizeRange", width: 100 },
+    { headerName: "Qty", field: "qty", width: 50 },
+    { headerName: "Rate", field: "rate", width: 70 },
+  ];
+  
   return (
     <div className={styles.itemDetailsTableContainer}>
       <div className={styles.inputLinerGrid}>
@@ -198,18 +218,19 @@ const ItemDetails = () => {
 
       <div
         className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%" }}
+        style={{width: "100%" }}
       >
-        <AutoTable
-          columns={columns}
-          data={gridData}
-          setData={setGridData}
-          canEdit={true}
-          canDelete={true}
-          setFormData={setFormData}
-          setIsEditing={setIsEditing}
-          setEditIndex={setEditIndex}
-        />
+        <CustomAgGrid
+                rowData={gridData}
+                setIsEditing={setIsEditing}
+                setRowData={setGridData}
+                columnDefs={columnDefs}
+                setFormData={setFormData}
+                gridHeight="260px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
       </div>
     </div>
   );

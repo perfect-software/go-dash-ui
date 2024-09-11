@@ -39,8 +39,12 @@ const WorkerMaster = () => {
       [name]: value,
     }));
   };
-
   const [isViewData, setViewDataPopup] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    setViewDataPopup(false);
+  }, [formData]);
+
   return (
     <div className={styles.pOMainContainer}>
       <div className={styles.pOSubContainer}>
@@ -252,11 +256,9 @@ const WorkerMaster = () => {
       </div>
       {isViewData && (
         <WorkMasterViewPopup
+        onClose={() => setViewDataPopup(false)}
         setFormData={setFormData}
-          onClose={() => {
-            setViewDataPopup(false);
-          }}
-       
+        setIsEditing={setIsEditing}
         />
       )}
     </div>

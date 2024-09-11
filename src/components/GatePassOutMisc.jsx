@@ -25,7 +25,8 @@ import { fetchAllItemRates } from "../reducer/itemRateSlice";
 import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import AutoTable from "../features/AutoTable";
-
+import CustomAgGrid from "../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const ItemDetails = () => {
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
@@ -143,16 +144,18 @@ const ItemDetails = () => {
     </Downshift>
   );
   const handleAddItem = () => {
-    if (editIndex !== null) {
-      const updatedGridData = [...gridData];
-      updatedGridData[editIndex] = { ...formData };
+    if (isEditing) {
+      const updatedGridData = gridData.map(item =>
+        item.id === formData.id ? { ...formData } : item
+      );
       setGridData(updatedGridData);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setGridData([...gridData, { ...formData }]);
+      setGridData([...gridData, { id: uuidv4(), ...formData }]);
     }
     setFormData({
+      id: '',
       itemId: { name: "", id: "" },
       unit: "",
       articleNo: "",
@@ -166,10 +169,7 @@ const ItemDetails = () => {
     });
   };
 
-  const handleDeleteRow = (id) => {
-    const updatedGridData = gridData.filter((item) => item.id !== id);
-    setGridData(updatedGridData);
-  };
+
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -188,7 +188,27 @@ const ItemDetails = () => {
     });
   };
 
-  const columns = {
+  const columns = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Item Name", field: "itemId.name", width: 200 },
+    { headerName: "Unit", field: "unit", width: 70 },
+    { headerName: "Article No", field: "articleNo", width: 100 },
+    { headerName: "Qty", field: "qty", },
+    { headerName: "Rate", field: "rate",},
+    { headerName: "HSN", field: "hsn", },
+    { headerName: "CGST", field: "cgst", },
+    { headerName: "SGST", field: "sgst", },
+    { headerName: "IGST", field: "igst", },
+    { headerName: "Remark", field: "remark",  }
+  ];
+  
+  const columnsDef = {
     itemName: { label: "Item Name", path: "itemId.name", width: "150px" },
     unit: { label: "Unit", path: "unit", width: "70px" },
     articleNo: { label: "Article No", path: "articleNo", width: "100px" },
@@ -200,7 +220,6 @@ const ItemDetails = () => {
     igst: { label: "IGST", path: "igst", width: "50px" },
     remark: { label: "Remark", path: "remark", width: "200px" },
   };
-
   return (
     <div className={styles.itemDetailsTableContainer}>
       <div className={styles.inputLinerGrid}>
@@ -210,7 +229,7 @@ const ItemDetails = () => {
               {downshiftItemName}
             </div>
 
-            {Object.keys(columns).map((key, index) =>
+            {Object.keys(columnsDef).map((key, index) =>
               key !== "itemName" ? (
                 <div key={index} className={styles.inputboxScroll}>
                   <input
@@ -220,9 +239,9 @@ const ItemDetails = () => {
                     required
                     value={formData[key]}
                     onChange={handleInputChange}
-                    style={{ width: columns[key].width }}
+                    style={{ width: columnsDef[key].width }}
                   />
-                  <span>{columns[key].label}</span>
+                  <span>{columnsDef[key].label}</span>
                 </div>
               ) : null
             )}
@@ -254,18 +273,19 @@ const ItemDetails = () => {
       </div>
       <div
         className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%" }}
+        style={{ width: "100%" }}
       >
-        <AutoTable
-          columns={columns}
-          data={gridData}
-          setData={setGridData}
-          canEdit={true}
-          canDelete={true}
-          setFormData={setFormData}
-          setIsEditing={setIsEditing}
-          setEditIndex={setEditIndex}
-        />
+         <CustomAgGrid
+                rowData={gridData}
+                setIsEditing={setIsEditing}
+                setRowData={setGridData}
+                columnDefs={columns}
+                setFormData={setFormData}
+                gridHeight="500px"
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={true}
+              />
       </div>
     </div>
   );

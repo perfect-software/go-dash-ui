@@ -3,6 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import tableStyles from "../../styles/bom.module.css";
+import CustomAgGrid from "../../features/CustomAgGrid";
 
 const Size = ({ sizeDetails }) => {
   const columnDefs = useMemo(() => [
@@ -33,17 +34,16 @@ const Size = ({ sizeDetails }) => {
     <>
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          domLayout='autoHeight'
-          pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-        />
+         <CustomAgGrid
+                gridHeight="250px"
+                rowData={rowData}
+                columnDefs={columnDefs}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+              />
       </div>
     </>
   );

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllItemRates } from "../reducer/itemRateSlice";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 const ItemQuotation = () => {
   const [activeButton, setActiveButton] = useState("details");
@@ -79,20 +80,11 @@ const ItemQuotation = () => {
     }));
   };
   const [gridApi, setGridApi] = useState(null);
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
- dispatch(fetchAllItemRates());
-    }
-  }, []);
+
 
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
-    }
-  }, [ loaded, loading, gridApi]);
-
-
+    dispatch(fetchAllItemRates());
+  }, [dispatch]);
 
   const getSupplier = async () => {
     const BASE_URL = "supplier/getSupplierList";
@@ -364,7 +356,14 @@ const handleButtonClick = (name) => {
   </Downshift>
 );
 
+const handleDelete = (id) => {
+  dispatch(deleteSample(id));
+};
 
+const onRowSelected = (event) => {
+  const selectedData = event.api.getSelectedRows();
+  onSampleSelect(selectedData.length > 0 ? selectedData : null);
+};
 
 
 
@@ -575,26 +574,24 @@ const downshiftItemName = (
         </>
       ) : (
         
-        <div
-        className={isCollapsed ? viewStyles.topContainer : viewStyles.topContainerOpen}
-      >
-      
-          <div
-            className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-            style={{ height: 500, width: "100%", marginTop: "10px" }}
-          >
-            <AgGridReact
-              columnDefs={columnDefs}
-              rowData={itemRates}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-              onGridReady={onGridReady}
-              onCellKeyDown={onCellKeyDown}
-            />
-          </div>
+        <div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error loading data: {error}</p>
+        ) : (
+          <CustomAgGridSecond
+            columnDefs={columnDefs}
+            rowData={itemRates}
+        //    handleEditClick={handleEditClick}
+            handleDelete={handleDelete}
+           
+            onRowSelect={onRowSelected}
+            deleteEnabled={true}
+            editEnabled={true}
+            pagination={true}
+          />
+        )}
       </div>
       )}
     </div>

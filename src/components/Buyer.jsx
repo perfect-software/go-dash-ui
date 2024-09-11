@@ -664,17 +664,6 @@ useEffect(() => {
               View all buyers
             </button>
           </div>
-          {activeButton === "view" && (
-              <div className={styles.editContainer}>
-                <button
-                 disabled={!isPrintSelected}
-                  className={styles.headButtonPrint}
-                  onClick={handlePrintClick}
-                >
-                  Print
-                </button>
-              </div>
-            )}
           
         </div>
         <div className={styles.headBorder}></div>
@@ -1197,7 +1186,7 @@ useEffect(() => {
           )}
         </>
       ) : (
-        <ViewBuyer onBuyerSelect={handleBuyerPrint} />
+        <ViewBuyer onBuyerSelect={handleBuyerPrint} handlePrintClick={handlePrintClick} />
       )}
     </div>
   );

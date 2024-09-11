@@ -5,7 +5,8 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
-
+import CustomAgGrid from "../../features/CustomAgGrid";
+import { v4 as uuidv4 } from 'uuid';
 const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const columnDefs = useMemo(
     () => [
@@ -47,13 +48,23 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
   });
   const handleAddMaterial = () => {
     setProductionBomData((prevData) => {
-      const updatedProduction = Array.isArray(prevData.sizeRoles) ? [...prevData.sizeRoles, newItem] : [newItem];
+      const updatedComment = Array.isArray(prevData.sizeRoles) 
+        ? [...prevData.sizeRoles, { ...newItem, id: uuidv4() }]
+        : [{ ...newItem, id: uuidv4() }];
+      
       return {
         ...prevData,
-        sizeRoles: updatedProduction,
+        sizeRoles: updatedComment,
       };
     });
     resetNewItemState();
+  };
+  
+  const updateSizeRoleData = (newSizeRoleData) => {
+    setSampleCostingData((prevData) => ({
+      ...prevData,
+      sizeRoles: newSizeRoleData, 
+    }));
   };
   const resetNewItemState = () => {
     setNewItem({
@@ -181,11 +192,18 @@ const SizeRoles = ({ productionBomData, setProductionBomData ,editDetails, setEd
 
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact rowData={productionBomData.sizeRoles} columnDefs={columnDefs} overlayNoRowsTemplate={
-            `<span class="ag-overlay-loading-center">No data found</span>`
-          }/>
+         <CustomAgGrid
+  rowData={productionBomData?.sizeRoles || []}  // Fallback to empty array
+  setRowData={updateSizeRoleData}
+  columnDefs={columnDefs}
+  setFormData={setNewItem}
+  gridHeight="210px"
+  editEnabled={false}
+  deleteEnabled={true}
+  pagination={false}
+/>
       </div>
     </>
   );

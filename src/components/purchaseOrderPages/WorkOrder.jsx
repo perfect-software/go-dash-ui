@@ -5,38 +5,12 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
+import CustomAgGrid from "../../features/CustomAgGrid";
 
 
 const WorkOrder = ({bsId,onBomSelect}) => {
 
-  const columnDefs = useMemo(
-    () => [
-      { field: "code", headerName: "Morder No." },
-      { field: "head", headerName: "Article No." },
-      { field: "percent", headerName: "EX-Factory Date" },
-      {
-        field: 'action',
-        headerName: 'Action',
-        cellStyle: { textAlign: 'center' },
-        cellRenderer: function (params) {
-          return (
-            <div style={{
-              height: '100%', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center' 
-            }}>
-              <button  className={tableStyles.minus}
-              onClick={() => handleRemoveItem(params.data.code)}
-              >
-              </button>
-            </div>
-          );
-        },
-    },
-    ],
-    []
-  );
+
 
   const [rowData, setRowData] = useState([]);
   const [bomDetails, setBomDetails] = useState([]);
@@ -82,7 +56,7 @@ const WorkOrder = ({bsId,onBomSelect}) => {
 
 
   const columnDe = useMemo(() => [
-    {headerName: "Select",  field:'edit' , maxWidth: 150,
+    {headerName: "Select",  field:'select' , maxWidth: 150,
     checkboxSelection: true,
     headerCheckboxSelection: true,
     showDisabledCheckboxes: true},
@@ -122,10 +96,7 @@ const WorkOrder = ({bsId,onBomSelect}) => {
   //   }
   // }, [bsId]); 
 
-  const onRowSelected = (event) => {
-    const selectedData = event.api.getSelectedRows();
-    onBomSelect(selectedData.length > 0 ? selectedData : null);
-  };
+
   const handleRemoveItem = (code) => {
     setRowData(rowData.filter((item) => item.code !== code));
   };
@@ -135,28 +106,18 @@ const WorkOrder = ({bsId,onBomSelect}) => {
   
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{ width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact
-              columnDefs={columnDe}
-             rowData={rowDa}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              rowSelection={"multiple"}
-              onSelectionChanged={onRowSelected}
-              filter={true}
-        
-            //  onGridReady={onGridReady}
-            //  overlayLoadingTemplate={
-            //     '<span class="ag-overlay-loading-center">Loading...</span>'
-            //   }
-            //   overlayNoRowsTemplate={
-            //     `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
-            //   }
-      
-            />
+         <CustomAgGrid
+                gridHeight="250px"
+                rowData={rowDa}
+                columnDefs={columnDe}
+                rowTransferSelect={true}
+                onBomSelect={onBomSelect}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={true}
+              />
       </div>
     </>
   );

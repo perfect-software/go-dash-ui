@@ -9,6 +9,7 @@ import styles from "../styles/popupTable.module.css";
 import Cross from "../assets/cross.svg";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGrid from "../features/CustomAgGrid";
 
 const  InventoryCheckPopup = ({ onCancel }) => {
   const navigate = useNavigate();
@@ -20,26 +21,14 @@ const  InventoryCheckPopup = ({ onCancel }) => {
     (state) => state.buyer
   );
 
-  const [gridApi, setGridApi] = useState(null);
-
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllBuyers());
-    }
-  }, []);
-
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
   useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
-    }
-  }, [ loaded, loading, gridApi]);
+    dispatch(fetchAllBuyers());
+  }, [dispatch]);
+
+  const handleDelete = (id) => {
+    dispatch(deleteSample(id));
+  };
+
 
 
   const columnDefs = [
@@ -101,22 +90,21 @@ const  InventoryCheckPopup = ({ onCancel }) => {
 
           <div
             className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            style={{  width: "100%", marginTop: "10px" }}
           >
-            <AgGridReact
-              columnDefs={columnDefs}
-              rowData={buyers}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-              onGridReady={onGridReady}
-            />
+            <CustomAgGrid
+                gridHeight="400px"
+                rowData={buyers}
+                columnDefs={columnDefs}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={false}
+               
+              />
           </div>
           <div className={styles.bottomInventoryButtonContainer}>
           <h3>SR BOM(autofill)  |  Item invent(autofill) | Stock Consumed = Unallocated stock - bom Qty | Required Qty = Bom qty - stock consumed </h3>
-            <button
+            {/* <button
             
               className={styles.selectPopupButton}
               onClick={() => {
@@ -124,7 +112,7 @@ const  InventoryCheckPopup = ({ onCancel }) => {
               }}
             >
               Next
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Downshift from "downshift";
 import tableStyles from "../../styles/bom.module.css";
+import CustomAgGrid from "../../features/CustomAgGrid";
 
 
 const WorkOrder = ({bsId,onBomSelect}) => {
@@ -135,28 +136,18 @@ const WorkOrder = ({bsId,onBomSelect}) => {
   
       <div
         className={`ag-theme-quartz ${tableStyles.agThemeQuartz}`}
-        style={{ height: 250, width: "100%", marginTop: "10px" }}
+        style={{  width: "100%", marginTop: "10px" }}
       >
-        <AgGridReact
-              columnDefs={columnDe}
-             rowData={rowDa}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              rowSelection={"multiple"}
-              onSelectionChanged={onRowSelected}
-              filter={true}
-        
-            //  onGridReady={onGridReady}
-            //  overlayLoadingTemplate={
-            //     '<span class="ag-overlay-loading-center">Loading...</span>'
-            //   }
-            //   overlayNoRowsTemplate={
-            //     `<span class="ag-overlay-loading-center">${fetchError ? 'Failed to load data' : 'No data found'}</span>`
-            //   }
-      
-            />
+         <CustomAgGrid
+                gridHeight="250px"
+                rowData={rowDa}
+                columnDefs={columnDe}
+                rowTransferSelect={true}
+                onBomSelect={onBomSelect}
+                editEnabled={false}
+                deleteEnabled={false}
+                pagination={true}
+              />
       </div>
     </>
   );
