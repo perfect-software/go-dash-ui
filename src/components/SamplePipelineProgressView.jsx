@@ -10,9 +10,10 @@ import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
 const SamplePipelineProgressView = () => {
-  const [activeButton, setActiveButton] = useState("input");
+  const [activeButton, setActiveButton] = useState("progress");
   const [itemSelect,setItemSelect] = useState(null);
   const { isCollapsed, toggleNavbar } = useSidebar();
   const [isEditSelected, setIsEditSelected] = useState(false);
@@ -49,21 +50,29 @@ const SamplePipelineProgressView = () => {
       [key]: value,
     }));
   };
-  const [gridApiInput, setGridApiInput] = useState(null);
-  const onGridReadyInput = useCallback((params) => {
-    setGridApiInput(params.api);
-    if (!loaded && !loading) {
- dispatch(fetchAllSamples());
-    }
-  }, []);
+  useEffect(() => {
+    dispatch(fetchAllSamples());
+  }, [dispatch]);
+
+  const handleDelete = (id) => {
+    dispatch(deleteSample(id));
+  };
+
 
   useEffect(() => {
-    if (gridApiInput && !loaded && loading) {
-      gridApiInput.showLoadingOverlay();
-    }
-  }, [ loaded, loading, gridApiInput]);
-
-
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlRight") {
+        setActiveButton((prevButton) =>
+          prevButton === "progress" ? "dashboard" : "progress"
+        );
+      
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton]);
   const [gridApiOutput, setGridApiOutput] = useState(null);
   const onGridReadyOutput = useCallback((params) => {
     setGridApiOutput(params.api);
@@ -173,18 +182,18 @@ const SamplePipelineProgressView = () => {
           <div className={styles.topButtons}>
             <button
               className={`${styles.screenChangeButton} ${
-                activeButton === "input" ? styles.active : ""
+                activeButton === "progress" ? styles.active : ""
               }`}
-              onClick={() => setActiveButton("input")}
+              onClick={() => setActiveButton("progress")}
             >
               View Progress
             </button>
             <button
               className={`${styles.screenChangeButton} ${
-                activeButton === "output" ? styles.active : ""
+                activeButton === "dashboard" ? styles.active : ""
               }`}
                onClick={() => {
-                  setActiveButton("output");
+                  setActiveButton("dashboard");
                   {
                     !isCollapsed && toggleNavbar();
                   }
@@ -198,7 +207,7 @@ const SamplePipelineProgressView = () => {
         </div>
       </div>
 
-      {activeButton === "input" ? (
+      {activeButton === "progress" ? (
         <>
           {" "}
           <div className={styles.topContainer}>
@@ -252,26 +261,22 @@ const SamplePipelineProgressView = () => {
             </div>{" "}
           </div>
             
-        <div
-        className={isCollapsed ? viewStyles.topContainer : viewStyles.topContainerOpen}
-      >
-      
-          <div
-            className={`ag-theme-quartz ${viewStyles.agThemeQuartz}`}
-            style={{ height: 500, width: "100%", marginTop: "20px" }}
-          >
-            <AgGridReact
-              columnDefs={columnDefsInput}
-              rowData={samples}
-              pagination={true}
-              paginationPageSize={12}
-              paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-              animateRows={true}
-              filter={true}
-              onGridReady={onGridReadyInput}
-            />
-          </div>
-      </div>
+              <div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error loading data: {error}</p>
+      ) : (
+        <CustomAgGridSecond
+          columnDefs={columnDefsInput}
+          rowData={samples}
+            gridHeight="400px"
+          deleteEnabled={false}
+          editEnabled={false}
+          pagination={true}
+        />
+      )}
+    </div>
          
         </>
       ) : (

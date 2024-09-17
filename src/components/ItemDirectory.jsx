@@ -11,6 +11,22 @@ const ItemDirectory = () => {
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const [itemSubGroupNumber, setItemSubGroupNumber] = useState("");
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
+  const [itemListForm,setItemListForm] = useState({
+    animal: "",
+    leather:"",
+    insole:"",
+    sole:"",
+    subCategory:"",
+    soleType: "",
+    lastType:"",
+    toeShape: "",
+    category: "",
+    platformType: "",
+    heelType: "",
+    heelHeight: "",
+    liningMaterial: "",
+    socksMaterial: "",
+  })
   const [colors, setColors] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -1111,19 +1127,21 @@ const ItemDirectory = () => {
     const BASE_URL = "item/create";
     try {
       const responseData = await postApiService(formData, BASE_URL);
-      togglePopup(responseData.message);
+      if (responseData.responseStatus && responseData.responseStatus.description) {
+        togglePopup(
+          responseData.responseStatus.description);
+      }
       resetItem();
     } catch (error) {
-      if (error.response) {
-        togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+        errorMessage = "No response received from the server.";
       }
+      togglePopup(errorMessage);
     } finally {
       setSubmitLoading(false);
     }
@@ -1324,7 +1342,7 @@ const ItemDirectory = () => {
             setIsItemHeadPopup(false);
             getItems();
           }}
-          itemForm={itemForm}
+          itemForm={itemListForm}
         />
       )}
     </div>

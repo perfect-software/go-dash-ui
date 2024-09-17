@@ -31,7 +31,7 @@
   @apply flex items-center gap-6 sm:gap-3 mr-4;
 }
 .rightPinDiv {
-  @apply flex cursor-pointer text-white text-[1.125rem] sm:p-3 font-[700] leading-4 items-center gap-2 border border-solid rounded-[0.3125rem] p-3 bg-[#FF5722];
+  @apply flex cursor-pointer text-white text-[0.6rem] sm:p-3 font-[700] leading-4 items-center gap-1 border border-solid rounded-[0.3125rem] p-1 bg-[#53960b];
 }
 .inlinelogo {
   @apply flex items-center;

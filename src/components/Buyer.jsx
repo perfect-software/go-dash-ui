@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import { Country, State, City } from "country-state-city";
 import Currencydata from "currency-codes/data";
@@ -25,7 +25,10 @@ const Buyer = () => {
   const [confirmAccountNo, setConfirmAccountNo] = useState("");
   const [allCountries, setAllCountires] = useState([]);
   const dispatch = useDispatch();
+  const commentTextareaRef = useRef(null);
   const [allStates, setAllStates] = useState([]);
+  const initialValidationState = {};
+  const [validation, setValidation] = useState(initialValidationState);
   const [allCities, setAllCities] = useState([]);
   const [printBuyer, setPrintBuyer] = useState(null);
   const [isPrintSelected, setIsPrintSelected] = useState(false);
@@ -94,6 +97,55 @@ const Buyer = () => {
     setPrintBuyer(buyer);
     setIsPrintSelected(buyer !== null);
   };
+  const validateForm = () => {
+    let isValid = true;
+    let newValidation = {};
+    const directFields = [
+        "buyerName",
+        "buyerBillingAddress",
+        "buyerShippingAddress",
+        "buyerPhone",
+        "buyerMobile",
+        "buyerEmail",
+        "buyerCity",
+        "buyerState",
+        "buyerCountry",
+        "buyerPincode",
+        "buyerType",
+        "buyerContactPerson",
+        "merchendiser",
+        "currency",
+        "paymentTerms",
+    ];
+
+    const bsAccountRequestFields = [
+        "bankName",
+        "bankBranch",
+        "bankAccountNo",
+        "bankIFSC",
+        "bankCity",
+        "bankAddress",
+    ];
+    directFields.forEach(field => {
+        if (!buyerForm[field] || buyerForm[field].trim() === "") {
+            isValid = false;
+            newValidation[field] = "invalid";
+        } else {
+            newValidation[field] = "valid";
+        }
+    });
+    bsAccountRequestFields.forEach(field => {
+        if (!buyerForm.bsAccountRequest[field] || buyerForm.bsAccountRequest[field].trim() === "") {
+            isValid = false;
+            newValidation[`bsAccountRequest.${field}`] = "invalid";
+        } else {
+            newValidation[`bsAccountRequest.${field}`] = "valid";
+        }
+    });
+
+    setValidation(newValidation);
+    return isValid;
+};
 
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
@@ -112,6 +164,27 @@ const Buyer = () => {
     return true;
 };
 
+useEffect(() => {
+  const textareas = [
+    commentTextareaRef.current,
+  ];
+
+  const autosizeListener = (event) => autosize(event.target);
+
+  textareas.forEach((textarea) => {
+    if (textarea) {
+      textarea.addEventListener("keydown", autosizeListener);
+    }
+  });
+
+  return () => {
+    textareas.forEach((textarea) => {
+      if (textarea) {
+        textarea.removeEventListener("keydown", autosizeListener);
+      }
+    });
+  };
+}, []);
   const [isGridVisible, setIsGridVisible] = useState({
     bank: true,
     financials: true,
@@ -148,6 +221,7 @@ const Buyer = () => {
       splDiscount: "",
       comments: "",
     });
+    setValidation(initialValidationState);
     setConfirmAccountNo("");
     localStorage.setItem(
       "buyerForm",
@@ -218,6 +292,7 @@ const Buyer = () => {
       setTempList({ ...tempList, currencyList: filteredCurrency });
       toggleSuggestVisibility("currency", true);
     }
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const handlePrintClick = async ()=>{
@@ -251,22 +326,29 @@ const Buyer = () => {
   const onSubmitBuyerForm = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
     const BASE_URL = "buyer/create";
     try {
       const responseData = await postApiService(buyerForm, BASE_URL);
-      togglePopup(responseData.message);
-      dispatch(fetchAllBuyers());
-    } catch (error) {
-      if (error.response) {
+      if (responseData.responseStatus && responseData.responseStatus.description) {
         togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
-      } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+          responseData.responseStatus.description);
       }
+      dispatch(fetchAllBuyers());
+      resetAllFields();
+    } catch (error) {
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -298,6 +380,9 @@ const Buyer = () => {
             type="text"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
+            style={
+              validation.buyerCountry === "invalid" ? { border: "2px solid red" } : {}
+            }
             value={buyerForm.buyerCountry}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -344,6 +429,9 @@ const Buyer = () => {
             type="text"
             disabled={!buyerForm.buyerCountry}
             className={styles.basicInput}
+            style={
+              validation.buyerState === "invalid" ? { border: "2px solid red" } : {}
+            }
             placeholder="Insert Two Letter"
             value={buyerForm.buyerState}
           />
@@ -391,6 +479,9 @@ const Buyer = () => {
             disabled={!buyerForm.buyerCountry || !buyerForm.buyerState}
             className={styles.basicInput}
             placeholder="Insert Two Letter"
+            style={
+              validation.buyerCity === "invalid" ? { border: "2px solid red" } : {}
+            }
             value={buyerForm.buyerCity}
           />
           <div {...getMenuProps()} className={styles.suggestions}>
@@ -435,6 +526,9 @@ const Buyer = () => {
             })}
             type="text"
             className={styles.basicInput}
+            style={
+              validation.currency === "invalid" ? { border: "2px solid red" } : {}
+            }
             placeholder="Insert Two Letter"
             value={buyerForm.currency}
           />
@@ -475,6 +569,7 @@ const Buyer = () => {
         [name]: value,
       }));
     }
+    setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
 
   const today = new Date();
@@ -496,7 +591,34 @@ const Buyer = () => {
   useEffect(() => {
     getCurrency();
   }, []);
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlRight") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "view" : "details"
+        );
+        if (activeButton === "view" && !isCollapsed) {
+          toggleNavbar();
+        } 
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton, isCollapsed, toggleNavbar]);
+  
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "P" || event.key === "p"  && activeButton === "view" && isPrintSelected) {
+       handlePrintClick(); 
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [activeButton, isPrintSelected,handlePrintClick]);
   useEffect(() => {
     if (confirmAccountNo === buyerForm.bsAccountRequest.bankAccountNo) {
       setIsMatching(true);
@@ -542,17 +664,6 @@ const Buyer = () => {
               View all buyers
             </button>
           </div>
-          {activeButton === "view" && (
-              <div className={styles.editContainer}>
-                <button
-                 disabled={!isPrintSelected}
-                  className={styles.headButtonPrint}
-                  onClick={handlePrintClick}
-                >
-                  Print
-                </button>
-              </div>
-            )}
           
         </div>
         <div className={styles.headBorder}></div>
@@ -564,7 +675,7 @@ const Buyer = () => {
           <div className={styles.topContainer}>
             <div className={styles.topGrid}>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Buyer Name
                 </label>
                 <input
@@ -574,6 +685,9 @@ const Buyer = () => {
                   value={buyerForm.buyerName}
                   name="buyerName"
                   onChange={handleBuyerFormChange}
+                  style={
+                    validation.buyerName === "invalid" ? { border: "2px solid red" } : {}
+                  }
                 />
               </div>
               <div className={styles.colSpan}>
@@ -590,7 +704,7 @@ const Buyer = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="email">
+                <label className={styles.impsampleLabel} htmlFor="email">
                   Email Id
                 </label>
                 <input
@@ -600,7 +714,7 @@ const Buyer = () => {
                   value={buyerForm.buyerEmail}
                   name="buyerEmail"
                   style={
-                    !validateEmail(buyerForm.buyerEmail)
+                    !validateEmail(buyerForm.buyerEmail) || validation.buyerEmail === "invalid"
                       ? { border: "2px solid red" }
                       : {}
                   }
@@ -609,7 +723,7 @@ const Buyer = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="merchandiser">
+                <label className={styles.impsampleLabel} htmlFor="merchandiser">
                   Merchandiser
                 </label>
                 <input
@@ -618,29 +732,32 @@ const Buyer = () => {
                   placeholder="Merchandiser"
                   value={buyerForm.merchendiser}
                   name="merchendiser"
+                  style={
+                    validation.merchendiser === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="country">
+                <label className={styles.impsampleLabel} htmlFor="country">
                   Country
                 </label>
                 {downshiftCountry}
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
+                <label className={styles.impsampleLabel} htmlFor="city">
                   State
                 </label>
                 {downshiftState}
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
+                <label className={styles.impsampleLabel} htmlFor="city">
                   City
                 </label>
                 {downshiftCity}
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
+                <label className={styles.impsampleLabel} htmlFor="city">
                   Buyer Type
                 </label>
                 <div className={styles.selectWrapper}>
@@ -648,6 +765,9 @@ const Buyer = () => {
                     className={styles.selectInput}
                     value={buyerForm.buyerType}
                     name="buyerType"
+                    style={
+                      validation.buyerType === "invalid" ? { border: "2px solid red" } : {}
+                    }
                     onChange={handleBuyerFormChange}
                   >
                     <option value="" selected disabled hidden>
@@ -660,39 +780,48 @@ const Buyer = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Pincode
                 </label>
                 <input
                   type="number"
                   className={styles.basicInput}
                   placeholder="Pincode"
+                  style={
+                    validation.buyerPincode === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.buyerPincode}
                   name="buyerPincode"
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Billing Address
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  style={
+                    validation.buyerBillingAddress === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.buyerBillingAddress}
                   name="buyerBillingAddress"
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Contact Person
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  style={
+                    validation.buyerContactPerson === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.buyerContactPerson}
                   name="buyerContactPerson"
                   onChange={handleBuyerFormChange}
@@ -700,7 +829,7 @@ const Buyer = () => {
               </div>
 
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Mobile Number
                 </label>
                 <input
@@ -711,27 +840,30 @@ const Buyer = () => {
                   name="buyerMobile"
                   onChange={handleBuyerFormChange}
                   style={
-                    !validatePhoneNumber(buyerForm.buyerMobile)
+                    !validatePhoneNumber(buyerForm.buyerMobile) || validation.buyerMobile === "invalid"
                       ? { border: "2px solid red" }
                       : {}
                   }
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Delivery Address
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="Address"
+                  style={
+                    validation.buyerShippingAddress === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.buyerShippingAddress}
                   name="buyerShippingAddress"
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="phone">
+                <label className={styles.impsampleLabel} htmlFor="phone">
                   Phone Number
                 </label>
                 <input
@@ -742,14 +874,14 @@ const Buyer = () => {
                   name="buyerPhone"
                   onChange={handleBuyerFormChange}
                   style={
-                    !validatePhoneNumber(buyerForm.buyerPhone)
+                      validation.buyerPhone === "invalid" || !validatePhoneNumber(buyerForm.buyerPhone)
                       ? { border: "2px solid red" }
                       : {}
                   }
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="currency">
+                <label className={styles.impsampleLabel} htmlFor="currency">
                   Currency
                 </label>
                 {downshiftCurrency}
@@ -779,7 +911,7 @@ const Buyer = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Bank Name
                 </label>
                 <input
@@ -788,11 +920,14 @@ const Buyer = () => {
                   className={styles.basicInput}
                   value={buyerForm.bsAccountRequest.bankName}
                   name="bankName"
+                  style={
+                    validation["bsAccountRequest.bankName"] === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Bank Branch
                 </label>
                 <input
@@ -801,11 +936,14 @@ const Buyer = () => {
                   className={styles.basicInput}
                   value={buyerForm.bsAccountRequest.bankBranch}
                   name="bankBranch"
+                  style={
+                    validation["bsAccountRequest.bankBranch"] === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   onChange={handleBuyerFormChange}
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="city">
+                <label className={styles.impsampleLabel} htmlFor="city">
                   Bank City
                 </label>
                 <input
@@ -814,6 +952,9 @@ const Buyer = () => {
                   placeholder="Bank City"
                   value={buyerForm.bsAccountRequest.bankCity}
                   name="bankCity"
+                  style={
+                    validation["bsAccountRequest.bankCity"] === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   onChange={handleBuyerFormChange}
                 />
               </div>
@@ -831,13 +972,16 @@ const Buyer = () => {
                 />
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+                <label className={styles.impsampleLabel} htmlFor="input1">
                   Bank Address
                 </label>
                 <input
                   type="text"
                   placeholder="Bank Address"
                   className={styles.basicInput}
+                  style={
+                    validation["bsAccountRequest.bankAddress"] === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.bsAccountRequest.bankAddress}
                   name="bankAddress"
                   onChange={handleBuyerFormChange}
@@ -845,7 +989,7 @@ const Buyer = () => {
               </div>
 
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   A/C no
                 </label>
                 <div className={styles.inputWithIcon}>
@@ -855,6 +999,9 @@ const Buyer = () => {
                     placeholder="Account Number"
                     value={buyerForm.bsAccountRequest.bankAccountNo}
                     name="bankAccountNo"
+                    style={
+                      validation["bsAccountRequest.bankAccountNo"] === "invalid" ? { border: "2px solid red" } : {}
+                    }
                     onChange={handleBuyerFormChange}
                   />
                   <button
@@ -870,7 +1017,7 @@ const Buyer = () => {
                 </div>
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   Confirm <br />
                   A/C no
                 </label>
@@ -899,13 +1046,16 @@ const Buyer = () => {
                 </div>
               </div>
               <div className={styles.colSpan2}>
-                <label className={styles.sampleLabel} htmlFor="buyer">
+                <label className={styles.impsampleLabel} htmlFor="buyer">
                   IFSC Code
                 </label>
                 <input
                   type="text"
                   className={styles.basicInput}
                   placeholder="IFSC Code"
+                  style={
+                    validation["bsAccountRequest.bankIFSC"] === "invalid" ? { border: "2px solid red" } : {}
+                  }
                   value={buyerForm.bsAccountRequest.bankIFSC}
                   name="bankIFSC"
                   onChange={handleBuyerFormChange}
@@ -963,7 +1113,7 @@ const Buyer = () => {
                 />
               </div>
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="type">
+                <label className={styles.impsampleLabel} htmlFor="type">
                   Payment Terms
                 </label>
                 <div className={styles.selectWrapper}>
@@ -971,6 +1121,9 @@ const Buyer = () => {
                     className={styles.selectInput}
                     value={buyerForm.paymentTerms}
                     name="paymentTerms"
+                    style={
+                      validation.paymentTerms === "invalid" ? { border: "2px solid red" } : {}
+                    }
                     onChange={handleBuyerFormChange}
                   >
                     <option value="" selected disabled hidden>
@@ -983,18 +1136,20 @@ const Buyer = () => {
                   </select>
                 </div>
               </div>
-              <div className={styles.colSpan3}>
-                <label className={styles.sampleLabel} htmlFor="input1">
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="commentLeather">
                   Comment
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Enter.."
-                  value={buyerForm.comments}
+                <textarea
+                  ref={commentTextareaRef}
+                  className={styles.commentInput}
+                  placeholder="Enter Here"
+                  maxLength="200"
                   name="comments"
+                  value={buyerForm.comments}
                   onChange={handleBuyerFormChange}
-                />
+                  rows="3"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -1031,7 +1186,7 @@ const Buyer = () => {
           )}
         </>
       ) : (
-        <ViewBuyer onBuyerSelect={handleBuyerPrint} />
+        <ViewBuyer onBuyerSelect={handleBuyerPrint} handlePrintClick={handlePrintClick} />
       )}
     </div>
   );

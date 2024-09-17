@@ -11,6 +11,95 @@
   z-index: 1000;
   @apply py-4;
 }
+.actionsContainer {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100%;
+}
+/* customHeader styles */
+.customHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  height: 100%; /* Full height */
+}
+
+.filterButton, .exportButton {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Style buttons differently if needed */
+.filterButton {
+  background-color: #007bff;
+  color: white;
+}
+
+.exportButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.actionIcon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  margin: 0 5px; /* Optional: Add some space between the icons */
+}
+
+.customToolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.rowDeleting {
+  animation: slideOutGlassy 1s forwards;
+  transition: all 1s ease-out;
+  border-radius: 16px;
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+}
+
+@keyframes slideOutGlassy {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(0px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateX(50%);
+    backdrop-filter: blur(5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.buttonHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #ddd;
+}
+
+.agGridWrapper {
+  width: 100%;
+  height: auto;
+}
+
 .topGrid {
   @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-4 gap-2 mt-2;
 }
@@ -18,7 +107,7 @@
   @apply col-span-2 flex flex-row items-center gap-1;
 }
 .popupContainer {
-  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
+  @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col py-1 px-2 items-center rounded-[0.625rem] text-center overflow-auto;
 }
 .sampleLabel {
   @apply relative text-[#5b5b5b]  flex items-center text-[0.84rem] h-[2.5rem];
@@ -39,7 +128,7 @@
     height: 2.5rem;
   }
 .topBarContainer h1 {
-  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400];
+  @apply text-[#00ADB5] text-[1rem] m-0;
 }
 
 .crossIcon {
@@ -55,24 +144,27 @@
   @apply flex w-full justify-between;
 }
 
-.bottomPopupContainer {
-  @apply flex justify-center w-full mt-3;
-}
 
 .popupButton {
   @apply flex bg-[#001314] items-center justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
 
 .selectPopupButton {
-  @apply flex items-center bg-[#00A5AD] justify-center py-2 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+  @apply flex items-center bg-[#00A5AD] justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
 }
-
+.navigatePopupButton {
+  @apply flex bg-[#001314] items-center justify-center py-1 sm:px-1 whitespace-nowrap px-2 w-fit m-0 text-white font-thin rounded-[0.4375rem] text-[0.9rem] sm:text-[0.8rem] sm:h-[2rem] sm:w-[7rem];
+}
 .viewButton {
   @apply flex items-center rounded-sm bg-[#0de37f] font-bold justify-center h-[1.4rem] w-[4rem];
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
+.backViewButton {
+  @apply flex items-center mr-2 text-[14px] text-white rounded-[0.4375rem] font-bold whitespace-nowrap bg-[#00A5AD] justify-center px-1 h-[1.4rem] w-[4rem];
+
+}
 .bottomButtonContainer {
-  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-3;
+  @apply flex sm:flex-col justify-end sm:justify-center items-center gap-2 w-full mt-1;
 }
 .bottomInventoryButtonContainer
 {
@@ -90,11 +182,11 @@
 }
 .bottomInventoryButtonContainer h3
 {
-  @apply sml:text-[0.8rem];
+  @apply text-[0.8rem];
   color: rgba(91, 91, 91, 1);
 }
 .bottomButtonContainer h3 {
-  @apply sml:text-[0.8rem];
+  @apply text-[0.8rem];
   color: rgba(91, 91, 91, 1);
 }
 .agThemeQuartz ::-webkit-scrollbar {

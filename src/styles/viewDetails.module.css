@@ -14,7 +14,15 @@
   border: none;
   cursor: pointer;
 }
+.viewButton {
+  @apply flex items-center rounded-sm bg-[#0de37f] font-bold justify-center h-[1.4rem] w-[4rem];
 
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.viewButton2 {
+  @apply flex items-center rounded-sm cursor-pointer bg-[#0de37f] justify-center h-[1.4rem] w-[2.3rem] px-2;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
 .headButton {
   @apply w-[5rem] h-[2rem] flex justify-center items-center text-[0.8rem] font-[700] p-[1.2rem] text-white 
   leading-4 bg-[#00A5AD] rounded-[0.3125rem];

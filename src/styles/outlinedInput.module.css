@@ -1,0 +1,351 @@
+.tableContainer {
+  @apply mt-3 text-left;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.3rem;
+  border-radius: 10px;
+}
+
+.searchInput {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0.3rem;
+  font-size: 1rem;
+}
+
+.searchIcon {
+  @apply h-[15px] w-[15px];
+  margin-left: 5px;
+}
+
+.sortIcon {
+  @apply h-[13px] w-[13px] select-none;
+}
+
+.menuIcon {
+  @apply h-[22px] w-[22px];
+}
+
+.filterIcon {
+  @apply rounded-md h-[18px] w-[18px];
+}
+.actionIcon {
+  @apply rounded-md h-[18px] w-[18px];
+}
+.export {
+  @apply flex gap-3 items-center;
+  position: relative;
+}
+
+.spanClass {
+  @apply flex items-center gap-3;
+}
+
+.menuButton, .menuButton2, .menuButton3, .menuButton4 {
+  @apply rounded-[50%] p-2 border-none cursor-pointer transition-[background-color_0.3s_ease];
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+}
+
+.menuButton { background-color: #FFBD44; }
+.menuButton2 { background-color: #00CA4E; }
+.menuButton3 { background-color: lightseagreen; }
+.menuButton4 { background-color: #262525; }
+
+.menuButton:hover, .menuButton2:hover, .menuButton3:hover, .menuButton4:hover {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.menuButton:disabled, .menuButton2:disabled, .menuButton3:disabled, .menuButton4:disabled {
+  @apply cursor-not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.menuIcon {
+  font-size: 1.5rem;
+  color: black;
+}
+
+.dropdownMenu {
+  @apply flex flex-col w-[200px]  overflow-y-auto rounded-md absolute;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 9px;
+  z-index: 1000;
+  top: 110%;
+  right: 0;
+}
+
+.menuButton:active .menuIcon {
+  transform: rotate(90deg);
+}
+
+.dropdownItem {
+  @apply whitespace-nowrap items-center gap-2;
+  display: flex;
+  width: 100%;
+  padding: 9px;
+  text-align: left;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  @apply rounded-md;
+  background-color: #e5e5e5;
+}
+
+.filterMenu {
+  @apply flex flex-col w-[200px] h-[250px] overflow-y-auto rounded-md absolute p-4;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  top: 110%;
+  right: 0;
+  z-index: 1000;
+}
+
+.filterMenu label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.filterMenu input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tableOverflow{
+  @apply overflow-auto;
+}
+.table th, .table td {
+  padding: 5px;
+  @apply text-sm;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+ 
+}
+.table th.sticky,
+.table td.sticky {
+  @apply rounded-md bg-lime-200 text-black text-center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.table th.stickySecond,
+.table td.stickySecond {
+  @apply rounded-md bg-blue-400 text-white text-center;
+  position: sticky;
+  right: 54px;
+  z-index: 1;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+
+.cellContent {
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tableGrid {
+  @apply grid grid-cols-1;
+}
+.colSpanTable {
+  @apply col-span-1;
+}
+.cellContent:hover .tooltip {
+  display: block;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  top: -50%; /* Adjust this value as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  z-index: 1000;
+}
+.table th {
+  background-color: white;
+  text-align: left;
+}
+
+.resizer {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40%;
+  width: 1.5px;
+  cursor: col-resize;
+  background-color: #ddd;
+}
+
+.noSelect {
+  user-select: none;
+}
+
+.table td button {
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deleteIcon {
+  @apply h-[15px] w-[15px] mx-auto cursor-pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+
+}
+.deleteIcon:hover {
+  transform: scale(1.1); 
+}
+.sizeButton {
+  @apply h-[20px] w-[20px] mx-auto cursor-pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+
+ 
+}
+
+.sizeButton:hover {
+  transform: scale(1.1); 
+  
+}
+.rowDeleting {
+  animation: slideOutGlassy 1s forwards;
+  transition: all 1s ease-out;
+  border-radius: 16px;
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+}
+
+@keyframes slideOutGlassy {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(0px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateX(50%);
+    backdrop-filter: blur(5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+    backdrop-filter: blur(10px);
+  }
+}
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination a {
+  text-decoration: none;
+  @apply text-sm;
+  color: #007bff;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.pagination .active a {
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+}
+
+.pagination .break-me {
+  cursor: default;
+}
+
+.pagination .disabled a {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination a:hover {
+  background-color: #e5e5e5;
+}
+
+.noDataContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f2f2f2;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.noDataContainer h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #888;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ 
+}
+
+.loadingContainer p {
+  margin: 0;
+  font-size: 20px;
+  color: #888;
+}

@@ -21,6 +21,33 @@ import ItemQuotation from "./components/ItemQuotation";
 import SamplePipeline from "./components/SamplePipeline";
 import SamplePipelineProgressView from "./components/SamplePipelineProgressView";
 import PurchaseOrder from "./components/PurchaseOrder";
+import ProductionBom from "./components/productionBom";
+import ProductionPurchaseOrder from "./components/ProductionPurchaseOrder";
+import SampleCosting from "./components/SampleCosting";
+import NewPurchaseOrder from "./components/NewPurchaseOrder";
+import NewPurchaseOrderDetails from "./components/NewPurchaseOrderDetails";
+import Dmtr from "./components/Dmtr";
+import GatePass from "./components/GatePass";
+import GatePassReceive from "./components/GatePassReceive";
+import GenieEffect from "./components/GenieEffect";
+import GatePassOutMisc from "./components/GatePassOutMisc";
+import GatePassReceiveMisc from "./components/GatePassReceiveMisc";
+import PerformaInvoice from "./components/PerformaInvoice";
+import KarigarJobCard from "./components/KarigarJobCard";
+import KarigarJobCardSecond from "./components/KarigarJobCardSecond";
+import KarigarJobCardReceive from "./components/KarigarJobCardReceive";
+import CreditNote from "./components/CreditNote";
+import InvoiceWithoutWO from "./components/InvoiceWithoutWO";
+import MaterialIssue from "./components/MaterialIssue";
+import OrderCheckList from "./components/OrderCheckList";
+import MaterialFloorReturn from "./components/MaterialFloorReturn";
+import StockTransfer from "./components/StockTransfer";
+import StockAdjustment from "./components/StockAdjustment";
+import Reinspection from "./components/Reinspection";
+import TestPO from "./components/TestPO";
+import WorkerAdvance from "./components/WorkerAdvance";
+import WorkerMaster from "./components/WorkMaster";
+
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -57,8 +84,34 @@ function App() {
               </Route>
               <Route path="/supplier" element={<Supplier />} />
               <Route path="/samplepipeline" element={<SamplePipeline />} />
-              <Route path="/bom" element={<Bom/>}/>
+              <Route path="/srbom" element={<Bom/>}/>
+              <Route path="/testpo" element={<TestPO/>}/>
+              <Route path="/workermaster" element={<WorkerMaster/>}/>
+              <Route path="/workerAdvance" element={<WorkerAdvance/>}/>
+              <Route path="/reinspection" element={<Reinspection/>}/>
+              <Route path="/samplecosting" element={<SampleCosting/>}/>
+              <Route path="/newpurchaseorderdetails/:orderId" element={<NewPurchaseOrderDetails />} /> 
+              <Route path="/prbom" element={<ProductionBom/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
+              <Route path="/newpo" element={<NewPurchaseOrder/>}/>
+              <Route path="/dmtr" element={<Dmtr/>}/>
+              <Route path="/genieeffect" element={<GenieEffect/>}/>
+              <Route path="/gatepassreceive" element={<GatePassReceive/>}/>
+              <Route path="/gatepassoutmisc" element={<GatePassOutMisc/>}/>
+              <Route path="/gatepassreceivemisc" element={<GatePassReceiveMisc/>}/>
+              <Route path="/gatepass" element={<GatePass/>}/>
+              <Route path="/stocktransfer" element={<StockTransfer/>}/>
+              <Route path="/stockadjustment" element={<StockAdjustment/>}/>
+              <Route path="/karigarjobcard" element={<KarigarJobCard/>}/>
+              <Route path="/karigarjobcardsecond" element={<KarigarJobCardSecond/>}/>
+              <Route path="/karigarjobcardreceive" element={<KarigarJobCardReceive/>}/>
+              <Route path="/creditnote" element={<CreditNote/>}/>
+              <Route path="/materialfloorreturn" element={<MaterialFloorReturn/>}/>
+              <Route path="/orderchecklist" element={<OrderCheckList/>}/>
+              <Route path="/materialissue" element={<MaterialIssue/>}/>
+              <Route path="/invoicewithoutwo" element={<InvoiceWithoutWO/>}/>
+              <Route path="/performainvoice" element={<PerformaInvoice/>}/>
+              <Route path="/prodpurchaseorder" element={<ProductionPurchaseOrder/>}/>
               <Route path="/Itemdirectory" element={<ItemDirectory />} />
               <Route path="/sampleprogress" element={<SamplePipelineProgressView />} />
               <Route path="/login" element={<LoginRegister />} />

@@ -9,8 +9,9 @@ import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
 import styles from "../styles/viewBuyer.module.css";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CustomAgGridSecond from "../features/CustomAgGridSecond";
 
-const ViewBuyer = ({onBuyerSelect}) => {
+const ViewBuyer = ({onBuyerSelect,handlePrintClick}) => {
   const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const dispatch = useDispatch();
@@ -20,24 +21,30 @@ const ViewBuyer = ({onBuyerSelect}) => {
 
   const [gridApi, setGridApi] = useState(null);
 
-  const onGridReady = useCallback((params) => {
-    setGridApi(params.api);
-    if (!loaded && !loading) {
-      dispatch(fetchAllBuyers());
+  useEffect(() => {
+    dispatch(fetchAllBuyers());
+  }, [dispatch]);
+
+  const handleDelete = (id) => {
+    dispatch(deleteSample(id));
+  };
+
+
+  const onCellKeyDown = useCallback((e) => {
+    if (!e.event) {
+      return;
+    }
+    const keyboardEvent = e.event;
+    const key = keyboardEvent.key;
+    if (key.length) {
+      if (key === 'Enter') {
+        var rowNode = e.node;
+        var newSelection = !rowNode.isSelected();
+        rowNode.setSelected(newSelection);
+      }
     }
   }, []);
 
-  const onRowDataChanged = useCallback(() => {
-    if (gridApi) {
-      gridApi.hideOverlay();
-    }
-  }, [gridApi]);
-
-  useEffect(() => {
-    if (gridApi && !loaded && loading) {
-      gridApi.showLoadingOverlay();
-    }
-  }, [loaded, loading, gridApi]);
 
   const dateFilterParams = {
     comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -66,14 +73,13 @@ const ViewBuyer = ({onBuyerSelect}) => {
   };
   const columnDefs = [
     {
-      headerName: "Print",
-      field: "print",
-      maxWidth: 50,
+      headerName: "Select",
+      field: "select",
+      maxWidth: 100,
       headerCheckboxSelection: true,
       checkboxSelection: true,
       showDisabledCheckboxes: true,
     },
-    { headerName: "Buyer Code",width:135, field: "bsCode", sortable: true, filter: true },
     { headerName: "Buyer", width:300, field: "bsName", sortable: true, filter: true },
     { headerName: "Buyer Abbreviation", field: "bsAbbreviation", sortable: true, filter: true },
     {
@@ -175,28 +181,24 @@ const ViewBuyer = ({onBuyerSelect}) => {
   ];
 
   return (
-    <div
-      className={isCollapsed ? styles.topContainer : styles.topContainerOpen}
-    >
-      <div
-        className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-        style={{ height: 500, width: "100%", marginTop: "10px" }}
-      >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={buyers}
-          pagination={true}
-          paginationPageSize={12}
-          paginationPageSizeSelector={[10, 12, 20, 50, 100]}
-          animateRows={true}
-          filter={true}
-          onGridReady={onGridReady}
-          rowSelection={"multiple"}
-          onSelectionChanged={onRowSelected}
-          onRowDataChanged={onRowDataChanged}
-        />
-      </div>
-    </div>
+    <div>
+    {loading ? (
+      <p>Loading...</p>
+    ) : error ? (
+      <p>Error loading data: {error}</p>
+    ) : (
+      <CustomAgGridSecond
+        columnDefs={columnDefs}
+        rowData={buyers}
+        handleDelete={handleDelete}
+        handlePrintClick={handlePrintClick}
+        onRowSelect={onRowSelected}
+        deleteEnabled={false}
+        editEnabled={false}
+        pagination={true}
+      />
+    )}
+  </div>
   );
 };
 

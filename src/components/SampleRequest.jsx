@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/inputDetails.module.css";
 import UpIcon from "../assets/up.svg";
+import Upload from "../assets/folder-upload.png";
+import BlankImage from "../assets/no-photo.png";
 import IButtonIcon from "../assets/iButton.svg";
 import ArticlePopup from "../popups/ArticlePopup";
 import { useNavigate } from "react-router-dom";
@@ -20,8 +22,11 @@ import Downshift from "downshift";
 import { fetchAllSamples } from "../reducer/sampleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePDF } from "../features/generatePDF";
+import { fetchAllArticles } from "../reducer/articleSlice";
+import { generateOnSubmitPDF } from "../features/generateOnSubmitPDF";
 import InfoPopup from "../popups/InfoPopup";
 import ItemHeadPopup from "../popups/ItemHeadPopup";
+import { ARTICLE_IMAGE_PATH, SAMPLE_REQUEST_IMAGE_PATH } from "../features/url";
 
 const SampleRequest = () => {
   const navigate = useNavigate();
@@ -29,6 +34,9 @@ const SampleRequest = () => {
   const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const [sampleType, setSampleType] = useState([]);
+  const [articleURL, setArticleURL] = useState(null);
+  const [printForm, setPrintForm] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState({
@@ -37,6 +45,7 @@ const SampleRequest = () => {
     liningColor: false,
     soleLabel: false,
     season: false,
+    pattern: false,
     sampleRef: false,
     articleNo: false,
     sampleType: false,
@@ -47,14 +56,20 @@ const SampleRequest = () => {
     liningColor: false,
     soleLabel: false,
     season: false,
+    pattern: false,
     sampleRef: false,
     articleNo: false,
     sampleType: false,
   });
+  const commentTextareaRef = useRef(null);
+  const soleRemarkTextareaRef = useRef(null);
+  const leatherRemarkTextareaRef = useRef(null);
   const [activeButton, setActiveButton] = useState("details");
   const [buyers, setBuyers] = useState([]);
   const [filteredList, setFilteredList] = useState({
     seasonList: [],
+    patternList: [],
+    articleNoList: [],
   });
   const [itemForm, setItemForm] = useState({
     year: "",
@@ -63,11 +78,12 @@ const SampleRequest = () => {
   const [colors, setColors] = useState([]);
   const [itemsData, setItemsData] = useState([]);
   const [sampleRefrences, setSampleRefrences] = useState([]);
-  const [articleNos, setArticleNos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const [bsId, setBsID] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [isImagePopup, setIsImagePopup] = useState(false);
+  const [isArticleImagePopup, setIsArticleImagePopup] = useState(false);
   const [tempArticleNo, setTempArticeNo] = useState("");
   const [isArticlePopup, setIsArticlePopup] = useState(false);
   const [isBuyerPopup, setIsBuyerPopup] = useState(false);
@@ -80,6 +96,10 @@ const SampleRequest = () => {
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [editSample, setEditSample] = useState(null);
+  const [printSrNo, setPrintSrNo] = useState("");
+  const { articles, articleLoaded, articleLoading, articleError } = useSelector(
+    (state) => state.article
+  );
   const [sampleDetailsForm, setSampleDetailsForm] = useState(() => {
     const savedForm = localStorage.getItem("sampleDetailsForm");
     return savedForm
@@ -89,8 +109,8 @@ const SampleRequest = () => {
           sampleRef: "",
           sampleType: "",
           bsName: "",
-          deliveryAddress: "",
           articleNo: "",
+          deliveryAddress: "",
           buyerArticle: "",
           size: "",
           quantity: "",
@@ -99,6 +119,9 @@ const SampleRequest = () => {
           liningColor: "",
           last: "",
           insole: "",
+          internal_ref: "",
+          leather_remark: "",
+          sole_remark: "",
           soleLabel: "",
           socks: "",
           dateOfOrder: "",
@@ -115,16 +138,51 @@ const SampleRequest = () => {
         };
   });
   useEffect(() => {
-    localStorage.setItem(
-      "sampleDetailsForm",
-      JSON.stringify(sampleDetailsForm)
-    );
+    const { articleNo, ...formToSave } = sampleDetailsForm;
+    localStorage.setItem("sampleDetailsForm", JSON.stringify(formToSave));
   }, [sampleDetailsForm]);
   const togglePopup = (message) => {
     setIsPopupVisible(!isPopupVisible);
     setPopupMessage(message);
     setAllowPrint(false);
+    if (allowPrint) {
+      resetAllFields();
+      setImageUrl("");
+      setArticleURL("");
+    }
   };
+
+  const autosize = (el) => {
+    if (el) {
+      el.style.cssText = "height:auto;";
+      el.style.cssText = "height:" + el.scrollHeight + "px";
+    }
+  };
+
+  useEffect(() => {
+    const textareas = [
+      commentTextareaRef.current,
+      soleRemarkTextareaRef.current,
+      leatherRemarkTextareaRef.current,
+    ];
+
+    const autosizeListener = (event) => autosize(event.target);
+
+    textareas.forEach((textarea) => {
+      if (textarea) {
+        textarea.addEventListener("keydown", autosizeListener);
+      }
+    });
+
+    return () => {
+      textareas.forEach((textarea) => {
+        if (textarea) {
+          textarea.removeEventListener("keydown", autosizeListener);
+        }
+      });
+    };
+  }, []);
+
   const validateForm = () => {
     let isValid = true;
     let newValidation = {};
@@ -136,9 +194,11 @@ const SampleRequest = () => {
       "size",
       "quantity",
       "pair",
+      "articleNo",
       "upperColor",
       "liningColor",
       "last",
+      "internal_ref",
       "insole",
       "soleLabel",
       "socks",
@@ -167,29 +227,49 @@ const SampleRequest = () => {
   const handleCreateSampleChange = (e) => {
     const { name, value } = e.target;
     let newFormState = { ...sampleDetailsForm, [name]: value };
-    if (name === 'prodExDate' && value) {
-        const prodExDate = new Date(value);
-        const deliveryDate = new Date(prodExDate);
-        deliveryDate.setDate(prodExDate.getDate() + 7); // Add 7 days
-        const deliveryDateFormatted = deliveryDate.toISOString().split('T')[0];
-        newFormState = {
-            ...newFormState,
-            deliveryDate: deliveryDateFormatted
-        };
+    if (name === "prodExDate" && value) {
+      const prodExDate = new Date(value);
+      const deliveryDate = new Date(prodExDate);
+      deliveryDate.setDate(prodExDate.getDate() + 7); // Add 7 days
+      const deliveryDateFormatted = deliveryDate.toISOString().split("T")[0];
+      newFormState = {
+        ...newFormState,
+        deliveryDate: deliveryDateFormatted,
+      };
+    }
+    if (name === "quantity" && value.length > 5) {
+      return;
+    }
+    if (name === "size" && value.length > 5) {
+      return;
+    }
+    if (name === "inQuantity" && value.length > 20) {
+      return;
     }
     setSampleDetailsForm(newFormState);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
-};
-
+  };
   const handleSampleEdit = (sample) => {
-    setEditSample(sample);
-    setIsEditSelected(sample !== null);
+    setIsEditSelected(false);
+    setPrintForm([]);
+    if (sample) {
+      setIsEditSelected(true);
+      const sampleArray = Array.isArray(sample) ? sample : [sample];
+
+      if (sampleArray.length > 1) {
+        setPrintForm(sampleArray);
+  
+      } else {
+        setEditSample(sampleArray[0]);
+        setPrintForm(sampleArray);
+      }
+    }
   };
 
   const handleEditClick = () => {
     setIsEditClicked(true);
     setActiveButton("details");
-    const { articleNo,articleName, ...restOfEditSample } = editSample;
+    const { articleNo, articleName, ...restOfEditSample } = editSample;
     setBsID(editSample.buyer?.bs_id);
     const bsName = editSample.buyer?.bsName;
     const billingAddress = editSample.buyer?.billingAddress;
@@ -217,19 +297,13 @@ const SampleRequest = () => {
   };
 
   const handlePrintClick = async () => {
-    const updatedSampleDetails = {
-      ...sampleDetailsForm,
-      ...editSample,
-      bsName: editSample.buyer ? editSample.buyer.bsName : "",
-      deliveryAddress: editSample.buyer ? editSample.buyer.billingAddress : "",
-      deliveryDate: editSample.deliveryDate
-        ? getformatDate(editSample.deliveryDate)
-        : "",
-      prodExDate: editSample.prodExDate
-        ? getformatDate(editSample.prodExDate)
-        : "",
-    };
-    await generatePDF(updatedSampleDetails);
+    try {
+      setLoading(true);
+      await generateOnSubmitPDF(printForm);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const [isGridVisible, setIsGridVisible] = useState({
@@ -239,12 +313,11 @@ const SampleRequest = () => {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [articleImageView, setArticleImageView] = useState(null);
 
   const handleBuyerInputChange = async (e) => {
     const { name, value } = e.target;
-
     setSampleDetailsForm({ ...sampleDetailsForm, bsName: value });
-
     if (value.length >= 3) {
       toggleInputLoaderVisibility("buyer", true);
       const BASE_URL = `sample/getBuyer?input=${encodeURIComponent(value)}`;
@@ -263,7 +336,22 @@ const SampleRequest = () => {
     }
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
+  useEffect(() => {
+    const toggleActiveButton = (event) => {
+      if (event.code === "ControlRight") {
+        setActiveButton((prevButton) =>
+          prevButton === "details" ? "view" : "details"
+        );
+        if (activeButton === "view" && !isCollapsed) {
+          toggleNavbar();
+        }
+      }
+    };
+    window.addEventListener("keydown", toggleActiveButton);
+    return () => {
+      window.removeEventListener("keydown", toggleActiveButton);
+    };
+  }, [activeButton, isCollapsed, toggleNavbar]);
   const handleCreateColorChange = async (e) => {
     const { name, value } = e.target;
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -318,8 +406,12 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
+      const articleImageUrl = selectedArticle.image_nm
+        ? `${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`
+        : null;
+      setArticleImageView(articleImageUrl);
+      setArticleURL(selectedArticle.image_nm);
       setTempArticeNo(selectedArticle.articleId);
-
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
     }
@@ -344,9 +436,15 @@ const SampleRequest = () => {
     if (Array.isArray(selectedSamples) && selectedSamples.length > 0) {
       const selectedSample = selectedSamples[0];
       setBsID(selectedSample.buyer?.bs_id);
-      const { articleNo,articleName, ...restOfSelectedSample } = selectedSample;
-      setSampleDetailsForm({
-        ...sampleDetailsForm,
+      const {
+        article_image,
+        image_nm,
+        articleNo,
+        articleName,
+        ...restOfSelectedSample
+      } = selectedSample;
+      setSampleDetailsForm((prevForm) => ({
+        ...prevForm,
         ...restOfSelectedSample,
         articleNo: articleName,
         bsName: selectedSample.buyer?.bsName,
@@ -357,17 +455,31 @@ const SampleRequest = () => {
         prodExDate: selectedSample.prodExDate
           ? getformatDate(selectedSample.prodExDate)
           : "",
-      });
+        }));
+     
+      const articleImageUrl = selectedSample.article_image
+        ? `${ARTICLE_IMAGE_PATH}${selectedSample.article_image}`
+        : null;
+      setArticleImageView(articleImageUrl);
+      setImageUrl("");
+      setArticleURL(selectedSample.article_image);
       setTempArticeNo(articleNo);
       setIsSampleDirPopup(false);
       setValidation((prev) => ({ ...prev, bsName: "valid" }));
     }
   };
   const handleViewPDF = async () => {
-    await generatePDF(sampleDetailsForm);
+    setPrintLoading(true);
+    try {
+      await generatePDF(sampleDetailsForm, imageUrl, printSrNo, articleURL);
+    } catch (error) {
+      console.log("Error in printing pdf");
+    } finally {
+      setPrintLoading(false);
+    }
   };
- 
-  const handleSeasonChange = (e) => {
+
+  const handleDropItemChange = (e) => {
     const { name, value } = e.target;
     toggleInputLoaderVisibility(`${name}`, true);
     setSampleDetailsForm({ ...sampleDetailsForm, [name]: value });
@@ -394,9 +506,47 @@ const SampleRequest = () => {
     }
   };
 
+  const handleArticleChange = (e) => {
+    const { name, value } = e.target;
+    toggleInputLoaderVisibility(name, true);
+    setSampleDetailsForm((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    if (value.trim().length > 0) {
+      const concatenatedString = `${name}List`;
+      const filtered = articles
+        .filter((item) =>
+          item.articleName.toLowerCase().includes(value.trim().toLowerCase())
+        )
+        .map((item) => ({
+          articleId: item.articleId,
+          articleName: item.articleName,
+          imageUrl: item.image_nm,
+        }));
+
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [concatenatedString]: filtered,
+      }));
+      setValidation((prev) => ({ ...prev, [name]: "valid" }));
+      toggleSuggestVisibility(name, filtered.length > 0);
+    } else {
+      toggleSuggestVisibility(name, false);
+      setFilteredList((prevList) => ({
+        ...prevList,
+        [`${name}List`]: [],
+      }));
+    }
+    toggleInputLoaderVisibility(name, false);
+  };
+
   useEffect(() => {
     if (itemsData.length === 0) {
       getItems();
+    }
+    if (!articleLoaded && !articleLoading) {
+      dispatch(fetchAllArticles());
     }
   }, []);
 
@@ -409,7 +559,25 @@ const SampleRequest = () => {
       console.error("Failed to fetch Items:", error);
     }
   };
-
+  useEffect(() => {
+    let inactivityTimer;
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        resetAllFields();
+      }, 5 * 60 * 1000);
+    };
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
+    window.addEventListener("scroll", resetInactivityTimer);
+    resetInactivityTimer();
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener("mousemove", resetInactivityTimer);
+      window.removeEventListener("keydown", resetInactivityTimer);
+      window.removeEventListener("scroll", resetInactivityTimer);
+    };
+  }, []);
   const resetAllFields = () => {
     setSampleDetailsForm({
       season: "",
@@ -427,6 +595,9 @@ const SampleRequest = () => {
       last: "",
       insole: "",
       soleLabel: "",
+      internal_ref: "",
+      leather_remark: "",
+      sole_remark: "",
       socks: "",
       heel: "",
       pattern: "",
@@ -439,136 +610,195 @@ const SampleRequest = () => {
       deliveryDate: "",
       prodExDate: "",
     });
+
     setBsID("");
     setTempArticeNo("");
+    setArticleImageView(null);
+    setImagePreview(null);
+    setRemoveImage(false);
     setValidation(initialValidationState);
     localStorage.setItem(
       "sampleDetailsForm",
       JSON.stringify(sampleDetailsForm)
     );
   };
-  const uploadImage = async () => {
-    if (!imageFile) {
-        console.log('No image file selected for upload');
-        return null; 
-    }
 
+  const uploadImage = async (srno) => {
+    if (!imageFile) {
+      console.log("No image file selected for upload");
+      return null;
+    }
     const formData = new FormData();
-    formData.append('image', imageFile);
+    formData.append("image", imageFile);
+    formData.append("fileName", srno);
+    formData.append("type", "sample");
 
     try {
-        const response = await axios.post('http://localhost:8081/api/sample/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        console.log('Image uploaded successfully:', response.data);
-        return response.data;
+      const response = await axios.post(
+        "http://localhost:8081/api/generic/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data ",
+          },
+        }
+      );
+      console.log("Image uploaded successfully:", response.data);
+      return response.data;
     } catch (error) {
-        console.error('Error uploading image:', error);
-        setLoading(false);
-        return null; 
-    } 
-};
+      let errorMessage;
+      if (response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = "No response received from the server.";
+      }
+      togglePopup(errorMessage);
+      return null;
+    }
+  };
 
-  
   const handleCreateSampleSubmit = async (e) => {
     setLoading(true);
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-    const imageResponseData = await uploadImage();
-    const imagePath = imageResponseData ? imageResponseData.message : null; 
-    console.log(imagePath);
-      const updatedSampleDetailsForm = {
-        ...sampleDetailsForm,
-        dateOfOrder: formattedDate,
-        articleNo: tempArticleNo,
-        image_nm: imagePath,
-        finYear:'2024'
-      };
-    const BASE_URL = "sample/create";
+    const updatedSampleDetailsForm = {
+      ...sampleDetailsForm,
+      dateOfOrder: formattedDate,
+      articleNo: tempArticleNo,
+      finYear: "2024",
+    };
+    console.log(updatedSampleDetailsForm);
     try {
-      const responseData = await postApiService(
+      const createSampleResponse = await postApiService(
         updatedSampleDetailsForm,
-        BASE_URL
+        "sample/create"
       );
-      togglePopup(responseData.message);
-      setAllowPrint(true);
-      setBsID("");
-      setTempArticeNo("");
+      if (
+        createSampleResponse.responseStatus &&
+        createSampleResponse.responseStatus.description
+      ) {
+        const srno = createSampleResponse.response;
+        console.log(srno);
+        if(imageFile)
+        {
+          const imageResponseData = await uploadImage(srno);
+        if (imageResponseData && imageResponseData.response) {
+          setImageUrl(imageResponseData.response);
+          console.log(imageResponseData.response);
+        }
+        }
+        setPrintSrNo(srno);
+        togglePopup(
+          createSampleResponse.responseStatus.description + " For " + srno
+        );
+        setAllowPrint(true);
+      }
       dispatch(fetchAllSamples());
-      setRemoveImage(false);
-        setImagePreview(null);
     } catch (error) {
-      let errorMessage = "An error occurred";
-
-      if (error.response) {
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
         errorMessage =
-          error.response.data.message ||
+          error.response.data.responseStatus.description ||
           `Server error: ${error.response.status}`;
       } else if (error.request) {
         errorMessage = "No response received from the server.";
-      } else {
-        errorMessage = error.message;
       }
-
       togglePopup(errorMessage);
     } finally {
       setLoading(false);
+      setArticleImageView(null);
+      setRemoveImage(false);
+      setImageFile(null);
+      setImagePreview(null);
+      setBsID("");
+      setTempArticeNo("");
     }
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (activeButton == "view" && isEditSelected) {
+        if (
+          event.key == "P" ||
+          (event.key == "p" && activeButton == "view" && isEditSelected)
+        ) {
+          handlePrintClick();
+        }
+        if (
+          event.key == "U" ||
+          (event.key == "u" && activeButton == "view" && isEditSelected)
+        ) {
+          handleEditClick();
+        }
+      }
+      window.addEventListener("keydown", handleKeyPress);
+      return () => {
+        window.removeEventListener("keydown", handleKeyPress);
+      };
+    };
+  }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
     if (isEditClicked && editSample.image_nm) {
-        const imageUrl = `http://localhost:8081/images/${editSample.image_nm}`;
-        setImagePreview(imageUrl);
-        setRemoveImage(true);
+      const imageUrl = editSample.image_nm
+        ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}`
+        : null;
+      const articleImageUrl = editSample.article_image
+        ? `${ARTICLE_IMAGE_PATH}${editSample.article_image}`
+        : null;
+      setImagePreview(imageUrl);
+      setArticleImageView(articleImageUrl);
+      setRemoveImage(true);
     }
-}, [isEditClicked, editSample]);
+  }, [isEditClicked, editSample]);
 
   const handleUpdateSampleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()){
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
-    const imageResponseData = await uploadImage();
-    const imagePath = imageResponseData ? imageResponseData.message : null; 
-    const updatedSampleDetailsForm = {
-      ...sampleDetailsForm,
-      sample_id: editSample.sampleId,
-      articleNo: tempArticleNo,
-      image_nm: imagePath,
-    };
+    const imageResponseData = await uploadImage(editSample.sr_no);
+    const imageNm = imageResponseData ? imageResponseData.response : null;
     const BASE_URL = "sample/update";
     try {
+      const updatedSampleDetailsForm = {
+        ...sampleDetailsForm,
+        sample_id: editSample.sampleId,
+        articleNo: tempArticleNo,
+        image_nm: imageNm,
+      };
       const responseData = await putApiService(
         updatedSampleDetailsForm,
         BASE_URL
       );
-      togglePopup(responseData.message);
+      togglePopup(
+        responseData.responseStatus.description + " For " + editSample.sr_no
+      );
       dispatch(fetchAllSamples());
       resetAllFields();
       setIsEditClicked(false);
       setIsEditSelected(false);
       setEditSample(null);
       setBsID("");
+      setArticleImageView(null);
       setRemoveImage(false);
       setImagePreview(null);
       setTempArticeNo("");
     } catch (error) {
-      if (error.response) {
-        togglePopup(
-          error.response.data.message ||
-            `Server error: ${error.response.status}`
-        );
+      let errorMessage;
+      if (error.response && error.response.data.responseStatus) {
+        errorMessage =
+          error.response.data.responseStatus.description ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
-        togglePopup("No response received from the server.");
-      } else {
-        togglePopup(error.message);
+        errorMessage = "No response received from the server.";
       }
+      togglePopup(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -590,20 +820,19 @@ const SampleRequest = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-        if (file.size > 1048576) {
-            togglePopup("Please upload an image less than 1 MB.");
-            setRemoveImage(false);
-            return;
-        }
-        setRemoveImage(true);
-        setImageFile(file);
-        const reader = new FileReader();
-        reader.onload = () => {
-            setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
+      if (file.size > 1048576) {
+        togglePopup("Please upload an image less than 1 MB.");
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-};
+  };
 
   const toggleSuggestVisibility = (key, value) => {
     setShowSuggestions((prevSuggestions) => ({
@@ -628,7 +857,7 @@ const SampleRequest = () => {
     const currentDate = today.toISOString().split("T")[0];
     setFormattedDate(currentDate);
   }, []);
-  const handleSeasonButtonClick = (name) => {
+  const handleDropItemClick = (name) => {
     toggleInputLoaderVisibility(`${name}`, true);
     const filtered = itemsData
       .filter((item) => item.head.toLowerCase() === name.toLowerCase())
@@ -674,6 +903,7 @@ const SampleRequest = () => {
               validation.bsName === "invalid" ? { border: "2px solid red" } : {}
             }
             className={styles.basicInput2}
+            disabled={isEditClicked}
             placeholder="Click on Search"
             value={sampleDetailsForm.bsName}
           />
@@ -683,6 +913,7 @@ const SampleRequest = () => {
             <div>
               {" "}
               <button
+                disabled={isEditClicked}
                 onClick={() => setIsBuyerPopup(true)}
                 className={styles.searchBtn}
                 aria-label="Search"
@@ -731,6 +962,7 @@ const SampleRequest = () => {
               name: "sampleRef",
             })}
             type="text"
+            maxLength="30"
             className={styles.basicInput2}
             placeholder="Type any word"
             value={sampleDetailsForm.sampleRef}
@@ -788,6 +1020,7 @@ const SampleRequest = () => {
               name: "upperColor",
             })}
             type="text"
+            maxLength="20"
             className={styles.basicInput}
             style={
               validation.upperColor === "invalid"
@@ -841,6 +1074,7 @@ const SampleRequest = () => {
               name: "liningColor",
             })}
             type="text"
+            maxLength="20"
             className={styles.basicInput}
             placeholder="Insert Two Letter"
             style={
@@ -895,6 +1129,7 @@ const SampleRequest = () => {
             })}
             type="text"
             className={styles.basicInput}
+            maxLength="20"
             placeholder="Insert Two Letter"
             style={
               validation.soleLabel === "invalid"
@@ -932,22 +1167,35 @@ const SampleRequest = () => {
         if (selectedItem) {
           setSampleDetailsForm({
             ...sampleDetailsForm,
-            articleNo: selectedItem,
+            articleNo: selectedItem.articleName,
           });
+          setTempArticeNo(selectedItem.articleId);
+          const articleImageUrl = selectedItem.imageUrl
+            ? `${ARTICLE_IMAGE_PATH}${selectedItem.imageUrl}`
+            : null;
+          setArticleURL(selectedItem.imageUrl);
+          setArticleImageView(articleImageUrl);
           toggleSuggestVisibility("articleNo", false);
         }
       }}
       selectedItem={sampleDetailsForm.articleNo}
+      itemToString={(item) => (item ? item.articleNo : "")}
     >
       {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
-              onChange: handleCreateSampleChange,
+              onChange: handleArticleChange,
               name: "articleNo",
             })}
             type="text"
+            maxLength="10"
             ref={articleNoRef}
+            style={
+              validation.articleNo === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
             className={styles.basicInput2}
             placeholder="Type any word"
             value={sampleDetailsForm.articleNo}
@@ -962,21 +1210,22 @@ const SampleRequest = () => {
             ></button>
           </div>
 
-          <div {...getMenuProps()} className={styles.suggestions}>
-            {showSuggestions.articleNo &&
-              articleNos.map((article, index) => (
+          {showSuggestions.articleNo && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.articleNoList.map((item, index) => (
                 <div
-                  {...getItemProps({ key: index, index, item: article })}
+                  {...getItemProps({ key: index, index, item })}
                   className={
                     highlightedIndex === index
                       ? styles.highlighted
                       : styles.suggestionItem
                   }
                 >
-                  {article}
+                  {item.articleName}
                 </div>
               ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </Downshift>
@@ -1069,10 +1318,11 @@ const SampleRequest = () => {
         <div className={styles.inputWithIcon}>
           <input
             {...getInputProps({
-              onChange: handleSeasonChange,
+              onChange: handleDropItemChange,
               name: "season",
             })}
             type="text"
+            maxLength="20"
             ref={seasonInputRef}
             className={styles.buttonBasicInput}
             placeholder="Insert First Letter"
@@ -1086,7 +1336,7 @@ const SampleRequest = () => {
               {" "}
               <button
                 onClick={() => {
-                  handleSeasonButtonClick("season");
+                  handleDropItemClick("season");
                   seasonInputRef.current?.focus();
                 }}
                 className={styles.dropBtn}
@@ -1115,6 +1365,79 @@ const SampleRequest = () => {
       )}
     </Downshift>
   );
+
+  const patternInputRef = useRef(null);
+  const downshiftPattern = (
+    <Downshift
+      onChange={(selectedItem) => {
+        if (selectedItem) {
+          setSampleDetailsForm({
+            ...sampleDetailsForm,
+            pattern: selectedItem.name,
+          });
+          toggleSuggestVisibility("pattern", false);
+        }
+      }}
+      selectedItem={sampleDetailsForm.pattern}
+      itemToString={(item) => (item ? item.name : "")}
+    >
+      {({ getInputProps, getItemProps, getMenuProps, highlightedIndex }) => (
+        <div className={styles.inputWithIcon}>
+          <input
+            {...getInputProps({
+              onChange: handleDropItemChange,
+              name: "pattern",
+            })}
+            style={
+              validation.pattern === "invalid"
+                ? { border: "2px solid red" }
+                : {}
+            }
+            type="text"
+            maxLength="20"
+            ref={patternInputRef}
+            className={styles.buttonBasicInput}
+            placeholder="Insert First Letter"
+            value={sampleDetailsForm.pattern}
+          />
+
+          {showInputLoading.pattern ? (
+            <div className={styles.dropLoader}></div>
+          ) : (
+            <div>
+              {" "}
+              <button
+                onClick={() => {
+                  handleDropItemClick("pattern");
+                  patternInputRef.current?.focus();
+                }}
+                className={styles.dropBtn}
+                aria-label="dropDorn"
+              ></button>{" "}
+            </div>
+          )}
+
+          {showSuggestions.pattern && (
+            <div {...getMenuProps()} className={styles.suggestions}>
+              {filteredList.seasonList.map((item, index) => (
+                <div
+                  {...getItemProps({ key: index, index, item })}
+                  className={
+                    highlightedIndex === index
+                      ? styles.highlighted
+                      : styles.suggestionItem
+                  }
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Downshift>
+  );
+
   return (
     <div className={styles.sampleRequestMainContainer}>
       <div className={styles.headContainer}>
@@ -1125,50 +1448,58 @@ const SampleRequest = () => {
           >
             {activeButton === "details"
               ? isEditClicked
-                ? `Update Sample Request: ${isEditClicked && editSample.sr_no && editSample.sr_no}`
+                ? `Update Sample Request: ${
+                    isEditClicked && editSample.sr_no && editSample.sr_no
+                  }`
                 : "Sample Request"
               : "Sample Request Search"}
           </h1>
           {activeButton === "details" && (
             <div className={styles.headInputContainer}>
-               <div style={{display:'flex', alignItems:'center', gap:'8px'}}> 
-               <label className={styles.inputLabel} htmlFor="Copyfrom">
-                Copy from
-              </label>
-              <div className={styles.headInputWithIcon}>
-                <input
-                  type="text"
-                  name="input1"
-                  placeholder="Search Sample Request to duplicate"
-                  className={styles.headInput}
-                  readOnly
-                />
-                <button
-                  onClick={() => {
-                    setIsSampleDirPopup(true);
-                  }}
-                  className={styles.searchBtn}
-                  aria-label="Search"
-                ></button>
-              </div>
-               </div>
-              <div style={{display:'flex' , alignItems:'center' , gap:'4px'}}><button
-                className={styles.headInsertValueButton}
-                onClick={() => setIsItemHeadPopup(true)}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                Insert New Value
-              </button>
+                <label className={styles.inputLabel} htmlFor="Copyfrom">
+                  Copy from
+                </label>
+                <div className={styles.headInputWithIcon}>
+                  <input
+                    type="text"
+                    name="input1"
+                    placeholder="Search Sample Request to duplicate"
+                    className={styles.headInput}
+                    readOnly
+                  />
+                  <button
+                    onClick={() => {
+                      setIsSampleDirPopup(true);
+                    }}
+                    className={styles.searchBtn}
+                    aria-label="Search"
+                  ></button>
+                </div>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <button
+                  className={styles.headInsertValueButton}
+                  onClick={() => setIsItemHeadPopup(true)}
+                >
+                  Insert New Value
+                </button>
 
-              <div>
-                <img
-                  src={IButtonIcon}
-                  onClick={() => {
-                    setIsInfoPopup(true);
-                  }}
-                  className={styles.ibutton}
-                  alt="iButton"
-                />
-              </div></div>
+                <div>
+                  <img
+                    src={IButtonIcon}
+                    onClick={() => {
+                      setIsInfoPopup(true);
+                    }}
+                    className={styles.ibutton}
+                    alt="iButton"
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1180,7 +1511,12 @@ const SampleRequest = () => {
                 className={`${styles.screenChangeButton} ${
                   activeButton === "details" ? styles.active : ""
                 }`}
-                onClick={() => setActiveButton("details")}
+                onClick={() => {
+                  setActiveButton("details");
+                  setIsEditSelected(false);
+            
+                  setPrintForm(null);
+                }}
               >
                 Sample Order Details
               </button>
@@ -1198,25 +1534,31 @@ const SampleRequest = () => {
                 View SRs
               </button>
             </div>
-            {activeButton === "view" && (
+            {/* {activeButton === "view" && (
               <div className={styles.editContainer}>
                 <button
-                  disabled={!isEditSelected}
+               //   disabled={!multipleSelected}
                   className={styles.headButton}
-                  onClick={handleEditClick}
+                 // onClick={handleEditClick}
                 >
                   Update
                 </button>
 
-                <button
-                  disabled={!isEditSelected}
-                  className={styles.headButtonPrint}
-                  onClick={handlePrintClick}
-                >
-                  Print
-                </button>
+                {loading ? (
+                  <div className={styles.buttonContainer}>
+                    <div className={styles.loader}></div>
+                  </div>
+                ) : (
+                  <button
+                    disabled={!isEditSelected}
+                    className={styles.headButtonPrint}
+                  //  onClick={handlePrintClick}
+                  >
+                    Print
+                  </button>
+                )}
               </div>
-            )}
+            )} */}
           </div>
 
           <div className={styles.headBorder}></div>
@@ -1240,6 +1582,80 @@ const SampleRequest = () => {
                 </label>
                 {downshiftBuyer}
               </div>
+              <div className={styles.imgColSpan}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className={styles.fileinputcontainer2}>
+                    {imagePreview ? (
+                      <div className={styles.imagepreview2}>
+                        <img
+                          src={imagePreview}
+                          onClick={() => setIsImagePopup(true)}
+                          alt="Preview"
+                        />
+                        <img
+                          onClick={() => {
+                            setImagePreview(null);
+                            setImageFile(null);
+                          }}
+                          src={Cross}
+                          alt="Select Icon"
+                          className={styles.removeImageButton2}
+                        />
+                      </div>
+                    ) : (
+                      <label htmlFor="file" className={styles.filelabel2}>
+                        <img
+                          src={Upload}
+                          alt="Image Placeholder"
+                          className={styles.uploadImagePlaceholder}
+                        />
+                        Upload Image
+                        <input
+                          type="file"
+                          id="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <p className={styles.articleImageText}>SR Image</p>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className={styles.fileinputcontainer2}>
+                    {articleImageView ? (
+                      <div className={styles.imagepreview2}>
+                        <img
+                          onClick={() => setIsArticleImagePopup(true)}
+                          src={articleImageView}
+                          alt="Preview"
+                        />
+                      </div>
+                    ) : (
+                      <div className={styles.imagepreview2}>
+                        <img
+                          src={BlankImage}
+                          alt="Image Placeholder"
+                          className={styles.blankImagePlaceholder}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className={styles.articleImageText}>Article Image</p>
+                </div>
+              </div>
               <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="sampleRef">
                   Sample Ref.
@@ -1252,45 +1668,6 @@ const SampleRequest = () => {
                   Type of Sample
                 </label>
                 {downshiftSampleType}
-              </div>
-
-              <div className={styles.imgColSpan}>
-                <div className={styles.fileinputcontainer}>
-                  {imagePreview && (
-                    <div className={styles.imagepreview}>
-                      <img
-                        src={imagePreview}
-                        alt="Image preview"
-                        onClick={() => setIsImagePopup(true)}
-                      />
-                    </div>
-                  )}
-                  {removeImage ? (
-                    <div>
-                      <button
-                        style={{ backgroundColor: "#001314" }}
-                        className={styles.filelabel}
-                        onClick={() => {
-                          setRemoveImage(false);
-                          setImagePreview(null);
-                         
-                        }}
-                      >
-                        Remove Image
-                      </button>
-                    </div>
-                  ) : (
-                    <label htmlFor="file" className={styles.filelabel}>
-                      Insert Image
-                      <input
-                        type="file"
-                        id="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-                  )}
-                </div>
               </div>
             </div>
           </div>
@@ -1317,28 +1694,10 @@ const SampleRequest = () => {
               }`}
             >
               <div className={styles.colSpan}>
-                <label className={styles.sampleLabel} htmlFor="articleNo">
-                  Article Name
+                <label className={styles.impsampleLabel} htmlFor="articleNo">
+                  Article No
                 </label>
-                <div className={styles.inputWithIcon}>
-                  <input
-                    type="text"
-                    placeholder="Click on Search"
-                    className={styles.basicInput2}
-                    name="articleNo"
-                    value={sampleDetailsForm.articleNo}
-                    readOnly
-                    onChange={handleCreateSampleChange}
-                  />
-                  <button
-                    onClick={() => {
-                      setIsArticlePopup(true);
-                    }}
-                    className={styles.searchBtn}
-                    aria-label="Search"
-                  ></button>
-                </div>
-                {/* {downshiftArticleNo} */}
+                {downshiftArticleNo}
               </div>
               <div className={styles.colSpan}>
                 <label className={styles.impsampleLabel} htmlFor="buyerArticle">
@@ -1348,6 +1707,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   placeholder="Input 3"
+                  maxLength="50"
                   name="buyerArticle"
                   style={
                     validation.buyerArticle === "invalid"
@@ -1367,6 +1727,8 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="buyerRef"
+                  maxLength="50"
+                  disabled={isEditClicked}
                   value={sampleDetailsForm.buyerRef}
                   onChange={handleCreateSampleChange}
                 />
@@ -1490,6 +1852,7 @@ const SampleRequest = () => {
                 </label>
                 <input
                   type="text"
+                  maxLength="20"
                   className={styles.basicInput}
                   placeholder="Input Here"
                   style={
@@ -1511,6 +1874,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="insole"
+                  maxLength="20"
                   style={
                     validation.insole === "invalid"
                       ? { border: "2px solid red" }
@@ -1535,6 +1899,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="socks"
+                  maxLength="20"
                   style={
                     validation.socks === "invalid"
                       ? { border: "2px solid red" }
@@ -1554,6 +1919,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Input Here"
                   name="heel"
+                  maxLength="20"
                   style={
                     validation.heel === "invalid"
                       ? { border: "2px solid red" }
@@ -1568,20 +1934,22 @@ const SampleRequest = () => {
                 <label className={styles.impsampleLabel} htmlFor="pattern">
                   Pattern
                 </label>
-                <input
-                  type="text"
-                  className={styles.basicInput}
-                  placeholder="Input Here"
-                  name="pattern"
-                  style={
-                    validation.pattern === "invalid"
-                      ? { border: "2px solid red" }
-                      : {}
-                  }
-                  value={sampleDetailsForm.pattern}
+                {downshiftPattern}
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="commentLeather">
+                  Comment
+                </label>
+                <textarea
+                  ref={commentTextareaRef}
+                  className={styles.commentInput}
+                  placeholder="Enter Here"
+                  maxLength="200"
+                  name="comments"
+                  value={sampleDetailsForm.comments}
                   onChange={handleCreateSampleChange}
-                  required
-                />
+                  rows="3"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -1619,6 +1987,7 @@ const SampleRequest = () => {
                   type="text"
                   className={styles.basicInput}
                   name="inUpperLeather"
+                  maxLength="50"
                   value={sampleDetailsForm.inUpperLeather}
                   onChange={handleCreateSampleChange}
                   style={
@@ -1639,6 +2008,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inLining"
+                  maxLength="50"
                   value={sampleDetailsForm.inLining}
                   style={
                     validation.inLining === "invalid"
@@ -1658,6 +2028,7 @@ const SampleRequest = () => {
                   className={styles.basicInput}
                   placeholder="Enter.."
                   name="inSocks"
+                  maxLength="50"
                   style={
                     validation.inSocks === "invalid"
                       ? { border: "2px solid red" }
@@ -1687,17 +2058,56 @@ const SampleRequest = () => {
                   required
                 />
               </div>
-              <div className={styles.colSpan3}>
-                <label className={styles.sampleLabel} htmlFor="commentLeather">
-                  Comment
+              <div className={styles.colSpan}>
+                <label className={styles.impsampleLabel} htmlFor="internal_ref">
+                  Internal Ref.
+                </label>
+                <input
+                  type="text"
+                  className={styles.basicInput}
+                  placeholder="Enter.."
+                  name="internal_ref"
+                  maxLength="50"
+                  style={
+                    validation.internal_ref === "invalid"
+                      ? { border: "2px solid red" }
+                      : {}
+                  }
+                  value={sampleDetailsForm.internal_ref}
+                  onChange={handleCreateSampleChange}
+                  required
+                />
+              </div>
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="leather_remark">
+                  Leather Remark
                 </label>
                 <textarea
+                  type="text"
+                  ref={soleRemarkTextareaRef}
+                  className={styles.commentInput}
+                  placeholder="Enter.."
+                  maxLength="200"
+                  name="leather_remark"
+                  value={sampleDetailsForm.leather_remark}
+                  onChange={handleCreateSampleChange}
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div className={styles.colSpan2}>
+                <label className={styles.sampleLabel} htmlFor="sole_remark">
+                  Sole Remark
+                </label>
+                <textarea
+                  ref={leatherRemarkTextareaRef}
                   className={styles.commentInput}
                   placeholder="Enter Here"
-                  name="comments"
-                  value={sampleDetailsForm.comments}
+                  name="sole_remark"
+                  maxLength="200"
+                  value={sampleDetailsForm.sole_remark}
                   onChange={handleCreateSampleChange}
-                  rows='1'
+                  rows="3"
                 ></textarea>
               </div>
             </div>
@@ -1799,18 +2209,12 @@ const SampleRequest = () => {
                       Submit
                     </button>{" "}
                     <button
-                    
                       className={styles.resetButton}
                       onClick={() => {
                         resetAllFields();
-                        setBsID("");
-                         setTempArticeNo("");
                         setIsEditClicked(false);
                         setIsEditSelected(false);
-                        setRemoveImage(false);
                         setEditSample(null);
-                        setImagePreview(null);
-                  
                       }}
                     >
                       Go Back
@@ -1844,21 +2248,26 @@ const SampleRequest = () => {
                   className={styles.popupButton}
                   onClick={() => {
                     togglePopup();
-                    {
-                      allowPrint && resetAllFields();
-                    }
+                  
                   }}
                 >
                   OK
                 </button>
-                {allowPrint && (
-                  <button
-                    className={styles.popupButtonPrint}
-                    onClick={handleViewPDF}
-                  >
-                    Print
-                  </button>
-                )}
+
+                {allowPrint &&
+                  (printLoading ? (
+                    <div
+                      style={{ marginLeft: "35px", marginTop: "15px" }}
+                      className={styles.loader}
+                    ></div>
+                  ) : (
+                    <button
+                      className={styles.popupButtonPrint}
+                      onClick={handleViewPDF}
+                    >
+                      Print
+                    </button>
+                  ))}
               </div>
             </div>
           )}
@@ -1873,6 +2282,25 @@ const SampleRequest = () => {
                 <img
                   onClick={() => {
                     setIsImagePopup(false);
+                  }}
+                  src={Cross}
+                  alt="Select Icon"
+                  className={styles.crossIcon}
+                />
+              </div>
+            </div>
+          )}
+          {isArticleImagePopup && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.imagePopupContent}>
+                <img
+                  src={articleImageView}
+                  className={styles.imagepreviewPopup}
+                  alt=""
+                />
+                <img
+                  onClick={() => {
+                    setIsArticleImagePopup(false);
                   }}
                   src={Cross}
                   alt="Select Icon"
@@ -1915,17 +2343,17 @@ const SampleRequest = () => {
               onSubmitSampleData={handleSampleSubmit}
             />
           )}
-           {isItemHeadPopup && (
-        <ItemHeadPopup
-          onCancel={() => {
-            setIsItemHeadPopup(false);
-          }}
-          itemForm={itemForm}
-        />
-      )}
+          {isItemHeadPopup && (
+            <ItemHeadPopup
+              onCancel={() => {
+                setIsItemHeadPopup(false);
+              }}
+              itemForm={itemForm}
+            />
+          )}
         </>
       ) : (
-        <ViewSr onSampleSelect={handleSampleEdit} />
+        <ViewSr onSampleSelect={handleSampleEdit} handleEditClick={handleEditClick} handlePrintClick={handlePrintClick} isEditSelected={isEditSelected} />
       )}
     </div>
   );
