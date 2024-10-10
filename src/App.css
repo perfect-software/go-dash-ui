@@ -7,16 +7,6 @@
     @apply flex-grow
   }
   
-
-/* Increase header height */
-.ag-theme-quartz .ag-header {
-  height: 60px; /* Adjust as needed */
-}
-
-/* Optional: Adjust header cell padding */
-.ag-theme-quartz .ag-header-cell {
-  padding: 0 10px; /* Adjust padding as needed */
-}
 .rowDeleting {
   animation: slideOutGlassy 1s forwards;
   transition: all 1s ease-out;
@@ -41,3 +31,5 @@
     backdrop-filter: blur(10px);
   }
 }
+
+

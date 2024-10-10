@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
+import '../App.css'
+import '../index.css'
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { FaFilePdf, FaFileExcel } from "react-icons/fa";
@@ -232,7 +234,11 @@ const CustomAgGrid = ({
             )}
           </div>
         </div>
-
+        <div className="ag-theme-quartz" style={{
+        height: "100%", 
+        width: "100%",  
+        overflow: "auto",
+      }}>
         <AgGridReact
           rowData={filteredData}
           columnDefs={columnDefs}
@@ -251,6 +257,7 @@ const CustomAgGrid = ({
           onCellClicked={cellClicked&onCellClicked}
           onCellValueChanged= {cellChange&&onCellValueChanged}
         />
+        </div>
       </div>
     </div>
   );

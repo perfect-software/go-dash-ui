@@ -7,6 +7,7 @@ import {
   postApiService,
   putApiService,
 } from "../service/apiService";
+import IButtonIcon from "../assets/iButton.svg";
 import Currencydata from "currency-codes/data";
 import { generatePDF } from "../features/generateBomPDF";
 import InventoryCheckPopup from "../popups/InventoryCheckPopup";
@@ -20,6 +21,7 @@ import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
 import Remarks from "./purchaseOrderPages/Remarks";
 import WorkOrder from "./purchaseOrderPages/WorkOrder";
 import BuyerPopup from "../popups/BuyerPopup";
+import InfoPopup from "../popups/InfoPopup";
 const PurchaseOrder = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -42,6 +44,7 @@ const PurchaseOrder = () => {
   const [selectedRowData, setSelectedRowData] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [bsId ,setBsId]= useState('');
+  const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [poDetails, setPODetails] = useState(null);
   const [sizeDetails, setSizeDetails] = useState(null);
   const [showOrder,setShowOrder] = useState(false);
@@ -853,18 +856,18 @@ const PurchaseOrder = () => {
                   </button>
                 </div>
               )}
-              {/* {activeButton === "details" && (
-                <div className={styles.editContainer}>
-                  <button
-                    className={styles.headButtonPrint}
-                    onClick={() => {
-                      setIsInventoryPopup(true);
-                    }}
-                  >
-                    Inventory
-                  </button>
-                </div>
-              )} */}
+               {activeButton === "details" && (
+                 <div>
+                 <img
+                   src={IButtonIcon}
+                   onClick={() => {
+                     setIsInfoPopup(true);
+                   }}
+                   className={styles.ibutton}
+                   alt="iButton"
+                 />
+               </div>
+              )} 
             </div>
           </div>
         </div>
@@ -1135,6 +1138,14 @@ const PurchaseOrder = () => {
                 setIsBuyerPopup(false);
               }}
               onSubmitBuyerData={handleBuyerSubmit}
+            />
+          )}
+             {isInfoPopup && (
+            <InfoPopup
+              onCancel={() => {
+                setIsInfoPopup(false);
+              }}
+              infoName={"Purchase Order"}
             />
           )}
       {isInventoryPopup && (

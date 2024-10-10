@@ -922,7 +922,7 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
           </label>
           {downshiftItemSubGrp}
         </div>
-        <div className={styles.colSpan}>
+        <div className={styles.colSpan2}>
           <label className={styles.sampleLabel} htmlFor="supplierId">
             Supplier
           </label>
@@ -940,13 +940,13 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
             value={newItem.supplierId.name}
           />
         </div>
-        <div className={styles.colSpan}>
+        <div className={styles.colSpan2}>
           <button
             onClick={(e) => {
               e.preventDefault();
               handleAddMaterial();
             }}
-            className={tableStyles.addBtn}
+            className={tableStyles.addBtn2}
             aria-label="Search"
           >
             {" "}

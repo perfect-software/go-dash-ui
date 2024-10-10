@@ -8,6 +8,8 @@ import GmailIcon from "../assets/gmail.svg";
 import WhatsappIcon from "../assets/whatsapp.svg";
 import VerifiedIcon from "../assets/verified.svg";
 import axios from "axios";
+import { fetchAllBuyers } from "../reducer/buyersSlice";
+import { useDispatch, useSelector } from "react-redux";
 import qs from "qs";
 
 const ItemDetails = ({ orders }) => {
@@ -94,7 +96,7 @@ const OtherDetails = ({ orders }) => {
     uploaded: false,
     remarks: false,
   });
-  const handleEmailShare = async (e) => {
+ const handleEmailShare = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -119,11 +121,10 @@ const OtherDetails = ({ orders }) => {
           },
         }
       );
-     
+
       setEmailSent(true);
       setTimeout(() => setEmailSent(false), 3000);
     } catch (error) {
-    
       setEmailFailed(true);
       setTimeout(() => setEmailFailed(false), 3000);
     } finally {
@@ -144,11 +145,10 @@ const OtherDetails = ({ orders }) => {
           attachmentName: fileName,
         }
       );
-     
+
       setWhatsAppSent(true);
       setTimeout(() => setWhatsAppSent(false), 3000);
     } catch (error) {
-     
       setWhatsAppFailed(true);
       setTimeout(() => setWhatsAppFailed(false), 3000);
     } finally {
@@ -167,7 +167,6 @@ const OtherDetails = ({ orders }) => {
   const handleMouseLeave = () => {
     setHoveredIcon(null);
   };
-
   const toggleExpanded = (section) => {
     setExpandedState((prevState) => ({
       terms: section === "terms" ? !prevState.terms : false,
@@ -444,32 +443,104 @@ const SupplierDetails = ({ orders }) => {
 const NewPurchaseOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { isCollapsed } = useSidebar();
+  const [shareOpen, setShareOpen] = useState(false);
+  const [hoveredIcon, setHoveredIcon] = useState(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailFailed, setEmailFailed] = useState(false);
+  const [shareloading, setShareLoading] = useState(false);
+  const [whatsAppSent, setWhatsAppSent] = useState(false);
+  const [whatsAppFailed, setWhatsAppFailed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const { buyers, loaded, loading, error } = useSelector(
+    (state) => state.buyer
+  );
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchAllBuyers());
+  }, [dispatch]);
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
+
+  const handleEmailShare = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const toEmail = "chaudharypiyush30@gmail.com";
+    const subject = "Attached Document";
+    const body = "This is a test mail";
+    const attachmentName = "jp.pdf";
+    const data = qs.stringify({
+      toEmail,
+      subject,
+      body,
+      attachmentName,
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8081/api/sendEmail",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      setEmailSent(true);
+      setTimeout(() => setEmailSent(false), 3000);
+    } catch (error) {
+      setEmailFailed(true);
+      setTimeout(() => setEmailFailed(false), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWhatsAppShare = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const phoneNumber = "+917007920320";
+    const fileName = "jp.pdf";
+    try {
+      const response = await axios.post(
+        "http://localhost:8081/api/sendWhatsapp",
+        {
+          to: phoneNumber,
+          attachmentName: fileName,
+        }
+      );
+
+      setWhatsAppSent(true);
+      setTimeout(() => setWhatsAppSent(false), 3000);
+    } catch (error) {
+      setWhatsAppFailed(true);
+      setTimeout(() => setWhatsAppFailed(false), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailHover = () => {
+    setHoveredIcon("email");
+  };
+
+  const handleWhatsAppHover = () => {
+    setHoveredIcon("whatsapp");
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIcon(null);
+  };
+
   const buttons = [
-    { label: "Create Delivery", icon: "fas fa-truck" },
-    { label: "Duplicate", icon: "fas fa-clone" },
-    { label: "Edit", icon: "fas fa-edit" },
+    { label: "Edit", icon: "fas fa-edit", },
     { label: "Share PO", icon: "fas fa-share" },
     { label: "Download PDF", icon: "fas fa-download" },
-    { label: "Record Purchase Bill", icon: "fas fa-file-invoice" },
-    { label: "Record Expense Bill", icon: "fas fa-file-invoice-dollar" },
     { label: "Mark Complete", icon: "fas fa-check-circle" },
     { label: "Revoke", icon: "fas fa-times-circle" },
-    { label: "Comparison", icon: "fas fa-balance-scale" },
   ];
-  const { orderId } = useParams();
-  const [activePage, setActivePage] = useState("itemDetails");
-  useEffect(() => {
-    const foundOrder = orders.find((order) => order.orderNumber === orderId);
-    if (foundOrder) {
-      setSelectedOrder(foundOrder);
-    }
-  }, [orderId]);
-
   const orders = [
     {
       orderNumber: "ORD001",
@@ -562,7 +633,49 @@ const NewPurchaseOrder = () => {
       stisRecorded: "No",
     },
   ];
-
+  const handleButtonClick = (label) => {
+    switch(label) {
+      case "Edit":
+        // Logic for Edit button click
+        console.log("Edit button clicked");
+        break;
+      case "Share PO":
+        // Logic for Share PO button click
+         setShareOpen(true);
+        break;
+      case "Download PDF":
+        // Logic for Download PDF button click
+        console.log("Download PDF button clicked");
+        break;
+      case "Mark Complete":
+        // Logic for Mark Complete button click
+        console.log("Mark Complete button clicked");
+        break;
+      case "Revoke":
+        // Logic for Revoke button click
+        console.log("Revoke button clicked");
+        break;
+      default:
+        console.log("Unknown action");
+    }
+  };
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const { orderId } = useParams();
+  const [activePage, setActivePage] = useState("itemDetails");
+  useEffect(() => {
+    const foundOrder = buyers.find((buyer) => buyer.code === orderId);
+    if (foundOrder) {
+      setSelectedOrder(foundOrder);
+    }
+  }, [orderId]);
+  const filteredBuyers = buyers.filter((buyer) => {
+    if (searchQuery.length < 2) return true; // Only filter after second letter
+    return (
+      buyer.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      buyer.bsName?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
   return (
     <div className={styles.pOMainContainer}>
       <div className={styles.detailsSubContainer}>
@@ -573,19 +686,21 @@ const NewPurchaseOrder = () => {
         <div className={styles.poDetailsBody}>
           <div className={styles.listContainer}>
             <div className={styles.detailSearchBox}>
-              <input
-                className={styles.searchBoxInput}
-                type="text"
-                placeholder="Search by PO number or Contact Name"
-              />
+            <input
+              className={styles.searchBoxInput}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by PO number or Supplier Name"
+            />
               <i className="fas fa-search"></i>
             </div>
             <div className={styles.listScroll}>
-              {orders.map((order, index) => (
-                <div className={styles.listRow} key={index}>
-                  {order.orderNumber}
-                  <span className={styles.gstinTag}>{order.contact}</span>
-                  <span className={styles.gstinTag}>{order.gstin}</span>
+              {filteredBuyers.slice(0, 50).map((buyer, index) => (
+                <div className={styles.listRow} key={index}  onClick={() => setSelectedOrder(buyer)}>
+                  {buyer.code}
+                  <span className={styles.gstinTag}>{buyer.bsName}</span>
+                  <span className={styles.gstinTag}>{buyer.email}</span>
                 </div>
               ))}
             </div>
@@ -612,11 +727,15 @@ const NewPurchaseOrder = () => {
                     style={{ top: "15%", right: "70px" }}
                     className={styles.dropdownMenu}
                   >
-                    {buttons.map((button) => (
-                      <button key={button.label}>
-                        <i className={button.icon}></i> {button.label}
-                      </button>
-                    ))}
+                   {buttons.map((button) => (
+  <button 
+    key={button.label} 
+    onClick={() => handleButtonClick(button.label)} // Add onClick event
+  >
+    <i className={button.icon}></i> {button.label}
+  </button>
+))}
+
                   </div>
                 )}
               </div>
@@ -626,15 +745,15 @@ const NewPurchaseOrder = () => {
                   <div className={styles.gridContainer}>
                     <p>Supplier</p>
                     <strong>
-                      {selectedOrder && selectedOrder.gstin
-                        ? selectedOrder.gstin
+                      {selectedOrder && selectedOrder.bsName
+                        ? selectedOrder.bsName
                         : "Not Available"}
                     </strong>
 
                     <p>Group</p>
                     <strong>
-                      {selectedOrder && selectedOrder.contact
-                        ? selectedOrder.contact
+                      {selectedOrder && selectedOrder.contactPerson
+                        ? selectedOrder.contactPerson
                         : "Not Available"}
                     </strong>
 
@@ -647,8 +766,8 @@ const NewPurchaseOrder = () => {
 
                     <p>Creation Date</p>
                     <strong>
-                      {selectedOrder && selectedOrder.contact
-                        ? selectedOrder.contact
+                      {selectedOrder && selectedOrder.email
+                        ? selectedOrder.email
                         : "Not Available"}
                     </strong>
 
@@ -781,6 +900,61 @@ const NewPurchaseOrder = () => {
           </div>
         </div>
       </div>
+      {shareOpen && (
+        <div className={styles.popupOverlay} onMouseLeave={handleMouseLeave}>
+          <div className={styles.popupContent}>
+            <div className={styles.popupTitle}>
+              <img
+                onClick={() => setShareOpen(false)}
+                src={Cross}
+                alt="Select Icon"
+                className={styles.crossIcon}
+              />
+            </div>
+            <div className={styles.popupImage}>
+              {shareloading ? (
+                <div className={styles.loader}></div>
+              ) : (
+                <>
+                  {emailSent ? (
+                    <div className={styles.successTick}>✓</div>
+                  ) : emailFailed ? (
+                    <div className={styles.failureTick}>✗</div>
+                  ) : (
+                    <img
+                      onClick={handleEmailShare}
+                      onMouseEnter={handleEmailHover}
+                      src={GmailIcon}
+                      alt="Select Icon"
+                      className={styles.shareIcon}
+                    />
+                  )}
+                  {whatsAppSent ? (
+                    <div className={styles.successTick}>✓</div>
+                  ) : whatsAppFailed ? (
+                    <div className={styles.failureTick}>✗</div>
+                  ) : (
+                    <img
+                      onClick={handleWhatsAppShare}
+                      onMouseEnter={handleWhatsAppHover}
+                      src={WhatsappIcon}
+                      alt="Select Icon"
+                      className={styles.shareIcon}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+
+            {hoveredIcon === "email" && (
+              <div className={styles.sendInfo}>chaudharypiyush30@gmail.com</div>
+            )}
+            {hoveredIcon === "whatsapp" && (
+              <div className={styles.sendInfo}>+917007920320</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

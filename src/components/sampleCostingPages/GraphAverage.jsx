@@ -941,7 +941,7 @@ const GraphAverage = ({ sampleCostingData, setSampleCostingData ,editDetails, se
             value={newItem.supplierId.name}
           />
         </div> */}
-         <div className={styles.colSpan}>
+         <div className={styles.colSpan2}>
                 <label className={styles.impsampleLabel} htmlFor="city">
                   Grading Type
                 </label>
@@ -970,7 +970,7 @@ const GraphAverage = ({ sampleCostingData, setSampleCostingData ,editDetails, se
               e.preventDefault();
               handleAddMaterial();
             }}
-            className={tableStyles.addBtn}
+            className={tableStyles.addBtn2}
             aria-label="Search"
           >
             {" "}

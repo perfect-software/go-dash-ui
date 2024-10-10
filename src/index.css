@@ -36,6 +36,32 @@ body {
   opacity: 1 !important; 
 }
 
+
+
+.ag-theme-quartz ::-webkit-scrollbar {
+  display: block; /* or 'auto' */
+  height:3px;
+  width:3px;
+}
+.ag-theme-quartz {
+  /* bright green, 10% opacity */
+  @apply text-left;
+  --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
+}
+
+.ag-theme-quartz ::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.ag-theme-quartz ::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+}
+
+.ag-theme-quartz ::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
+}
+
+
 @media only screen and (max-width: 695px) {
  
   .ag-theme-quartz .ag-paging-panel {

@@ -439,7 +439,7 @@ const GraphAverage = ({
               e.preventDefault();
               handleAddMaterial();
             }}
-            className={tableStyles.addBtn}
+            className={tableStyles.addBtn2}
             aria-label="Search"
           >
             {" "}

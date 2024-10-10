@@ -9,207 +9,68 @@ import Cross from "../assets/cross.svg";
 const InfoPopup = ({ onCancel, infoName }) => {
   const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(true);
-  const tableName = infoName.toLowerCase().replace(/\s/g, "");
 
   const tableData = {
-    [`${tableName}Info`]: [
-      {
-        field: "Copy From",
-        description: "Copy already existing Sample Request.",
-        example: "Auto insert values in input fields",
-        type: "Search",
-      },
-
-      {
-        field: "Season",
-        description: "Defines the season for which the sample is requested.",
-        example: "SS for Spring-Summer, AW for Autumn-Winter",
-        type: "Dropdown",
-      },
-      {
-        field: "Sample Ref.",
-        description: "Unique reference identifier for the sample.",
-        example: "SR-2024-SS-001",
-        type: "Text",
-      },
-      {
-        field: "Buyer Name",
-        description: "Name of the individual or entity requesting the sample.",
-        example: "H&M",
-        type: "Dropdown with Search",
-      },
-      {
-        field: "Type of Sample",
-        description:
-          "Categorization of the sample based on its purpose or characteristics.",
-        example: "GRADING",
-        type: "Dropdown",
-      },
-      {
-        field: "Insert Image",
-        description: "Option to attach an image representing the sample.",
-        example: "Upload a JPEG or PNG image.",
-        type: "File Upload",
-      },
-      {
-        field: "Article Name",
-        description: "The designated name of the article for identification.",
-        example: "kappa",
-        type: "Searchable Text",
-      },
-      {
-        field: "Buyer Article",
-        description: "Article number or identifier provided by the buyer.",
-        example: "100234B",
-        type: "Text",
-      },
-      {
-        field: "Buyer Ref.",
-        description: "Reference number or code assigned by the buyer.",
-        example: "BR-2024-SS-045",
-        type: "Text",
-      },
-      {
-        field: "Date of Order",
-        description: "The date on which the sample order is placed.",
-        example: "Automatically populated with the current date.",
-        type: "Date",
-      },
-      {
-        field: "Size",
-        description: "Size specification of the sample.",
-        example: "42 EU, 9 US",
-        type: "Text",
-      },
-      {
-        field: "Quantity",
-        description: "Number of samples requested.",
-        example: "5",
-        type: "Numeric",
-      },
-      {
-        field: "Pair",
-        description: "Indicates if the sample is for the left or right.",
-        example: "Left, Right",
-        type: "Dropdown",
-      },
-      {
-        field: "Upper Color",
-        description: "Color specification for the upper part of the sample.",
-        example: "Black, Tan",
-        type: "Dropdown with Suggestions",
-      },
-      {
-        field: "Lining Color",
-        description: "Color specification for the sample's lining.",
-        example: "Beige, Grey",
-        type: "Dropdown with Suggestions",
-      },
-      {
-        field: "Last",
-        description: "The last used in the sample's manufacturing process.",
-        example: "101, 102",
-        type: "Text",
-      },
-      {
-        field: "Insole",
-        description: "Material or type of the insole in the sample.",
-        example: "Padded, Orthopedic",
-        type: "Text",
-      },
-      {
-        field: "Sole Label & Color",
-        description: "Labeling and color details for the sole.",
-        example: "Vibram, Red",
-        type: "Dropdown with Suggestions",
-      },
-      {
-        field: "Socks",
-        description:
-          "Specifications or type of socks included with the sample.",
-        example: "Cotton, Nylon",
-        type: "Text",
-      },
-      {
-        field: "Heel",
-        description: "Details about the heel of the sample.",
-        example: "2 inches",
-        type: "Text",
-      },
-      {
-        field: "Pattern",
-        description: "Pattern design associated with the sample.",
-        example: "Striped, Floral",
-        type: "Text",
-      },
-      {
-        field: "Upper Leather",
-        description: "Details regarding the leather used in the upper part.",
-        example: "Full Grain, Patent",
-        type: "Text",
-      },
-      {
-        field: "Lining",
-        description: "The type of lining material used in the sample.",
-        example: "Leather, Textile",
-        type: "Text",
-      },
-      {
-        field: "Socks (Internal Info)",
-        description:
-          "Internal details about the socks provided with the sample.",
-        example: "Wool, Ankle-length",
-        type: "Text",
-      },
-      {
-        field: "Quantity (Internal Info)",
-        description: "Internal record of the quantity of samples.",
-        example: "10",
-        type: "Numeric",
-      },
-      {
-        field: "Comment",
-        description: "Any additional comments or instructions for the sample.",
-        example: "Special packaging required",
-        type: "Text",
-      },
-      {
-        field: "Prod-Ex Date",
-        description: "The expected date of production completion.",
-        example: "10-04-2024",
-        type: "Date",
-      },
-      {
-        field: "Delivery Date",
-        description: "Scheduled date for the delivery of the sample.",
-        example: "15-05-2024",
-        type: "Date",
-      },
-      {
-        field: "Delivery Address",
-        description: "The address to which the sample should be delivered.",
-      },
+    purchaseOrderInfo: [
+      { field: "PO.No.", description: "Auto Generated", type: "Read only", fieldFormat: "Text", source: "" },
+      { field: "PO Date", description: "Purchase Order Generated Date", type: "Current Date", fieldFormat: "", source: "" },
+      { field: "Supplier Name", description: "Name of the Supplier (Only Sundry Creditors will be Displayed.)", type: "Dropdown", fieldFormat: "", source: "Account Master" },
+      { field: "Delivered At", description: "Our Unit Name", type: "Dropdown", fieldFormat: "", source: "" },
+      { field: "Type", description: "Select Domestic / International", type: "Dropdown", fieldFormat: "", source: "" },
+      { field: "Doc Type", description: "Like Sole / InSole/ Leather / Material", type: "Dropdown", fieldFormat: "", source: "" },
+      { field: "Buyer Name", description: "Name of the Buyer (Only Sundry Debitors will be Displayed.)", type: "Dropdown", fieldFormat: "", source: "" },
+      { field: "Season", description: "Select the season for which the WorkOrder will be Displayed", type: "Dropdown", fieldFormat: "", source: "" },
+      { field: "Work Order", description: "Work Order Displayed according to Buyer", type: "Dropdown", fieldFormat: "", source: "Buyer Order" },
+      { field: "Item Name", description: "Select the Item", type: "Dropdown", fieldFormat: "", source: "Item Master" },
+      { field: "Multiple Remarks", description: "Optional field, enter remark if required", type: "Text", fieldFormat: "Max 250 Char for each Remark", source: "" },
+      { field: "Item Unit", description: "Measurement of item (e.g. INCH, SQDM, LTR, SQFT, MTR etc)", type: "Read only", fieldFormat: "Text", source: "Item Master" },
+      { field: "Required Qty", description: "like 2000 MTR", type: "Read only", fieldFormat: "", source: "Buyer Order" },
+      { field: "Extra % Required", description: "5%", type: "Number", fieldFormat: "", source: "" },
+      { field: "Store Qty", description: "Qty Entered by Concerned Store", type: "Read only", fieldFormat: "", source: "Item Group Master" },
+      { field: "Qty", description: "Actual PO Qty ((Required Qty + Extra % Required) - Store Qty = PO Qty)", type: "Number", fieldFormat: "", source: "" },
+      { field: "Rate", description: "Rate", type: "Number", fieldFormat: "", source: "Quotation" },
+      { field: "Remark for Each Item", description: "Optional field, enter remark if required", type: "Text", fieldFormat: "Max 250 Char", source: "" },
+      { field: "Payment Terms", description: "Optional field, enter Payment Terms if required", type: "Dropdown", fieldFormat: "Max 100 Char", source: "Payment Terms Master" },
+      { field: "Add Size", description: "", type: "Button", fieldFormat: "Button", source: "" },
+      { field: "Fill Delivery Date", description: "Change Date in Top of Grid Item, After Submit This Date will Replace in Entire Grid Data", type: "Button", fieldFormat: "Button", source: "" },
+      { field: "Fill Item Rate", description: "Change Rate in Top of Grid Item, After Submit This Rate will Replace in Entire Grid Data", type: "Button", fieldFormat: "Button", source: "" },
+      { field: "Simulate", description: "Displayed Total Purchase Order Summary For Checking Purpose", type: "Button", fieldFormat: "Button", source: "" },
     ],
-    // ... other named data
   };
+
+  const infoMap = {
+    "Purchase Order": "purchaseOrderInfo",
+    "Sales Order": "salesOrderInfo",
+
+  };
+  const rowData = tableData[infoMap[infoName]] || [];
+
+ 
   const columnDefs = [
-    { headerName: "Field", field: "field", sortable: true, filter: true },
-    {
-      headerName: "Description",
-      field: "description",
-      width: 450,
-      sortable: true,
-      filter: true,
-    },
-    { headerName: "Example", field: "example", sortable: true, filter: true },
-    {
-      headerName: "Type",
-      field: "type",
-      width: 350,
-      sortable: true,
-      filter: true,
-    },
+    { headerName: "Field Name", field: "field", sortable: true, filter: true },
+    { headerName: "Detail of Selected Field", field: "description", width: 450, sortable: true, filter: true },
+    { headerName: "Field Format", field: "fieldFormat", sortable: true, filter: true },
+    { headerName: "Field Type", field: "type", width: 150, sortable: true, filter: true },
+    { headerName: "Source", field: "source", sortable: true, filter: true },
   ];
+  const getRowStyle = (params) => {
+    const rowIndex = params.node.rowIndex;
+  
+    if (rowIndex % 6 < 2) {
+      return { backgroundColor: "#e8f5e9" }; // Light green
+    } else if (rowIndex % 6 < 4) {
+      return { backgroundColor: "#fff9c4" }; // Light yellow
+    } else {
+      return { backgroundColor: "#f0f0f0" }; // Light grey
+    }
+  };
+  
+ 
+  // const getRowStyle = (params) => {
+  //   return {
+  //     backgroundColor: params.node.rowIndex % 2 === 0 ? "#ffffff" : "#f5f5f5",
+  //   };
+  // };
 
   return (
     isPopupVisible && (
@@ -224,21 +85,20 @@ const InfoPopup = ({ onCancel, infoName }) => {
                   onCancel();
                 }}
                 src={Cross}
-                alt="Select Icon"
+                alt="Close Icon"
                 className={styles.crossIcon}
               />
             </div>
           </div>
 
           <div
-            className={`ag-theme-quartz ${styles.agThemeQuartz}`}
-            style={{ height: 600, width: "100%", marginTop: "10px" }}
+            className={`ag-theme-quartz`}
+            style={{ height: 600, width: "100%" , marginTop:"10px"}}
           >
             <AgGridReact
+              rowData={rowData}
               columnDefs={columnDefs}
-              rowData={tableData[`${tableName}Info`]}
-              animateRows={true}
-              filter={true}
+              getRowStyle={getRowStyle}
             />
           </div>
         </div>
@@ -246,4 +106,5 @@ const InfoPopup = ({ onCancel, infoName }) => {
     )
   );
 };
+
 export default InfoPopup;

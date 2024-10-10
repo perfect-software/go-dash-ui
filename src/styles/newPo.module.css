@@ -19,7 +19,9 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 6px -2px,
     rgba(0, 0, 0, 0.3) 0px 3px 4px -3px;
 }
-
+.headText {
+  @apply text-[#00ADB5] text-[1.3rem] leading-4 font-[400] smp:text-[1rem];
+}
 .titleContainerTwo {
   @apply bg-white flex p-3 mb-1 items-center justify-between;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
@@ -95,11 +97,14 @@
   @apply flex text-white relative gap-2 rounded-[6px];
   align-items: center;
   padding: 7px 15px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
   border: none;
   cursor: pointer;
   background-color: #7b3aef;
 }
-
+.createPoButton:hover{
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
 .divider {
   @apply absolute;
   width: 0.6px;
@@ -138,12 +143,6 @@
 
 .bodyContainer {
   @apply bg-[#F5F5F5] p-3;
-}
-.listContainer {
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  @apply bg-[#F5F5F5] p-3 flex flex-col;
-  width: 26%;
-  height: calc(100vh - 5.7rem);
 }
 
 .listScroll {
@@ -361,7 +360,15 @@
 }
 .detailsContainer {
   @apply bg-[#F5F5F5] p-3 flex flex-col w-[74%];
+  height: calc(100vh - 5.7rem);
 }
+.listContainer {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  @apply bg-[#F5F5F5] p-3 flex flex-col;
+  width: 26%;
+  height: calc(100vh - 5.7rem);
+}
+
 .topDetails {
   @apply flex flex-col;
 }
@@ -379,7 +386,7 @@
   padding: 2px 10px;
 }
 .topDetailsData {
-  @apply flex bg-white mt-1 mb-4 rounded-md gap-14;
+  @apply flex bg-white mt-1 mb-2 rounded-md gap-14;
   padding: 15px 10px;
 }
 
@@ -430,7 +437,7 @@
 }
 .supplierGridContainer {
   @apply flex flex-col mt-2 bg-[#F6FAFD] rounded-md;
-  gap: 8px;
+  gap: 4px;
   padding: 6px 10px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
@@ -478,6 +485,7 @@
 
 .midDetailsData {
   @apply flex w-full;
+ 
 }
 
 .dropdownMenu {
@@ -628,6 +636,9 @@
 }
 .itemNameKarigarInputDiv {
   @apply flex items-center gap-2 w-full px-2 pt-[5px]  bg-white;
+}
+.itemNameKarigarInputDiv2 {
+  @apply flex items-center gap-2 w-[80%] px-2 pt-[5px]  bg-white;
 }
 .materialIssueInputDiv {
   @apply flex gap-2 w-full px-2 pt-[5px]  bg-white;
@@ -891,6 +902,9 @@ select {
 .colSpan3 {
   @apply col-span-3 sm:col-span-1 flex flex-row items-center gap-1;
 }
+.colSpan4 {
+  @apply col-span-4 sm:col-span-1 flex flex-row items-center gap-1;
+}
 .ag-paging-panel {
   height: 2px; /* Adjust based on your design needs */
 }
@@ -953,12 +967,20 @@ select {
   @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-8  mt-2;
   grid-gap: 10px 10px;
 }
+.masterCardCreationTopGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-9  mt-2;
+  grid-gap: 10px 10px;
+}
 .orderCheckArticleGrid {
   @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-6  mt-2;
   grid-gap: 10px 10px;
 }
 .stocktransferGrid {
   @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-7  mt-2;
+  grid-gap: 10px 10px;
+}
+.articleActivityGrid {
+  @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-8  mt-2;
   grid-gap: 10px 10px;
 }
 .gatePassReceiveTopGrid {
@@ -1626,4 +1648,112 @@ select {
 
 .removeFileButton:hover {
   animation: vibrate 0.2s linear infinite;
+}
+
+.parentInOrder
+{
+  @apply flex w-[100%];
+}
+.orderInTopGrid {
+  @apply flex p-2 m-[10px] w-[100%] rounded-md;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.orderInTopGrid2 {
+  @apply flex p-1 w-[100%] rounded-md;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+.inputbox {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+
+.checkboxLabel {
+  @apply whitespace-nowrap;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.customCheckbox {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+
+.customCheckbox:hover {
+  border: 2px solid #007bff;
+}
+
+.parentReportOptions{
+ @apply flex gap-1 w-[100%];
+}
+.leftReportOptions{
+  @apply w-[80%];
+}
+.rightReportOptions{
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+  @apply flex flex-col justify-between w-[20%] rounded-md mx-2 px-3 bg-[#FAFAFB] mb-2;
+  height:630px;
+}
+.listRow2 {
+  @apply bg-white rounded-md text-sm cursor-pointer;
+  padding: 5px 20px;
+  border: 2px solid #FAFAFB;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+.listRow2 h2 {
+  @apply font-bold;
+}
+.submitButton {
+  @apply w-[full] h-[2.5rem] text-[1rem] sml:text-sm font-[700] px-[40px] py-[1rem] text-white 
+      leading-4 bg-[#000000] flex items-center justify-center rounded-[0.3125rem] 
+      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
+.rightReportOptionsButton{
+ @apply mb-4 mt-2 m-auto;
+}
+.listRow2:hover {
+
+  border: 2px dashed green;
+}
+
+
+.agGridHeaderToggle {
+  @apply p-1 bg-green-400 rounded-md;
+  display: flex;
+  align-items: center;
+}
+
+.toggleContainer {
+  @apply rounded-md;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  border : 1px solid #FAFAFB;
+  display: flex;
+  gap: 10px;
+}
+.greenTick {
+  color: green;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.toggleButton {
+  padding: 3px 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggleButton:hover {
+  @apply rounded-md bg-slate-300;
+  color: black;
+}
+
+.selected {
+  @apply rounded-md bg-slate-300;
+  color: black;
+  cursor: not-allowed;
 }

@@ -3,13 +3,23 @@ import styles from "../styles/newPo.module.css";
 import { useSidebar } from "../context/SidebarContext";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "../assets/menuIcon.svg";
-
+import { fetchAllBuyers } from "../reducer/buyersSlice";
+import { formatDate, formatDDMMYYYYDate } from "../features/convertDate";
+import { useDispatch, useSelector } from "react-redux";
 const NewPurchaseOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { isCollapsed } = useSidebar();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(-1);
+  const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { buyers, loaded, loading, error } = useSelector(
+    (state) => state.buyer
+  );
+  useEffect(() => {
+    dispatch(fetchAllBuyers());
 
+  }, [dispatch]);
   const toggleDropdown = (index) => {
     if (dropdownOpen === index) {
       setDropdownOpen(-1);
@@ -17,6 +27,13 @@ const NewPurchaseOrder = () => {
       setDropdownOpen(index);
     }
   };
+  const filteredBuyers = buyers.filter((buyer) => {
+    if (searchQuery.length < 2) return true;  // Only filter after second letter
+    return (
+      buyer.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      buyer.bsName?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
   const orders = [
     {
       orderNumber: "ORD001",
@@ -112,7 +129,7 @@ const NewPurchaseOrder = () => {
 
   useEffect(() => {
     if (selectedOrder) {
-      navigate(`/newpurchaseorderdetails/${selectedOrder.orderNumber}`);
+      navigate(`/newpurchaseorderdetails/${selectedOrder.code}`);
     }
   }, [selectedOrder, navigate]);
 
@@ -125,7 +142,9 @@ const NewPurchaseOrder = () => {
             <input
               className={styles.searchBoxInput}
               type="text"
-              placeholder="Search by PO number or Contact Name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by PO number or Supplier Name"
             />
             <i className="fas fa-search"></i>
           </div>
@@ -146,7 +165,7 @@ const NewPurchaseOrder = () => {
               ></i>
               Filters
             </button>
-            <button className={styles.createPoButton}>
+            <button className={styles.createPoButton}   onClick={() => navigate('/purchaseorder')}>
               <i className="fas fa-plus"></i> Create PO{" "}
               <div className={styles.divider}></div>{" "}
               <i
@@ -185,28 +204,31 @@ const NewPurchaseOrder = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order, index) => (
+              {loading && <p>Loading...</p>}
+{error && <p>Error loading buyers: {error}</p>}
+{filteredBuyers && filteredBuyers.length > 0 ? (
+  filteredBuyers.slice(0, 50).map((buyer, index) =>(
                   <tr
                     className={styles.dataRow}
                     key={index}
-                    onClick={() => setSelectedOrder(order)}
+                    onClick={() => setSelectedOrder(buyer)}
                   >
-                    <td style={{ minWidth: "200px" }}>{order.orderNumber}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.code}</td>
                     <td style={{ minWidth: "200px" }}>
-                      {order.contact}
-                      <span className={styles.gstinTag}>{order.gstin}</span>
+                      {buyer.phone}
+                      <span className={styles.gstinTag}>{buyer.code}</span>
                       <span className={styles.supplierTag}>Supplier</span>
                     </td>
-                    <td style={{ minWidth: "200px" }}>{order.creationDate}</td>
-                    <td style={{ minWidth: "200px" }}>{order.paymentTerms}</td>
-                    <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
-                    <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
-                    <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
-                    <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
-                    <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
-                    <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
-                    <td style={{ minWidth: "200px" }}>{order.orderValue}</td>
-                    <td style={{ minWidth: "200px" }}>{order.stisRecorded}</td>
+                    <td style={{ minWidth: "200px" }}>{formatDDMMYYYYDate(buyer.entDate)}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.bsName}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.username}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.billingAddress}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.deliveryAddress}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.city}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.pincode}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.contactPerson}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.mobileExt}</td>
+                    <td style={{ minWidth: "200px" }}>{buyer.email}</td>
                     <td
                       onClick={(event) => {
                         event.stopPropagation();
@@ -226,27 +248,20 @@ const NewPurchaseOrder = () => {
                             <i className="fas fa-truck"></i> Create Delivery
                           </button>
                           <button>
-                            <i className="fas fa-clone"></i> Duplicate
-                          </button>
-                          <button>
                             <i className="fas fa-share-square"></i> Share Po
                           </button>
                           <button>
                             <i className="fas fa-download"></i> Download PDF
                           </button>
-                          <button>
-                            <i className="fas fa-receipt"></i> Record Purchase
-                            Bill
-                          </button>
-                          <button>
-                            <i className="fas fa-money-bill"></i> Record Expense
-                            Bill
-                          </button>
+                        
                         </div>
                       )}
                     </td>
                   </tr>
-                ))}
+                ))
+              ) : (
+                !loading && <p>No buyers found.</p>
+              )}
               </tbody>
             </table>
             

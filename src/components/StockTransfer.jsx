@@ -119,7 +119,7 @@ const StockTransfer = () => {
       cellRenderer: CustomCellRenderer, // Use the custom cell renderer here
     },
     { headerName: "Supplier Name", field: "supplierName", width: 200 },
-    { headerName: "Stock Qty", field: "stockQty", width: 100 },
+    { headerName: "Bill Qty", field: "stockQty", width: 100 },
     { headerName: "Qty", field: "qty", width: 100 },
     { headerName: "Rate", field: "rate", width: 100 },
 
@@ -214,7 +214,7 @@ const StockTransfer = () => {
                   required
                  
                 />
-                <span>STOCK QTY</span>
+                <span>Bill Qty</span>
               </div>
             </div>
             <div className={styles.colSpan}>

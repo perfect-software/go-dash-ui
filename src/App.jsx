@@ -47,6 +47,27 @@ import Reinspection from "./components/Reinspection";
 import TestPO from "./components/TestPO";
 import WorkerAdvance from "./components/WorkerAdvance";
 import WorkerMaster from "./components/WorkMaster";
+import BuyerOrderView from "./components/BuyerOrderView";
+import PurchaseOrderRegister from "./components/PurchaseOrderRegister";
+import PurchaseReceivedRegister from "./components/PurchaseReceivedRegister";
+import MaterialIssueRegister from "./components/MaterialIssueRegister";
+import GatePassIssueRegister from "./components/GatePassIssueRegister";
+import GatePassReceiveRegister from "./components/GatePassReceiveRegister";
+import KarigarJobRegister from "./components/KarigarJobRegister";
+import WeeklyWagesReport from "./components/WeeklyWagesReport";
+import ReinspectionSecond from "./components/ReinspectionSecond";
+import PendingSupplierOrder from "./components/PendingSupplierOrder";
+import BuyerLabAssign from "./components/BuyerLabAssign";
+import LabTest from "./components/LabTest";
+import TestMaster from "./components/TestMaster";
+import UpdateTestResult from "./components/UpdateTestResult";
+import TestReports from "./components/TestReports";
+import AllowRateDiff from "./components/AllowRateDiff";
+import SampleApprove from "./components/SampleApprove";
+import ArticleActivity from "./components/ArticleActivity";
+import ArticleActivityApprove from "./components/ArticleActivityApprove";
+import ActivityMaster from "./components/ActivityMaster";
+import MasterCardCreation from "./components/MasterCardCreation";
 
 
 function App() {
@@ -89,12 +110,33 @@ function App() {
               <Route path="/workermaster" element={<WorkerMaster/>}/>
               <Route path="/workerAdvance" element={<WorkerAdvance/>}/>
               <Route path="/reinspection" element={<Reinspection/>}/>
+              <Route path="/reinspectionsecond" element={<ReinspectionSecond/>}/>
               <Route path="/samplecosting" element={<SampleCosting/>}/>
               <Route path="/newpurchaseorderdetails/:orderId" element={<NewPurchaseOrderDetails />} /> 
               <Route path="/prbom" element={<ProductionBom/>}/>
+              <Route path="/purchaseorderregister" element={<PurchaseOrderRegister/>}/>
+              <Route path="/purchasereceivedregister" element={<PurchaseReceivedRegister/>}/>
               <Route path="/purchaseorder" element={<PurchaseOrder/>}/>
+              <Route path="/materialissueregister" element={<MaterialIssueRegister/>}/>
+              <Route path="/gatepassissueregister" element={<GatePassIssueRegister/>}/>
+              <Route path="/gatepassreceiveregister" element={<GatePassReceiveRegister/>}/>
               <Route path="/newpo" element={<NewPurchaseOrder/>}/>
+              <Route path="/karigarjobregister" element={<KarigarJobRegister/>}/>
+              <Route path="/pendingsupplierorder" element={<PendingSupplierOrder/>}/>
               <Route path="/dmtr" element={<Dmtr/>}/>
+              <Route path="/mastercardcreation" element={<MasterCardCreation/>}/>
+              <Route path="/activitymaster" element={<ActivityMaster/>}/>
+              <Route path="/articleactivityapprove" element={<ArticleActivityApprove/>}/>
+              <Route path="/articleactivity" element={<ArticleActivity/>}/>
+              <Route path="/sampleapprove" element={<SampleApprove/>}/>
+              <Route path="/allowratediff" element={<AllowRateDiff/>}/>
+              <Route path="/testreports" element={<TestReports/>}/>
+              <Route path="/updatetestresult" element={<UpdateTestResult/>}/>
+              <Route path="/testmaster" element={<TestMaster/>}/>
+              <Route path="/labtest" element={<LabTest/>}/>
+              <Route path="/buyerlabassign" element={<BuyerLabAssign/>}/>
+              <Route path="/buyerorderview" element={<BuyerOrderView/>}/>
+              <Route path="/weeklywagesreport" element={<WeeklyWagesReport/>}/>
               <Route path="/genieeffect" element={<GenieEffect/>}/>
               <Route path="/gatepassreceive" element={<GatePassReceive/>}/>
               <Route path="/gatepassoutmisc" element={<GatePassOutMisc/>}/>

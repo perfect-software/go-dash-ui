@@ -99,7 +99,7 @@ const ViewSr = ({ onSampleSelect, handleEditClick, handlePrintClick, isEditSelec
     },
     {
       headerName: "Article No",
-      field: "articleName",
+      field: "articleNo",
       sortable: true,
       width: 125,
       filter: true,

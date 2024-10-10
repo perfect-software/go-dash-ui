@@ -456,7 +456,11 @@ select {
       leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
       sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
 }
-
+.submitButtonKj {
+  @apply  text-[0.8rem] sml:text-sm font-[700] px-[0.5rem] py-[0.5rem] text-white 
+      leading-4 bg-[#00A5AD] flex items-center justify-center rounded-[0.3125rem] 
+      sm:w-[5rem] sm:h-[1rem] sm:text-[0.8rem];
+}
 .loader {
   @apply mr-14 mt-2 sm:mr-0;
   border: 7px solid #f3f3f3;
