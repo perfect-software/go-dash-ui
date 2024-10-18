@@ -76,7 +76,7 @@ const ViewArticle = ({updateArticle}) => {
   }
   const actionButton = (params) => {
     setIsImagePopup(true);
-    setImagePreview(params.data.image_nm)
+    setImagePreview(params.data.imageNm)
   };
   const viewActionButton = (params) => {
     setArticleMstId(params);
@@ -123,7 +123,7 @@ const ViewArticle = ({updateArticle}) => {
     checkboxSelection: true,
     showDisabledCheckboxes: true},
     
-    { headerName: "Article No",  width:150, field: "articleName", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "articleNo", sortable: true, filter: true },
     {
       headerName: "Animal",
       field: "animal",
@@ -133,7 +133,7 @@ const ViewArticle = ({updateArticle}) => {
     },
     {
       headerName: "Article Image",
-      field: "image_nm",
+      field: "imageNm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {

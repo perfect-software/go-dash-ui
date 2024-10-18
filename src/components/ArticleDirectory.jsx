@@ -6,6 +6,7 @@ import {
   putApiService,
 } from "../service/apiService";
 import Cross from "../assets/cross.svg";
+import IButtonIcon from "../assets/iButton.svg";
 import Downshift from "downshift";
 import axios from "axios";
 import Upload from "../assets/folder-upload.png";
@@ -18,6 +19,7 @@ import { ARTICLE_IMAGE_PATH } from "../features/url";
 import ViewArticle from "./ViewArticle";
 import ViewArticleDetails from "./ViewArticleDetails";
 import GenericDownshiftDropdown from "../features/genericDownshift";
+import InfoPopup from "../popups/InfoPopup";
 const ArticleDirectory = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [itemsData, setItemsData] = useState([]);
@@ -46,6 +48,7 @@ const ArticleDirectory = () => {
     liningMaterial: false,
     socksMaterial: false,
   });
+  const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [isItemHeadPopup, setIsItemHeadPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
@@ -234,14 +237,14 @@ const ArticleDirectory = () => {
       setIsEditClicked(true);
       setActiveButton("details");
       if (newArticle) {
-        const { image_nm, article_no, ...restOfArticle } = newArticle;
+        const { imageNm, article_no, ...restOfArticle } = newArticle;
         setArticleForm({
           ...articleForm,
           articleNo: article_no,
           ...restOfArticle,
         });
-        const articleImageUrl = image_nm
-          ? `${ARTICLE_IMAGE_PATH}${image_nm}`
+        const articleImageUrl = imageNm
+          ? `${ARTICLE_IMAGE_PATH}${imageNm}`
           : null;
         setImagePreview(articleImageUrl);
       } else {
@@ -438,7 +441,7 @@ const ArticleDirectory = () => {
     try {
       const updatedArticleForm = {
         ...formData,
-        image_nm: imageNm,
+        imageNm: imageNm,
         articleId: editArticle.articleId,
       };
       const responseData = await putApiService(updatedArticleForm, BASE_URL);
@@ -539,7 +542,7 @@ const ArticleDirectory = () => {
     try {
       const updatedArticleForm = {
         ...formData,
-        image_nm: imageNm,
+        imageNm: imageNm,
       };
       console.log(updatedArticleForm);
       const responseData = await postApiService(updatedArticleForm, BASE_URL);
@@ -713,6 +716,19 @@ const ArticleDirectory = () => {
                 : "Article Directory"
               : "Article Search"}
           </h1>
+
+          {activeButton === "details" && (
+                 <div>
+                 <img
+                   src={IButtonIcon}
+                   onClick={() => {
+                     setIsInfoPopup(true);
+                   }}
+                   className={styles.ibutton}
+                   alt="iButton"
+                 />
+               </div>
+              )} 
         </div>
         <div className={styles.subHeadContainerTwo}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -1425,6 +1441,14 @@ const ArticleDirectory = () => {
                 getItems();
               }}
               itemForm={articleForm}
+            />
+          )}
+          {isInfoPopup && (
+            <InfoPopup
+              onCancel={() => {
+                setIsInfoPopup(false);
+              }}
+              infoName={"Article"}
             />
           )}
           {isArticlePopup && (
