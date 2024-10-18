@@ -74,7 +74,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
   };
   const columnDefs = [
     { headerName: "Select", maxWidth: 80, checkboxSelection: true },
-    { headerName: "Article No",  width:150, field: "article_no", sortable: true, filter: true },
+    { headerName: "Article No",  width:150, field: "articleNo", sortable: true, filter: true },
     {
         headerName: "Last No",
         field: "lastNo",
