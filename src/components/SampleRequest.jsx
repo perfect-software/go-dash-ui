@@ -406,11 +406,11 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         articleNo: selectedArticle.articleName,
       });
-      const articleImageUrl = selectedArticle.image_nm
-        ? `${ARTICLE_IMAGE_PATH}${selectedArticle.image_nm}`
+      const articleImageUrl = selectedArticle.imageNm
+        ? `${ARTICLE_IMAGE_PATH}${selectedArticle.imageNm}`
         : null;
       setArticleImageView(articleImageUrl);
-      setArticleURL(selectedArticle.image_nm);
+      setArticleURL(selectedArticle.imageNm);
       setTempArticeNo(selectedArticle.articleId);
       toggleSuggestVisibility("article", false);
       setIsArticlePopup(false);
@@ -438,7 +438,7 @@ const SampleRequest = () => {
       setBsID(selectedSample.buyer?.bs_id);
       const {
         article_image,
-        image_nm,
+        imageNm,
         articleNo,
         articleName,
         ...restOfSelectedSample
@@ -522,7 +522,7 @@ const SampleRequest = () => {
         .map((item) => ({
           articleId: item.articleId,
           articleName: item.articleName,
-          imageUrl: item.image_nm,
+          imageUrl: item.imageNm,
         }));
 
       setFilteredList((prevList) => ({
@@ -742,9 +742,9 @@ const SampleRequest = () => {
     };
   }, [activeButton, isEditSelected, handlePrintClick]);
   useEffect(() => {
-    if (isEditClicked && editSample.image_nm) {
-      const imageUrl = editSample.image_nm
-        ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.image_nm}`
+    if (isEditClicked && editSample.imageNm) {
+      const imageUrl = editSample.imageNm
+        ? `${SAMPLE_REQUEST_IMAGE_PATH}${editSample.imageNm}`
         : null;
       const articleImageUrl = editSample.article_image
         ? `${ARTICLE_IMAGE_PATH}${editSample.article_image}`
@@ -770,7 +770,7 @@ const SampleRequest = () => {
         ...sampleDetailsForm,
         sample_id: editSample.sampleId,
         articleNo: tempArticleNo,
-        image_nm: imageNm,
+        imageNm: imageNm,
       };
       const responseData = await putApiService(
         updatedSampleDetailsForm,
