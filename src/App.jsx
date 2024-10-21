@@ -21,7 +21,7 @@ import ItemQuotation from "./components/ItemQuotation";
 import SamplePipeline from "./components/SamplePipeline";
 import SamplePipelineProgressView from "./components/SamplePipelineProgressView";
 import PurchaseOrder from "./components/PurchaseOrder";
-import ProductionBom from "./components/productionBom";
+import ProductionBom from "./components/ProductionBom";
 import ProductionPurchaseOrder from "./components/ProductionPurchaseOrder";
 import SampleCosting from "./components/SampleCosting";
 import NewPurchaseOrder from "./components/NewPurchaseOrder";

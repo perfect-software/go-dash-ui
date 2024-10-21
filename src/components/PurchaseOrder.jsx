@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import GraphAverage from "./purchaseOrderPages/GraphAverage";
 import { fetchAllBom } from "../reducer/bomSlice";
 import Size from "./purchaseOrderPages/Size";
-import ViewPurchaseOrder from "./viewPurchaseOrder";
+import ViewPurchaseOrder from "./ViewPurchaseOrder";
 import { fetchAllItemHeads } from "../reducer/itemHeadSlice";
 import Remarks from "./purchaseOrderPages/Remarks";
 import WorkOrder from "./purchaseOrderPages/WorkOrder";
