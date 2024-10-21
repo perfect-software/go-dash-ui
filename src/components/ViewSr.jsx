@@ -74,7 +74,7 @@ const ViewSr = ({ onSampleSelect, handleEditClick, handlePrintClick, isEditSelec
     // },
     {
       headerName: "SR Image",
-      field: "image_nm",
+      field: "imageNm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {

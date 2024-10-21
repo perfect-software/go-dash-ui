@@ -143,7 +143,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
   },
   {
       headerName: "Article Image",
-      field: "image_nm",
+      field: "imageNm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {
@@ -307,7 +307,7 @@ const ArticlePopup = ({ onCancel, onSubmitArticleData }) => {
 
   const actionButton = (params) => {
     setIsImagePopup(true);
-    setImagePreview(params.data.image_nm)
+    setImagePreview(params.data.imageNm)
   };
 
   const fetchArticleDetails = async (articleMstId) => {

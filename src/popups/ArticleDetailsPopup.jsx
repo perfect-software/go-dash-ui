@@ -98,7 +98,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
      },
      {
       headerName: "Article Image",
-      field: "image_nm",
+      field: "imageNm",
       width: 150,
       filter: true,
       cellRenderer: (params) => {
@@ -262,7 +262,7 @@ const ArticleDetailsPopup = ({ onCancel,articleMstId ,onSubmitArticleData }) => 
 
   const actionButton = (params) => {
     setIsImagePopup(true);
-    setImagePreview(params.data.image_nm)
+    setImagePreview(params.data.imageNm)
   };
   const onCellKeyDown = useCallback((e) => {
     if (!e.event) {

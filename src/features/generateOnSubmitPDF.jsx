@@ -95,7 +95,7 @@ const generateDocumentUI = async (data, index, totalPages) => {
     { name: "TOTAL", width: "5%" },
   ];
   const imageSrc = await loadImageBase64(
-    `${SAMPLE_REQUEST_IMAGE_PATH}${data.image_nm}`
+    `${SAMPLE_REQUEST_IMAGE_PATH}${data.imageNm}`
   );
   const articleImageSrc = await loadImageBase64(
     `${ARTICLE_IMAGE_PATH}${data.article_image}`
