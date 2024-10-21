@@ -34,6 +34,7 @@ const Bom = () => {
   const [isPrintSelected, setIsPrintSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
   const [bomDetails, setBomDetails] = useState([]);
+  const [itemGridData, setItemGridData] = useState([]);
   const [editDetails, setEditDetails] = useState(null);
   const [tempBomDetails, setTempBomDetails] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
@@ -46,7 +47,7 @@ const Bom = () => {
     bomType: "",
     buyerName: "",
     totalCost: "",
-    groups: [],
+    graphAvg: [],
   });
   const dispatch = useDispatch();
   const [showInputLoading, setShowInputLoading] = useState({
@@ -374,30 +375,29 @@ const Bom = () => {
   };
 
   const prepareDataForSubmission = (bomData) => {
-    const transformedData = {
-      ...bomData,
-
-      groups: bomData.groups.map((group) => ({
-        itemgrp: group.id,
-        subgroups: group.subgroups.map((subgroup) => ({
-          itemsubgrp: subgroup.id,
-          items: subgroup.items.map((item) => ({
-            itemId: item.itemId,
-            usedIn: item.usedIn,
-            pair: item.pair,
-            supplierId: item.supplierId,
-            stockConsumedQty: item.stockConsumedQty,
-            bomQty: item.bomQty,
-            unit: item.unit,
-            requiredQty: item.requiredQty,
-            rate: item.rate,
-          })),
-        })),
+    console.log(itemGridData);
+  
+    const updatedBomData = {
+      ...bomData, // Spread the existing bomData to keep other properties intact
+      graphAvg: itemGridData.map((item) => ({
+        itemId: item.itemId.id,            // Extract only the id from itemId
+        usedIn: item.usedIn,
+        pair: item.pair,
+        supplierId: item.supplierId.id,    // Extract only the id from supplierId
+        stockConsumedQty: item.stockConsumedQty,
+        bomQty: item.bomQty,
+        unit: item.unit,
+        requiredQty: item.requiredQty,
+        rate: item.rate,
+        itemgrp: item.itemgrp.id,          // Extract only the id from itemgrp
+        itemsubgrp: item.itemsubgrp.id,    // Extract only the id from itemsubgrp
       })),
     };
-
-    return transformedData;
+  
+    return updatedBomData;
   };
+  
+  
 
   const handleUpdateBomClick = async (e) => {
     e.preventDefault();
@@ -407,6 +407,8 @@ const Bom = () => {
       return;
     }
     const dataToSubmit = await prepareDataForSubmission(bomData);
+    console.log('data',dataToSubmit);
+    
     const updatedForm = {
       ...dataToSubmit,
       bomId: tempBomDetails[0].bomId,
@@ -442,6 +444,7 @@ const Bom = () => {
       return;
     }
     const dataToSubmit = await prepareDataForSubmission(bomData);
+    console.log('data',dataToSubmit);
     const BASE_URL = "bom/create";
     try {
       const responseData = await postApiService(dataToSubmit, BASE_URL);
@@ -635,6 +638,8 @@ const Bom = () => {
               <div className={styles.materialTableContainer}>
                 <GraphAverage
                   bomData={bomData}
+                  itemGridData={itemGridData}
+                  setItemGridData={setItemGridData}
                   setBomData={setBomData}
                   editDetails={editDetails}
                   setEditDetails={setEditDetails}
@@ -714,7 +719,7 @@ const Bom = () => {
                     </button>
                     <button
                       className={styles.submitButton}
-                      disabled={bomData.groups && !bomData.groups.length > 0}
+                    //  disabled={bomData.groups && !bomData.groups.length > 0}
                       onClick={handleSubmitBomClick}
                     >
                       Submit

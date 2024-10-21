@@ -15,8 +15,8 @@ import Downshift from "downshift";
 import VerifiedIcon from "../assets/verified.svg";
 import SizeIcon from "../assets/sizeButton.svg";
 import WorkIcon from "../assets/workOrderButton.svg";
-import TextField from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
+
+
 import { generatePDF } from "../features/generateBuyerPDF";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";

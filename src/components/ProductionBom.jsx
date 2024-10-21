@@ -36,6 +36,7 @@ const ProductionBom = () => {
   const [editDetails, setEditDetails] = useState(null);
   const [tempProductionBomDetails, setTempProductionBomDetails] =
     useState(null);
+    const [itemGridData, setItemGridData] = useState([]);
   const [validation, setValidation] = useState(initialValidationState);
   const [activeButton, setActiveButton] = useState("details");
   const [isInventoryPopup, setIsInventoryPopup] = useState(false);
@@ -50,7 +51,7 @@ const ProductionBom = () => {
     color: "",
     extraQty: "",
     totalQty: "",
-    groups: [],
+    graphAvg: [],
     grading: [],
     comments: [],
     buyerDetails: [],
@@ -338,31 +339,27 @@ const ProductionBom = () => {
   };
 
   const prepareDataForSubmission = (productionBomData) => {
-    const transformedData = {
-      ...productionBomData,
-
-      groups: productionBomData.groups.map((group) => ({
-        itemgrp: group.id,
-        subgroups: group.subgroups.map((subgroup) => ({
-          itemsubgrp: subgroup.id,
-          items: subgroup.items.map((item) => ({
-            itemId: item.itemId,
-            usedIn: item.usedIn,
-            pair: item.pair,
-            supplierId: item.supplierId,
-            stockConsumedQty: item.stockConsumedQty,
-            productionBomQty: item.productionBomQty,
-            unit: item.unit,
-            requiredQty: item.requiredQty,
-            rate: item.rate,
-          })),
-        })),
+    console.log(itemGridData);
+  
+    const updatedBomData = {
+      ...productionBomData, // Spread the existing bomData to keep other properties intact
+      graphAvg: itemGridData.map((item) => ({
+        itemId: item.itemId.id,            // Extract only the id from itemId
+        usedIn: item.usedIn,
+        pair: item.pair,
+        supplierId: item.supplierId.id,    // Extract only the id from supplierId
+        stockConsumedQty: item.stockConsumedQty,
+        bomQty: item.bomQty,
+        unit: item.unit,
+        requiredQty: item.requiredQty,
+        rate: item.rate,
+        itemgrp: item.itemgrp.id,          // Extract only the id from itemgrp
+        itemsubgrp: item.itemsubgrp.id,    // Extract only the id from itemsubgrp
       })),
     };
-
-    return transformedData;
+  
+    return updatedBomData;
   };
-
   const handleUpdateProductionBomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -767,7 +764,7 @@ const ProductionBom = () => {
 
       {activeButton === "details" ? (
         <>
-          <div className={styles.topGrid}>
+          <div className={styles.topGridGraphh}>
             <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="articleName">
                 W. Order
@@ -782,7 +779,7 @@ const ProductionBom = () => {
                 type="text"
                 name="productionBomType"
                 className={styles.basicInput}
-                placeholder="BOM Type"
+                placeholder="FO No."
                 onChange={handleProductionBomChange}
                 value={productionBomData.productionBomType}
               />
@@ -987,6 +984,8 @@ const ProductionBom = () => {
                   productionBomData={productionBomData}
                   setProductionBomData={setProductionBomData}
                   editDetails={editDetails}
+                  itemGridData={itemGridData}
+                  setItemGridData={setItemGridData}
                   setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
                   onResetDone={() => setResetTrigger(false)}

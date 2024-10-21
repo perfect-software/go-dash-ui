@@ -971,6 +971,13 @@ select {
   @apply grid  sm:grid-cols-1 sml:grid-cols-2 grid-cols-9  mt-2;
   grid-gap: 10px 10px;
 }
+.ibutton {
+  @apply h-[30px] w-[30px] cursor-pointer sm:h-[24px] sm:w-[24px];
+  transition: transform 0.3s ease-out;
+}
+.ibutton:hover {
+  animation: shake 0.5s ease-in-out;
+}
 .orderCheckArticleGrid {
   @apply grid  sm:grid-cols-1 sml:grid-cols-3 grid-cols-6  mt-2;
   grid-gap: 10px 10px;
@@ -1756,4 +1763,12 @@ select {
   @apply rounded-md bg-slate-300;
   color: black;
   cursor: not-allowed;
+}
+.costHeader {
+  @apply bg-emerald-500 p-2 text-white rounded-md;
+  font-weight: bold;
+  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 }

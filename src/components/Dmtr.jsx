@@ -5,6 +5,7 @@ import Currencydata from "currency-codes/data";
 import Edit3dIcon from "../assets/edit3d.svg";
 import Delete3dIcon from "../assets/delete3d.svg";
 import UpIcon from "../assets/up.svg";
+import IButtonIcon from "../assets/iButton.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
@@ -15,8 +16,8 @@ import Downshift from "downshift";
 import VerifiedIcon from "../assets/verified.svg";
 import SizeIcon from "../assets/sizeButton.svg";
 import WorkIcon from "../assets/workOrderButton.svg";
-import TextField from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
+
+
 import { generatePDF } from "../features/generateBuyerPDF";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -26,6 +27,7 @@ import { useSelector, useDispatch } from "react-redux";
 import tableStyles from "../styles/bom.module.css";
 import CustomAgGrid from "../features/CustomAgGrid";
 import { v4 as uuidv4 } from "uuid";
+import InfoPopup from "../popups/InfoPopup";
 // const EditableCell = ({ value, onValueChange, isEditable = true }) => {
 //   const [editing, setEditing] = useState(false);
 //   const [inputValue, setInputValue] = useState(value);
@@ -787,7 +789,7 @@ const Dmtr = () => {
   const [tempBal, setTempBal] = useState("");
   const [autoFillSizeOrder, setAutoFillSizeOrder] = useState(false);
   const [selectedSizePoNo, setSelectedSizePoNo] = useState("");
-
+  const [isInfoPopup, setIsInfoPopup] = useState(false);
   const mColumnDefs = [
     { headerName: "MOrder No.", field: "mOrderNo" },
     { headerName: "Use Qty", field: "useQty", editable: true },
@@ -844,6 +846,16 @@ const Dmtr = () => {
       <div className={styles.pOSubContainer}>
         <div className={styles.titleContainer}>
           <h1>DMTR</h1>
+          <div>
+                  <img
+                    src={IButtonIcon}
+                    onClick={() => {
+                      setIsInfoPopup(true);
+                    }}
+                    className={styles.ibutton}
+                    alt="iButton"
+                  />
+                </div>
         </div>
         <div className={styles.topContainer}>
           <div className={styles.topGrid}>
@@ -940,6 +952,14 @@ const Dmtr = () => {
           />
         )}
       </div>
+      {isInfoPopup && (
+            <InfoPopup
+              onCancel={() => {
+                setIsInfoPopup(false);
+              }}
+              infoName={"DMTR"}
+            />
+          )}
     </div>
   );
 };

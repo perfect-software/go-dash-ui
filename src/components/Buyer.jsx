@@ -5,6 +5,7 @@ import Currencydata from "currency-codes/data";
 import EyeClosedIcon from "../assets/closeEye.svg";
 import EyeOpenIcon from "../assets/openEye.svg";
 import UpIcon from "../assets/up.svg";
+import IButtonIcon from "../assets/iButton.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { fetchAllBuyers } from "../reducer/buyersSlice";
@@ -13,6 +14,7 @@ import { postApiService } from "../service/apiService";
 import ViewBuyer from "./ViewBuyer";
 import Downshift from "downshift";
 import { generatePDF } from "../features/generateBuyerPDF";
+import InfoPopup from "../popups/InfoPopup";
 
 const Buyer = () => {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ const Buyer = () => {
     account: false,
     confirmAccount: false,
   });
+  const [isInfoPopup, setIsInfoPopup] = useState(false);
   const [activeButton, setActiveButton] = useState("details");
   const [confirmAccountNo, setConfirmAccountNo] = useState("");
   const [allCountries, setAllCountires] = useState([]);
@@ -636,6 +639,18 @@ useEffect(() => {
               ? "Buyer Directory Search"
               : "Buyer Directory"}
           </h1>
+          {activeButton === "details" && (
+                 <div>
+                 <img
+                   src={IButtonIcon}
+                   onClick={() => {
+                     setIsInfoPopup(true);
+                   }}
+                   className={styles.ibutton}
+                   alt="iButton"
+                 />
+               </div>
+              )} 
         </div>
 
         <div className={styles.subHeadContainerTwo}>
@@ -1183,6 +1198,14 @@ useEffect(() => {
                 </button>
               </div>
             </div>
+          )}
+          {isInfoPopup && (
+            <InfoPopup
+              onCancel={() => {
+                setIsInfoPopup(false);
+              }}
+              infoName={"Buyer"}
+            />
           )}
         </>
       ) : (

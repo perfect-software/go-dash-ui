@@ -1,29 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/newPo.module.css";
-import { Country, State, City } from "country-state-city";
-import Currencydata from "currency-codes/data";
-import Edit3dIcon from "../assets/edit3d.svg";
-import Delete3dIcon from "../assets/delete3d.svg";
-import UpIcon from "../assets/up.svg";
+
 import { useNavigate } from "react-router-dom";
-import { useSidebar } from "../context/SidebarContext";
-import { fetchAllBuyers } from "../reducer/buyersSlice";
-import AutoTable from "../features/AutoTable";
-import { postApiService } from "../service/apiService";
-import ViewBuyer from "./ViewBuyer";
-import Downshift from "downshift";
-import VerifiedIcon from "../assets/verified.svg";
-import SizeIcon from "../assets/sizeButton.svg";
-import WorkIcon from "../assets/workOrderButton.svg";
-import TextField from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
-import { generatePDF } from "../features/generateBuyerPDF";
-import { AgGridReact } from "ag-grid-react";
+
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import { fetchAllItemRates } from "../reducer/itemRateSlice";
-import { useSelector, useDispatch } from "react-redux";
-import tableStyles from "../styles/bom.module.css";
 import KarigarDataViewPopup from "../popups/KarigarDataViewPopup";
 import CustomAgGrid from "../features/CustomAgGrid";
 import { v4 as uuidv4 } from 'uuid';

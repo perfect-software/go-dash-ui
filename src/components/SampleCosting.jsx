@@ -27,6 +27,7 @@ const SampleCosting = () => {
   const [resetTrigger, setResetTrigger] = useState(false);
   const [filteredsrList, setfilteredSrList] = useState([]);
   const initialValidationState = {};
+  const [itemGridData, setItemGridData] = useState([]);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [isEditSelected, setIsEditSelected] = useState(false);
   const [isEditClicked, setIsEditClicked] = useState(false);
@@ -51,7 +52,7 @@ const SampleCosting = () => {
       gradingType: "",
       totalQty: "",
       extraQty: "",
-      groups: [],
+      graphAvg: [],
       overhead: [],
       comments:[],
       specifications:[],
@@ -298,30 +299,25 @@ const SampleCosting = () => {
   };
 
   const prepareDataForSubmission = (sampleCostingData) => {
-    if (!sampleCostingData || !sampleCostingData.groups) {
-      return {}; // or return any default value that makes sense in your context
-    }
+    console.log(itemGridData);
   
-    const transformedData = {
-      ...sampleCostingData,
-      groups: sampleCostingData.groups.map((group) => ({
-        itemgrp: group.id,
-        subgroups: group.subgroups.map((subgroup) => ({
-          itemsubgrp: subgroup.id,
-          items: subgroup.items.map((item) => ({
-            itemId: item.itemId,
-            usedIn: item.usedIn,
-            pair: item.pair,
-            qty: item.qty,
-            unit: item.unit,
-            requiredQty: item.requiredQty,
-            rate: item.rate,
-          })),
-        })),
+    const updatedSampleCostingDataa = {
+      ...sampleCostingData, // Spread the existing bomData to keep other properties intact
+      graphAvg: itemGridData.map((item) => ({
+        itemId: item.itemId.id,            // Extract only the id from itemId
+        usedIn: item.usedIn,
+        pair: item.pair,
+        stockConsumedQty: item.stockConsumedQty,
+        qty: item.qty,
+        unit: item.unit,
+        requiredQty: item.requiredQty,
+        rate: item.rate,
+        itemgrp: item.itemgrp.id,          // Extract only the id from itemgrp
+        itemsubgrp: item.itemsubgrp.id,    // Extract only the id from itemsubgrp
       })),
     };
   
-    return transformedData;
+    return updatedSampleCostingDataa;
   };
   
  
@@ -803,7 +799,7 @@ const SampleCosting = () => {
 
       {activeButton === "details" ? (
         <>
-          <div className={styles.topGrid}>
+          <div className={styles.topGridGraph}>
           <div className={styles.colSpan}>
                 <label className={styles.sampleLabel} htmlFor="season">
                   Season
@@ -835,29 +831,18 @@ const SampleCosting = () => {
                 type="number"
                 name="size"
                 className={styles.basicInput}
-                placeholder="BOM Type"
+                placeholder="Size"
                 onChange={handleSampleCostingChange}
                 value={sampleCostingData.size}
               />
             </div>
-            <div className={styles.colSpan}>
+            <div className={styles.colSpan2}>
                 <label className={styles.impsampleLabel} htmlFor="sampleType">
                   Type of Sample
                 </label>
                 {downshiftSampleType}
               </div>
-            <div className={styles.colSpan2}>
-                <label className={styles.impsampleLabel} htmlFor="buyer">
-                  Buyer Name
-                </label>
-                {downshiftBuyer}
-              </div>
-
-      
-
-           
-            
-            <div className={styles.colSpan}>
+              <div className={styles.colSpan}>
               <label className={styles.impsampleLabel} htmlFor="articleNo">
                 Article No
               </label>
@@ -875,7 +860,13 @@ const SampleCosting = () => {
                 value={sampleCostingData.articleNo}
               />
             </div>
-           
+            <div className={styles.colSpan2}>
+                <label className={styles.impsampleLabel} htmlFor="buyer">
+                  Buyer Name
+                </label>
+                {downshiftBuyer}
+              </div>
+
          
             <div className={styles.colSpan}>
               <label className={styles.sampleLabel} htmlFor="articleNo">
@@ -986,6 +977,8 @@ const SampleCosting = () => {
                   sampleCostingData={sampleCostingData}
                   setSampleCostingData={setSampleCostingData}
                   editDetails={editDetails}
+                  itemGridData={itemGridData}
+                  setItemGridData={setItemGridData}
                   setEditDetails={setEditDetails}
                   resetTrigger={resetTrigger}
                   onResetDone={() => setResetTrigger(false)}
@@ -1087,7 +1080,7 @@ const SampleCosting = () => {
                     </button>
                     <button
                       className={styles.submitButton}
-                      disabled={sampleCostingData.groups && !sampleCostingData.groups.length > 0}
+                    //  disabled={sampleCostingData.groups && !sampleCostingData.groups.length > 0}
                       onClick={handleSubmitSampleCostingClick}
                     >
                       Submit

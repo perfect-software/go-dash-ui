@@ -14,7 +14,9 @@
   .colSpan {
     @apply col-span-1 flex flex-row items-center gap-1;
   }
-  
+  .viewButton {
+    @apply flex items-center bg-[#000000] font-bold text-white h-5 justify-center p-2;
+  }
   .InfoPopupContainer {
     @apply bg-[#ffffff] max-h-full flex w-[80vw] smp:w-[80vw] sm:w-[80vw]  flex-col p-3 items-center rounded-[0.625rem] text-center overflow-auto;
   }

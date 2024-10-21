@@ -429,30 +429,24 @@ select {
   }
 }
 
-
-
-
-.agThemeQuartz ::-webkit-scrollbar {
+.ag-theme-quartz ::-webkit-scrollbar {
+  @apply cursor-pointer;
   display: block; /* or 'auto' */
-  height:3px;
-  width:3px;
+  height:6px;
+  width:4px;
 }
-.agThemeQuartz {
-  /* bright green, 10% opacity */
-  @apply text-left;
-  --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
-}
-
-.agThemeQuartz ::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Track color */
+.ag-theme-quartz ::-webkit-scrollbar-thumb {
+  cursor: pointer; /* Makes the scrollbar thumb (the draggable part) a pointer */
+  background-color: #96DED1; /* Blue color for the scrollbar thumb */
+  border-radius: 10px; /* Optional: Makes the thumb rounded */
 }
 
-.agThemeQuartz ::-webkit-scrollbar-thumb {
-  background: #888; /* Thumb color */
+.ag-theme-quartz ::-webkit-scrollbar-thumb:hover {
+  background-color: #00A5AD; /* Darker blue when hovered */
 }
 
-.agThemeQuartz ::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Thumb hover color */
+.ag-theme-quartz ::-webkit-scrollbar-track {
+  background-color: #E3F2FD; /* Lighter blue background for the track */
 }
 
 .tableBor::-webkit-scrollbar {

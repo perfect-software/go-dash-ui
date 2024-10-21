@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/inputDetails.module.css";
+import styles2 from "../../styles/newPo.module.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -10,15 +11,19 @@ import { getformatDate } from "../../features/convertDate";
 import { fetchItemGroupsAndSubGroups } from "../../reducer/grpSubgrpSlice";
 import { useSidebar } from "../../context/SidebarContext";
 import { getApiService } from "../../service/apiService";
+import { v4 as uuidv4 } from 'uuid';
 import { fetchAllItemRates } from "../../reducer/itemRateSlice";
 import ItemRatesPopup from "../../popups/ItemRatesPopup";
+import CustomAgGrid from "../../features/CustomAgGrid";
+import CostHeader from "../../features/CostHeader";
 
-const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
+const GraphAverage = ({ itemGridData, setItemGridData,bomData, setBomData ,editDetails, setEditDetails, resetTrigger, onResetDone }) => {
   const [itemNames, setItemNames] = useState([]);
   const { isCollapsed } = useSidebar();
   const [itemGroupNumber, setItemGroupNumber] = useState("");
   const initialValidationState = {};
   const [isRatePopup, setIsRatePopup] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
   const [validation, setValidation] = useState(initialValidationState);
   const [selectionStates, setSelectionStates] = useState({
     itemsubgrp: false,
@@ -51,108 +56,17 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
     rate: "",
     cost: "",
   });
-
+  const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     if (resetTrigger) {
       setBomData({
-        groups: []
+        graphAvg: []
     });
       onResetDone(); 
       setValidation(initialValidationState);
       resetNewItemState();
     }
   }, [resetTrigger, onResetDone]);
-
-  const handleUpdateMaterial = (editDetails) => {
-    setBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-  
-      editDetails.forEach((editItem) => {
-        let group = newData.groups.find((g) => g.id === editItem.itemGrp);
-        if (!group) {
-          const groupName = itemGroups[editItem.itemGrp];
-          console.log(groupName);
-          group = {
-            id: editItem.itemGrp,
-            name: groupName, 
-            subgroups: [],
-          };
-          newData.groups.push(group);
-        }
-  
-        let subgroup = group.subgroups.find((sg) => sg.id === editItem.itemSubGrp);
-        if (!subgroup) {
-          const subgroupName = itemSubGroups[editItem.itemSubGrp];
-          subgroup = {
-            id: editItem.itemSubGrp,
-            name: subgroupName.name,
-            items: [],
-          };
-          group.subgroups.push(subgroup);
-        }
-        const itemDetails = itemRates.find(item => item.itemId === editItem.item_id);
-        const tempItemName = itemDetails ? itemDetails.itemName : null;
-        let itemIndex = subgroup.items.findIndex(i => i.itemId === editItem.item_id);
-      if (itemIndex !== -1) {
-        subgroup.items[itemIndex] = {
-          ...subgroup.items[itemIndex],
-          itemName: editItem.itemName,
-          usedIn: editItem.usedIn,
-          pair: editItem.pair,
-          bomQty: editItem.bomQty,
-          supplierId: editItem.supplier_id,
-          unit: editItem.unit,
-          requiredQty: editItem.reqQty,
-          rate: editItem.rate,
-          cost: editItem.rate * editItem.reqQty,
-        }
-        } else {
-          subgroup.items.push({
-            itemId: editItem.item_id,
-            itemName: tempItemName || 'Unknown',
-            usedIn: editItem.usedIn,
-            pair: editItem.pair,
-            bomQty: editItem.bomQty,
-            supplierId: editItem.supplier_id,
-            supplierName: editItem.supplierName,
-            unit: editItem.unit,
-            requiredQty: editItem.reqQty,
-            rate: editItem.rate,
-            cost: editItem.rate * editItem.reqQty,
-          });
-        }
-      });
-      let totalCost = newData.groups.reduce(
-        (total, group) =>
-          total +
-          group.subgroups.reduce(
-            (subTotal, subgroup) =>
-              subTotal +
-              subgroup.items.reduce(
-                (itemTotal, item) => itemTotal + (parseFloat(item.cost) || 0),
-                0
-              ),
-            0
-          ),
-        0
-      );
-  
-      newData.totalCost = totalCost.toFixed(2);
-      return newData;
-    });
-  };
-  
-  
-  useEffect(() => {
-    if (editDetails) {
-      console.log('Updating with edit details:', editDetails);
-      handleUpdateMaterial(editDetails);
-      setEditDetails(null); 
-    }
-  }, [editDetails, setEditDetails, handleUpdateMaterial]);
-
-
-
 
   const validateForm = () => {
     let isValid = true;
@@ -379,71 +293,68 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
     if (!validateForm()) {
       return;
     }
-
-    setBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-      let group = newData.groups.find((g) => g.id === newItem.itemgrp.id);
-      if (!group) {
-        group = {
-          id: newItem.itemgrp.id,
-          name: newItem.itemgrp.name,
-          subgroups: [],
-        };
-        newData.groups.push(group);
-      }
-      let subgroup = group.subgroups.find(
-        (sg) => sg.id === newItem.itemsubgrp.id
+    if (isEditing) {
+      const updatedGridData = itemGridData.map(item =>
+        item.id === newItem.id ? { ...newItem } : item
       );
-      if (!subgroup) {
-        subgroup = {
-          id: newItem.itemsubgrp.id,
-          name: newItem.itemsubgrp.name,
-          items: [],
-        };
-        group.subgroups.push(subgroup);
-      }
-      const existingItemIndex = subgroup.items.findIndex(i => i.itemId === newItem.itemId.id);
-      if (existingItemIndex !== -1) {
-        console.warn("Item already exists with ID:", newItem.itemId.id);
-        return newData;
-      }
-
-      subgroup.items.push({
-        itemId: newItem.itemId.id,
-        itemName: newItem.itemId.name,
-        usedIn: newItem.usedIn,
-        pair: newItem.pair,
-        bomQty: newItem.bomQty,
-        supplierId: newItem.supplierId.id,
-        supplierName: newItem.supplierId.name,
-        unit: newItem.unit,
-        requiredQty: newItem.requiredQty,
-        rate: newItem.rate,
-        cost: newItem.cost,
-      });
-      let totalCost = newData.groups.reduce(
-        (total, group) =>
-          total +
-          group.subgroups.reduce(
-            (subTotal, subgroup) =>
-              subTotal +
-              subgroup.items.reduce(
-                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
-                0
-              ),
-            0
-          ),
-        0
-      );
-
-      newData.totalCost = totalCost.toFixed(2);
-
-      return newData;
+      setItemGridData(updatedGridData);
+      setIsEditing(false);
+      setEditIndex(null);
+    } else {
+      setItemGridData([...itemGridData, { id: uuidv4(), ...newItem }]);
+    }
+    setNewItem({
+      itemgrp: { name: "", id: "" },
+      itemsubgrp: { name: "", id: "" },
+      itemId: { name: "", id: "" },
+      usedIn: "",
+      pair: "",
+      supplierId: { name: "", id: "" },
+      bomQty: "",
+      unit: "",
+      requiredQty: "",
+      rate: "",
+      cost: "",
     });
-
-    resetNewItemState();
   };
 
+  const columnDefs = [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 150,
+      field: "select",
+      headerName: "Select",
+    },
+    { headerName: "Group", field: "itemgrp.name",},
+    { headerName: "Subgroup", field: "itemsubgrp.name" },
+    { headerName: "Item Name", field: "itemId.name",   width: 200,},
+    { headerName: "Used In", field: "usedIn" },
+    { headerName: "Pair", field: "pair" },
+    { headerName: "BOM Qty", field: "bomQty" },
+    { headerName: "Extra", field: "requiredQty" },
+    { headerName: "Rate", field: "rate" },
+    { headerName: "Unit", field: "unit" },
+    { headerName: "Supplier", field: "supplierId.name" },
+    {
+      headerName: 'Cost',
+      field: 'cost',
+      width: 170,
+      pinned: 'right',
+      valueFormatter: params => {
+        const cost = parseFloat(params.value) || 0;
+        return cost.toFixed(2);
+      },
+      cellRenderer: params => {
+        const cost = parseFloat(params.value) || 0;
+        return `${cost.toFixed(2)}`;
+      },
+      headerComponent: (params) => <CostHeader api={params.api} />,
+    },
+    
+    
+  ];
+  
   const resetNewItemState = () => {
     setNewItem({
       itemgrp: { name: "", id: "" },
@@ -456,47 +367,6 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
       unit: "",
       requiredQty: "",
       rate: "",
-    });
-  };
-
-  const handleRemoveItem = (groupId, subgroupId, itemId) => {
-    setBomData((prevData) => {
-      let newData = JSON.parse(JSON.stringify(prevData));
-      newData.groups = newData.groups
-        .map((group) => {
-          if (group.id === groupId) {
-            group.subgroups = group.subgroups
-              .map((subgroup) => {
-                if (subgroup.id === subgroupId) {
-                  subgroup.items = subgroup.items.filter(
-                    (item) => item.itemId !== itemId
-                  );
-                }
-                return subgroup;
-              })
-              .filter((subgroup) => subgroup.items.length > 0);
-          }
-          return group;
-        })
-        .filter((group) => group.subgroups.length > 0);
-      let totalCost = newData.groups.reduce(
-        (total, group) =>
-          total +
-          group.subgroups.reduce(
-            (subTotal, subgroup) =>
-              subTotal +
-              subgroup.items.reduce(
-                (itemTotal, item) => itemTotal + parseFloat(item.cost) || 0,
-                0
-              ),
-            0
-          ),
-        0
-      );
-
-      newData.totalCost = totalCost.toFixed(2);
-
-      return newData;
     });
   };
 
@@ -525,60 +395,23 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
     toggleInputLoaderVisibility(`${name}`, false);
     setValidation((prev) => ({ ...prev, [name]: "valid" }));
   };
-
-  const renderTableBody = () => {
-    let rows = [];
-    if (!bomData || !Array.isArray(bomData.groups) || bomData.groups.length === 0) {
-      return (
-        <tr>
-          <td colSpan="12" style={{ textAlign: "center" }}>No data available</td>
-        </tr>
-      );
-    }
-    bomData.groups.forEach((group) => {
-      let totalItemsInGroup = group.subgroups.reduce(
-        (sum, subgroup) => sum + subgroup.items.length,
-        0
-      );
-      group.subgroups.forEach((subgroup, subgroupIndex) => {
-        subgroup.items.forEach((item, itemIndex) => {
-          rows.push(
-            <tr key={`${group.id}-${subgroup.id}-${item.itemId}`}>
-              {subgroupIndex === 0 && itemIndex === 0 && (
-                <td rowSpan={totalItemsInGroup}>{group.name}</td>
-              )}
-              {itemIndex === 0 && (
-                <td rowSpan={subgroup.items.length}>{subgroup.name}</td>
-              )}
-              <td style={{maxWidth:'200px'}}>{item.itemName}</td>
-
-              <td>{item.usedIn}</td>
-
-              <td>{item.pair}</td>
-
-              <td>{item.bomQty}</td>
-              <td>{item.requiredQty}</td>
-              <td>{item.rate}</td>
-              <td>{item.unit}</td>
-              <td>{item.supplierName}</td>
-              <td style={{maxWidth:'100px'}}>{item.cost}</td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  onClick={() =>
-                    handleRemoveItem(group.id, subgroup.id, item.itemId)
-                  }
-                  className={tableStyles.minus}
-                ></button>
-              </td>
-            </tr>
-          );
-        });
-      });
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditIndex(null);
+    setNewItem({
+      itemgrp: { name: "", id: "" },
+      itemsubgrp: { name: "", id: "" },
+      itemId: { name: "", id: "" },
+      usedIn: "",
+      pair: "",
+      supplierId: { name: "", id: "" },
+      bomQty: "",
+      unit: "",
+      requiredQty: "",
+      rate: "",
+      cost: "",
     });
-
-    return rows;
   };
-
   const downshiftItemName = (
     <Downshift
       onChange={(selectedItem) => {
@@ -810,7 +643,7 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
   );
   return (
     <>
-      <div className={styles.topGrid}>
+      <div className={styles.topGridGraph}>
         <div className={styles.colSpan2}>
           <label className={styles.sampleLabel} htmlFor="itemId">
             Item Name
@@ -940,53 +773,44 @@ const GraphAverage = ({ bomData, setBomData ,editDetails, setEditDetails, resetT
             value={newItem.supplierId.name}
           />
         </div>
-        <div className={styles.colSpan2}>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleAddMaterial();
-            }}
-            className={tableStyles.addBtn2}
-            aria-label="Search"
+        <button
+            onClick={handleAddMaterial}
+            className={styles2.button50}
+            aria-label="Add"
+            style={{ width: '60px' }}
           >
-            {" "}
-            ADD{" "}
+            <span className={styles2.button50__Content}>
+              <span className={styles2.button50__Text}>{isEditing ? "Edit" : "Add"}</span>
+            </span>
           </button>
-        </div>
+          {isEditing && (
+            <button
+              onClick={handleCancelEdit}
+              className={styles2.button50}
+              aria-label="Cancel"
+              style={{ width: '200px' }}
+            >
+              <span className={styles2.button50__Content}>
+                <span className={styles2.button50__Text}>Cancel</span>
+              </span>
+            </button>
+          )}
       </div>
 
-      <div className={isCollapsed ? tableStyles.tableBor : tableStyles.tableBorOpen}>
-        <table className={tableStyles.customTable}>
-          <thead>
-            <tr>
-              <th>Group</th>
-              <th>Subgroup</th>
-              <th style={{maxWidth:'200px'}}>Item Name</th>
-              <th>Used In</th>
-              <th>Pair</th>
-              <th>BOM Qty</th>
-              <th>Extra</th>
-              <th>Rate</th>
-              <th>Unit</th>
-              <th>Supplier</th>
-              <th style={{maxWidth:'100px'}}>Cost</th>
-              <th style={{ textAlign: "center" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>{renderTableBody()}</tbody>
-          {!bomData || !Array.isArray(bomData.groups) || bomData.groups.length > 0 && (
-            <tfoot>
-              <tr>
-                <td colSpan="10"></td>
-                <td>
-                  <strong>Total: {bomData.totalCost}</strong>
-                </td>
-                <td></td>
-              </tr>
-            </tfoot>
-          )}
-        </table>
-      </div>
+      <div>
+        <CustomAgGrid
+                rowData={itemGridData}
+                setIsEditing={setIsEditing}
+                setRowData={setItemGridData}
+                columnDefs={columnDefs}
+                setFormData={setNewItem}
+                gridHeight="250px"
+                cellClicked={true}
+                editEnabled={true}
+                deleteEnabled={true}
+                pagination={false}
+              />
+        </div>
 
       {isRatePopup && (
         <ItemRatesPopup
